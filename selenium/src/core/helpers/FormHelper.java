@@ -325,6 +325,16 @@ public class FormHelper {
 	public void selectRadioButton(EnhancedBy button) {
 		Helper.click.clickAndExpect(button, button);
 	}
+	
+	/**
+	 * select toggle button, on or off
+	 */
+	public void selectToggle(EnhancedBy on, EnhancedBy off, boolean isOn) {
+		if(isOn) 
+			Helper.clickAndWait(on, 0);
+		else
+			Helper.clickAndWait(off, 0);
+	}
 
 	/**
 	 * selects multiple checkbox options

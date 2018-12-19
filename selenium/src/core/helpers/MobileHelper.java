@@ -54,9 +54,12 @@ public class MobileHelper {
 	 * 
 	 */
 	public void hideKeyboard() {
-		if (isMobile()) {
+		if (isIOS()) {
 			try {
-				getAppiumDriver().hideKeyboard();
+				removeIosKeyboard();
+				EnhancedBy KEYBOARD_IOS = Element.byClass("XCUIElementTypeKeyboard","Keyboard");
+				if(Element.findElements(KEYBOARD_IOS).isExist())
+					getAppiumDriver().hideKeyboard();
 			} catch (Exception e) {
 				e.getMessage();
 			}
@@ -650,4 +653,13 @@ public class MobileHelper {
 
 	    }
 	}
+	
+	public void removeIosKeyboard() {
+		if(isIOS()) {
+			int pressX = AbstractDriver.getWebDriver().manage().window().getSize().width / 2;
+			int bottomY = AbstractDriver.getWebDriver().manage().window().getSize().height * 3 / 6;
+			int topY = AbstractDriver.getWebDriver().manage().window().getSize().height / 6;
+			scroll(pressX, bottomY, pressX, topY);
+		}
+}
 }
