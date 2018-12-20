@@ -60,7 +60,6 @@ public class MobileHelper {
 	public void hideKeyboard() {
 		if (isIOS()) {
 			try {
-				System.out.println("2");
 				removeIosKeyboard();
 			} catch (Exception e) {
 				e.getMessage();
@@ -671,16 +670,19 @@ public class MobileHelper {
             EnhancedBy KEYBOARD_IOS = Element.byClass("XCUIElementTypeKeyboard","Keyboard");
             if(!Element.findElements(KEYBOARD_IOS).isExist()) return;
 			
+            /* TODO: Strategy1 is too slow. isExist takes too long
             //Strategy1: if keys: "Hide keyboard", "DONE", "Done", "Return", "Next" displayed, click them
             List<String> keys = Arrays.asList("Hide keyboard","Hide", "DONE", "Done", "Return", "Next");
             for(String key : keys) {
-                EnhancedBy ios_keys = Element.byClass(key,"Keyboard");
+                EnhancedBy ios_keys = Element.byAccessibility(key,"Keyboard");
                 if(Element.findElements(ios_keys).isExist()) {
                 	Helper.clickAndWait(ios_keys, 0);
+                	break;
                 }
             }
             if(!Element.findElements(KEYBOARD_IOS).isExist()) return;
-                   
+             */  
+            
             // Strategy2: tap outside the keyboard. just above the keyboard, left side
 			EnhancedWebElement targetElement = Element.findElements(KEYBOARD_IOS);
             Point p = targetElement.get(0).getLocation();
