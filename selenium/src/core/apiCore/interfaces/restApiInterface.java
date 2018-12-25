@@ -9,8 +9,10 @@ import core.support.configReader.Config;
 import core.support.logger.TestLog;
 import core.support.objects.ApiObject;
 import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
+import io.restassured.config.EncoderConfig;
 
 public class restApiInterface {
 
@@ -30,6 +32,9 @@ public class restApiInterface {
 	 * @return
 	 */
 	public static Response RestfullApiInterface(ApiObject apiObject) {
+		
+		if(apiObject == null) Helper.assertFalse("apiobject is null");
+		
 		// replace parameters for request body
 		apiObject.RequestBody = dataHelper.replaceParameters(apiObject.RequestBody);
 
@@ -52,7 +57,7 @@ public class restApiInterface {
 
 		// replace place holder values for uri
 		apiObject.UriPath = dataHelper.replaceParameters(apiObject.UriPath);
-
+		apiObject.UriPath = Helper.stringRemoveLines(apiObject.UriPath);
 		// if uri is full path, then set base uri as whats provided in csv file
 		// else use baseURI from properties as base uri and extend it with csv file uri
 		// path
@@ -61,8 +66,7 @@ public class restApiInterface {
 			apiObject.UriPath = "";
 
 		} else {
-			RestAssured.baseURI = Config.getValue("UriPath");
-			TestLog.logPass("baseURI: " + RestAssured.baseURI);
+			RestAssured.baseURI = Helper.stringRemoveLines(Config.getValue("UriPath"));
 			TestLog.logPass("request URI: " + RestAssured.baseURI + apiObject.UriPath);
 		}
 	}
@@ -116,7 +120,7 @@ public class restApiInterface {
 
 		// if no RequestHeaders specified
 		if (apiObject.RequestHeaders.isEmpty()) {
-			return given().contentType(apiObject.ContentType).body(apiObject.RequestBody);
+			return given();
 		}
 
 		// replace parameters for request body
@@ -130,13 +134,42 @@ public class restApiInterface {
 
 		// if additional request headers
 		switch (apiObject.RequestHeaders) {
+		case "INVALID_TOKEN":
+			request = given().header("Authorization", "invalid");
+			break;
+		case "NO_TOKEN":
+			request = given().header("Authorization", "");
+			break;
 		default:
 			break;
 		}
-		request = request.contentType(apiObject.ContentType).body(apiObject.RequestBody);
 
 		return request;
 	}
+	
+	public static RequestSpecification evaluateRequestBody(ApiObject apiObject, RequestSpecification request) {
+		if(apiObject.RequestBody.isEmpty()) return request;
+		
+		// set content type
+		request = request.contentType(apiObject.ContentType);
+		
+		// set form data
+		if(apiObject.ContentType.contains("form")) {
+			request = request.config(RestAssured.config().encoderConfig(io.restassured.config.EncoderConfig.encoderConfig().encodeContentTypeAs("multipart/form-data", ContentType.TEXT)));
+			
+			String[] formData = apiObject.RequestBody.split(",");
+			for(String data : formData) {
+				String[] keyValue = data.split(":");
+				request = request.formParam(keyValue[0], keyValue[1]);
+			}
+			return request;
+		}
+		
+		// if json data type
+		return request.body(apiObject.RequestBody);
+	}
+	
+	
 
 	/**
 	 * sets the header, content type and body based on specifications
@@ -156,30 +189,28 @@ public class restApiInterface {
 
 		// if additional options
 		switch (apiObject.Option) {
-		case "INVALID_TOKEN":
-			request = request.header("Authorization", "invalid");
-			break;
-		case "NO_TOKEN":
-			request = request.header("Authorization", "");
-			break;
 		default:
 			break;
 		}
-		request = request.contentType(apiObject.ContentType).body(apiObject.RequestBody);
 
 		return request;
 	}
 
 	public static Response evaluateRequest(ApiObject apiObject) {
 		Response response = null;
-		// set request
-
+		
+		// set request header
 		RequestSpecification request = evaluateRequestHeaders(apiObject);
+		
+		// set request body
+		request = evaluateRequestBody(apiObject, request);
 
+		// set options
 	    request = evaluateOption(apiObject, request);
 
 		TestLog.logPass("request body: " + Helper.stringRemoveLines(apiObject.RequestBody));
 		TestLog.logPass("request type: " + apiObject.Method);
+
 
 		switch (apiObject.Method) {
 		case "POST":
@@ -209,6 +240,6 @@ public class restApiInterface {
 		}
 		TestLog.logPass("response: " + response.getBody().asString());
 
-		return response.then().contentType(apiObject.ContentType).extract().response();
+		return response.then().extract().response();
 	}
 }

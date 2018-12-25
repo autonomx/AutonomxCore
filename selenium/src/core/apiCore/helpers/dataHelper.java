@@ -67,7 +67,7 @@ public class dataHelper {
 		// get hashmap of json path and verification
 		List<KeyValue> keywords = new ArrayList<KeyValue>();
 		expected = expected.replace("_VERIFY_JSON_PART_", "");
-		String[] keyVals = expected.split(",");
+		String[] keyVals = expected.split(";");
 		for (String keyVal : keyVals) {
 			String[] parts = keyVal.split(":", 2);
 			String key = Helper.stringRemoveLines(parts[0]);

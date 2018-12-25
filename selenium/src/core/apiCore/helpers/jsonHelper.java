@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.hamcrest.Matchers;
@@ -61,16 +62,57 @@ public class jsonHelper {
 	 */
 	public static String getJsonValue(Response response, String path) {
 		String value = "";
+		List<String> values = getJsonListValueResponse(response, path);
+		
+		if(values.isEmpty()) {
+			 value = getJsonStringResponse(response, path);
+		}
+			
+		if (values != null && !values.isEmpty())
+			value = listToString(values);
+		return value;
+	}
+	
+	public static String listToString(List<String> values) {
+		String result = "";
+		for(Object val : values) {
+			String value = val.toString();
+			result = result + value;
+			if(values.size()>1) result+=",";
+		}
+		return result;		
+	}
+	
+	private static List<String> getJsonListValueResponse(Response response, String path){
 		List<String> values = new ArrayList<String>();
 		try {
 			values = response.jsonPath().getList(path);
 		} catch (Exception e) {
+			e.getMessage();
+		}	
+		return values;
+	}
+	
+	private static String getJsonStringResponse(Response response, String path) {
+		String value = "";
+		
+		if(response.path(path) instanceof String) {
 			value = response.path(path);
 		}
-		if (values != null && !values.isEmpty())
-			value = String.join(",", values);
+		
+		if(response.path(path) instanceof Integer) {
+			value = Integer.toString(response.path(path));
+		
+		}
+		
+		if(response.path(path) instanceof Boolean) {		 	
+			value = Boolean.toString(response.path(path));
+		}
+		if(value == null) value = "";
 		return value;
 	}
+	
+	
 
 	/**
 	 * validates the json maps agains the keyword requirements using hamcrest
@@ -87,47 +129,51 @@ public class jsonHelper {
 	public static void validateJsonKeywords(List<KeyValue> keywords, Response response) {
 		for (KeyValue keyword : keywords) {
 			String jsonPath = Helper.stringNormalize(keyword.key);
-			String value = Helper.stringNormalize(keyword.value);
+			String expectedValue = Helper.stringNormalize(keyword.value);
 			String command = "";
 
-			String[] expected = value.split("[\\(\\)]");
+			String[] expected = expectedValue.split("[\\(\\)]");
 			// get value inbetween parenthesis
 			if (expected.length > 1) {
 				command = expected[0];
-				value = expected[1];
+				expectedValue = expected[1];
 			} else if (expected.length == 1) {
-				command = value;
-				value = "";
+				command = expectedValue;
+				expectedValue = "";
 			}
 
 			Object responseVal = response.path(jsonPath);
+			String actualValue = getJsonValue(response, jsonPath);
 
 			switch (command) {
 			case "hasItems":
-				String[] values = value.split(",");
-				response.then().body(jsonPath, hasItems(values));
+				String[] values = expectedValue.split(",");
+				Arrays.stream(values).parallel().allMatch(actualValue::contains);
+				//response.then().body(jsonPath, hasItems(values));
 				break;
 			case "equalTo":
-				response.then().body(jsonPath, equalTo(value));
+				response.then().body(jsonPath, equalTo(expectedValue));
 				break;
 			case "contains":
-				values = value.split(",");
-				response.then().body(jsonPath, contains(values));
+				values = expectedValue.split(",");
+				Arrays.stream(values).parallel().allMatch(actualValue::contains);
+
+		//		response.then().body(jsonPath, contains(values));
 				break;
 			case "containsInAnyOrder":
-				values = value.split(",");
+				values = expectedValue.split(",");
 				response.then().body(jsonPath, containsInAnyOrder(values));
 				break;
 			case "nodeSizeGreaterThan":
-				int intValue = Integer.valueOf(value);
+				int intValue = Integer.valueOf(expectedValue);
 				response.then().body(jsonPath, hasSize(greaterThan(intValue)));
 				break;
 			case "nodeSizeExact":
-				intValue = Integer.valueOf(value);
+				intValue = Integer.valueOf(expectedValue);
 				response.then().body(jsonPath, hasSize(equalTo(intValue)));
 				break;
 			case "sequence":
-				values = value.split(",");
+				values = expectedValue.split(",");
 				response.then().body(jsonPath, contains(values));
 				break;
 			case "isNotEmpty":

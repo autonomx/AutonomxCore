@@ -669,10 +669,27 @@ public class MobileHelper {
 			//if no keyboard displayed, return
             EnhancedBy KEYBOARD_IOS = Element.byClass("XCUIElementTypeKeyboard","Keyboard");
             if(!Element.findElements(KEYBOARD_IOS).isExist()) return;
+              
+            
+            // Strategy1: tap outside the keyboard. just above the keyboard, left side
+			EnhancedWebElement targetElement = Element.findElements(KEYBOARD_IOS);
+            Point p = targetElement.get(0).getLocation();
+            int xPosition = 1;
+			int bottomY = p.getY();
+			int topY = p.getY() - 10;
 			
-            /* TODO: Strategy1 is too slow. isExist takes too long
+			// Strategy1: implementation
+			TouchAction touchAction = new TouchAction((AppiumDriver) AbstractDriver.getWebDriver());
+			touchAction.tap(PointOption.point(xPosition, topY)).perform();
+            if(!Element.findElements(KEYBOARD_IOS).isExist()) return;
+
+            // Strategy2:scroll above keyboard 
+			scroll(xPosition, bottomY, xPosition, topY);
+            if(!Element.findElements(KEYBOARD_IOS).isExist()) return;
+            
+            // TODO: Strategy3 is too slow. isExist takes too long
             //Strategy1: if keys: "Hide keyboard", "DONE", "Done", "Return", "Next" displayed, click them
-            List<String> keys = Arrays.asList("Hide keyboard","Hide", "DONE", "Done", "Return", "Next");
+            List<String> keys = Arrays.asList("Next", "Done", "DONE", "Hide keyboard","Hide", "Return");
             for(String key : keys) {
                 EnhancedBy ios_keys = Element.byAccessibility(key,"Keyboard");
                 if(Element.findElements(ios_keys).isExist()) {
@@ -680,23 +697,6 @@ public class MobileHelper {
                 	break;
                 }
             }
-            if(!Element.findElements(KEYBOARD_IOS).isExist()) return;
-             */  
-            
-            // Strategy2: tap outside the keyboard. just above the keyboard, left side
-			EnhancedWebElement targetElement = Element.findElements(KEYBOARD_IOS);
-            Point p = targetElement.get(0).getLocation();
-            int xPosition = 1;
-			int bottomY = p.getY();
-			int topY = p.getY() - 10;
-			
-			// Strategy2: implementation
-			TouchAction touchAction = new TouchAction((AppiumDriver) AbstractDriver.getWebDriver());
-			touchAction.tap(PointOption.point(xPosition, topY)).perform();
-            if(!Element.findElements(KEYBOARD_IOS).isExist()) return;
-
-            // Strategy3:scroll above keyboard 
-			scroll(xPosition, bottomY, xPosition, topY);
             if(!Element.findElements(KEYBOARD_IOS).isExist()) return;
 
            // Strategy4: if keyboard still exists, use appium.hideKeyboard()
