@@ -37,17 +37,17 @@ public class AppiumServer {
 		Map<String, String> env = new HashMap<>(System.getenv());
 		// Note: android home and java home may need to be set on osx environment
 
-		String androidHome = Config.getValue(ANDROID_HOME);
-		String javaHome = Config.getValue(JAVA_HOME);
-
-		if (androidHome != null)
+		// set android home
+		if (!Config.getValue(ANDROID_HOME).isEmpty())
 			env.put("ANDROID_HOME", Config.getValue(ANDROID_HOME));
-		if (javaHome != null)
+		
+		// set java home
+		if (!Config.getValue(JAVA_HOME).isEmpty())
 			env.put("JAVA_HOME", Config.getValue(JAVA_HOME));
 
-		String path = CrossPlatformProperties.getPath();
-		if (!path.isEmpty())
-			env.put("PATH", path);
+		// set path
+		if (!CrossPlatformProperties.getPath().isEmpty())
+			env.put("PATH", CrossPlatformProperties.getPath());
 
 		AppiumServiceBuilder builder = new AppiumServiceBuilder().usingAnyFreePort().withEnvironment(env)
 				.withIPAddress("127.0.0.1")
