@@ -45,6 +45,10 @@ public class ExtentManager {
 	public static String getScreenshotsFolderFullPath() {
 		return getReportRootFullPath() + "screenshots/";
 	}
+	
+	public static String getScreenshotsFolderRelativePath() {
+		return "screenshots/";
+	}
 
 	public static String getReportHTMLFullPath() {
 		return getReportRootFullPath() + getReportName() + ".html";

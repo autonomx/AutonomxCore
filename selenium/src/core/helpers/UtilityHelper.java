@@ -383,6 +383,9 @@ public class UtilityHelper {
 		String format1 = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss", Locale.ENGLISH).format(now);
 		String extentReportImageFullPath = ExtentManager.getScreenshotsFolderFullPath()
 				+ TestObject.getTestInfo().testName + "-" + format1 + ".png";
+		
+		String extentReportImageRelativePath = ExtentManager.getScreenshotsFolderRelativePath()
+				+ TestObject.getTestInfo().testName + "-" + format1 + ".png";
 
 		try {
 			File scrFile = ((TakesScreenshot) AbstractDriverTestNG.getWebDriver()).getScreenshotAs(OutputType.FILE);
@@ -390,7 +393,7 @@ public class UtilityHelper {
 			FileUtils.copyFile(scrFile, new File(extentReportImageFullPath));
 
 			AbstractDriver.getStep().get().log(Status.INFO, "Screenshot ",
-					MediaEntityBuilder.createScreenCaptureFromPath(extentReportImageFullPath).build());
+					MediaEntityBuilder.createScreenCaptureFromPath(extentReportImageRelativePath).build());
 
 		} catch (Exception e) {
 			// TestLog.ConsoleLog("Error in the captureAndDisplayScreenShot
