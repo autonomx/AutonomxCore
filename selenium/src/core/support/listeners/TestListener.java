@@ -189,7 +189,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 	}
 
 	public String generateTestMessage(ITestContext iTestContext) {
-		int testCount = iTestContext.getAllTestMethods().length;
+		int testCount = iTestContext.getPassedTests().size() + iTestContext.getFailedTests().size();
 		String message = iTestContext.getPassedTests().size() + " of " + testCount + " tests passed.";
 		if (iTestContext.getFailedTests().size() > 0) {
 			ArrayList<String> failedMessage = getAllResults(iTestContext.getFailedTests().getAllResults());
