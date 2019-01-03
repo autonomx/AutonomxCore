@@ -2051,7 +2051,7 @@ public class Helper {
 	 */
 	public static void runApiContaining(String identifier, String prefix, String getApi, String targetApiId,
 			String variable, String targerApi) throws JSONException {
-		restApiHelper.runApiContaining(identifier, prefix, getApi, targetApiId, variable, targerApi);
+		RestApiHelper.runApiContaining(identifier, prefix, getApi, targetApiId, variable, targerApi);
 	}
 
 	/**
@@ -2075,7 +2075,7 @@ public class Helper {
 	 */
 	public static void runApiEquals(String identifier, String value, String getApi, String targetApiId, String variable,
 			String targerApi) throws JSONException {
-		restApiHelper.runApiEquals(identifier, value, getApi, targetApiId, variable, targerApi);
+		RestApiHelper.runApiEquals(identifier, value, getApi, targetApiId, variable, targerApi);
 	}
 
 }

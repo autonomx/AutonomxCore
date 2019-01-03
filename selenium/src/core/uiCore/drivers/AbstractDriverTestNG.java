@@ -55,7 +55,7 @@ public class AbstractDriverTestNG {
 		reportSetup();
 	}
 
-	public synchronized WebDriver setupWebDriver(DriverObject driverObject) throws Exception {
+	public synchronized static WebDriver setupWebDriver(DriverObject driverObject) throws Exception {
 		initTest(driverObject);
 		reportSetup();
 
@@ -123,7 +123,7 @@ public class AbstractDriverTestNG {
 	 * 
 	 * @param driverObject
 	 */
-	public void initTest(DriverObject driverObject) {
+	public static void initTest(DriverObject driverObject) {
 
 		String testId = TestObject.getTestId();
 
@@ -262,7 +262,7 @@ public class AbstractDriverTestNG {
 		return driver;
 	}
 
-	public void getURL(String url) {
+	public static void getURL(String url) {
 		if (!url.isEmpty()) {
 			TestLog.logPass("I am the site '" + url + "'");
 			getWebDriver().get(url);

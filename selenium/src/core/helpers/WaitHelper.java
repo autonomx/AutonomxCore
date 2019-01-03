@@ -57,7 +57,6 @@ public class WaitHelper {
 	 * @return
 	 */
 	public boolean waitForElementToLoad(final EnhancedBy target, int time, int count) {
-
 		FluentWait<WebDriver> wait = new FluentWait<>(AbstractDriver.getWebDriver()).withTimeout(Duration.ofSeconds(time))
 				.pollingEvery(Duration.ofMillis(5)).ignoring(NoSuchElementException.class);
 

@@ -15,17 +15,17 @@ import core.support.configReader.Config;
 import core.uiCore.driverProperties.browserType.BrowserType;
 import core.uiCore.driverProperties.driverType.DriverType;
 
-public class webCapability {
+public class WebCapability {
 
 	public DesiredCapabilities capabilities;
 
 	DriverType driverType;
 
-	public webCapability() {
+	public WebCapability() {
 		capabilities = new DesiredCapabilities();
 	}
 
-	public webCapability withCapability(DesiredCapabilities Capabilities) {
+	public WebCapability withCapability(DesiredCapabilities Capabilities) {
 		this.capabilities = Capabilities;
 		return this;
 	}
@@ -36,7 +36,7 @@ public class webCapability {
 	 * @return
 	 * @throws IOException
 	 */
-	public webCapability withBrowserCapability() {
+	public WebCapability withBrowserCapability() {
 
 		System.setProperty("webdriver.chrome.args", "--disable-logging");
 		System.setProperty("webdriver.chrome.silentOutput", "true");
@@ -62,7 +62,7 @@ public class webCapability {
 		return capabilities;
 	}
 
-	public webCapability setChromeBrowserLanguage(String lang) {
+	public WebCapability setChromeBrowserLanguage(String lang) {
 		ChromeOptions options = new ChromeOptions();
 		options.addArguments("--lang=" + lang);
 		capabilities.setCapability(ChromeOptions.CAPABILITY, options);

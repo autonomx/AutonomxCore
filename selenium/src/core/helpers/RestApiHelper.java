@@ -10,7 +10,7 @@ import core.support.objects.ApiObject;
 import core.support.objects.TestObject;
 import io.restassured.response.Response;
 
-public class restApiHelper {
+public class RestApiHelper {
 
 	/**
 	 * runApiContaining("name", "zzz_","getCompanies",
