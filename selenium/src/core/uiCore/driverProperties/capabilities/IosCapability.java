@@ -12,7 +12,8 @@ import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.configReader.PropertiesReader;
 import core.support.logger.TestLog;
-import core.support.objects.DeviceObject;
+import core.support.objects.DeviceManager;
+import core.support.objects.DeviceObject.DeviceType;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import core.uiCore.drivers.AbstractDriver;
 import io.appium.java_client.remote.AutomationName;
@@ -206,8 +207,8 @@ public class IosCapability {
 					"there are more threads than devices. thread count: " + threads + " devices: " + devices.size());
 
 		// adds all devices
-		DeviceObject.loadDevices(devices);
-		capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, DeviceObject.getFirstAvailableDevice());
+		DeviceManager.loadDevices(devices, DeviceType.iOS);
+		capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, DeviceManager.getFirstAvailableDevice(DeviceType.iOS));
 	}
 
 	/**
@@ -223,8 +224,8 @@ public class IosCapability {
 					"there are more threads than devices. thread count: " + threads + " devices: " + devices.size());
 
 		// adds all devices
-		DeviceObject.loadDevices(devices);
-		capabilities.setCapability("udid", DeviceObject.getFirstAvailableDevice());
+		DeviceManager.loadDevices(devices, DeviceType.iOS);
+		capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, DeviceManager.getFirstAvailableDevice(DeviceType.iOS));
 	}
 
 	/**

@@ -12,7 +12,8 @@ import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.configReader.PropertiesReader;
 import core.support.logger.TestLog;
-import core.support.objects.DeviceObject;
+import core.support.objects.DeviceManager;
+import core.support.objects.DeviceObject.DeviceType;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import core.uiCore.drivers.AbstractDriver;
 import io.appium.java_client.remote.AndroidMobileCapabilityType;
@@ -239,8 +240,13 @@ public class AndroidCapability {
 					"there are more threads than devices. thread count: " + threads + " devices: " + devices.size());
 
 		// adds all devices
-		DeviceObject.loadDevices(devices);
-		capabilities.setCapability("avd", DeviceObject.getFirstAvailableDevice());
+		DeviceManager.loadDevices(devices, DeviceType.Android);
+		capabilities.setCapability("avd", DeviceManager.getFirstAvailableDevice(DeviceType.Android));
+	}
+	
+	public static void restartAdb() {
+	    Helper.runShellCommand("adb kill-server");
+	    Helper.runShellCommand("adb start-server");
 	}
 
 	/**
@@ -255,8 +261,8 @@ public class AndroidCapability {
 					"there are more threads than devices. thread count: " + threads + " devices: " + devices.size());
 
 		// adds all devices
-		DeviceObject.loadDevices(devices);
-		capabilities.setCapability("udid", DeviceObject.getFirstAvailableDevice());
+		DeviceManager.loadDevices(devices, DeviceType.Android);
+		capabilities.setCapability("avd", DeviceManager.getFirstAvailableDevice(DeviceType.Android));
 	}
 
 	/**

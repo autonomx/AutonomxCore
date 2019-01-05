@@ -20,7 +20,7 @@ import com.google.common.base.Joiner;
 import core.helpers.Helper;
 import core.support.logger.ExtentManager;
 import core.support.logger.TestLog;
-import core.support.objects.DeviceObject;
+import core.support.objects.DeviceManager;
 import core.support.objects.DriverObject;
 import core.support.objects.TestObject;
 import core.uiCore.driverProperties.driverType.DriverType;
@@ -147,7 +147,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		TestObject.getTestInfo().isFirstRun = true;
 
 		// mobile device is now available again
-		DeviceObject.setDeviceAvailability(true);
+		DeviceManager.setDeviceAvailability(true);
 
 		// quits web driver no matter the situation, as new browser will be launched
 		DriverObject.quitTestDrivers();
@@ -165,7 +165,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		iTestResult.setStatus(ITestResult.SKIP);
 
 		// mobile device is now available again
-		DeviceObject.setDeviceAvailability(true);
+		DeviceManager.setDeviceAvailability(true);
 
 		DriverObject.quitTestDrivers();
 		// Extentreports log operation for skipped tests.
