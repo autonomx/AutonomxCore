@@ -33,7 +33,7 @@ public class AppiumServer {
 			throws MalformedURLException {
 
 		AppiumDriverLocalService service;
-
+		
 		Map<String, String> env = new HashMap<>(System.getenv());
 		// Note: android home and java home may need to be set on osx environment
 
@@ -60,6 +60,8 @@ public class AppiumServer {
 			builder.withArgument(GeneralServerFlag.LOG_LEVEL, "error");
 
 		service = AppiumDriverLocalService.buildService(builder);
+		
+
 		service.start();
 
 		if (service == null || !service.isRunning()) {
@@ -70,6 +72,7 @@ public class AppiumServer {
 		disableAppiumConsoleLogging(service);
 
 		TestLog.And("Appium server has been initiated successfully");
+
 		return service;
 	}
 

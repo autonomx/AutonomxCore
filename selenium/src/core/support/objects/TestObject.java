@@ -46,6 +46,8 @@ public class TestObject {
 	public String testId;
 	public String testName;
 	public String className;
+	public String deviceName; // device name for mobile devices
+
 	public String testFileClassName; // same as class name except for api tests
 	public Boolean isTestMethod = false; // distinguish between before,after class and test method
 

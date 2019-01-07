@@ -512,6 +512,18 @@ public class MobileHelper {
 			int scrollCount = 5;
 			while (!Helper.isPresent(target) && scrollCount > 0) {
 				scrollDown();
+				Helper.wait.waitForElementToLoad(target, 3);
+				scrollCount--;
+			}
+		}
+	}
+	
+	public void mobile_scrollToElementWithRefresh(EnhancedBy target) {
+
+		if (isMobile()) {
+			int scrollCount = 5;
+			while (!Helper.isPresent(target) && scrollCount > 0) {
+				scrollDown();
 				tapAtCenterLeft();
 				refreshMobileApp();
 				Helper.wait.waitForElementToLoad(target, 3);

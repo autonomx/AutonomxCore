@@ -9,6 +9,7 @@ public class DeviceObject {
 	public String deviceName;
 	public Boolean isAvailable;
 	public DeviceType deviceType;
+	public int devicePort = -1;
 	
 	public enum DeviceType {
 	    iOS, Android, Win
@@ -26,6 +27,11 @@ public class DeviceObject {
 	
 	public DeviceObject withDeviceType(DeviceType type) {
 		this.deviceType = type;
+		return this;
+	}
+	
+	public DeviceObject withDevicePort(int devicePort) {
+		this.devicePort = devicePort;
 		return this;
 	}
 	

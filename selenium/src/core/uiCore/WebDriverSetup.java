@@ -65,6 +65,7 @@ public class WebDriverSetup {
 			driver = new IOSDriver(service.getUrl(), driverObject.capabilities);
 			break;
 		case ANDROID_DRIVER:
+			
 			if (PropertiesReader.isUsingCloud()) {
 				EnhancedAndroidDriver<MobileElement> appcenterDriver = Factory
 						.createAndroidDriver(new URL("http://localhost:8001/wd/hub"), driverObject.capabilities);

@@ -128,6 +128,10 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 				DriverObject.setDriverAvailabiltity(AbstractDriverTestNG.getWebDriver(), true);
 			}
 		}
+		
+		// mobile device is now available again
+		DeviceManager.setDeviceAvailability(true);
+		
 		// reset test object
 		TestObject.getTestInfo().resetTestObject();
 	}

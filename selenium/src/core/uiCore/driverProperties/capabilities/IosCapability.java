@@ -14,6 +14,7 @@ import core.support.configReader.PropertiesReader;
 import core.support.logger.TestLog;
 import core.support.objects.DeviceManager;
 import core.support.objects.DeviceObject.DeviceType;
+import core.support.objects.TestObject;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import core.uiCore.drivers.AbstractDriver;
 import io.appium.java_client.remote.AutomationName;
@@ -117,9 +118,6 @@ public class IosCapability {
 		//	capabilities.setCapability("locationServicesAuthorized", true);
 	
 		capabilities.setCapability("useNewWDA", Config.getValue(USE_NEW_WDA));
-	
-		capabilities.setCapability("wdaLocalPort", wdaLocalPort.incrementAndGet());
-		TestLog.ConsoleLog(wdaLocalPort.get() + "");
 
 		// set chrome version if value set in properties file
 		if (!getDriverVersion().equals("DEFAULT")) {
@@ -129,6 +127,10 @@ public class IosCapability {
 		}
 
 		setIosDevice();
+		
+		// set port for appium 
+		setPort(TestObject.getTestInfo().deviceName);
+		
 		// does not reset app between tests. on failed tests, it resets app
 		setSingleSignIn();
 
@@ -242,5 +244,23 @@ public class IosCapability {
 				setSimulator();
 			}
 		}
+	}
+	
+	/**
+	 * if device has port assigned, use assigned port
+	 * else generate new port number
+	 * @param deviceName
+	 */
+	public void setPort(String deviceName) {
+		
+		// if device port is already set
+		if(DeviceManager.devices.get(deviceName) != null && (DeviceManager.devices.get(deviceName).devicePort != -1))
+			capabilities.setCapability("wdaLocalPort", DeviceManager.devices.get(deviceName).devicePort);
+		else {
+			capabilities.setCapability("wdaLocalPort", wdaLocalPort.incrementAndGet());
+			DeviceManager.devices.get(deviceName).withDevicePort(wdaLocalPort.get());
+		}
+		
+		TestLog.ConsoleLog("deviceName " + deviceName + " wdaLocalPort: " + DeviceManager.devices.get(deviceName).devicePort);
 	}
 }

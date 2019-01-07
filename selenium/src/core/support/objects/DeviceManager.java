@@ -5,11 +5,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.openqa.selenium.Capabilities;
-
 import core.helpers.Helper;
 import core.support.objects.DeviceObject.DeviceType;
-import io.appium.java_client.AppiumDriver;
 
 /**
  * @author CAEHMAT
@@ -31,6 +28,10 @@ public class DeviceManager {
 			if (entry.getValue().deviceType == deviceType && entry.getValue().isAvailable.equals(true)) {
 				entry.getValue().isAvailable = false;
 				devices.put(entry.getKey(), entry.getValue());
+				
+				// set device name
+				TestObject.getTestInfo().deviceName = entry.getValue().deviceName;
+				
 				return entry.getValue().deviceName;
 			}
 		}
@@ -62,14 +63,11 @@ public class DeviceManager {
 		if (!Helper.mobile.isMobile())
 			return;
 
-		Capabilities cap = ((AppiumDriver<?>) TestObject.getTestInfo().webDriverList).getCapabilities();
-		String deviceName = cap.getCapability("deviceName").toString();
-		String deviceId = cap.getCapability("udid").toString();
+		String deviceName = TestObject.getTestInfo().deviceName;
 
 		if (devices.get(deviceName) != null)
 			devices.put(deviceName, devices.get(deviceName).withIsAvailable(true));
-		if (devices.get(deviceId) != null)
-			devices.put(deviceId, devices.get(deviceName).withIsAvailable(true));
-		Helper.assertFalse("device not found: " + deviceName + " or deviceId: " + deviceId);
+		else 
+			Helper.assertFalse("device not found: " + deviceName);
 	}
 }

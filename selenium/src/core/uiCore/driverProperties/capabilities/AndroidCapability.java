@@ -14,6 +14,7 @@ import core.support.configReader.PropertiesReader;
 import core.support.logger.TestLog;
 import core.support.objects.DeviceManager;
 import core.support.objects.DeviceObject.DeviceType;
+import core.support.objects.TestObject;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import core.uiCore.drivers.AbstractDriver;
 import io.appium.java_client.remote.AndroidMobileCapabilityType;
@@ -118,7 +119,6 @@ public class AndroidCapability {
 		capabilities.setCapability("autoGrantPermissions", true);
 		capabilities.setCapability("newCommandTimeout", 300);
 		capabilities.setCapability("noSign", true);
-		capabilities.setCapability(AndroidMobileCapabilityType.SYSTEM_PORT, systemPort);
 
 		// set chrome version if value set in properties file
 		if (!getChromeDriverVersion().equals("DEFAULT")) {
@@ -128,7 +128,11 @@ public class AndroidCapability {
 		}
 
 		setAndroidDevice();
-		return this;
+		
+		// set port for appium 
+		setPort(TestObject.getTestInfo().deviceName);		
+		
+        return this;
 	}
 
 	/**
@@ -242,6 +246,24 @@ public class AndroidCapability {
 		// adds all devices
 		DeviceManager.loadDevices(devices, DeviceType.Android);
 		capabilities.setCapability("avd", DeviceManager.getFirstAvailableDevice(DeviceType.Android));
+	}
+	
+	/**
+	 * if device has port assigned, use assigned port
+	 * else generate new port number
+	 * @param deviceName
+	 */
+	public void setPort(String deviceName) {
+		
+		// if device port is already set
+		if(DeviceManager.devices.get(deviceName) != null && (DeviceManager.devices.get(deviceName).devicePort != -1))
+			capabilities.setCapability(AndroidMobileCapabilityType.SYSTEM_PORT, DeviceManager.devices.get(deviceName).devicePort);
+		else {
+			capabilities.setCapability(AndroidMobileCapabilityType.SYSTEM_PORT, systemPort.incrementAndGet());
+			DeviceManager.devices.get(deviceName).withDevicePort(systemPort.get());
+		}
+		
+		TestLog.ConsoleLog("deviceName " + deviceName + " systemPort: " + DeviceManager.devices.get(deviceName).devicePort);
 	}
 	
 	public static void restartAdb() {
