@@ -129,7 +129,7 @@ public class IosCapability {
 		setIosDevice();
 		
 		// set port for appium 
-	//	setPort(TestObject.getTestInfo().deviceName);
+		setPort(TestObject.getTestInfo().deviceName);
 		
 		// does not reset app between tests. on failed tests, it resets app
 		setSingleSignIn();

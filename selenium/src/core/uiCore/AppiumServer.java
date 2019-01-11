@@ -22,7 +22,8 @@ public class AppiumServer {
 	public static String JAVA_HOME = "javaHome";
 	public static String APPIUM_LOGGING = "appiumLogging";
 	public static String APPIUM_LOGGING_LEVEL = "appiumLogginLevel";
-
+	public static AppiumDriverLocalService service = null;
+	
 	/**
 	 * start appium service with random ports
 	 * 
@@ -33,7 +34,8 @@ public class AppiumServer {
 	public static AppiumDriverLocalService startAppiumServer(DriverObject driverObject)
 			throws MalformedURLException {
 
-		AppiumDriverLocalService service = null;
+		 // run only one instance of appium server^M
+		if(service != null && service.isRunning()) return service;
 		
 		Map<String, String> env = setEnvVariables();
 

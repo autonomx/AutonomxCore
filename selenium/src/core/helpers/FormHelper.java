@@ -292,6 +292,26 @@ public class FormHelper {
 			fieldElement.sendKeys(listIndex, option);
 		}
 	}
+	/**
+	 * select drop down based on index of the drop down list eg. used for date
+	 * selection where each date value: day, month, year, is separate list send key
+	 * is used to select the value from the list
+	 * 
+	 * @param option
+	 * @param field
+	 * @param index
+	 * @param list
+	 * @param listIndex
+	 */
+	public void selectDropDown(String option, EnhancedBy field, int index,  EnhancedBy list, int listIndex) {
+
+		if (option != null && !option.isEmpty()) {
+			Helper.click.clickAndExpect(field, index, list);
+			EnhancedWebElement fieldElement = Element.findElements(list);
+
+			fieldElement.sendKeys(listIndex, option);
+		}
+	}
 
 	/**
 	 * selects radio button by radio button description

@@ -714,6 +714,21 @@ public class Helper {
 	public static void selectDropDown(String option, EnhancedBy field, EnhancedBy listValue, int listIndex) {
 		form.selectDropDown(option, field, listValue, listIndex);
 	}
+	
+	/**
+	 * select drop down based on index of the drop down list eg. used for date
+	 * selection where each date value: day, month, year, is separate list send key
+	 * is used to select the value from the list
+	 * 
+	 * @param option
+	 * @param field
+	 * @param index
+	 * @param list
+	 * @param listIndex
+	 */
+	public void selectDropDown(String option, EnhancedBy field, int index,  EnhancedBy list, int listIndex) {
+	   form.selectDropDown(option, field, index, list, listIndex);
+	}
 
 	/**
 	 * selects drop down based on index of the drop down field
