@@ -21,6 +21,7 @@ public class AppiumServer {
 	public static String ANDROID_HOME = "androidHome";
 	public static String JAVA_HOME = "javaHome";
 	public static String APPIUM_LOGGING = "appiumLogging";
+	public static String APPIUM_LOGGING_LEVEL = "appiumLogginLevel";
 
 	/**
 	 * start appium service with random ports
@@ -32,37 +33,28 @@ public class AppiumServer {
 	public static AppiumDriverLocalService startAppiumServer(DriverObject driverObject)
 			throws MalformedURLException {
 
-		AppiumDriverLocalService service;
+		AppiumDriverLocalService service = null;
 		
-		Map<String, String> env = new HashMap<>(System.getenv());
-		// Note: android home and java home may need to be set on osx environment
-
-		// set android home
-		if (!Config.getValue(ANDROID_HOME).isEmpty())
-			env.put("ANDROID_HOME", Config.getValue(ANDROID_HOME));
-		
-		// set java home
-		if (!Config.getValue(JAVA_HOME).isEmpty())
-			env.put("JAVA_HOME", Config.getValue(JAVA_HOME));
-
-		// set path
-		if (!CrossPlatformProperties.getPath().isEmpty())
-			env.put("PATH", CrossPlatformProperties.getPath());
+		Map<String, String> env = setEnvVariables();
 
 		AppiumServiceBuilder builder = new AppiumServiceBuilder().usingAnyFreePort().withEnvironment(env)
 				.withIPAddress("127.0.0.1")
 				.withArgument(GeneralServerFlag.SESSION_OVERRIDE);
 
-		// if logging set to true
-		if (Config.getValue(APPIUM_LOGGING).equals("true"))
-			builder.withArgument(GeneralServerFlag.LOG_LEVEL, "info");
+		// if logging set to true, set the logging level
+		if (Config.getBooleanValue(APPIUM_LOGGING))
+			builder.withArgument(GeneralServerFlag.LOG_LEVEL, Config.getValue(APPIUM_LOGGING_LEVEL));
 		else
 			builder.withArgument(GeneralServerFlag.LOG_LEVEL, "error");
 
-		service = AppiumDriverLocalService.buildService(builder);
-		
 
-		service.start();
+		
+	    try {
+	        service = AppiumDriverLocalService.buildService(builder);
+	        service.start();
+	    } catch (NullPointerException e) {
+	        e.printStackTrace();
+	    }
 
 		if (service == null || !service.isRunning()) {
 			throw new AppiumServerHasNotBeenStartedLocallyException("An appium server node is not started!");
@@ -74,6 +66,25 @@ public class AppiumServer {
 		TestLog.And("Appium server has been initiated successfully");
 
 		return service;
+	}
+	
+	public static Map<String, String> setEnvVariables() {
+		Map<String, String> env = new HashMap<>(System.getenv());
+		// Note: android home and java home may need to be set on osx environment
+
+		// set android home
+		if (!Config.getValue(ANDROID_HOME).isEmpty())
+			env.put("ANDROID_HOME", Config.getValue(ANDROID_HOME));
+
+		// set java home
+		if (!Config.getValue(JAVA_HOME).isEmpty())
+			env.put("JAVA_HOME", Config.getValue(JAVA_HOME));
+
+		// set path
+		if (!CrossPlatformProperties.getPath().isEmpty())
+			env.put("PATH", CrossPlatformProperties.getPath());
+		
+		return env;
 	}
 
 	/**
