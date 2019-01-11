@@ -59,21 +59,36 @@ public class WebDriverSetup {
 					driverObject.capabilities);
 			break;
 		case IOS_DRIVER:
-			AppiumDriverLocalService service = AppiumServer.startAppiumServer(driverObject);
-		//	driver = new IOSDriver(new URL("http://localhost:4723/wd/hub"), driverObject.capabilities);
-
-			driver = new IOSDriver(service.getUrl(), driverObject.capabilities);
+			// if external server is used
+			AppiumDriverLocalService service;			
+			if(Config.getBooleanValue("useExternalAppiumServer"))
+			{
+				int port = Config.getIntValue("appiumExternalPort");
+				driver = new IOSDriver(new URL("http://localhost:"+ port + "/wd/hub"), driverObject.capabilities);
+			}
+			else {
+				service = AppiumServer.startAppiumServer(driverObject);
+			//	driver = new IOSDriver(new URL("http://localhost:4723/wd/hub"), driverObject.capabilities);
+				driver = new IOSDriver(service.getUrl(), driverObject.capabilities);
+			}
 			break;
 		case ANDROID_DRIVER:
 			
-			if (PropertiesReader.isUsingCloud()) {
+			// if external server is used
+			if(Config.getBooleanValue("useExternalAppiumServer"))
+			{
+				int port = Config.getIntValue("appiumExternalPort");
+				driver = new AndroidDriver(new URL("http://localhost:"+ port + "/wd/hub"), driverObject.capabilities);
+			}
+			// if microsoft app center
+			else if (PropertiesReader.isUsingCloud()) {
 				EnhancedAndroidDriver<MobileElement> appcenterDriver = Factory
 						.createAndroidDriver(new URL("http://localhost:8001/wd/hub"), driverObject.capabilities);
 				return appcenterDriver;
+			// if internal server is used	
 			} else {
 				service = AppiumServer.startAppiumServer(driverObject);
 				driver = new AndroidDriver(service.getUrl(), driverObject.capabilities);
-
 			}
 			break;
 		case WINAPP_DRIVER:

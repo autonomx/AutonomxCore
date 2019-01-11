@@ -361,7 +361,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	@Override
 	public void sendKeys(int index, CharSequence... keysToSend) {
 		int retry = 3;
-
+		String exception = "";
 		boolean success = false;
 		do {
 			retry--;
@@ -380,10 +380,10 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				}
 			} catch (Exception e) {
 				resetElement();
-				e.getMessage();
+				exception = e.getMessage();
 			}
 		} while (!success && retry > 0);
-		Helper.assertTrue("send key was not successful", success);
+		Helper.assertTrue("send key was not successful: " + exception, success);
 	}
 
 	/*
