@@ -23,7 +23,7 @@ public class ElementActionHelper {
 	/*
 	 * Enter text to an element by action
 	 */
-	protected void inputTextByAction(EnhancedBy by, String text) {
+	protected static void inputTextByAction(EnhancedBy by, String text) {
 		EnhancedWebElement targetElement = Element.findElements(by);
 		Actions action = new Actions(AbstractDriver.getWebDriver());
 		action.moveToElement(targetElement.get(0)).click().sendKeys(text).build().perform();
@@ -32,7 +32,7 @@ public class ElementActionHelper {
 	/*
 	 * Double click an element
 	 */
-	public static void doubleClickBy(EnhancedBy by) {
+	protected static void doubleClickBy(EnhancedBy by) {
 		EnhancedWebElement targetElement = Element.findElements(by);
 		Helper.wait.waitForElementToBeClickable(by);
 		Actions action = new Actions(AbstractDriver.getWebDriver());

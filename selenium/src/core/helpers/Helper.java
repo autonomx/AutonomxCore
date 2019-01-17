@@ -726,7 +726,7 @@ public class Helper {
 	 * @param list
 	 * @param listIndex
 	 */
-	public void selectDropDown(String option, EnhancedBy field, int index,  EnhancedBy list, int listIndex) {
+	public static void selectDropDown(String option, EnhancedBy field, int index,  EnhancedBy list, int listIndex) {
 	   form.selectDropDown(option, field, index, list, listIndex);
 	}
 
@@ -780,7 +780,7 @@ public class Helper {
 	public static void selectMultipleCheckboxOptions(List<String> selections, EnhancedBy checkboxes) {
 		form.selectMultipleCheckboxOptions(selections, checkboxes);
 	}
-
+  // uploadHelper
 	/**
 	 * uploads file by specifying file location relative to main path
 	 * 
@@ -1982,6 +1982,8 @@ public class Helper {
 	public static void captureScreenshot() {
 		UtilityHelper.captureScreenshot();
 	}
+	
+	// action helper
 
 	/**
 	 * hover over element
@@ -1990,6 +1992,20 @@ public class Helper {
 	 */
 	public static void hoverBy(EnhancedBy by) {
 		ElementActionHelper.hoverBy(by);
+	}
+	
+	/*
+	 * Enter text to an element by action
+	 */
+	protected void inputTextByAction(EnhancedBy by, String text) {
+		ElementActionHelper.inputTextByAction(by, text);
+	}
+	
+	/*
+	 * Double click an element
+	 */
+	protected static void doubleClickBy(EnhancedBy by) {
+		ElementActionHelper.doubleClickBy(by);
 	}
 
 	// email helper

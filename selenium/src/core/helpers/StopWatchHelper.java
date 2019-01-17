@@ -22,6 +22,7 @@ public class StopWatchHelper {
 	public static StopWatchHelper start() {
 		return new StopWatchHelper();
 	}
+	
 
 	private StopWatchHelper() {
 		reset();
