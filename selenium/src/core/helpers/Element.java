@@ -3,10 +3,10 @@ package core.helpers;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-import core.driver.AbstractDriver;
-import core.webElement.EnhancedBy;
-import core.webElement.EnhancedWebElement;
-import core.webElement.ImpEnhancedWebElement;
+import core.uiCore.drivers.AbstractDriver;
+import core.uiCore.webElement.EnhancedBy;
+import core.uiCore.webElement.EnhancedWebElement;
+import core.uiCore.webElement.ImpEnhancedWebElement;
 import io.appium.java_client.MobileBy;
 
 /**
@@ -16,7 +16,11 @@ import io.appium.java_client.MobileBy;
  *
  */
 public class Element {
-
+	
+	
+	public enum LocatorType {
+	    css, xpath, id, classType, accessibiliy, mobileClass, name
+	}
 
 	/**
 	 * finds element based on parent element
@@ -25,9 +29,9 @@ public class Element {
 	 * @param parent
 	 * @return
 	 */
-	public static EnhancedWebElement findElements(EnhancedBy child, WebElement parent) {
+	protected static EnhancedWebElement findElements(EnhancedBy child, WebElement parent) {
 
-		return new ImpEnhancedWebElement(child.name, child.by, AbstractDriver.getWebDriver(), parent);
+		return new ImpEnhancedWebElement(child, AbstractDriver.getWebDriver(), parent);
 	}
 
 	/**
@@ -36,9 +40,9 @@ public class Element {
 	 * @param element
 	 * @return
 	 */
-	public static EnhancedWebElement findElements(EnhancedBy element) {
+	protected static EnhancedWebElement findElements(EnhancedBy element) {
 
-		return new ImpEnhancedWebElement(element.name, element.by, AbstractDriver.getWebDriver(), null);
+		return new ImpEnhancedWebElement(element, AbstractDriver.getWebDriver(), null);
 	}
 
 	/**
@@ -48,9 +52,9 @@ public class Element {
 	 * @param parent
 	 * @return
 	 */
-	public static EnhancedWebElement findElements(EnhancedBy child, EnhancedWebElement parent) {
+	protected static EnhancedWebElement findElements(EnhancedBy child, EnhancedWebElement parent) {
 
-		return new ImpEnhancedWebElement(child.name, child.by, AbstractDriver.getWebDriver(), parent);
+		return new ImpEnhancedWebElement(child, AbstractDriver.getWebDriver(), parent);
 	}
 
 	/**
@@ -64,73 +68,121 @@ public class Element {
 
 		return new EnhancedBy(by, name);
 	}
-	
+
 	/**
 	 * gets element by css value
+	 * 
 	 * @param element
 	 * @param name
 	 * @return
 	 */
 	public static EnhancedBy byCss(String element, String name) {
 
-		return new EnhancedBy(By.cssSelector(element), name);
+		return new EnhancedBy(By.cssSelector(element), name, element, LocatorType.css);
 	}
-	
+
 	/**
 	 * gets element by id
+	 * 
 	 * @param element
 	 * @param name
 	 * @return
 	 */
 	public static EnhancedBy byId(String element, String name) {
 
-		return new EnhancedBy(By.id(element), name);
+		return new EnhancedBy(By.id(element), name, element, LocatorType.id);
 	}
 	
+	
+	/**
+	 * get element by name
+	 * @param element
+	 * @param name
+	 * @return
+	 */
+	public static EnhancedBy byName(String element, String name) {
+
+		return new EnhancedBy(By.name(element), name, element, LocatorType.name);
+	}
+
 	/**
 	 * gets element by xpath
+	 * 
 	 * @param element
 	 * @param name
 	 * @return
 	 */
 	public static EnhancedBy byXpath(String element, String name) {
+		if (element.isEmpty())
+			Helper.assertTrue("element cannot be empty", false);
 
-		return new EnhancedBy(By.xpath(element), name);
+		return new EnhancedBy(By.xpath(element), name, element, LocatorType.xpath);
 	}
-	
+
+	public static EnhancedBy byTextXpath(String element, String name) {
+		if (element.isEmpty())
+			Helper.assertTrue("element cannot be empty", false);
+
+		String element2 = element;
+		element2 = element2.replace("content-desc", "text");
+
+		return new EnhancedBy(By.xpath(element), By.xpath(element), name, element, element2, LocatorType.xpath);
+	}
+
+	/**
+	 * gets element by class (for mobile)
+	 * 
+	 * @param element
+	 * @param name
+	 * @return
+	 */
+	public static EnhancedBy byXpathContentDesc(String element, String name) {
+		if (element.isEmpty())
+			Helper.assertTrue("element cannot be empty", false);
+
+		return new EnhancedBy(By.xpath("//*[@content-desc='" + element + "']"), name, element, LocatorType.xpath);
+	}
+
 	/**
 	 * gets element by class name
+	 * 
 	 * @param element
 	 * @param name
 	 * @return
 	 */
 	public static EnhancedBy byClass(String element, String name) {
+		if (element.isEmpty())
+			Helper.assertTrue("element cannot be empty", false);
 
-		return new EnhancedBy(By.className(element), name);
+		return new EnhancedBy(By.className(element), name, element, LocatorType.classType);
 	}
-	
-	
-	
+
 	/**
 	 * gets element by accessibility id
+	 * 
 	 * @param element
 	 * @param name
 	 * @return
 	 */
 	public static EnhancedBy byAccessibility(String element, String name) {
+		if (element.isEmpty())
+			Helper.assertTrue("element cannot be empty", false);
 
-		return new EnhancedBy(MobileBy.AccessibilityId(element), name);
+		String xpath = "//*[@text='" + element + "']";
+		return new EnhancedBy(MobileBy.AccessibilityId(element), By.xpath(xpath), name, element, xpath, LocatorType.accessibiliy);
 	}
-	
+
 	/**
 	 * gets element by class (for mobile)
+	 * 
 	 * @param element
 	 * @param name
 	 * @return
 	 */
 	public static EnhancedBy byMobileClass(String element, String name) {
+		if (element.isEmpty())
+			Helper.assertTrue("element cannot be empty", false);
 
-		return new EnhancedBy(MobileBy.className(element), name);
+		return new EnhancedBy(MobileBy.className(element), name, element, LocatorType.mobileClass);
 	}
-	
 }

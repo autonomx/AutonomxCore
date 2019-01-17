@@ -1,4 +1,4 @@
-package core.helpers.DatabaseHelper;
+package core.helpers.databaseHelper;
 
 public class MongoObject {
 

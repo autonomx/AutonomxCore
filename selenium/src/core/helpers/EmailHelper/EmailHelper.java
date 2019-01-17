@@ -1,4 +1,4 @@
-package core.helpers.EmailHelper;
+package core.helpers.emailHelper;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -10,6 +10,8 @@ import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.search.SearchTerm;
+
+import core.support.logger.TestLog;
 
 public class EmailHelper {
 
@@ -25,13 +27,13 @@ public class EmailHelper {
 
 		Session session = Session.getDefaultInstance(props, null);
 		Store store = session.getStore("imaps");
-		store.connect("imap.gmail.com", email.email, email.password);
+		store.connect("imap.gmail.com", email.toEmail, email.password);
 
 		Folder folder = store.getFolder("INBOX");
 		folder.open(Folder.READ_WRITE);
 
-		System.out.println("Total Message:" + folder.getMessageCount());
-		System.out.println("Unread Message:" + folder.getUnreadMessageCount());
+		TestLog.ConsoleLog("Total Message:" + folder.getMessageCount());
+		TestLog.ConsoleLog("Unread Message:" + folder.getUnreadMessageCount());
 
 		boolean isMailFound = false;
 		Message mailFrom = null;
@@ -45,7 +47,7 @@ public class EmailHelper {
 			public boolean match(Message message) {
 				try {
 					if (message.getSubject().contains(email.subject)) {
-						System.out.println("message.getSubject()" + message.getSubject());
+						TestLog.ConsoleLog("message.getSubject()" + message.getSubject());
 						return true;
 					}
 				} catch (MessagingException ex) {
@@ -63,7 +65,7 @@ public class EmailHelper {
 		// Registration is already done
 		for (Message mail : foundMessages) {
 			mailFrom = mail;
-			System.out.println("Message Count is: " + mailFrom.getMessageNumber());
+			TestLog.ConsoleLog("Message Count is: " + mailFrom.getMessageNumber());
 			isMailFound = true;
 			break;
 		}
@@ -80,13 +82,12 @@ public class EmailHelper {
 			while ((line = reader.readLine()) != null) {
 				buffer.append(line);
 			}
-			System.out.println(buffer);
 
 			// Your logic to split the message and get the Registration URL goes
 			// here
 			String registrationURL = buffer.toString().split("&amp;gt;http://www.god.de/members/?")[0]
 					.split("href=")[1];
-			System.out.println(registrationURL);
+			TestLog.ConsoleLog(registrationURL);
 		}
 	}
 }

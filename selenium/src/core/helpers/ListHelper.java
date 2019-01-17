@@ -1,10 +1,12 @@
 package core.helpers;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-import core.logger.TestLog;
-import core.webElement.EnhancedBy;
-import core.webElement.EnhancedWebElement;
+import core.support.logger.TestLog;
+import core.uiCore.drivers.AbstractDriver;
+import core.uiCore.webElement.EnhancedBy;
+import core.uiCore.webElement.EnhancedWebElement;
 
 public class ListHelper {
 
@@ -14,7 +16,7 @@ public class ListHelper {
 	 * @param list
 	 * @param index
 	 */
-	public static void selectElementInList(EnhancedBy list, int index) {
+	public void selectElementInList(EnhancedBy list, int index) {
 
 		EnhancedWebElement listElement = Element.findElements(list);
 		listElement.click(index);
@@ -27,9 +29,9 @@ public class ListHelper {
 	 * @param index
 	 * @param expected
 	 */
-	public static void selectElementInList(EnhancedBy list, int index, EnhancedBy expected) {
+	public void selectElementInList(EnhancedBy list, int index, EnhancedBy expected) {
 
-		ClickHelper.clickAndExpect(list, index, expected);
+		Helper.click.clickAndExpect(list, index, expected, true);
 	}
 
 	/**
@@ -40,10 +42,10 @@ public class ListHelper {
 	 * @param byTarget
 	 * @param spinner
 	 */
-	public static void searchAndWaitForResults(String searchQuery, EnhancedBy byTarget, EnhancedBy spinner) {
+	public void searchAndWaitForResults(String searchQuery, EnhancedBy byTarget, EnhancedBy spinner) {
 
-		FormHelper.setFieldAndEnter(searchQuery, byTarget);
-		WaitHelper.waitForElementToBeRemoved(spinner);
+		Helper.form.setFieldAndEnter(byTarget, searchQuery);
+		Helper.wait.waitForElementToBeRemoved(spinner);
 	}
 
 	/**
@@ -52,9 +54,9 @@ public class ListHelper {
 	 * @param list
 	 * @param option
 	 */
-	public static void selectListItemEqualsByName(EnhancedBy list, String option) {
-		
-		WaitHelper.waitForElementToLoad(list);
+	public void selectListItemEqualsByName(EnhancedBy list, String option) {
+
+		Helper.wait.waitForElementToLoad(list);
 		int index = getElementIndexEqualsByText(list, option);
 		AssertHelper.assertTrue("option not found in list: " + list.name, index > -1);
 		selectElementInList(list, index);
@@ -70,8 +72,8 @@ public class ListHelper {
 	 * @param option
 	 * @param target
 	 */
-	public static void selectListItemEqualsByName(EnhancedBy list, String option, EnhancedBy target) {
-		WaitHelper.waitForElementToLoad(list);
+	public void selectListItemEqualsByName(EnhancedBy list, String option, EnhancedBy target) {
+		Helper.wait.waitForElementToLoad(list);
 		int index = getElementIndexEqualsByText(list, option);
 		AssertHelper.assertTrue("option not found in list: " + list.name, index > -1);
 
@@ -87,8 +89,8 @@ public class ListHelper {
 	 * @param option
 	 * @param target
 	 */
-	public static void selectListItemContainsByName(EnhancedBy list, String option, EnhancedBy target) {
-		WaitHelper.waitForElementToLoad(list);
+	public void selectListItemContainsByName(EnhancedBy list, String option, EnhancedBy target) {
+		Helper.wait.waitForElementToLoad(list);
 		int index = getElementIndexContainByText(list, option);
 		AssertHelper.assertTrue("option not found in list: " + list.name, index > -1);
 
@@ -102,11 +104,11 @@ public class ListHelper {
 	 * button in that container as target
 	 * 
 	 * @param list
-	 * @param option
+	 * @param option selectListItemContainsFromContainer
 	 * @param target
 	 */
-	public static void selectListItemContainsFromContainer(EnhancedBy list, String option, EnhancedBy target) {
-		WaitHelper.waitForElementToLoad(list);
+	public void selectElementContainedInList(EnhancedBy list, String option, EnhancedBy target) {
+		Helper.wait.waitForElementToLoad(list);
 		int index = getElementIndexContainByText(list, option);
 		AssertHelper.assertTrue("option not found in list: " + list.name, index > -1);
 
@@ -125,8 +127,8 @@ public class ListHelper {
 	 * @param list
 	 * @param option
 	 */
-	public static void selectListItemContainsByName(EnhancedBy list, String option) {
-		WaitHelper.waitForElementToLoad(list);
+	public void selectListItemContainsByName(EnhancedBy list, String option) {
+		Helper.wait.waitForElementToLoad(list);
 		int index = getElementIndexContainByText(list, option);
 		AssertHelper.assertTrue("option not found in list: " + list.name, index > -1);
 		selectElementInList(list, index);
@@ -139,10 +141,12 @@ public class ListHelper {
 	 * @param list
 	 * @param option
 	 */
-	public static void selectListItemByIndex(EnhancedBy list, int index) {;
+	public void selectListItemByIndex(EnhancedBy list, int index) {
+		;
 		AssertHelper.assertTrue("option not found in list: " + list.name, index > -1);
 		selectElementInList(list, index);
-		TestLog.logPass("I select list option at index'" + index + "' from list '" + list.name + "'");
+		// TestLog.logPass("I select list option at index'" + index + "' from list '" +
+		// list.name + "'");
 	}
 
 	/**
@@ -151,38 +155,37 @@ public class ListHelper {
 	 * @param list
 	 * @return
 	 */
-	public static int getListCount(EnhancedBy list) {
+	public int getListCount(EnhancedBy list) {
 		EnhancedWebElement listElements = Element.findElements(list);
 		return listElements.count();
 	}
 
 	/**
-	 * returns the index of text value in a list
-	 * normalizes the list option when comparing using Helper.stringNormalize()
+	 * returns the index of text value in a list normalizes the list option when
+	 * comparing using Helper.stringNormalize() returns first visible element index
+	 * 
 	 * @param list
 	 * @param option
 	 * @return
 	 */
-	
-	public static int getElementIndexEqualsByText(EnhancedBy list, String option) {
 
-		int optionIndex = -1;
-		WaitHelper.waitForListItemToLoad_Contains(list, option);
-		EnhancedWebElement listElements = Element.findElements(list);
-	    List<String> stringList =  listElements.getTextList();
-        
-	    String value = null;
-		 int listCount = stringList.size();
-		 for (int i = 0; i < listCount; i++) {
-			 value = Helper.stringNormalize(stringList.get(i));
-			if (value.equalsIgnoreCase(option)) {
-				optionIndex = i;
+	public int getElementIndexEqualsByText(EnhancedBy list, String option) {
+
+		int index = -1;
+		StopWatchHelper watch = StopWatchHelper.start();
+		long passedTimeInSeconds = 0;
+		do {
+			EnhancedWebElement listElements = Element.findElements(list);
+			List<String> stringList = listElements.getTextList();
+
+			index = getStringIndexEqualsByText(list, stringList, option);
+
+			passedTimeInSeconds = watch.time(TimeUnit.SECONDS);
+			if (index != -1)
 				break;
-			}
-		}
-	    return optionIndex;
+		} while (passedTimeInSeconds < AbstractDriver.TIMEOUT_SECONDS);
+		return index;
 	}
-	
 
 	/**
 	 * retuns index of element in list which contains in text
@@ -191,34 +194,134 @@ public class ListHelper {
 	 * @param option
 	 * @return
 	 */
-	public static int getElementIndexContainByText(EnhancedBy list, String option) {
-		WaitHelper.waitForListItemToLoad_Contains(list, option);
-		EnhancedWebElement listElements = Element.findElements(list);
-	    List<String> stringList =  listElements.getTextList();
+	public int getElementIndexContainByText(EnhancedBy list, String option) {
 
-	    return getStringIndexContainByText(stringList, option);
-	}
-	
-	/**
-	 * returns the index of string value in list of strings
-	 * @param stringList  normalized
-	 * @param option  normalized
-	 * @return
-	 */
-	public static int getStringIndexContainByText(List<String> stringList, String option) {
-		int optionIndex = -1;
-		String listValue;
-	    
-	    int listCount = stringList.size();
-		 for (int i = 0; i < listCount; i++) {
-			 listValue = UtilityHelper.stringNormalize(stringList.get(i));
-			 option = UtilityHelper.stringNormalize(option);
-			if (listValue.contains(option)) {
-				optionIndex = i;
+		int index = -1;
+		StopWatchHelper watch = StopWatchHelper.start();
+		long passedTimeInSeconds = 0;
+		do {
+			EnhancedWebElement listElements = Element.findElements(list);
+			List<String> stringList = listElements.getTextList();
+
+			index = getStringIndexContainByText(list, stringList, option);
+			passedTimeInSeconds = watch.time(TimeUnit.SECONDS);
+			if (index != -1)
 				break;
+		} while (passedTimeInSeconds < AbstractDriver.TIMEOUT_SECONDS);
+		return index;
+	}
+
+	public int getVisibleElementIndex(EnhancedBy list, List<Integer> indexValues) {
+		EnhancedWebElement listElements = Element.findElements(list);
+
+		for (Integer index : indexValues) {
+			if (listElements.isExist(index)) {
+				return index;
 			}
 		}
-	    return optionIndex;	
+		return -1;
+	}
+
+	/**
+	 * returns the index of string value in list of strings
+	 * 
+	 * @param stringList
+	 *            normalized
+	 * @param option
+	 *            normalized
+	 * @return
+	 */
+	public int getStringIndexContainByText(EnhancedBy list, List<String> stringList, String option) {
+		EnhancedWebElement listElements = Element.findElements(list);
+
+		String value = null;
+		int listCount = stringList.size();
+		for (int i = 0; i < listCount; i++) {
+			value = Helper.stringNormalize(stringList.get(i));
+			option = UtilityHelper.stringNormalize(option);
+
+			if (value.contains(option)) {
+				listElements.scrollToView(i);
+				if (listElements.isExist(i)) {
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * returns the index of string value in list of strings
+	 * 
+	 * @param stringList
+	 *            normalized
+	 * @param option
+	 *            normalized
+	 * @return
+	 */
+	public int getStringIndexContainByText(List<String> stringList, String option) {
+
+		String value = null;
+		int listCount = stringList.size();
+		for (int i = 0; i < listCount; i++) {
+			value = Helper.stringNormalize(stringList.get(i));
+			option = UtilityHelper.stringNormalize(option);
+			if (value.contains(option)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * returns the index of string value in list of strings
+	 * 
+	 * @param stringList
+	 *            normalized
+	 * @param option
+	 *            normalized
+	 * @return
+	 */
+	public int getStringIndexEqualsByText(EnhancedBy list, List<String> stringList, String option) {
+		EnhancedWebElement listElements = Element.findElements(list);
+		String listValue;
+
+		int listCount = stringList.size();
+		for (int i = 0; i < listCount; i++) {
+			listValue = UtilityHelper.stringNormalize(stringList.get(i));
+			option = UtilityHelper.stringNormalize(option);
+			if (listValue.equalsIgnoreCase(option)) {
+				listElements.scrollToView(i);
+				if (listElements.isExist(i)) {
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * returns the index of string value in list of strings
+	 * 
+	 * @param stringList
+	 *            normalized
+	 * @param option
+	 *            normalized
+	 * @return
+	 */
+	public int getStringIndexEqualsByText(List<String> stringList, String option) {
+
+		String listValue;
+
+		int listCount = stringList.size();
+		for (int i = 0; i < listCount; i++) {
+			listValue = UtilityHelper.stringNormalize(stringList.get(i));
+			option = UtilityHelper.stringNormalize(option);
+			if (listValue.equalsIgnoreCase(option)) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	/**
@@ -228,8 +331,8 @@ public class ListHelper {
 	 * @param list
 	 * @param option
 	 */
-	public static void verifyContainsIsInList(EnhancedBy list, String option) {
-		WaitHelper.waitForElementToLoad(list);
+	public void verifyContainsIsInList(EnhancedBy list, String option) {
+		Helper.wait.waitForElementToLoad(list);
 		int index = getElementIndexContainByText(list, option);
 		AssertHelper.assertTrue("option not found in list: " + list.name, index > -1);
 	}
@@ -241,8 +344,8 @@ public class ListHelper {
 	 * @param list
 	 * @param option
 	 */
-	public static void verifyIsInList(EnhancedBy list, String option) {
-		WaitHelper.waitForElementToLoad(list);
+	public void verifyIsInList(EnhancedBy list, String option) {
+		Helper.wait.waitForElementToLoad(list);
 		int index = getElementIndexEqualsByText(list, option);
 		AssertHelper.assertTrue("option not found in list: " + list.name, index > -1);
 	}
@@ -254,7 +357,7 @@ public class ListHelper {
 	 * @param indicator
 	 * @param option
 	 */
-	public static void verifyIsInList(EnhancedBy list, String indicator, String option) {
+	public void verifyIsInList(EnhancedBy list, String indicator, String option) {
 		int index = getElementIndexEqualsByText(list, option);
 		EnhancedWebElement listElements = Element.findElements(list);
 		boolean isInList = listElements.getText(index).contains(option);
@@ -268,14 +371,17 @@ public class ListHelper {
 	 * @param option
 	 * @return
 	 */
-	public static boolean isContainedInList(EnhancedBy list, String option) {
+	public boolean isContainedInList(EnhancedBy list, String option) {
 		EnhancedWebElement listElements = Element.findElements(list);
-	    List<String> stringList =  listElements.getTextList();
-	    
-	    int index = getStringIndexContainByText(stringList, option);
+		List<String> stringList = listElements.getTextList();
+
+		int index = getStringIndexContainByText(stringList, option);
+		if (index == -1)
+			return false;
+
 		return index != -1;
 	}
-	
+
 	/**
 	 * return if element is an exact match in list
 	 * 
@@ -283,18 +389,47 @@ public class ListHelper {
 	 * @param option
 	 * @return
 	 */
-	public static boolean isExactMatchInList(EnhancedBy list, String option) {
+	public boolean isExactMatchInList(EnhancedBy list, String option) {
 		int index = getElementIndexEqualsByText(list, option);
 		return index != -1;
 	}
-	
+
 	/**
-	 * returns the list of values in a list 
+	 * returns the list of values in a list
+	 * 
 	 * @param list
 	 * @return
 	 */
-	public static List<String> getListValues(EnhancedBy list) {
+	public List<String> getListValues(EnhancedBy list) {
 		EnhancedWebElement listElements = Element.findElements(list);
-	    return listElements.getTextList();
+		return listElements.getTextList();
 	}
+
+	/**
+	 * get list of text values
+	 * 
+	 * @param list
+	 * @return
+	 */
+	public List<String> getTextList(EnhancedBy list) {
+		EnhancedWebElement listElements = Element.findElements(list);
+		List<String> stringList = listElements.getTextList();
+		return stringList;
+
+	}
+	/*
+	 * 
+	 * public static int getFirstClickableElementIndex(EnhancedBy elements) {
+	 * FluentWait wait = new
+	 * FluentWait<>(AbstractDriver.getWebDriver()).withTimeout(100,
+	 * TimeUnit.MILLISECONDS).pollingEvery(5,
+	 * TimeUnit.MILLISECONDS).ignoring(NoSuchElementException.class); Object
+	 * isClickable = false;
+	 * 
+	 * EnhancedWebElement ElementList = Element.findElements(elements); for(int
+	 * index=0; index < ElementList.count(); index++) { isClickable =
+	 * wait.until(ExpectedConditions.elementToBeClickable(ElementList.get(index)));
+	 * if(isClickable!=null) return index; }
+	 * Helper.assertTrue("clickable element not found", false); return 0; }
+	 */
 }

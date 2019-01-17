@@ -1,28 +1,34 @@
 package core.helpers;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.FluentWait;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import com.google.common.base.Function;
+import com.google.common.util.concurrent.Uninterruptibles;
 
-import core.driver.AbstractDriver;
-import core.webElement.EnhancedBy;
-import core.webElement.EnhancedWebElement;
+import core.uiCore.drivers.AbstractDriver;
+import core.uiCore.webElement.EnhancedBy;
+import core.uiCore.webElement.EnhancedWebElement;
 
 public class WaitHelper {
+	
+	public final static double WAIT_SHORT_SECONDS = 0.6;
+	public final static double WAIT_MED_SECONDS = 1.5;
+	public final static double WAIT_LONG_SECONDS = 3;
+	public final static double WAIT_ZOOM_SECONDS = 0.2;
+	public final static double WAIT_PAN_SECONDS = 0.3;
 
 	/**
 	 * waits for element to be displayed for amount of time specified by 60 seconds
 	 * 
 	 * @param target
 	 */
-	public static void waitForElementToLoad(final EnhancedBy target) {
+	public void waitForElementToLoad(final EnhancedBy target) {
 
 		waitForElementToLoad(target, AbstractDriver.TIMEOUT_SECONDS);
 	}
@@ -34,13 +40,14 @@ public class WaitHelper {
 	 * @param target
 	 * @param time
 	 */
-	public static boolean waitForElementToLoad(final EnhancedBy target, int time) {
+	public boolean waitForElementToLoad(final EnhancedBy target, int time) {
 		return waitForElementToLoad(target, time, 1);
 	}
 
 	/**
-	 * waits for element to load
-	 * If mobile device, scrolls down the page until element is visible
+	 * waits for element to load If mobile device, scrolls down the page until
+	 * element is visible
+	 * 
 	 * @param target:
 	 *            element to wait for
 	 * @param time:
@@ -49,16 +56,16 @@ public class WaitHelper {
 	 *            minimum count of elements to wait for in list
 	 * @return
 	 */
-	public static boolean waitForElementToLoad(final EnhancedBy target, int time, int count) {
-
-		FluentWait wait = new FluentWait<>(AbstractDriver.getWebDriver()).withTimeout(time, TimeUnit.SECONDS).pollingEvery(5, TimeUnit.MILLISECONDS).ignoring(NoSuchElementException.class);
+	public boolean waitForElementToLoad(final EnhancedBy target, int time, int count) {
+		FluentWait<WebDriver> wait = new FluentWait<>(AbstractDriver.getWebDriver()).withTimeout(Duration.ofSeconds(time))
+				.pollingEvery(Duration.ofMillis(5)).ignoring(NoSuchElementException.class);
 
 		try {
 			wait.until(new Function<WebDriver, Boolean>() {
 				@Override
 				public Boolean apply(WebDriver driver) {
-					boolean isFound = Element.findElements(target).count() >= count;
-					return isFound;
+					// TestLog.ConsoleLog(Element.findElements(target).count()+"");
+					return Element.findElements(target).count() >= count;
 				}
 			});
 		} catch (Exception e) {
@@ -72,24 +79,146 @@ public class WaitHelper {
 	}
 
 	/**
+	 * waits for element to load and refreshes the app each time to renew the dom
+	 * 
+	 * @param target
+	 * @return
+	 */
+	public boolean mobile_waitAndRefreshForElementToLoad(final EnhancedBy target) {
+
+		FluentWait<WebDriver> wait = new FluentWait<>(AbstractDriver.getWebDriver()).withTimeout(Duration.ofSeconds(AbstractDriver.TIMEOUT_SECONDS))
+				.pollingEvery(Duration.ofMillis(5)).ignoring(NoSuchElementException.class);
+
+		try {
+			wait.until(new Function<WebDriver, Boolean>() {
+				@Override
+				public Boolean apply(WebDriver driver) {
+					Helper.mobile.refreshMobileApp();
+					boolean isFound = Element.findElements(target).count() >= 1;
+					return isFound;
+				}
+			});
+		} catch (Exception e) {
+			AssertHelper.assertTrue("element: " + target.name + " did not display in allowed time (s) "
+					+ AbstractDriver.TIMEOUT_SECONDS, false);
+			e.getMessage();
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * waits for either element to load returns true when first item loads
+	 * 
+	 * @param element1
+	 * @param element2
+	 * @param time
+	 * @return
+	 */
+	public boolean waitForFirstElementToLoad(final EnhancedBy element1, final EnhancedBy element2) {
+		return waitForFirstElementToLoad(element1, element2, AbstractDriver.TIMEOUT_SECONDS);
+	}
+
+	/**
+	 * waits for either element to load returns true when first item loads
+	 * 
+	 * @param element1
+	 * @param element2
+	 * @param time
+	 * @return
+	 */
+	public boolean waitForFirstElementToLoad(final EnhancedBy element1, final EnhancedBy element2, int time) {
+
+		Helper.assertTrue("driver is null", AbstractDriver.getWebDriver() != null);
+		FluentWait<WebDriver> wait = new FluentWait<>(AbstractDriver.getWebDriver()).withTimeout(Duration.ofSeconds(time))
+				.pollingEvery(Duration.ofMillis(5)).ignoring(NoSuchElementException.class);
+
+		try {
+			wait.until(new Function<WebDriver, Boolean>() {
+				@Override
+				public Boolean apply(WebDriver driver) {
+					boolean isElement1Found = Element.findElements(element1).count() >= 1;
+					boolean isElement2Found = Element.findElements(element2).count() >= 1;
+					return (isElement1Found || isElement2Found);
+				}
+			});
+		} catch (Exception e) {
+			if (time == AbstractDriver.TIMEOUT_SECONDS)
+				AssertHelper.assertTrue("element1: " + element1.name + " or element2: " + element2.name
+						+ " did not display in allowed time (s) " + time, false);
+			e.getMessage();
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * waits for either element to load returns true when first item loads
+	 * 
+	 * @param element1
+	 * @param element2
+	 * @param time
+	 * @return
+	 */
+	public boolean waitForFirstElementToLoad(final EnhancedBy element1, final EnhancedBy element2,
+			final EnhancedBy element3) {
+		return waitForFirstElementToLoad(element1, element2, element3, AbstractDriver.TIMEOUT_SECONDS);
+	}
+
+	/**
+	 * waits for either element to load returns true when first item loads
+	 * 
+	 * @param element1
+	 * @param element2
+	 * @param time
+	 * @return
+	 */
+	public boolean waitForFirstElementToLoad(final EnhancedBy element1, final EnhancedBy element2,
+			final EnhancedBy element3, int time) {
+
+		Helper.assertTrue("driver is null", AbstractDriver.getWebDriver() != null);
+		FluentWait<WebDriver> wait = new FluentWait<>(AbstractDriver.getWebDriver()).withTimeout(Duration.ofSeconds(AbstractDriver.TIMEOUT_SECONDS))
+				.pollingEvery(Duration.ofMillis(5)).ignoring(NoSuchElementException.class);
+
+		try {
+			wait.until(new Function<WebDriver, Boolean>() {
+				@Override
+				public Boolean apply(WebDriver driver) {
+					boolean isElement1Found = Element.findElements(element1).count() >= 1;
+					boolean isElement2Found = Element.findElements(element2).count() >= 1;
+					boolean isElement3Found = Element.findElements(element3).count() >= 1;
+					return (isElement1Found || isElement2Found || isElement3Found);
+				}
+			});
+		} catch (Exception e) {
+			if (time == AbstractDriver.TIMEOUT_SECONDS)
+				AssertHelper.assertTrue("element1: " + element1.name + " or element2: " + element2.name
+						+ " did not display in allowed time (s) " + time, false);
+			e.getMessage();
+			return false;
+		}
+		return true;
+	}
+
+	/**
 	 * waits for element count to increase from the originalCount Usefull when
 	 * waiting for a list to expand with additional items
 	 * 
 	 * @param target
 	 * @param originalCount
 	 */
-	public static void waitForAdditionalElementsToLoad(final EnhancedBy target, final int originalCount) {
+	public void waitForAdditionalElementsToLoad(final EnhancedBy target, final int originalCount) {
 
-		FluentWait wait = new FluentWait<>(AbstractDriver.getWebDriver()).withTimeout(AbstractDriver.TIMEOUT_SECONDS, TimeUnit.SECONDS).pollingEvery(5, TimeUnit.MILLISECONDS).ignoring(NoSuchElementException.class);
+		FluentWait<WebDriver> wait = new FluentWait<>(AbstractDriver.getWebDriver()).withTimeout(Duration.ofSeconds(AbstractDriver.TIMEOUT_SECONDS))
+				.pollingEvery(Duration.ofMillis(5)).ignoring(NoSuchElementException.class);
 
-		
 		wait.until(new Function<WebDriver, Boolean>() {
 			@Override
 			public Boolean apply(WebDriver driver) {
 				AssertHelper.assertTrue("element: " + target.name + " did not display in allowed time (s) "
 						+ AbstractDriver.TIMEOUT_SECONDS, false);
 
-				return ListHelper.getListCount(target) > originalCount;
+				return Helper.list.getListCount(target) > originalCount;
 			}
 		});
 	}
@@ -99,7 +228,7 @@ public class WaitHelper {
 	 * 
 	 * @param target
 	 */
-	public static void waitForElementToBeRemoved(final EnhancedBy target) {
+	public void waitForElementToBeRemoved(final EnhancedBy target) {
 		waitForElementToBeRemoved(target, AbstractDriver.TIMEOUT_SECONDS);
 	}
 
@@ -110,9 +239,9 @@ public class WaitHelper {
 	 * @param time
 	 *            : maximum amount of time in seconds to wait
 	 */
-	public static boolean waitForElementToBeRemoved(final EnhancedBy target, int time) {
-
-		FluentWait wait = new FluentWait<>(AbstractDriver.getWebDriver()).withTimeout(time, TimeUnit.SECONDS).pollingEvery(5, TimeUnit.MILLISECONDS).ignoring(NoSuchElementException.class);
+	public boolean waitForElementToBeRemoved(final EnhancedBy target, int time) {
+		FluentWait<WebDriver> wait = new FluentWait<>(AbstractDriver.getWebDriver()).withTimeout(Duration.ofSeconds(time))
+				.pollingEvery(Duration.ofMillis(5)).ignoring(NoSuchElementException.class);
 
 		try {
 			wait.until(new Function<WebDriver, Boolean>() {
@@ -120,6 +249,8 @@ public class WaitHelper {
 				public Boolean apply(WebDriver driver) {
 					EnhancedWebElement elements = Element.findElements(target);
 					try {
+						// TestLog.ConsoleLog(Element.findElements(target).count()+"");
+
 						for (int x = 0; x < elements.count(); x++) {
 							if (elements.isExist(x)) {
 								return false;
@@ -143,21 +274,19 @@ public class WaitHelper {
 	 * 
 	 * @param seconds
 	 */
-	public static void waitForSeconds(double seconds) {
-		try {
-			Thread.sleep((long) (seconds * 1000));
-		} catch (InterruptedException e) {
-			e.getMessage();
-		}
+	public void waitForSeconds(double seconds) {
+		long miliseconds = (long) (seconds * 1000);
+		Uninterruptibles.sleepUninterruptibly(miliseconds, TimeUnit.MILLISECONDS);
 		// TestLogger.logPass("Then I wait for '" + seconds + "' seconds");
 	}
 
 	/**
 	 * waits for webpage to load
 	 */
-	public static void waitForPageToLoad() {
-		
-		FluentWait wait = new FluentWait<>(AbstractDriver.getWebDriver()).withTimeout(AbstractDriver.TIMEOUT_SECONDS, TimeUnit.SECONDS).pollingEvery(5, TimeUnit.MILLISECONDS).ignoring(NoSuchElementException.class);
+	public void waitForPageToLoad() {
+
+		FluentWait<WebDriver> wait = new FluentWait<>(AbstractDriver.getWebDriver()).withTimeout(Duration.ofSeconds(AbstractDriver.TIMEOUT_SECONDS))
+				.pollingEvery(Duration.ofMillis(5)).ignoring(NoSuchElementException.class);
 
 		wait.until(new Function<WebDriver, Boolean>() {
 			@Override
@@ -167,7 +296,6 @@ public class WaitHelper {
 		});
 	}
 
-
 	/**
 	 * waits for item containing in list to load
 	 * 
@@ -175,14 +303,15 @@ public class WaitHelper {
 	 * @param option
 	 * @param time
 	 */
-	public static void waitForListItemToLoad_Contains(final EnhancedBy list, String option) {
-		FluentWait wait = new FluentWait<>(AbstractDriver.getWebDriver()).withTimeout(AbstractDriver.TIMEOUT_SECONDS, TimeUnit.SECONDS).pollingEvery(5, TimeUnit.MILLISECONDS).ignoring(NoSuchElementException.class);
+	public void waitForListItemToLoad_Contains(final EnhancedBy list, String option) {
+		FluentWait<WebDriver> wait = new FluentWait<>(AbstractDriver.getWebDriver()).withTimeout(Duration.ofSeconds(AbstractDriver.TIMEOUT_SECONDS))
+				.pollingEvery(Duration.ofMillis(5)).ignoring(NoSuchElementException.class);
 
 		try {
 			wait.until(new Function<WebDriver, Boolean>() {
 				@Override
 				public Boolean apply(WebDriver driver) {
-					return ListHelper.isContainedInList(list, option);
+					return Helper.list.isContainedInList(list, option);
 				}
 			});
 		} catch (Exception e) {
@@ -195,7 +324,7 @@ public class WaitHelper {
 	 * 
 	 * @param target
 	 */
-	public static void waitForTextToLoad(final EnhancedBy target, String text) {
+	public void waitForTextToLoad(final EnhancedBy target, String text) {
 
 		waitForTextToLoad(target, AbstractDriver.TIMEOUT_SECONDS, text);
 	}
@@ -207,9 +336,10 @@ public class WaitHelper {
 	 * @param target
 	 * @param time
 	 */
-	public static void waitForTextToLoad(final EnhancedBy target, int time, String text) {
+	public void waitForTextToLoad(final EnhancedBy target, int time, String text) {
 
-		FluentWait wait = new FluentWait<>(AbstractDriver.getWebDriver()).withTimeout(time, TimeUnit.SECONDS).pollingEvery(5, TimeUnit.MILLISECONDS).ignoring(NoSuchElementException.class);
+		FluentWait<WebDriver> wait = new FluentWait<>(AbstractDriver.getWebDriver()).withTimeout(Duration.ofSeconds(time))
+				.pollingEvery(Duration.ofMillis(5)).ignoring(NoSuchElementException.class);
 
 		try {
 			wait.until(new Function<WebDriver, Boolean>() {
@@ -223,18 +353,57 @@ public class WaitHelper {
 
 		}
 	}
+
+	public boolean waitForElementToBeClickable(EnhancedBy selector) {
+		return waitForElementToBeClickable(selector, AbstractDriver.TIMEOUT_SECONDS);
+	}
+
+	public boolean waitForElementToBeClickable(final EnhancedBy target, int time) {
+
+		FluentWait<WebDriver> wait = new FluentWait<>(AbstractDriver.getWebDriver()).withTimeout(Duration.ofSeconds(time))
+				.pollingEvery(Duration.ofMillis(5)).ignoring(NoSuchElementException.class);
+
+		try {
+			wait.until(new Function<WebDriver, Boolean>() {
+				@Override
+				public Boolean apply(WebDriver driver) {
+					// TestLog.ConsoleLog(Element.findElements(target).count()+"");
+					EnhancedWebElement elements = Element.findElements(target);
+					return elements.count() >= 1 && elements.isEnabled();
+				}
+			});
+		} catch (Exception e) {
+			if (time == AbstractDriver.TIMEOUT_SECONDS)
+				AssertHelper.assertTrue("element: " + target.name + " did not display in allowed time (s) " + time,
+						false);
+			e.getMessage();
+			return false;
+		}
+		return true;
+	}
 	
-	/**
-	 * wait for element to become clickable
-	 * @param selector
-	 */
-    public static void waitForElementToBeClickable(EnhancedBy selector) {
-        try {
-          	WebDriverWait wait; wait = new WebDriverWait(AbstractDriver.getWebDriver(), AbstractDriver.TIMEOUT_SECONDS);
-          	EnhancedWebElement elements = Element.findElements(selector);
-          	wait.until(ExpectedConditions.elementToBeClickable(elements.get(0)));
-        } catch (Exception e) {
-        		e.getMessage();
-        }
-    }
+	public boolean waitForClassContain(final EnhancedBy target, int index, String value) {
+		return waitForClassContain(target, index,  value, AbstractDriver.TIMEOUT_SECONDS);
+	}
+	
+	public boolean waitForClassContain(final EnhancedBy target, int index, String value, int time) {
+		FluentWait<WebDriver> wait = new FluentWait<>(AbstractDriver.getWebDriver()).withTimeout(Duration.ofSeconds(time))
+				.pollingEvery(Duration.ofMillis(5)).ignoring(NoSuchElementException.class);
+		try {
+			wait.until(new Function<WebDriver, Boolean>() {
+				@Override
+				public Boolean apply(WebDriver driver) {
+					EnhancedWebElement elements = Element.findElements(target);
+					return elements.getAttribute(index, "class").contains(value);
+				}
+			});
+		} catch (Exception e) {
+			if (time == AbstractDriver.TIMEOUT_SECONDS)
+				AssertHelper.assertTrue("element: " + target.name + " did not display in allowed time (s) " + time,
+						false);
+			e.getMessage();
+			return false;
+		}
+		return true;	
+	}
 }
