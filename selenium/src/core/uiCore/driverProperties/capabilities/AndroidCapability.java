@@ -49,10 +49,19 @@ public class AndroidCapability {
 		this.capabilities = Capabilities;
 		return this;
 	}
+	
+	/**
+	 * device: property name from property file. eg. device1, device2
+	 * @param device
+	 * @return
+	 */
+	public AndroidCapability withDevice(String device) {
+		this.simulatorList = Config.getValueList(device);
+		return this;
+	}
 
 	public AndroidCapability withDevice1() {
 		this.simulatorList = Config.getValueList(DEVICE_NAME1);
-		// setAndroidDevice();
 		return this;
 	}
 

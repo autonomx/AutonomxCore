@@ -60,10 +60,19 @@ public class IosCapability {
 	public DesiredCapabilities getCapability() {
 		return capabilities;
 	}
+	
+	/**
+	 * device: property name from property file. eg. device1, device2
+	 * @param device
+	 * @return
+	 */
+	public IosCapability withDevice(String device) {
+		this.simulatorList = Config.getValueList(device);
+		return this;
+	}
 
 	public IosCapability withDevice1() {
 		this.simulatorList = Config.getValueList(DEVICES1);
-		// setAndroidDevice();
 		return this;
 	}
 

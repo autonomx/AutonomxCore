@@ -12,6 +12,10 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 
 import core.support.logger.TestLog;
 import core.uiCore.driverProperties.browserType.BrowserType;
+import core.uiCore.driverProperties.capabilities.AndroidCapability;
+import core.uiCore.driverProperties.capabilities.IosCapability;
+import core.uiCore.driverProperties.capabilities.WebCapability;
+import core.uiCore.driverProperties.capabilities.WinAppCapabilities;
 import core.uiCore.driverProperties.driverType.DriverType;
 import core.uiCore.drivers.AbstractDriver;
 
@@ -189,6 +193,33 @@ public class DriverObject {
 		options.addArguments("--lang=" + locale);
 		this.capabilities.setCapability(ChromeOptions.CAPABILITY, options);
 		return this;
+	}
+	
+	public DriverObject withWebDriver(String APP, String URL) {
+		WebCapability capability = new WebCapability().withBrowserCapability();
+		
+		return new DriverObject().withApp(APP).withDriverType(capability.getWebDriverType())
+				.withBrowserType(capability.getBrowser()).withDriverVersion(capability.getDriverVersion())
+				.withUrl(capability.getUrl(APP, URL))
+
+				.withCapabilities(capability.getCapability());
+	}
+	
+	public DriverObject withiOSDriver(String device) {
+		IosCapability capability = new IosCapability().withDevice(device).withIosCapability();
+		return new DriverObject().withDriverType(DriverType.IOS_DRIVER).withCapabilities(capability.getCapability());
+	}
+	
+	public DriverObject withAndroidDriver(String device) {
+		AndroidCapability capability = new AndroidCapability().withDevice(device).withAndroidCapability();
+		return new DriverObject().withDriverType(DriverType.ANDROID_DRIVER).withCapabilities(capability.getCapability());
+	}
+	
+	public DriverObject withWinDriver() {
+		WinAppCapabilities capability = new WinAppCapabilities().withWinAppdCapability();		
+		return new DriverObject()
+				.withDriverType(DriverType.WINAPP_DRIVER)
+				.withCapabilities(capability.getCapability());	
 	}
 
 }
