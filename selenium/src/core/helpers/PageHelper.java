@@ -309,4 +309,13 @@ public class PageHelper {
 			e.getMessage();
 		}
 	}
+	
+	/**
+	 * navigate to a different url
+	 * @param url
+	 */
+	public void swtichUrl(String url) {
+		AbstractDriver.getWebDriver().get(url);
+		Helper.waitForPageToLoad();
+	}
 }

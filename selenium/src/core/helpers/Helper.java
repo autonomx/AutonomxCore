@@ -500,6 +500,32 @@ public class Helper {
 	public static boolean isElementContainingText(EnhancedBy element, String text) {
 		return VerifyHelper.isElementContainingText(element, text);
 	}
+	
+	/**
+	 * verify if element contains text
+	 * @param element
+	 * @param text
+	 */
+	public static void verifyElementContainingText(EnhancedBy element, String text) {
+		VerifyHelper.verifyElementContainingText(element, text);
+	}
+	
+	/**
+	 * verify if text is displayed on page
+	 * @param text
+	 */
+	public static void verifyTextDisplayed(String text) {
+		VerifyHelper.verifyTextDisplayed(text);
+	}
+	
+	/**
+	 * is text displayed on page
+	 * @param text
+	 * @return
+	 */
+	public static boolean isTextDisplayed(String text) {
+		return VerifyHelper.isTextDisplayed(text);
+	}
 
 	/**
 	 * verifies if element(s) is (are) not displayed
@@ -1542,6 +1568,14 @@ public class Helper {
 	public static void bringPageToFront() {
 		 page.bringPageToFront();
 	}
+	
+	/**
+	 * navigate to a different url
+	 * @param url
+	 */
+	public static void swtichUrl(String url) {
+		page.swtichUrl(url);
+	}
 
 	/**
 	 * gets specified attribute of the element
@@ -1607,6 +1641,15 @@ public class Helper {
 	 */
 	public static Dimension getElementSize(EnhancedBy by) {
 		return ElementHelper.getElementSize(by);
+	}
+	
+	/**
+	 * returns the center coordinates of the target element
+	 * @param target
+	 * @return
+	 */
+	public static int[] findMiddleOfElement(EnhancedBy target) {
+		return ElementHelper.findMiddleOfElement(target);
 	}
 
 	// WaitHelper
@@ -1997,15 +2040,25 @@ public class Helper {
 	/*
 	 * Enter text to an element by action
 	 */
-	protected void inputTextByAction(EnhancedBy by, String text) {
+	public void inputTextByAction(EnhancedBy by, String text) {
 		ElementActionHelper.inputTextByAction(by, text);
 	}
 	
 	/*
 	 * Double click an element
 	 */
-	protected static void doubleClickBy(EnhancedBy by) {
+	public static void doubleClickBy(EnhancedBy by) {
 		ElementActionHelper.doubleClickBy(by);
+	}
+	
+	/**
+	 * Hover on the x,y points
+	 *
+	 * @param x
+	 * @param y
+	 */
+	public static void hoverPoints(int x, int y) {
+		ElementActionHelper.hoverPoints(x, y);
 	}
 
 	// email helper

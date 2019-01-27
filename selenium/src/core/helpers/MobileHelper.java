@@ -699,7 +699,7 @@ public class MobileHelper {
             
             // TODO: Strategy3 is too slow. isExist takes too long
             //Strategy1: if keys: "Hide keyboard", "DONE", "Done", "Return", "Next" displayed, click them
-            List<String> keys = Arrays.asList("Next", "Done", "DONE", "Hide keyboard","Hide", "Return");
+            List<String> keys = Arrays.asList("Next", "Done", "DONE", "Hide keyboard","Hide");
             for(String key : keys) {
                 EnhancedBy ios_keys = Element.byAccessibility(key,"Keyboard");
                 if(Element.findElements(ios_keys).isExist()) {

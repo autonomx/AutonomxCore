@@ -2,6 +2,7 @@ package core.helpers;
 
 import org.openqa.selenium.Dimension;
 
+import core.support.logger.TestLog;
 import core.uiCore.webElement.EnhancedBy;
 import core.uiCore.webElement.EnhancedWebElement;
 
@@ -73,5 +74,19 @@ public class ElementHelper {
 	protected static Dimension getElementSize(EnhancedBy by) {
 		EnhancedWebElement element = Element.findElements(by);
 		return element.getSize();
+	}
+	
+	/**
+	 * returns the center coordinates of the target element
+	 * @param target
+	 * @return
+	 */
+	protected static int[] findMiddleOfElement(EnhancedBy target) {
+
+		EnhancedWebElement targetElement = Element.findElements(target);
+		int x = targetElement.get(0).getRect().x + targetElement.get(0).getRect().width / 2;
+		int y = targetElement.get(0).getRect().y + targetElement.get(0).getRect().height / 2;
+		TestLog.ConsoleLog("Center at: point x: " + x + " point y: " + y);
+		return new int[] { x, y };
 	}
 }

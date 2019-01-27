@@ -44,6 +44,39 @@ public class VerifyHelper {
 	protected static boolean isElementContainingText(EnhancedBy element, String text) {
 		return Helper.list.isContainedInList(element, text);
 	}
+	
+	/**
+	 * verify if element contains text
+	 * @param element
+	 * @param text
+	 */
+	protected static void verifyElementContainingText(EnhancedBy element, String text) {
+		Helper.waitForElementToLoad(element);
+		Helper.assertTrue("element does not contain text: " + text, isElementContainingText(element, text));
+	}
+	
+	/**
+	 * verify if text is displayed on page
+	 * @param text
+	 */
+	protected static void verifyTextDisplayed(String text) {
+		boolean isText = isTextDisplayed(text);
+		Helper.assertTrue("text: " + "text is not displayed", isText);
+	}
+	
+	/**
+	 * is text displayed on page
+	 * @param text
+	 * @return
+	 */
+	protected static boolean isTextDisplayed(String text) {
+		try {
+			boolean b = AbstractDriver.getWebDriver().getPageSource().contains(text);
+			return b;
+		} catch (Exception e) {
+			return false;
+		}
+	}
 
 	/**
 	 * verifies if element(s) is (are) not displayed
