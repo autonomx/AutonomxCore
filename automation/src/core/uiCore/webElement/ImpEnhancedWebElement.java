@@ -461,10 +461,10 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	@Override
 	public List<String> getTextList() {
 		List<String> stringList = new ArrayList<String>();
-
+		List<WebElement> elementList = getElements();
+		
 		// if mobile or not css locator type
 		if (isMobile() || !locatorType.equals(Element.LocatorType.css)) {
-			List<WebElement> elementList = getElements();
 			int listSize = elementList.size();
 			for (int i = 0; i < listSize; i++) {
 				stringList.add(elementList.get(i).getText());
@@ -540,6 +540,8 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		
 		for (ElementObject elementObject : this.enhanceBy.elementObject) {
 			this.by = elementObject.by;
+			this.locatorType = elementObject.locatorType;
+			
 			try {
 				if (parent != null) {
 					this.current = new ArrayList<WebElement>();
@@ -591,6 +593,8 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		for (ElementObject elementObject : this.enhanceBy.elementObject) {
 			try {
 				this.by = elementObject.by;
+				this.locatorType = elementObject.locatorType;
+
 				if (parent != null) {
 					this.current = parent.findElements(by);
 				} else if (current == null || current.isEmpty()) {
