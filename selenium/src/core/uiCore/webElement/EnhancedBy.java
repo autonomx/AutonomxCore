@@ -1,71 +1,105 @@
 package core.uiCore.webElement;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openqa.selenium.By;
 
-import core.helpers.Element;
+import core.helpers.Element.LocatorType;
+import core.helpers.Helper;
+import io.appium.java_client.MobileBy;
 
 /**
- * supporting 2 locator strategies: by, by2
- * 
+ * Elements are stored in list
  * @author CAEHMAT
  *
  */
 public class EnhancedBy {
-
-	public By by;
-	public By by2;
+	public List<ElementObject> elementObject;
 	public String name;
-	public String locator;
-	public String locator2;
-	public Element.LocatorType locatorType;
-
-	/**
-	 * gets by value for elements
-	 * 
-	 * @param by
-	 * @param name
-	 */
-	public EnhancedBy(By by, String name) {
-		this.by = by;
-		this.name = name;
+	
+	public EnhancedBy() {
+		 elementObject = new ArrayList<ElementObject>();
 	}
+	
+	public EnhancedBy byCss(String element, String name) {	
+		Helper.assertTrue("element cannot be empty", !element.isEmpty());
 
-	public EnhancedBy(By by, By by2, String name) {
-		this.by = by;
-		this.by2 = by2;
-		this.name = name;
-	}
-
-	/**
-	 * gets by value for elements
-	 * 
-	 * @param by
-	 * @param name
-	 */
-	public EnhancedBy(By by, String name, String locator, Element.LocatorType locatorType) {
-		this.by = by;
-		this.name = name;
-		this.locator = locator;
-		this.locatorType = locatorType;
-	}
-
-	public EnhancedBy(By by, By by2, String name, String locator, String locator2, Element.LocatorType locatorType) {
-		this.by = by;
-		this.by2 = by2;
-		this.name = name;
-		this.locator = locator;
-		this.locator2 = locator2;
-		this.locatorType = locatorType;
-
-	}
-
-	public EnhancedBy withBy(By by) {
-		this.by = by;
-		return this;
-	}
-
-	public EnhancedBy withName(String name) {
+		ElementObject locatorObject = new ElementObject(By.cssSelector(element), name, element, LocatorType.css);  
+		elementObject.add(locatorObject);
 		this.name = name;
 		return this;
+	}
+	
+	public EnhancedBy byCss(String element) {	
+		return byCss(element, "");
+	}
+	
+	public EnhancedBy byXpath(String element, String name) {	
+		Helper.assertTrue("element cannot be empty", !element.isEmpty());
+
+		ElementObject locatorObject = new ElementObject(By.xpath(element), name, element, LocatorType.xpath);  
+		elementObject.add(locatorObject);	
+		this.name = name;
+		return this;
+	}
+	
+	public EnhancedBy byXpath(String element) {	
+		return byXpath(element,"");
+	}
+
+		
+	
+	public EnhancedBy byId(String element, String name) {
+		Helper.assertTrue("element cannot be empty", !element.isEmpty());
+
+		ElementObject locatorObject = new ElementObject(By.id(element), name, element, LocatorType.id);  
+		elementObject.add(locatorObject);
+		this.name = name;
+		return this;
+	}
+	
+	public EnhancedBy byId(String element) {
+		return byId(element, "");
+	}
+
+	
+	public EnhancedBy byName(String element, String name) {	
+		Helper.assertTrue("element cannot be empty", !element.isEmpty());
+
+		ElementObject locatorObject = new ElementObject(By.name(element), name, element, LocatorType.name);  
+		elementObject.add(locatorObject);
+		this.name = name;
+		return this;
+	}
+	
+	public EnhancedBy byName(String element) {	
+		return byName(element, "");
+	}
+
+	public EnhancedBy byClass(String element, String name) {
+		Helper.assertTrue("element cannot be empty", !element.isEmpty());
+
+		ElementObject locatorObject = new ElementObject(By.className(element), name, element, LocatorType.classType);  
+		elementObject.add(locatorObject);	
+		this.name = name;
+		return this;
+	}
+	
+	public EnhancedBy byClass(String element) {
+		return byClass(element, "");
+	}
+	
+	public EnhancedBy byAccessibility(String element, String name) {	
+		Helper.assertTrue("element cannot be empty", !element.isEmpty());
+
+		ElementObject locatorObject = new ElementObject(MobileBy.AccessibilityId(element), name, element, LocatorType.accessibiliy);  
+		elementObject.add(locatorObject);
+		this.name = name;	
+		return this;
+	}
+	
+	public EnhancedBy byAccessibility(String element) {
+		return byAccessibility(element, "");
 	}
 }

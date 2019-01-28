@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.zip.ZipOutputStream;
 
 import org.json.JSONException;
-import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
@@ -223,17 +222,6 @@ public class Helper {
 	}
 
 	/**
-	 * sets the by value with by selector and name of the element
-	 * 
-	 * @param by
-	 * @param name
-	 * @return
-	 */
-	public static EnhancedBy bySelector(By by, String name) {
-		return Element.bySelector(by, name);
-	}
-
-	/**
 	 * gets element by css value
 	 * 
 	 * @param element
@@ -276,19 +264,6 @@ public class Helper {
 	public static EnhancedBy byAccessibility(String element, String name) {
 		return Element.byAccessibility(element, name);
 	}
-
-	/**
-	 * gets element by class (for mobile)
-	 * 
-	 * @param element
-	 * @param name
-	 * @return
-	 */
-	public static EnhancedBy byMobileClass(String element, String name) {
-		return Element.byMobileClass(element, name);
-	}
-
-	// Click Helper
 
 	// ClickHelper
 	/**

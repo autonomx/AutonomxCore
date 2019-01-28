@@ -27,23 +27,19 @@ import io.appium.java_client.touch.offset.PointOption;
 public class ImpEnhancedWebElement implements EnhancedWebElement {
 
 	private final String elementName;
-	private final By by;
-	private final By by2;
+	private final EnhancedBy enhanceBy;
+	private By by;
 	private final WebDriver webDriver;
 	private final WebElement parent;
 	private List<WebElement> current;
-	private List<MobileElement> mobileElement;
 	private Element.LocatorType locatorType;
 
 	public ImpEnhancedWebElement(EnhancedBy enhanceBy, WebDriver webDriver, WebElement parent) {
 		this.elementName = enhanceBy.name;
-		this.by = enhanceBy.by;
-		this.by2 = enhanceBy.by2;
-		this.locatorType = enhanceBy.locatorType;
+		this.enhanceBy = enhanceBy;
 		this.webDriver = webDriver;
 		this.parent = parent;
 		this.current = null;
-		this.mobileElement = null;
 	}
 
 	@Override
@@ -348,7 +344,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 
 	@Override
 	public void setValue(int index, CharSequence... keysToSend) {
-		MobileElement element = getMobileElement().get(index);
+		MobileElement element = (MobileElement) getElement().get(index);
 		String value = keysToSend[0].toString();
 		element.setValue(value);
 	}
@@ -519,42 +515,48 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	 * @return
 	 */
 	public WebElement getElement(int index) {
+		webDriver.manage().timeouts().implicitlyWait(1, TimeUnit.MILLISECONDS);
+
+		WebElement element;
 
 		if (index == 0)
-			return getElement().get(0);
+			 element =  getElement().get(0);
 		else
-			return getElements().get(index);
+			element = getElements().get(index);
+		
+		webDriver.manage().timeouts().implicitlyWait(AbstractDriver.TIMEOUT_SECONDS, TimeUnit.SECONDS);
+		return element;
 	}
 
 	/**
-	 * gets a single element if
+	 * gets a single element 
+	 * gets first element in the elementObject list
 	 * 
 	 * @return
 	 */
 	public List<WebElement> getElement() {
-
-		try {
-			if (parent != null) {
-				this.current = new ArrayList<WebElement>();
-				List<WebElement> elements = parent.findElements(by);
-
-				if (elements.isEmpty() && by2 != null)
-					elements = parent.findElements(by2);
+		List<WebElement> elements = new ArrayList<WebElement>();
+		if (current != null && !current.isEmpty() ) return this.current;
+		
+		for (ElementObject elementObject : this.enhanceBy.elementObject) {
+			this.by = elementObject.by;
+			try {
+				if (parent != null) {
+					this.current = new ArrayList<WebElement>();
+					elements = parent.findElements(by);
+				} else if (current == null || current.isEmpty()) {
+					this.current = new ArrayList<WebElement>();
+					elements = webDriver.findElements(by);
+				}
+				// if no element found, go to next locator
+				if (elements.isEmpty())
+					continue;
+				// get first visible element
 				WebElement element = getFirstVisibleElement(elements);
 				this.current.add(element);
-			} else if (current == null) {
-				this.current = new ArrayList<WebElement>();
-				List<WebElement> elements = webDriver.findElements(by);
-
-				if (elements.isEmpty() && by2 != null)
-					elements = webDriver.findElements(by2);
-				WebElement element = getFirstVisibleElement(elements);
-				this.current.add(element);
-				// TestLog.ConsoleLog("getElements() called: " + by);
+			} catch (Exception e) {
+				e.getMessage();
 			}
-
-		} catch (Exception e) {
-			e.getMessage();
 		}
 		return this.current;
 	}
@@ -586,47 +588,22 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 
 	public List<WebElement> getElements() {
 
-		try {
-			if (parent != null) {
-				this.current = parent.findElements(by);
-				if (this.current.isEmpty() && by2 != null)
-					this.current = parent.findElements(by2);
-			} else if (current == null) {
-				this.current = webDriver.findElements(by);
-				if (this.current.isEmpty() && by2 != null)
-					this.current = webDriver.findElements(by2);
-				// TestLog.ConsoleLog("getElements() called: " + by);
-			}
-
-		} catch (Exception e) {
-			e.getMessage();
-		}
-
-		return this.current;
-	}
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public List<MobileElement> getMobileElement() {
-		int retry = 1;
-		boolean success = false;
-
-		do {
-			retry--;
+		for (ElementObject elementObject : this.enhanceBy.elementObject) {
 			try {
+				this.by = elementObject.by;
 				if (parent != null) {
-					this.mobileElement = ((AppiumDriver) parent).findElements(by);
-				} else {
-					this.mobileElement = ((AppiumDriver) webDriver).findElements(by);
-					// TestLog.ConsoleLog("getMobileElement() called: " + by);
+					this.current = parent.findElements(by);
+				} else if (current == null || current.isEmpty()) {
+					this.current = webDriver.findElements(by);
 				}
-				success = true;
-
+				// if element is found, exit loop
+				if (!this.current.isEmpty())
+					break;
 			} catch (Exception e) {
 				e.getMessage();
 			}
-		} while (!success && retry > 0);
-
-		return this.mobileElement;
+		}
+		return this.current;
 	}
 
 	@Override

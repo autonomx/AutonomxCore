@@ -1,13 +1,11 @@
 package core.helpers;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 import core.uiCore.drivers.AbstractDriver;
 import core.uiCore.webElement.EnhancedBy;
 import core.uiCore.webElement.EnhancedWebElement;
 import core.uiCore.webElement.ImpEnhancedWebElement;
-import io.appium.java_client.MobileBy;
 
 /**
  * app page is parent class of different apps
@@ -58,18 +56,6 @@ public class Element {
 	}
 
 	/**
-	 * sets the by value with by selector and name of the element
-	 * 
-	 * @param by
-	 * @param name
-	 * @return
-	 */
-	public static EnhancedBy bySelector(By by, String name) {
-
-		return new EnhancedBy(by, name);
-	}
-
-	/**
 	 * gets element by css value
 	 * 
 	 * @param element
@@ -78,7 +64,7 @@ public class Element {
 	 */
 	public static EnhancedBy byCss(String element, String name) {
 
-		return new EnhancedBy(By.cssSelector(element), name, element, LocatorType.css);
+		return new EnhancedBy().byCss(element, name);
 	}
 
 	/**
@@ -90,7 +76,7 @@ public class Element {
 	 */
 	public static EnhancedBy byId(String element, String name) {
 
-		return new EnhancedBy(By.id(element), name, element, LocatorType.id);
+		return new EnhancedBy().byId(element, name);
 	}
 	
 	
@@ -102,7 +88,7 @@ public class Element {
 	 */
 	public static EnhancedBy byName(String element, String name) {
 
-		return new EnhancedBy(By.name(element), name, element, LocatorType.name);
+		return new EnhancedBy().byName(element, name);
 	}
 
 	/**
@@ -113,20 +99,15 @@ public class Element {
 	 * @return
 	 */
 	public static EnhancedBy byXpath(String element, String name) {
-		if (element.isEmpty())
-			Helper.assertTrue("element cannot be empty", false);
 
-		return new EnhancedBy(By.xpath(element), name, element, LocatorType.xpath);
+		return new EnhancedBy().byXpath(element, name);
 	}
+	
 
 	public static EnhancedBy byTextXpath(String element, String name) {
-		if (element.isEmpty())
-			Helper.assertTrue("element cannot be empty", false);
 
-		String element2 = element;
-		element2 = element2.replace("content-desc", "text");
-
-		return new EnhancedBy(By.xpath(element), By.xpath(element), name, element, element2, LocatorType.xpath);
+		String xpath = element.replace("content-desc", "text");
+		return new EnhancedBy().byXpath(element, name).byXpath(xpath, name);
 	}
 
 	/**
@@ -137,10 +118,7 @@ public class Element {
 	 * @return
 	 */
 	public static EnhancedBy byXpathContentDesc(String element, String name) {
-		if (element.isEmpty())
-			Helper.assertTrue("element cannot be empty", false);
-
-		return new EnhancedBy(By.xpath("//*[@content-desc='" + element + "']"), name, element, LocatorType.xpath);
+		return new EnhancedBy().byXpath("//*[@content-desc='" + element + "']", name);
 	}
 
 	/**
@@ -151,10 +129,7 @@ public class Element {
 	 * @return
 	 */
 	public static EnhancedBy byClass(String element, String name) {
-		if (element.isEmpty())
-			Helper.assertTrue("element cannot be empty", false);
-
-		return new EnhancedBy(By.className(element), name, element, LocatorType.classType);
+		return new EnhancedBy().byClass(element, name);
 	}
 
 	/**
@@ -165,24 +140,8 @@ public class Element {
 	 * @return
 	 */
 	public static EnhancedBy byAccessibility(String element, String name) {
-		if (element.isEmpty())
-			Helper.assertTrue("element cannot be empty", false);
 
 		String xpath = "//*[@text='" + element + "']";
-		return new EnhancedBy(MobileBy.AccessibilityId(element), By.xpath(xpath), name, element, xpath, LocatorType.accessibiliy);
-	}
-
-	/**
-	 * gets element by class (for mobile)
-	 * 
-	 * @param element
-	 * @param name
-	 * @return
-	 */
-	public static EnhancedBy byMobileClass(String element, String name) {
-		if (element.isEmpty())
-			Helper.assertTrue("element cannot be empty", false);
-
-		return new EnhancedBy(MobileBy.className(element), name, element, LocatorType.mobileClass);
+		return new EnhancedBy().byAccessibility(element, name).byXpath(xpath, name);
 	}
 }
