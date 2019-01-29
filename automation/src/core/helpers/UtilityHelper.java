@@ -37,6 +37,7 @@ import allbegray.slack.SlackClientFactory;
 import allbegray.slack.webapi.SlackWebApiClient;
 import core.support.configReader.Config;
 import core.support.logger.ExtentManager;
+import core.support.logger.TestLog;
 import core.support.objects.TestObject;
 import core.uiCore.drivers.AbstractDriver;
 import core.uiCore.drivers.AbstractDriverTestNG;
@@ -166,7 +167,7 @@ public class UtilityHelper {
 				}
 				success = true;
 			} catch (Exception e) {
-				e.getMessage();
+				TestLog.ConsoleLog("shell command:  '" + cmd + "' output: " + e.getMessage());
 			} finally {
 				if (pr != null)
 					pr.destroy();

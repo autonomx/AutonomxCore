@@ -3,7 +3,9 @@ package core.uiCore.driverProperties.capabilities;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.openqa.selenium.remote.DesiredCapabilities;
@@ -15,6 +17,7 @@ import core.support.logger.TestLog;
 import core.support.objects.DeviceManager;
 import core.support.objects.DeviceObject.DeviceType;
 import core.support.objects.TestObject;
+import core.uiCore.AppiumServer;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import core.uiCore.drivers.AbstractDriver;
 import io.appium.java_client.remote.AndroidMobileCapabilityType;
@@ -187,7 +190,7 @@ public class AndroidCapability {
 	 * @return
 	 */
 	public boolean isRealDeviceConnected() {
-		ArrayList<String> devices = getAndroidDeviceList();
+		List<String> devices = getAndroidDeviceList();
 		for (String device : devices) {
 			if (!device.contains("emulator")) {
 				return true;
@@ -202,13 +205,14 @@ public class AndroidCapability {
 	 * @param devices
 	 * @return
 	 */
-	public String getRealDevice(List<String> devices) {
+	public static List<String> getRealDevices(List<String> devices) {
+		ArrayList<String> realDeviceList = new ArrayList<String>();
 		for (String device : devices) {
 			if (!device.contains("emulator")) {
-				return device;
+				realDeviceList.add(device);
 			}
 		}
-		return "";
+		return realDeviceList;
 	}
 
 	/**
@@ -217,7 +221,8 @@ public class AndroidCapability {
 	 * 
 	 * @return
 	 */
-	public static ArrayList<String> getAndroidDeviceList() {
+	public static List<String> getAndroidDeviceList() {
+	
 		String cmd = "adb devices";
 		ArrayList<String> results = Helper.runShellCommand(cmd);
 		TestLog.ConsoleLog("Android device list: " + Arrays.toString(results.toArray()));
@@ -232,6 +237,13 @@ public class AndroidCapability {
 		}
 		return devices;
 	}
+	
+	public static List<String> getAndroidRealDeviceList() {
+		List<String> devices = getAndroidDeviceList();
+		return getRealDevices(devices);
+	}
+	
+	
 
 	/**
 	 * sets ios device number of devices must be equal or greater than number of
@@ -286,7 +298,7 @@ public class AndroidCapability {
 	 * 
 	 */
 	public void setRealDevices() {
-		ArrayList<String> devices = getAndroidDeviceList();
+		List<String> devices = getAndroidRealDeviceList();
 		int threads = CrossPlatformProperties.getParallelTests();
 		if (threads > devices.size())
 			Helper.assertFalse(
@@ -294,7 +306,7 @@ public class AndroidCapability {
 
 		// adds all devices
 		DeviceManager.loadDevices(devices, DeviceType.Android);
-		capabilities.setCapability("avd", DeviceManager.getFirstAvailableDevice(DeviceType.Android));
+		capabilities.setCapability("udid", DeviceManager.getFirstAvailableDevice(DeviceType.Android));
 	}
 
 	/**
