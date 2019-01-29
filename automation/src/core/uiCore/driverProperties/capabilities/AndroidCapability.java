@@ -35,6 +35,7 @@ public class AndroidCapability {
 	public static String CHROME_VERSION = "appiumChromeVersion";
 	public static String iS_CHROME_AUTO_MANAGE = "appiumChromeAutoManage";
 	public static String CHROME_DRIVER_PATH = "appiumChromeDriverPath";
+	public static String ANDROID_TECHNOLOGY = "androidTechnology";
 
 	public List<String> simulatorList = new ArrayList<String>();
 	public static AtomicInteger systemPort = new AtomicInteger(8200);
@@ -111,7 +112,7 @@ public class AndroidCapability {
 
 		// mandatory capabilities
 		capabilities.setCapability("deviceName", "Android");
-		capabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME, "UiAutomator2");
+		capabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME, Config.getValue(ANDROID_TECHNOLOGY));
 		// app reset controls
 		capabilities.setCapability(MobileCapabilityType.FULL_RESET, Config.getBooleanValue(FULL_RESET));
 		capabilities.setCapability(MobileCapabilityType.NO_RESET, Config.getBooleanValue(NO_RESET));

@@ -245,7 +245,7 @@ public class AbstractDriverTestNG {
 
 			} catch (Exception e) {
 				if(retry > 0)
-					TestLog.ConsoleLog("driver failed to start. retrying " + retry + " more times ...");
+					TestLog.ConsoleLog("driver failed to start. retrying " + retry + " more time(s) ...");
 				
 				Helper.wait.waitForSeconds(3);
 				if (retry == 0) {

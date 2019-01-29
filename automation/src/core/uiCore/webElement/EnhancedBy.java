@@ -16,7 +16,7 @@ import io.appium.java_client.MobileBy;
  */
 public class EnhancedBy {
 	public List<ElementObject> elementObject;
-	public String name;
+	public String name = "";
 	
 	public EnhancedBy() {
 		 elementObject = new ArrayList<ElementObject>();
@@ -32,7 +32,7 @@ public class EnhancedBy {
 	}
 	
 	public EnhancedBy byCss(String element) {	
-		return byCss(element, "");
+		return byCss(element, name);
 	}
 	
 	public EnhancedBy byXpath(String element, String name) {	
@@ -45,7 +45,7 @@ public class EnhancedBy {
 	}
 	
 	public EnhancedBy byXpath(String element) {	
-		return byXpath(element,"");
+		return byXpath(element, name);
 	}
 
 		
@@ -60,7 +60,7 @@ public class EnhancedBy {
 	}
 	
 	public EnhancedBy byId(String element) {
-		return byId(element, "");
+		return byId(element, name);
 	}
 
 	
@@ -74,7 +74,7 @@ public class EnhancedBy {
 	}
 	
 	public EnhancedBy byName(String element) {	
-		return byName(element, "");
+		return byName(element, name);
 	}
 
 	public EnhancedBy byClass(String element, String name) {
@@ -87,7 +87,7 @@ public class EnhancedBy {
 	}
 	
 	public EnhancedBy byClass(String element) {
-		return byClass(element, "");
+		return byClass(element, name);
 	}
 	
 	public EnhancedBy byAccessibility(String element, String name) {	
@@ -100,6 +100,6 @@ public class EnhancedBy {
 	}
 	
 	public EnhancedBy byAccessibility(String element) {
-		return byAccessibility(element, "");
+		return byAccessibility(element, name);
 	}
 }
