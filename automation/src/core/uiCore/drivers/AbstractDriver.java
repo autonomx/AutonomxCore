@@ -26,8 +26,7 @@ public class AbstractDriver {
 			AbstractDriverJunit abstractDriver = new AbstractDriverJunit();
 			abstractDriver.setupWebDriver(driverObject);
 		} else if (isTestNG()) {
-			AbstractDriverTestNG abstractDriver = new AbstractDriverTestNG();
-			abstractDriver.setupWebDriver(driverObject);
+			AbstractDriverTestNG.setupWebDriver(driverObject);
 		}
 	}
 

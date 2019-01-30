@@ -167,7 +167,7 @@ public class UtilityHelper {
 				}
 				success = true;
 			} catch (Exception e) {
-				TestLog.ConsoleLog("shell command:  '" + cmd + "' output: " + e.getMessage());
+				TestLog.ConsoleLogDebug("shell command:  '" + cmd + "' output: " + e.getMessage());
 			} finally {
 				if (pr != null)
 					pr.destroy();

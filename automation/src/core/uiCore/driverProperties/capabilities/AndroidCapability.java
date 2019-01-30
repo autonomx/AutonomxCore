@@ -3,10 +3,7 @@ package core.uiCore.driverProperties.capabilities;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.openqa.selenium.remote.DesiredCapabilities;
 
@@ -17,7 +14,6 @@ import core.support.logger.TestLog;
 import core.support.objects.DeviceManager;
 import core.support.objects.DeviceObject.DeviceType;
 import core.support.objects.TestObject;
-import core.uiCore.AppiumServer;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import core.uiCore.drivers.AbstractDriver;
 import io.appium.java_client.remote.AndroidMobileCapabilityType;
@@ -41,7 +37,7 @@ public class AndroidCapability {
 	public static String ANDROID_TECHNOLOGY = "androidTechnology";
 
 	public List<String> simulatorList = new ArrayList<String>();
-	public static AtomicInteger systemPort = new AtomicInteger(8200);
+	public static int SYSTEM_PORT = 8200;
 
 	Config config;
 
@@ -225,7 +221,7 @@ public class AndroidCapability {
 	
 		String cmd = "adb devices";
 		ArrayList<String> results = Helper.runShellCommand(cmd);
-		TestLog.ConsoleLog("Android device list: " + Arrays.toString(results.toArray()));
+		TestLog.ConsoleLogDebug("Android device list: " + Arrays.toString(results.toArray()));
 		if (!results.isEmpty())
 			results.remove(0);
 		ArrayList<String> devices = new ArrayList<String>();
@@ -275,14 +271,15 @@ public class AndroidCapability {
 	 * else generate new port number
 	 * @param deviceName
 	 */
-	public void setPort(String deviceName) {
+	public synchronized void setPort(String deviceName) {
 		
 		// if device port is already set
 		if(DeviceManager.devices.get(deviceName) != null && (DeviceManager.devices.get(deviceName).devicePort != -1))
 			capabilities.setCapability(AndroidMobileCapabilityType.SYSTEM_PORT, DeviceManager.devices.get(deviceName).devicePort);
 		else {
-			capabilities.setCapability(AndroidMobileCapabilityType.SYSTEM_PORT, systemPort.incrementAndGet());
-			DeviceManager.devices.get(deviceName).withDevicePort(systemPort.get());
+			int systemPort = ++SYSTEM_PORT;
+			capabilities.setCapability(AndroidMobileCapabilityType.SYSTEM_PORT, systemPort);
+			DeviceManager.devices.get(deviceName).withDevicePort(systemPort);
 		}
 		
 		TestLog.ConsoleLog("deviceName " + deviceName + " systemPort: " + DeviceManager.devices.get(deviceName).devicePort);

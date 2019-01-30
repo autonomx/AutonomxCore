@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.openqa.selenium.remote.DesiredCapabilities;
 
@@ -41,7 +40,7 @@ public class IosCapability {
 	public static String CHROME_VERSION = "appiumChromeVersion";
 	public List<String> simulatorList = new ArrayList<String>();;
 
-	public static AtomicInteger wdaLocalPort = new AtomicInteger(8100);
+	public static int WDA_LOCAL_PORT = 8100;
 
 	public IosCapability() {
 		capabilities = new DesiredCapabilities();
@@ -266,8 +265,9 @@ public class IosCapability {
 		if(DeviceManager.devices.get(deviceName) != null && (DeviceManager.devices.get(deviceName).devicePort != -1))
 			capabilities.setCapability("wdaLocalPort", DeviceManager.devices.get(deviceName).devicePort);
 		else {
-			capabilities.setCapability("wdaLocalPort", wdaLocalPort.incrementAndGet());
-			DeviceManager.devices.get(deviceName).withDevicePort(wdaLocalPort.get());
+			int wdaLocalPort = ++WDA_LOCAL_PORT;
+			capabilities.setCapability("wdaLocalPort", wdaLocalPort);
+			DeviceManager.devices.get(deviceName).withDevicePort(wdaLocalPort);
 		}
 		
 		TestLog.ConsoleLog("deviceName " + deviceName + " wdaLocalPort: " + DeviceManager.devices.get(deviceName).devicePort);
