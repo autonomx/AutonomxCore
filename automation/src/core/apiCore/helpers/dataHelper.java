@@ -66,11 +66,19 @@ public class dataHelper {
 		List<KeyValue> keywords = new ArrayList<KeyValue>();
 		expected = expected.replace("_VERIFY_JSON_PART_", "");
 		String[] keyVals = expected.split(";");
+		String key = "";
+		String position = "";
+		String value = "";
 		for (String keyVal : keyVals) {
 			String[] parts = keyVal.split(":", 3);
-			String key = Helper.stringRemoveLines(parts[0]);
-			String position = Helper.stringRemoveLines(parts[1]);
-			String value = Helper.stringRemoveLines(parts[2]);
+			if(parts.length == 2) {
+				 key = Helper.stringRemoveLines(parts[0]);
+				 value = Helper.stringRemoveLines(parts[1]);
+			}else if(parts.length == 3) {
+				 key = Helper.stringRemoveLines(parts[0]);
+				 position = Helper.stringRemoveLines(parts[1]);
+				 value = Helper.stringRemoveLines(parts[2]);
+			}
 
 			KeyValue keyword = new KeyValue(key, position, value);
 			keywords.add(keyword);
