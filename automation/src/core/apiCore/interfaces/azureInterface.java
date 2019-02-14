@@ -26,7 +26,7 @@ public class azureInterface {
 	 * String InterfaceType, String UriPath, String ContentType, String Method,
 	 * String Option, String RequestHeaders, String TemplateFile, String
 	 * RequestBody, String OutputParams, String RespCodeExp, String
-	 * ExpectedResponse, String PartialExpectedResponse, String NotExpectedResponse,
+	 * ExpectedResponse, String ExpectedResponse, String NotExpectedResponse,
 	 * String TcComments, String tcName, String tcIndex)
 	 *
 	 * interface for azure storage api calls

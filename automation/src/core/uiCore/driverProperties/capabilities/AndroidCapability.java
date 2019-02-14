@@ -14,6 +14,7 @@ import core.support.logger.TestLog;
 import core.support.objects.DeviceManager;
 import core.support.objects.DeviceObject.DeviceType;
 import core.support.objects.TestObject;
+import core.uiCore.AppiumServer;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import core.uiCore.drivers.AbstractDriver;
 import io.appium.java_client.remote.AndroidMobileCapabilityType;
@@ -218,8 +219,11 @@ public class AndroidCapability {
 	 * @return
 	 */
 	public static List<String> getAndroidDeviceList() {
-	
-		String cmd = "adb devices";
+		String cmd;
+		if (!Config.getValue(AppiumServer.ANDROID_HOME).isEmpty())
+			cmd = Config.getValue(AppiumServer.ANDROID_HOME) + "/platform-tools/adb devices";
+		else 
+			cmd = "adb devices";
 		ArrayList<String> results = Helper.runShellCommand(cmd);
 		TestLog.ConsoleLogDebug("Android device list: " + Arrays.toString(results.toArray()));
 		if (!results.isEmpty())

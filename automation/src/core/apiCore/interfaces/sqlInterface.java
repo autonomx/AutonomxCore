@@ -34,7 +34,7 @@ public class sqlInterface {
 	 * String InterfaceType, String UriPath, String ContentType, String Method,
 	 * String Option, String RequestHeaders, String TemplateFile, String
 	 * RequestBody, String OutputParams, String RespCodeExp, String
-	 * ExpectedResponse, String PartialExpectedResponse, String NotExpectedResponse,
+	 * ExpectedResponse, String ExpectedResponse, String NotExpectedResponse,
 	 * String TcComments, String tcName, String tcIndex)
 	 *
 	 * interface for database api calls
@@ -107,8 +107,8 @@ public class sqlInterface {
 		String sql = apiObject.RequestBody;
 		TestLog.logPass("sql statement: " + sql);
 
-		PreparedStatement sqlStmt = conn.prepareStatement(sql);
-		sqlStmt = conn.prepareStatement(sql);
+		PreparedStatement sqlStmt = conn.prepareStatement(sql,ResultSet.TYPE_SCROLL_INSENSITIVE, 
+                ResultSet.CONCUR_UPDATABLE);
 
 		// execute and wait for response if expected values are set
 		ResultSet resSet = executeAndWaitForDbResponse(sqlStmt, apiObject);
@@ -126,8 +126,7 @@ public class sqlInterface {
 	public static void evaluateReponse(ApiObject apiObject, ResultSet resSet) throws SQLException {
 
 		// return if expected response is empty
-		if (apiObject.PartialExpectedResponse.isEmpty() && apiObject.OutputParams.isEmpty()
-				&& apiObject.ExpectedResponse.isEmpty())
+		if (apiObject.ExpectedResponse.isEmpty() && apiObject.OutputParams.isEmpty())
 			return;
 
 		// fail test if no results returned
@@ -139,13 +138,10 @@ public class sqlInterface {
 		resSet.next();
 
 		// saves response values to config object
-		dataHelper.saveOutboundSQLParameters(resSet, apiObject.OutputParams);
-
-		// validate expected response if exists
-		validateExpectedResponse(apiObject.ExpectedResponse, resSet);
+		sqlHelper.saveOutboundSQLParameters(resSet, apiObject.OutputParams);
 
 		// validate partial expected response if exists
-		validateExpectedResponse(apiObject.PartialExpectedResponse, resSet);
+		validateExpectedResponse(apiObject.ExpectedResponse, resSet);
 
 		// Clean-up environment
 		resSet.close();
@@ -172,7 +168,7 @@ public class sqlInterface {
 			resSet = sqlStmt.getResultSet();
 
 			// if no response expected, do not wait for response
-			if (apiObject.ExpectedResponse.isEmpty() && apiObject.PartialExpectedResponse.isEmpty())
+			if (apiObject.ExpectedResponse.isEmpty())
 				return resSet;
 
 			if (resSet.isBeforeFirst()) {

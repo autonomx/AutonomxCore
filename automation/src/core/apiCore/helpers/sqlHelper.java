@@ -37,6 +37,68 @@ public class sqlHelper {
 			TestLog.logPass("replacing value " + parts[1] + " with: " + value);
 		}
 	}
+	
+	/** replaces output parameter with response values eg. $token with id form
+	 * response
+	 * eg. ASSET:1:<$asset_id_selected> -> column:row:variable
+	 * @param response
+	 * @param outputParam
+	 * @throws SQLException
+	 */
+	public static void saveOutboundSQLParameters(ResultSet resSet, String outputParam) throws SQLException {
+		if (outputParam.isEmpty())
+			return;
+
+		// set random value based on database max number of rows. 0...max-row-count
+		outputParam = setRandomRowValue(resSet, outputParam);
+
+		// replace parameters for outputParam
+		outputParam = dataHelper.replaceParameters(outputParam);
+
+		String[] keyVals = outputParam.split(",");
+		for (String keyVal : keyVals) {
+			String[] parts = keyVal.split(":", 3);
+			// eg. ASSET:1:<$asset_id_selected> -> column:row:variable
+			String key = parts[2].replace("$", "").replace("<", "").replace(">", "");
+			int row = Integer.valueOf(parts[1]);
+			resSet.absolute(row);
+			String value = resSet.getString(parts[0]);
+			Config.putValue(key, value);
+			TestLog.logPass("replacing value: " + key + " with: " + value);
+		}
+	}
+	
+	/**
+	 * replaces RAND_DatabaseMaxRows variable with random number
+	 * @param resSet
+	 * @param outputParam
+	 * @return
+	 * @throws SQLException
+	 */
+	public static String setRandomRowValue(ResultSet resSet, String outputParam) throws SQLException{
+		if (outputParam.isEmpty()) return outputParam;
+
+		// set random value based on database max number of rows. 0...max-row-count
+		if(outputParam.contains("<@RAND_DatabaseMaxRows>"))	{
+			int maxRowCount = getMaxResultRowCount(resSet);
+			int row = Helper.generateRandomNumber(1, maxRowCount);
+			outputParam = outputParam.replace("<@RAND_DatabaseMaxRows>", String.valueOf(row));
+		}
+		return outputParam;
+	}
+	
+	/**
+	 * gets the number of results from ResultSet
+	 * @param resSet
+	 * @return
+	 * @throws SQLException 
+	 */
+	private static int getMaxResultRowCount(ResultSet resSet) throws SQLException{
+		resSet.last();
+		int size = resSet.getRow();
+		resSet.beforeFirst();
+		return size;
+	}
 
 	/**
 	 * * validates the maps agains the keyword requirements matcher. examples:
@@ -50,6 +112,7 @@ public class sqlHelper {
 	public static void validateSqlKeywords(List<KeyValue> keywords, ResultSet resSet) throws SQLException {
 		for (KeyValue keyword : keywords) {
 			String key = Helper.stringNormalize(keyword.key);
+			String position = Helper.stringNormalize(keyword.position);
 			String value = Helper.stringNormalize(keyword.value);
 			String command = "";
 
@@ -62,6 +125,7 @@ public class sqlHelper {
 				command = value;
 				value = "";
 			}
+			resSet.absolute(Integer.valueOf(position));
 			String response = Helper.stringNormalize(resSet.getString(key));
 
 			switch (command) {

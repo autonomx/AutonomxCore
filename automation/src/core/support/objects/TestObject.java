@@ -116,7 +116,7 @@ public class TestObject {
 		if (isBeforeTest(testId)) {
 			TestObject test = new TestObject();
 			test.withTestId(testId).withTestName(test.getTestName()).withTestStartTime(getTimeMiliseconds())
-					.withApp(driver.app);
+					.withApp(driver.app).withRandomStringIdentifier();
 			TestObject.testInfo.put(testId, test);
 			// loads all property values into config map
 			Config.loadConfig(testId);
@@ -330,7 +330,7 @@ public class TestObject {
 		return this;
 	}
 
-	public TestObject withRandomIdentifier() {
+	public TestObject withRandomStringIdentifier() {
 		String rand = Helper.generateRandomString(30);
 		this.randStringIdentifier = rand;
 		return this;

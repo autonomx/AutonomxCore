@@ -4,8 +4,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -69,36 +67,15 @@ public class dataHelper {
 		expected = expected.replace("_VERIFY_JSON_PART_", "");
 		String[] keyVals = expected.split(";");
 		for (String keyVal : keyVals) {
-			String[] parts = keyVal.split(":", 2);
+			String[] parts = keyVal.split(":", 3);
 			String key = Helper.stringRemoveLines(parts[0]);
-			String value = Helper.stringRemoveLines(parts[1]);
+			String position = Helper.stringRemoveLines(parts[1]);
+			String value = Helper.stringRemoveLines(parts[2]);
 
-			KeyValue keyword = new KeyValue(key, value);
+			KeyValue keyword = new KeyValue(key, position, value);
 			keywords.add(keyword);
 		}
 		return keywords;
-	}
-
-	/**
-	 * replaces output parameter with response values eg. $token with id form
-	 * response
-	 * 
-	 * @param response
-	 * @param outputParam
-	 * @throws SQLException
-	 */
-	public static void saveOutboundSQLParameters(ResultSet resSet, String outputParam) throws SQLException {
-		if (outputParam.isEmpty())
-			return;
-
-		String[] keyVals = outputParam.split(",");
-		for (String keyVal : keyVals) {
-			String[] parts = keyVal.split(":", 2);
-			String key = parts[1].replace("$", "").replace("<", "").replace(">", "");
-			String value = resSet.getString(parts[0]);
-			Config.putValue(key, value);
-			TestLog.logPass("replacing value: " + key + " with: " + value);
-		}
 	}
 	
 	public static String getTagValue(String requestBody, String tag) {

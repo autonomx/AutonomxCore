@@ -14,8 +14,6 @@ public class ApiTestDriver {
 
 		TestObject.setTestName(apiObject.TestCaseID);
 		TestObject.setTestId(csvFileName + "-" + apiObject.TestCaseID);
-
-		// log.set(Logger.getLogger(""));
 	}
 
 	/**

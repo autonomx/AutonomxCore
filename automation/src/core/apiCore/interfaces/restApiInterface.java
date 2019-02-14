@@ -20,7 +20,7 @@ public class restApiInterface {
 	 * String InterfaceType, String UriPath, String ContentType, String Method,
 	 * String Option, String RequestHeaders, String TemplateFile, String
 	 * RequestBody, String OutputParams, String RespCodeExp, String
-	 * ExpectedResponse, String PartialExpectedResponse, String NotExpectedResponse,
+	 * ExpectedResponse, String ExpectedResponse, String NotExpectedResponse,
 	 * String TcComments, String tcName, String tcIndex)
 	 */
 
@@ -95,11 +95,11 @@ public class restApiInterface {
 		TestLog.logPass("response: " + body);
 
 		// validate response body against expected json string
-		if (!apiObject.PartialExpectedResponse.isEmpty()) {
-			apiObject.PartialExpectedResponse = dataHelper.replaceParameters(apiObject.PartialExpectedResponse);
+		if (!apiObject.ExpectedResponse.isEmpty()) {
+			apiObject.ExpectedResponse = dataHelper.replaceParameters(apiObject.ExpectedResponse);
 
 			// separate the expected response by &&
-			String[] criteria = apiObject.PartialExpectedResponse.split("&&");
+			String[] criteria = apiObject.ExpectedResponse.split("&&");
 			for (String criterion : criteria) {
 				jsonHelper.validateByJsonBody(criterion, response);
 				jsonHelper.validateByKeywords(criterion, response);

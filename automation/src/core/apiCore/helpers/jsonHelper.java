@@ -1,10 +1,6 @@
 package core.apiCore.helpers;
 
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasSize;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -114,8 +110,8 @@ public class jsonHelper {
 	
 
 	/**
-	 * validates the json maps agains the keyword requirements using hamcrest
-	 * matcher. examples: "person.roles.name": hasItems("admin"), "person.lastName":
+	 * validates the json maps against the keyword requirements 
+	 * examples: "person.roles.name": hasItems("admin"), "person.lastName":
 	 * equalTo("Administrator"), "person.lastName": isNotEmpty, "person.roles.name":
 	 * contains("admin"), "person.roles.name": containsInAnyOrder(admin),
 	 * "person.roles": nodeSizeGreaterThan(0), "person.sites.": nodeSizeExact(0)
@@ -144,41 +140,53 @@ public class jsonHelper {
 			Object responseVal = response.path(jsonPath);
 			String actualValue = getJsonValue(response, jsonPath);
 
+			String[] expectedArray = expectedValue.split(",");
+			String[] actualArray = actualValue.split(",");
+			
 			switch (command) {
 			case "hasItems":
-				String[] values = expectedValue.split(",");
-				Arrays.stream(values).parallel().allMatch(actualValue::contains);
-				//response.then().body(jsonPath, hasItems(values));
+				TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " has items " + Arrays.toString(expectedArray));
+				Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
+				//response.then().body(jsonPath, hasItems(expectedValue));
 				break;
 			case "equalTo":
-				response.then().body(jsonPath, equalTo(expectedValue));
+				TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " equals " + Arrays.toString(expectedArray));
+				Arrays.equals(expectedArray, actualArray);
+				//response.then().body(jsonPath, equalTo(expectedValue));
 				break;
 			case "contains":
-				values = expectedValue.split(",");
-				Arrays.stream(values).parallel().allMatch(actualValue::contains);
-
+				TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " contains " + Arrays.toString(expectedArray));
+				Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
 		//		response.then().body(jsonPath, contains(values));
 				break;
 			case "containsInAnyOrder":
-				values = expectedValue.split(",");
-				response.then().body(jsonPath, containsInAnyOrder(values));
+				TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " contains any order " + Arrays.toString(expectedArray));
+				expectedArray = expectedValue.split(",");
+				Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
+				//response.then().body(jsonPath, containsInAnyOrder(expectedArray));
 				break;
 			case "nodeSizeGreaterThan":
 				int intValue = Integer.valueOf(expectedValue);
-				response.then().body(jsonPath, hasSize(greaterThan(intValue)));
+				TestLog.logPass("verifying node size of : " + jsonPath + " with size " + actualArray.length + " greater than " + intValue);
+				Helper.assertTrue("response node size is: " + actualArray.length + " expected it to be greated than: " + intValue, actualArray.length > intValue);
+				//response.then().body(jsonPath, hasSize(greaterThan(intValue)));
 				break;
 			case "nodeSizeExact":
 				intValue = Integer.valueOf(expectedValue);
-				response.then().body(jsonPath, hasSize(equalTo(intValue)));
+				TestLog.logPass("verifying node size of : " + jsonPath + " with size " + actualArray.length + " equals " + intValue);
+				Helper.assertTrue("response node size is: " + actualArray.length + " expected: " + intValue, actualArray.length == intValue);
+				//response.then().body(jsonPath, hasSize(equalTo(intValue)));
 				break;
 			case "sequence":
-				values = expectedValue.split(",");
-				response.then().body(jsonPath, contains(values));
+				TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " with sequence " + Arrays.toString(expectedArray));
+				response.then().body(jsonPath, contains(expectedArray));
 				break;
 			case "isNotEmpty":
+				TestLog.logPass("verifying response for path is not empty " + jsonPath);
 				Helper.assertTrue("value: " + jsonPath + " is empty", responseVal != null);
 				break;
 			case "isEmpty":
+				TestLog.logPass("verifying response for path is empty " + jsonPath);
 				Helper.assertTrue("value: " + jsonPath + " is not empty", responseVal == null);
 				break;
 			default:

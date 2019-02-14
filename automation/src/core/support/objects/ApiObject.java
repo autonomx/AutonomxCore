@@ -17,8 +17,6 @@ public class ApiObject {
 	public String OutputParams;
 	public String RespCodeExp;
 	public String ExpectedResponse;
-	public String PartialExpectedResponse;
-	public String NotExpectedResponse;
 	public String TcComments;
 	public String tcName;
 	public String tcIndex;
@@ -27,7 +25,7 @@ public class ApiObject {
 	public ApiObject setApiObject(String TestSuite, String TestCaseID, String RunFlag, String Description,
 			String InterfaceType, String UriPath, String ContentType, String Method, String Option,
 			String RequestHeaders, String TemplateFile, String RequestBody, String OutputParams, String RespCodeExp,
-			String ExpectedResponse, String PartialExpectedResponse, String NotExpectedResponse, String TcComments,
+			 String PartialExpectedResponse, String TcComments,
 			String tcName, String tcIndex) {
 		this.TestSuite = TestSuite;
 		this.TestCaseID = TestCaseID;
@@ -43,9 +41,7 @@ public class ApiObject {
 		this.RequestBody = replaceQuotes(RequestBody);
 		this.OutputParams = OutputParams;
 		this.RespCodeExp = RespCodeExp;
-		this.ExpectedResponse = replaceQuotes(ExpectedResponse);
-		this.PartialExpectedResponse = replaceQuotes(PartialExpectedResponse);
-		this.NotExpectedResponse = replaceQuotes(NotExpectedResponse);
+		this.ExpectedResponse = replaceQuotes(PartialExpectedResponse);
 		this.TcComments = TcComments;
 		this.tcName = tcName;
 		this.tcIndex = tcIndex;

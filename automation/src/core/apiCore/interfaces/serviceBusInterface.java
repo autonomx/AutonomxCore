@@ -232,7 +232,7 @@ public class serviceBusInterface {
 
 		// replace parameters
 		apiObject.RequestBody = dataHelper.replaceParameters(apiObject.RequestBody);
-		apiObject.PartialExpectedResponse = dataHelper.replaceParameters(apiObject.PartialExpectedResponse);
+		apiObject.ExpectedResponse = dataHelper.replaceParameters(apiObject.ExpectedResponse);
 
 		// Get request body using template and/or requestBody data column
 		apiObject.RequestBody = getRequestBodyFromTemplate(apiObject.RequestBody, apiObject.TemplateFile, apiObject.ContentType);
@@ -246,7 +246,7 @@ public class serviceBusInterface {
 
 		// receives and verifies the outbound message against the expected results
 		boolean isTestPass = receiveAndVerifyOutboundMessage(serviceBus, msgID, apiObject.Option, apiObject.RequestBody, apiObject.OutputParams,
-				apiObject.ExpectedResponse, apiObject.PartialExpectedResponse, apiObject.NotExpectedResponse);	
+				 apiObject.ExpectedResponse);	
 		if(msgID.isEmpty())
 			Helper.assertTrue("correct messages not received. SB Verification test, please investigate previous test for proper outbound message", isTestPass);
 		Helper.assertTrue("correct messages not received", isTestPass);
@@ -327,7 +327,7 @@ public class serviceBusInterface {
 	}
 
 	public static boolean receiveAndVerifyOutboundMessage(serviceBus serviceBus, String msgId, String options,
-			String requestBody, String outputParams, String expStr, String partialExpStr, String notExpStr) {
+			String requestBody, String outputParams, String partialExpStr) {
 		String outboundQueueMsg = "";
 		Collection<IMessage> msgFromOutboundQueue;
 		CopyOnWriteArrayList<IMessage> filteredMessages = new CopyOnWriteArrayList<>();
@@ -337,12 +337,12 @@ public class serviceBusInterface {
 
 		IMessageReceiver receiver = getReceiver(serviceBus, hostSelector);
 
-		int expectedMessageCount = getExpectedMessageCount( expStr, partialExpStr, notExpStr);
+		int expectedMessageCount = getExpectedMessageCount(partialExpStr);
 		TestLog.logPass("requestIdentifier: " + msgId);
 
 		// return pass if no response check is required by setting all 3 fields as SKIP
 		// or is empty
-		if (isNoResponseExpected(outputParams, expStr, partialExpStr, notExpStr)) {
+		if (isNoResponseExpected(outputParams,partialExpStr)) {
 			return true;
 		}
 
@@ -367,10 +367,10 @@ public class serviceBusInterface {
 			// current test.
              
 			filteredMessages.addAll(
-					filterOUtboundMessage(hostSelector, requestBody, expStr, partialExpStr, notExpStr, msgFromOutboundQueue, msgId));
+					filterOUtboundMessage(hostSelector, requestBody, partialExpStr,  msgFromOutboundQueue, msgId));
 
 			// check for empty results, if expected by the test
-			if (isEmptyResultsExpectedAndVerified(filteredMessages, expStr, partialExpStr)) {
+			if (isEmptyResultsExpectedAndVerified(filteredMessages, partialExpStr)) {
 				return true;
 			}
 
@@ -393,20 +393,19 @@ public class serviceBusInterface {
 				// log messages received after filtering
 				TestLog.logPass("Message received: {0}", outboundQueueMsg);
 
-				if (isNoResponseExpected(outboundQueueMsg, outputParams, expStr, partialExpStr, notExpStr)) {
+				if (isNoResponseExpected(outboundQueueMsg, outputParams, partialExpStr)) {
 					return true;
 				}
 
-				boolean compareExpected = compareExpected(outboundQueueMsg, expStr);
+		
 				// verifies first partial expected string and removes that partial message from
 				// partialExpStr
 				partialExpStr = comparePartialExpected(outboundQueueMsg, message, receiver,
 						partialExpStr);
 				// verifies if partialExpStr is empty
 				boolean comparePartialExpected = isPartialExpect(partialExpStr, isPartialExpStr);
-				boolean compareNotExpected = compareNotExpected(outboundQueueMsg, notExpStr);
 
-				if (compareExpected || comparePartialExpected || compareNotExpected) {
+				if (comparePartialExpected ) {
 					isTestPass = true;
 					xmlHelper.addOutputParamValuesToConfig(outputParams, outboundQueueMsg);
 					break;
@@ -430,18 +429,12 @@ public class serviceBusInterface {
 
 	}
 	
-	public static int getExpectedMessageCount(String expStr, String partialExpStr, String notExpStr) {
-		 if(!expStr.isEmpty()) {
-			 String[] values = expStr.split("&&");
-			 return values.length;
-		 }else if(!partialExpStr.isEmpty()) {
+	public static int getExpectedMessageCount(String partialExpStr) {
+		
+		if(!partialExpStr.isEmpty()) {
 			 String[] values = partialExpStr.split("&&");
 			 return values.length;
-			 
-		 }else if(!notExpStr.isEmpty()) {
-			 String[] values = notExpStr.split("&&");
-			 return values.length;			 
-		 }
+		}
 		return 1;
 	}
 
@@ -463,13 +456,12 @@ public class serviceBusInterface {
 	 * @param notExpStr
 	 * @return
 	 */
-	public static boolean isEmptyResultsExpectedAndVerified(Collection<IMessage> filteredMessages, String expStr,
+	public static boolean isEmptyResultsExpectedAndVerified(Collection<IMessage> filteredMessages,
 			String partialExpStr) {
 
-		boolean isExpStrEmpty = expStr.equalsIgnoreCase(Config.getValue(EMPTY_CHECK));
 		boolean isPartialExpStrEmpty = partialExpStr.equalsIgnoreCase(Config.getValue(EMPTY_CHECK));
 		String outboundQueueMsg = "";
-		if (isExpStrEmpty || isPartialExpStrEmpty) {
+		if (isPartialExpStrEmpty) {
 			if (!filteredMessages.isEmpty())
 				outboundQueueMsg = new String(filteredMessages.iterator().next().getBody());
 			Helper.assertTrue("No outbound messages should be received, but got message of length: "
@@ -480,9 +472,9 @@ public class serviceBusInterface {
 		return false;
 	}
 
-	public static boolean isNoResponseExpected(String outboundQueueMsg, String outputParams, String expStr,
-			String partialExpStr, String notExpStr) {
-		if (noCheckNeeded(expStr) && noCheckNeeded(partialExpStr) && noCheckNeeded(notExpStr)) {
+	public static boolean isNoResponseExpected(String outboundQueueMsg, String outputParams,
+			String partialExpStr) {
+		if (noCheckNeeded(partialExpStr)) {
 			// Put outboundQueueMsg to outputParams
 			// Verify the outbound message from other test frameworks
             if (!outputParams.isEmpty() && (outboundQueueMsg.contains(FORM_SUBMITTED) || outboundQueueMsg.contains(HOST_FORM_SUBMITTED))) {                    
@@ -499,9 +491,8 @@ public class serviceBusInterface {
 	
 	
 
-	public static boolean isNoResponseExpected(String outputParams, String expStr, String partialExpStr,
-			String notExpStr) {
-		if (noCheckNeeded(expStr) && noCheckNeeded(partialExpStr) && noCheckNeeded(notExpStr)) {
+	public static boolean isNoResponseExpected(String outputParams,String partialExpStr) {
+		if ( noCheckNeeded(partialExpStr)) {
 			Helper.waitForSeconds(10);
 			return true;
 		}
@@ -532,8 +523,8 @@ public class serviceBusInterface {
 	 * @param msgId
 	 * @return
 	 */
-	public static Collection<IMessage> filterOUtboundMessage(String hostSelector, String requestBody, String expStr, String partialExpStr,
-			String notExpStr, Collection<IMessage> msgFromOutboundQueue, String msgId) {
+	public static Collection<IMessage> filterOUtboundMessage(String hostSelector, String requestBody, String partialExpStr,
+			 Collection<IMessage> msgFromOutboundQueue, String msgId) {
 
 		if (StringUtils.isEmpty(hostSelector)) {
 			hostSelector = HOST1;
@@ -559,11 +550,9 @@ public class serviceBusInterface {
 		// if request body is empty, get order number or task number from expected
 		// results
 		if (requestBody.isEmpty()) {
-			filteredMessages = FilterBasedOnIdentifierInExpectedMessages(hostSelector, "OrderNumber", expStr, partialExpStr,
-					notExpStr);
+			filteredMessages = FilterBasedOnIdentifierInExpectedMessages(hostSelector, "OrderNumber",  partialExpStr);
 			if (filteredMessages.isEmpty())
-				filteredMessages = FilterBasedOnIdentifierInExpectedMessages(hostSelector, "TaskNumber", expStr, partialExpStr,
-						notExpStr);
+				filteredMessages = FilterBasedOnIdentifierInExpectedMessages(hostSelector, "TaskNumber", partialExpStr);
 			if (!filteredMessages.isEmpty()) {
 				TestLog.logPass("requestIdentifier: " + "OrderNumber or TaskNumber");
 				return filteredMessages;
@@ -621,17 +610,14 @@ public class serviceBusInterface {
 	 * @param notExpStr
 	 * @return
 	 */
-	public static CopyOnWriteArrayList<IMessage> FilterBasedOnIdentifierInExpectedMessages(String hostSelector, String key, String expStr,
-			String partialExpStr, String notExpStr) {
+	public static CopyOnWriteArrayList<IMessage> FilterBasedOnIdentifierInExpectedMessages(String hostSelector, String key, 
+			String partialExpStr) {
 		String orderValue = "";
 		CopyOnWriteArrayList<IMessage> filteredMessages = new CopyOnWriteArrayList<IMessage>();
 
-		if (!expStr.isEmpty())
-			orderValue = dataHelper.getTagValue(expStr, key);
-		else if (!partialExpStr.isEmpty())
+		
+		 if (!partialExpStr.isEmpty())
 			orderValue = dataHelper.getTagValue(partialExpStr, key);
-		else if (!notExpStr.isEmpty())
-			orderValue = dataHelper.getTagValue(notExpStr, key);
 		if (!orderValue.isEmpty())
 			filteredMessages = findMessages(hostSelector, orderValue);
 		return filteredMessages;

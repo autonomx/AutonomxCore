@@ -1850,6 +1850,16 @@ public class Helper {
 	public static String generateRandomInteger(int len) {
 		return UtilityHelper.generateRandomInteger(len);
 	}
+	
+	/**
+	 * generates random number between two numbers, min, max
+	 * @param min
+	 * @param max
+	 * @return
+	 */
+	public static int generateRandomNumber(int min, int max) {
+		return UtilityHelper.generateRandomNumber(min, max);
+	}
 
 	/**
 	 * normalizes string removes space, new line chars

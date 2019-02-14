@@ -43,6 +43,7 @@ import core.uiCore.drivers.AbstractDriver;
 import core.uiCore.drivers.AbstractDriverTestNG;
 import core.uiCore.webElement.EnhancedBy;
 import core.uiCore.webElement.EnhancedWebElement;
+import java8.util.concurrent.ThreadLocalRandom;
 
 public class UtilityHelper {
 
@@ -76,6 +77,17 @@ public class UtilityHelper {
 		for (int i = 0; i < len; i++)
 			sb.append(AB.charAt(rnd.nextInt(AB.length())));
 		return sb.toString();
+	}
+	
+	/**
+	 * generates random number between two numbers, min, max
+	 * @param min
+	 * @param max
+	 * @return
+	 */
+	protected static int generateRandomNumber(int min, int max) {
+		int random = ThreadLocalRandom.current().nextInt(min, max + 1);
+		return random;
 	}
 
 	/**

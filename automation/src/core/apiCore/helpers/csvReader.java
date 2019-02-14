@@ -69,7 +69,7 @@ public class csvReader {
 			// add parameters to ApiObject
 			ApiObject apiObject = new ApiObject().setApiObject(testCase[0], testCase[1], testCase[2], testCase[3],
 					testCase[4], testCase[5], testCase[6], testCase[7], testCase[8], testCase[9], testCase[10],
-					testCase[11], testCase[12], testCase[13], testCase[14], testCase[15], testCase[16], testCase[17],
+					testCase[11], testCase[12], testCase[13], testCase[14], testCase[15],
 					"", "");
 			apiMap.put(apiObject.TestCaseID, apiObject);
 		}
