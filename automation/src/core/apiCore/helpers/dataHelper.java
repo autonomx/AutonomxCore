@@ -18,6 +18,8 @@ import core.support.configReader.PropertiesReader;
 import core.support.logger.TestLog;
 import core.support.objects.KeyValue;
 import core.support.objects.TestObject;
+import io.netty.util.internal.StringUtil;
+import io.restassured.response.Response;
 
 public class dataHelper {
 
@@ -71,10 +73,11 @@ public class dataHelper {
 		String value = "";
 		for (String keyVal : keyVals) {
 			String[] parts = keyVal.split(":", 3);
-			if(parts.length == 2) {
+			if(parts.length == 2) { // without position
 				 key = Helper.stringRemoveLines(parts[0]);
+				 position = StringUtil.EMPTY_STRING;
 				 value = Helper.stringRemoveLines(parts[1]);
-			}else if(parts.length == 3) {
+			}else if(parts.length == 3) { // with position
 				 key = Helper.stringRemoveLines(parts[0]);
 				 position = Helper.stringRemoveLines(parts[1]);
 				 value = Helper.stringRemoveLines(parts[2]);
@@ -86,6 +89,12 @@ public class dataHelper {
 		return keywords;
 	}
 	
+	/**
+	 * get value in between tags >value<
+	 * @param requestBody
+	 * @param tag
+	 * @return
+	 */
 	public static String getTagValue(String requestBody, String tag) {
 		String value = "";
 		try {

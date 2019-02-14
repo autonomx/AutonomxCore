@@ -28,14 +28,7 @@ public class sqlHelper {
 		if (response == null || outputParam.isEmpty())
 			return;
 
-		String[] keyVals = outputParam.split(",");
-		for (String keyVal : keyVals) {
-			String[] parts = keyVal.split(":", 2);
-			String key = parts[1].replace("$", "").replace("<", "").replace(">", "");
-			String value = response.path(parts[0]);
-			Config.putValue(key, value);
-			TestLog.logPass("replacing value " + parts[1] + " with: " + value);
-		}
+		jsonHelper.configMapJsonKeyValues(response, outputParam);
 	}
 	
 	/** replaces output parameter with response values eg. $token with id form
@@ -55,7 +48,7 @@ public class sqlHelper {
 		// replace parameters for outputParam
 		outputParam = dataHelper.replaceParameters(outputParam);
 
-		String[] keyVals = outputParam.split(",");
+		String[] keyVals = outputParam.split(";");
 		for (String keyVal : keyVals) {
 			String[] parts = keyVal.split(":", 3);
 			// eg. ASSET:1:<$asset_id_selected> -> column:row:variable
@@ -125,7 +118,13 @@ public class sqlHelper {
 				command = value;
 				value = "";
 			}
-			resSet.absolute(Integer.valueOf(position));
+			
+			// if no position specified, then set row to 1, else row = position
+			if(position.isEmpty()) 
+				resSet.absolute(Integer.valueOf(1));
+			else
+				resSet.absolute(Integer.valueOf(position));
+			
 			String response = Helper.stringNormalize(resSet.getString(key));
 
 			switch (command) {

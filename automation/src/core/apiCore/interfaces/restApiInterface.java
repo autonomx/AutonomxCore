@@ -101,6 +101,7 @@ public class restApiInterface {
 			// separate the expected response by &&
 			String[] criteria = apiObject.ExpectedResponse.split("&&");
 			for (String criterion : criteria) {
+				Helper.assertTrue("expected is not valid format: " + criterion, jsonHelper.isValidExpectation(criterion));
 				jsonHelper.validateByJsonBody(criterion, response);
 				jsonHelper.validateByKeywords(criterion, response);
 			}

@@ -1,6 +1,8 @@
 package core.apiCore.helpers;
 
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.equalTo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,7 +25,7 @@ public class jsonHelper {
 
 	/**
 	 * replaces output parameter with response values eg. $token with id form values
-	 * are in form of list separated by ","
+	 * are in form of list separated by ";"
 	 * 
 	 * @param response
 	 * @param outputParam
@@ -31,19 +33,28 @@ public class jsonHelper {
 	public static void saveOutboundJsonParameters(Response response, String outputParam) {
 		if (response == null || outputParam.isEmpty())
 			return;
-
-		String[] keyVals = outputParam.split(",");
-		for (String keyVal : keyVals) {
-			String[] parts = keyVal.split(":", 2);
-			if (parts.length < 2)
-				Helper.assertFalse("key value pair incorrect: " + keyVal);
-			String key = parts[1].replace("$", "").replace("<", "").replace(">", "").trim();
-
+		configMapJsonKeyValues(response, outputParam);
+	}
+	
+	
+	/**
+	 * map key value to config
+	 * eg.features.features.id:1:<$id>
+	 * @param response
+	 * @param keyValue
+	 */
+	public static void configMapJsonKeyValues(Response response, String keyValue) {
+		List<KeyValue> keywords = dataHelper.getValidationMap(keyValue);
+		for (KeyValue keyword : keywords) {
+			String key = keyword.value.replace("$", "").replace("<", "").replace(">", "").trim();
 			// gets json value. if list, returns string separated by comma
-			String value = getJsonValue(response, parts[0]);
+			String value = getJsonValue(response, keyword.key);
+			
+			if(!keyword.position.isEmpty()) {
+				value = value.split(",")[Integer.valueOf(keyword.position) -1 ];
+			}
 			Config.putValue(key, value);
-			TestLog.logPass("replacing value " + parts[1] + " with: " + value);
-
+			TestLog.logPass("replacing value " + key + " with: " + value);
 		}
 	}
 
@@ -126,7 +137,10 @@ public class jsonHelper {
 			String jsonPath = Helper.stringNormalize(keyword.key);
 			String expectedValue = Helper.stringNormalize(keyword.value);
 			String command = "";
+			String expectedString = "";
+			String actualString = "";
 
+			
 			String[] expected = expectedValue.split("[\\(\\)]");
 			// get value inbetween parenthesis
 			if (expected.length > 1) {
@@ -138,31 +152,61 @@ public class jsonHelper {
 			}
 
 			Object responseVal = response.path(jsonPath);
-			String actualValue = getJsonValue(response, jsonPath);
+			String responseString = getJsonValue(response, jsonPath);
 
 			String[] expectedArray = expectedValue.split(",");
-			String[] actualArray = actualValue.split(",");
+			String[] actualArray = responseString.split(",");
+			
+			// if position has value, then get response at position
+			if(!keyword.position.isEmpty()) {
+				expectedString = expectedArray[0]; //single item
+				actualString = actualArray[Integer.valueOf(keyword.position)-1];
+			}
 			
 			switch (command) {
 			case "hasItems":
-				TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " has items " + Arrays.toString(expectedArray));
-				Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
-				//response.then().body(jsonPath, hasItems(expectedValue));
+				boolean val = false;
+				if(!expectedString.isEmpty()) { // if position is provided
+					TestLog.logPass("verifying: " + actualString + " has item " + expectedString);
+					val = actualString.contains(expectedString);
+					Helper.assertTrue(actualString + " does not have item " + expectedString, val);
+				}else {
+					TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " has items " + Arrays.toString(expectedArray));
+					val = Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
+					Helper.assertTrue(Arrays.toString(actualArray) + " does not have items " + Arrays.toString(expectedArray), val);
+				}
+			//	response.then().body(jsonPath, hasItems(expectedArray));
 				break;
 			case "equalTo":
-				TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " equals " + Arrays.toString(expectedArray));
-				Arrays.equals(expectedArray, actualArray);
+				if(!expectedString.isEmpty()) { // if position is provided
+					TestLog.logPass("verifying: " + actualString + " equals " + expectedString);
+					val = actualString.equals(expectedString);
+					Helper.assertTrue(actualString + " does not equal " + expectedString, val);
+				}
+				else {
+					TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " equals " + Arrays.toString(expectedArray));
+					val = Arrays.equals(expectedArray, actualArray);
+					Helper.assertTrue(Arrays.toString(actualArray) + " does not equal " + Arrays.toString(expectedArray), val);
+				}
 				//response.then().body(jsonPath, equalTo(expectedValue));
 				break;
-			case "contains":
-				TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " contains " + Arrays.toString(expectedArray));
-				Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
+			case "contains":				
+				if(!expectedString.isEmpty()) { // if position is provided
+					TestLog.logPass("verifying: " + actualString + " contains " + expectedString);
+					val = actualString.contains(expectedString);
+					Helper.assertTrue(actualString + " does not contain " + expectedString, val);
+				}else {
+					TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " contains " + Arrays.toString(expectedArray));
+					val = Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
+					Helper.assertTrue(Arrays.toString(actualArray) + " does not contain " + Arrays.toString(expectedArray), val);
+				}
 		//		response.then().body(jsonPath, contains(values));
 				break;
 			case "containsInAnyOrder":
 				TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " contains any order " + Arrays.toString(expectedArray));
 				expectedArray = expectedValue.split(",");
-				Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
+				val = Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
+				Helper.assertTrue(Arrays.toString(actualArray) + " does not contain in any order " + Arrays.toString(expectedArray), val);
 				//response.then().body(jsonPath, containsInAnyOrder(expectedArray));
 				break;
 			case "nodeSizeGreaterThan":
@@ -179,7 +223,8 @@ public class jsonHelper {
 				break;
 			case "sequence":
 				TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " with sequence " + Arrays.toString(expectedArray));
-				response.then().body(jsonPath, contains(expectedArray));
+				val = Arrays.equals(expectedArray, actualArray);
+				Helper.assertTrue(Arrays.toString(actualArray) + " does not equal " + Arrays.toString(expectedArray), val);
 				break;
 			case "isNotEmpty":
 				TestLog.logPass("verifying response for path is not empty " + jsonPath);
@@ -222,6 +267,7 @@ public class jsonHelper {
 	 * @param actualJson
 	 */
 	public static void validateByJsonBody(String expectedJson, Response response) {
+		expectedJson = Helper.stringNormalize(expectedJson);
 		if (jsonHelper.isJSONValid(expectedJson)) {
 			TestLog.logPass("expected: " + Helper.stringRemoveLines(expectedJson));
 			String body = response.getBody().asString();
@@ -231,6 +277,16 @@ public class jsonHelper {
 				e.printStackTrace();
 			}
 		}
+	}
+	public static boolean isValidExpectation(String expectedJson) {
+		if (jsonHelper.isJSONValid(expectedJson)) {
+			return true;
+		}
+		expectedJson = Helper.stringNormalize(expectedJson);
+		if (expectedJson.startsWith("_VERIFY_JSON_PART_") || expectedJson.startsWith("_NOT_EMPTY_")) {
+			return true;
+		}
+		return false;
 	}
 
 	/**
