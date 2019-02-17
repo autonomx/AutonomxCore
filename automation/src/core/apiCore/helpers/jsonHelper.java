@@ -1,9 +1,5 @@
 package core.apiCore.helpers;
 
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.equalTo;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -44,6 +40,12 @@ public class jsonHelper {
 	 * @param keyValue
 	 */
 	public static void configMapJsonKeyValues(Response response, String keyValue) {
+		
+		if (keyValue.isEmpty()) return;
+		
+		// replace parameters for outputParam
+		keyValue = dataHelper.replaceParameters(keyValue);
+		
 		List<KeyValue> keywords = dataHelper.getValidationMap(keyValue);
 		for (KeyValue keyword : keywords) {
 			String key = keyword.value.replace("$", "").replace("<", "").replace(">", "").trim();
@@ -137,9 +139,6 @@ public class jsonHelper {
 			String jsonPath = Helper.stringNormalize(keyword.key);
 			String expectedValue = Helper.stringNormalize(keyword.value);
 			String command = "";
-			String expectedString = "";
-			String actualString = "";
-
 			
 			String[] expected = expectedValue.split("[\\(\\)]");
 			// get value inbetween parenthesis
@@ -151,96 +150,15 @@ public class jsonHelper {
 				expectedValue = "";
 			}
 
-			Object responseVal = response.path(jsonPath);
+			// get response string from json path (eg. data.user.id) would return "2"
 			String responseString = getJsonValue(response, jsonPath);
-
-			String[] expectedArray = expectedValue.split(",");
-			String[] actualArray = responseString.split(",");
 			
-			// if position has value, then get response at position
-			if(!keyword.position.isEmpty()) {
-				expectedString = expectedArray[0]; //single item
-				actualString = actualArray[Integer.valueOf(keyword.position)-1];
-			}
-			
-			switch (command) {
-			case "hasItems":
-				boolean val = false;
-				if(!expectedString.isEmpty()) { // if position is provided
-					TestLog.logPass("verifying: " + actualString + " has item " + expectedString);
-					val = actualString.contains(expectedString);
-					Helper.assertTrue(actualString + " does not have item " + expectedString, val);
-				}else {
-					TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " has items " + Arrays.toString(expectedArray));
-					val = Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
-					Helper.assertTrue(Arrays.toString(actualArray) + " does not have items " + Arrays.toString(expectedArray), val);
-				}
-			//	response.then().body(jsonPath, hasItems(expectedArray));
-				break;
-			case "equalTo":
-				if(!expectedString.isEmpty()) { // if position is provided
-					TestLog.logPass("verifying: " + actualString + " equals " + expectedString);
-					val = actualString.equals(expectedString);
-					Helper.assertTrue(actualString + " does not equal " + expectedString, val);
-				}
-				else {
-					TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " equals " + Arrays.toString(expectedArray));
-					val = Arrays.equals(expectedArray, actualArray);
-					Helper.assertTrue(Arrays.toString(actualArray) + " does not equal " + Arrays.toString(expectedArray), val);
-				}
-				//response.then().body(jsonPath, equalTo(expectedValue));
-				break;
-			case "contains":				
-				if(!expectedString.isEmpty()) { // if position is provided
-					TestLog.logPass("verifying: " + actualString + " contains " + expectedString);
-					val = actualString.contains(expectedString);
-					Helper.assertTrue(actualString + " does not contain " + expectedString, val);
-				}else {
-					TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " contains " + Arrays.toString(expectedArray));
-					val = Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
-					Helper.assertTrue(Arrays.toString(actualArray) + " does not contain " + Arrays.toString(expectedArray), val);
-				}
-		//		response.then().body(jsonPath, contains(values));
-				break;
-			case "containsInAnyOrder":
-				TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " contains any order " + Arrays.toString(expectedArray));
-				expectedArray = expectedValue.split(",");
-				val = Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
-				Helper.assertTrue(Arrays.toString(actualArray) + " does not contain in any order " + Arrays.toString(expectedArray), val);
-				//response.then().body(jsonPath, containsInAnyOrder(expectedArray));
-				break;
-			case "nodeSizeGreaterThan":
-				int intValue = Integer.valueOf(expectedValue);
-				TestLog.logPass("verifying node size of : " + jsonPath + " with size " + actualArray.length + " greater than " + intValue);
-				Helper.assertTrue("response node size is: " + actualArray.length + " expected it to be greated than: " + intValue, actualArray.length > intValue);
-				//response.then().body(jsonPath, hasSize(greaterThan(intValue)));
-				break;
-			case "nodeSizeExact":
-				intValue = Integer.valueOf(expectedValue);
-				TestLog.logPass("verifying node size of : " + jsonPath + " with size " + actualArray.length + " equals " + intValue);
-				Helper.assertTrue("response node size is: " + actualArray.length + " expected: " + intValue, actualArray.length == intValue);
-				//response.then().body(jsonPath, hasSize(equalTo(intValue)));
-				break;
-			case "sequence":
-				TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " with sequence " + Arrays.toString(expectedArray));
-				val = Arrays.equals(expectedArray, actualArray);
-				Helper.assertTrue(Arrays.toString(actualArray) + " does not equal " + Arrays.toString(expectedArray), val);
-				break;
-			case "isNotEmpty":
-				TestLog.logPass("verifying response for path is not empty " + jsonPath);
-				Helper.assertTrue("value: " + jsonPath + " is empty", responseVal != null);
-				break;
-			case "isEmpty":
-				TestLog.logPass("verifying response for path is empty " + jsonPath);
-				Helper.assertTrue("value: " + jsonPath + " is not empty", responseVal == null);
-				break;
-			default:
-				break;
-			}
+			// validate response
+			dataHelper.validateCommand(command, responseString, expectedValue, keyword.position);
 		}
-
 	}
-
+	
+	
 	/**
 	 * validates json string
 	 * 

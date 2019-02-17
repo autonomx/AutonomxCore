@@ -2,6 +2,7 @@ package core.apiCore.helpers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -36,29 +37,60 @@ public class sqlHelper {
 	 * eg. ASSET:1:<$asset_id_selected> -> column:row:variable
 	 * @param response
 	 * @param outputParam
-	 * @throws SQLException
+	 * @throws Exception 
 	 */
-	public static void saveOutboundSQLParameters(ResultSet resSet, String outputParam) throws SQLException {
-		if (outputParam.isEmpty())
-			return;
-
+	public static void saveOutboundSQLParameters(ResultSet resSet, String outputParam) throws Exception {
+		configMapSqlKeyValues(resSet, outputParam);
+	}
+	
+	/**
+	 * map key value to config
+	 * eg.features.features.id:1:<$id>
+	 * @param response
+	 * @param keyValue
+	 * @throws SQLException 
+	 * @throws NumberFormatException 
+	 */
+	public static void configMapSqlKeyValues(ResultSet resSet, String keyValue) throws Exception {
+		
+		if (keyValue.isEmpty()) return;
+		
 		// set random value based on database max number of rows. 0...max-row-count
-		outputParam = setRandomRowValue(resSet, outputParam);
-
+		keyValue = setRandomRowValue(resSet, keyValue);
+		
 		// replace parameters for outputParam
-		outputParam = dataHelper.replaceParameters(outputParam);
+		keyValue = dataHelper.replaceParameters(keyValue);
+		
+		List<KeyValue> keywords = dataHelper.getValidationMap(keyValue);
+		for (KeyValue keyword : keywords) {
+			String key = keyword.value.replace("$", "").replace("<", "").replace(">", "").trim();
+			String value ="";
+			
+			// eg. NAME:1:<$name> : if row available, get value of column at row
+			// eg. NAME:<$name> : if row not available, gets all values of rows from column
+			if(keyword.position.isEmpty()) {
+				value = getAllValuesInColumn(resSet, keyword.key);
+			}else
+			{
+				resSet.absolute(Integer.valueOf(keyword.position));
+				value = resSet.getString(keyword.key);
+			}
 
-		String[] keyVals = outputParam.split(";");
-		for (String keyVal : keyVals) {
-			String[] parts = keyVal.split(":", 3);
-			// eg. ASSET:1:<$asset_id_selected> -> column:row:variable
-			String key = parts[2].replace("$", "").replace("<", "").replace(">", "");
-			int row = Integer.valueOf(parts[1]);
-			resSet.absolute(row);
-			String value = resSet.getString(parts[0]);
+			if(!keyword.position.isEmpty()) {
+				value = value.split(",")[Integer.valueOf(keyword.position) -1 ];
+			}
 			Config.putValue(key, value);
-			TestLog.logPass("replacing value: " + key + " with: " + value);
+			TestLog.logPass("replacing value " + key + " with: " + value);
 		}
+	}
+	
+	private static String getAllValuesInColumn(ResultSet resSet, String column) throws SQLException {
+		resSet.beforeFirst();
+		List<String> results = new ArrayList<String>();
+		while (resSet.next()) {
+			results.add(resSet.getString(column));
+		}
+		return String.join(",", results);
 	}
 	
 	/**
@@ -106,45 +138,31 @@ public class sqlHelper {
 		for (KeyValue keyword : keywords) {
 			String key = Helper.stringNormalize(keyword.key);
 			String position = Helper.stringNormalize(keyword.position);
-			String value = Helper.stringNormalize(keyword.value);
+			String expectedValue = Helper.stringNormalize(keyword.value);
+			String responseString = "";
 			String command = "";
 
-			String[] expected = value.split("[\\(\\)]");
+			String[] expected = expectedValue.split("[\\(\\)]");
 			// get value inbetween parenthesis
 			if (expected.length > 1) {
 				command = expected[0];
-				value = expected[1];
+				expectedValue = expected[1];
 			} else if (expected.length == 1) {
-				command = value;
-				value = "";
+				command = expectedValue;
+				expectedValue = "";
 			}
 			
 			// if no position specified, then set row to 1, else row = position
-			if(position.isEmpty()) 
-				resSet.absolute(Integer.valueOf(1));
-			else
-				resSet.absolute(Integer.valueOf(position));
-			
-			String response = Helper.stringNormalize(resSet.getString(key));
-
-			switch (command) {
-			case "equalTo":
-				Helper.assertEquals(value, response);
-				break;
-			case "contains":
-				Helper.assertContains(response, value);
-				break;
-			case "isNotEmpty":
-				TestLog.logPass("validating if response for key: " + key + " is not empty");
-				Helper.assertTrue("key: " + key + "is empty", !response.isEmpty());
-				break;
-			case "isEmpty":
-				TestLog.logPass("validating if response for key:" + key + " is empty");
-				Helper.assertTrue("key: " + key + "is not empty", response.isEmpty());
-				break;
-			default:
-				break;
+			if(position.isEmpty()) {
+				responseString = getAllValuesInColumn(resSet, keyword.key);
 			}
+			else {
+				resSet.absolute(Integer.valueOf(position));
+				responseString = Helper.stringNormalize(resSet.getString(key));
+			}
+			
+			// validate response
+			dataHelper.validateCommand(command, responseString, expectedValue);
 		}
 	}
 

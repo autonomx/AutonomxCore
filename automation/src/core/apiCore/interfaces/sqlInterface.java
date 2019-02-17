@@ -121,9 +121,9 @@ public class sqlInterface {
 	 * 
 	 * @param apiObject
 	 * @param resSet
-	 * @throws SQLException
+	 * @throws Exception 
 	 */
-	public static void evaluateReponse(ApiObject apiObject, ResultSet resSet) throws SQLException {
+	public static void evaluateReponse(ApiObject apiObject, ResultSet resSet) throws Exception {
 
 		// return if expected response is empty
 		if (apiObject.ExpectedResponse.isEmpty() && apiObject.OutputParams.isEmpty())

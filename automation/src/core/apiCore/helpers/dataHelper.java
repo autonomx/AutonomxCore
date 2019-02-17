@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,7 +20,6 @@ import core.support.logger.TestLog;
 import core.support.objects.KeyValue;
 import core.support.objects.TestObject;
 import io.netty.util.internal.StringUtil;
-import io.restassured.response.Response;
 
 public class dataHelper {
 
@@ -144,4 +144,102 @@ public class dataHelper {
         
         TestLog.logPass("Get Service Bus Outbound Message:{0}", Config.getValue(key));
     }
+    
+    /**
+     * validates response against expected values
+     * @param command
+     * @param responseString
+     * @param expectedString
+     */
+    public static void validateCommand(String command, String responseString, String expectedString) {
+    	validateCommand(command,responseString,expectedString, StringUtils.EMPTY);
+    }
+    
+    /**
+	 * validates response against expected values
+	 * @param command
+	 * @param responseString
+	 * @param expectedString
+	 * @param position
+	 */
+	public static void validateCommand(String command, String responseString, String expectedString, String position) {
+	
+		String[] expectedArray = expectedString.split(",");
+		String[] actualArray = responseString.split(",");
+		String actualString = "";
+		
+		// if position has value, then get response at position
+		if(!position.isEmpty()) {
+			expectedString = expectedArray[0]; //single item
+			actualString = actualArray[Integer.valueOf(position)-1];
+		}
+		
+		switch (command) {
+		case "hasItems":
+			boolean val = false;
+			if(!position.isEmpty()) { // if position is provided
+				TestLog.logPass("verifying: " + actualString + " has item " + expectedString);
+				val = actualString.contains(expectedString);
+				Helper.assertTrue(actualString + " does not have item " + expectedString, val);
+			}else {
+				TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " has items " + Arrays.toString(expectedArray));
+				val = Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
+				Helper.assertTrue(Arrays.toString(actualArray) + " does not have items " + Arrays.toString(expectedArray), val);
+			}
+			break;
+		case "equalTo":
+			if(!position.isEmpty()) { // if position is provided
+				TestLog.logPass("verifying: " + actualString + " equals " + expectedString);
+				val = actualString.equals(expectedString);
+				Helper.assertTrue(actualString + " does not equal " + expectedString, val);
+			}
+			else {
+				TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " equals " + Arrays.toString(expectedArray));
+				val = Arrays.equals(expectedArray, actualArray);
+				Helper.assertTrue(Arrays.toString(actualArray) + " does not equal " + Arrays.toString(expectedArray), val);
+			}
+			break;
+		case "contains":				
+			if(!position.isEmpty()) { // if position is provided
+				TestLog.logPass("verifying: " + actualString + " contains " + expectedString);
+				val = actualString.contains(expectedString);
+				Helper.assertTrue(actualString + " does not contain " + expectedString, val);
+			}else {
+				TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " contains " + Arrays.toString(expectedArray));
+				val = Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
+				Helper.assertTrue(Arrays.toString(actualArray) + " does not contain " + Arrays.toString(expectedArray), val);
+			}
+			break;
+		case "containsInAnyOrder":
+			TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " contains any order " + Arrays.toString(expectedArray));
+			val = Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
+			Helper.assertTrue(Arrays.toString(actualArray) + " does not contain in any order " + Arrays.toString(expectedArray), val);
+			break;
+		case "nodeSizeGreaterThan":
+			int intValue = Integer.valueOf(expectedString);
+			TestLog.logPass("verifying node with size " + actualArray.length + " greater than " + intValue);
+			Helper.assertTrue("response node size is: " + actualArray.length + " expected it to be greated than: " + intValue, actualArray.length > intValue);
+			break;
+		case "nodeSizeExact":
+			intValue = Integer.valueOf(expectedString);
+			TestLog.logPass("verifying node with size " + actualArray.length + " equals " + intValue);
+			Helper.assertTrue("response node size is: " + actualArray.length + " expected: " + intValue, actualArray.length == intValue);
+			break;
+		case "sequence":
+			TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " with sequence " + Arrays.toString(expectedArray));
+			val = Arrays.equals(expectedArray, actualArray);
+			Helper.assertTrue(Arrays.toString(actualArray) + " does not equal " + Arrays.toString(expectedArray), val);
+			break;
+		case "isNotEmpty":
+			TestLog.logPass("verifying response for path is not empty");
+			Helper.assertTrue("value is empty", !responseString.isEmpty());
+			break;
+		case "isEmpty":
+			TestLog.logPass("verifying response for path is empty ");
+			Helper.assertTrue("value is not empty", responseString.isEmpty());
+			break;
+		default:
+			break;
+		}
+	}
 }
