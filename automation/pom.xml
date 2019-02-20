@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.core</groupId>
 	<artifactId>AutomationCore</artifactId>
-	<version>1.0.29</version>
+	<version>1.0.30</version>
 	<packaging>jar</packaging>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
@@ -380,15 +380,7 @@
 			<artifactId>reflections</artifactId>
 			<version>0.9.10</version>
 		</dependency>
-
-		<dependency>
-			<groupId>com.google.auto.service</groupId>
-			<artifactId>auto-service</artifactId>
-			<version>1.0-rc4</version>
-			<optional>true</optional>
-		</dependency>
-
-
+		
 	</dependencies>
 
 	<profiles>

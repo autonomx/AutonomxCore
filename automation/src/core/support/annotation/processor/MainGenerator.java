@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -22,11 +23,7 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
 
-import core.helpers.Helper;
 import core.support.annotation.Panel;
-import core.support.configReader.Config;
-import core.support.objects.DriverObject;
-import core.uiCore.driverProperties.driverType.DriverType;
     
 @SupportedAnnotationTypes(value = { "core.support.annotation.Panel" })
 public class MainGenerator extends AbstractProcessor {
