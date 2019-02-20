@@ -195,31 +195,40 @@ public class DriverObject {
 		return this;
 	}
 	
-	public DriverObject withWebDriver(String APP, String URL) {
+	public DriverObject withWebDriver(String App, String URL) {
 		WebCapability capability = new WebCapability().withBrowserCapability();
 		
-		return new DriverObject().withApp(APP).withDriverType(capability.getWebDriverType())
+		return new DriverObject().withApp(App).withDriverType(capability.getWebDriverType())
 				.withBrowserType(capability.getBrowser()).withDriverVersion(capability.getDriverVersion())
-				.withUrl(capability.getUrl(APP, URL))
+				.withUrl(capability.getUrl(App, URL))
 
 				.withCapabilities(capability.getCapability());
 	}
 	
-	public DriverObject withiOSDriver(String device) {
+	public DriverObject withiOSDriver(String app, String device) {
 		IosCapability capability = new IosCapability().withDevice(device).withIosCapability();
-		return new DriverObject().withDriverType(DriverType.IOS_DRIVER).withCapabilities(capability.getCapability());
+		return new DriverObject().withApp(app).withDriverType(DriverType.IOS_DRIVER).withCapabilities(capability.getCapability());
 	}
 	
-	public DriverObject withAndroidDriver(String device) {
+	public DriverObject withAndroidDriver(String app, String device) {
 		AndroidCapability capability = new AndroidCapability().withDevice(device).withAndroidCapability();
-		return new DriverObject().withDriverType(DriverType.ANDROID_DRIVER).withCapabilities(capability.getCapability());
+		return new DriverObject().withApp(app).withDriverType(DriverType.ANDROID_DRIVER).withCapabilities(capability.getCapability());
 	}
 	
-	public DriverObject withWinDriver() {
+	public DriverObject withWinDriver(String app) {
 		WinAppCapabilities capability = new WinAppCapabilities().withWinAppdCapability();		
 		return new DriverObject()
+				.withApp(app)
 				.withDriverType(DriverType.WINAPP_DRIVER)
 				.withCapabilities(capability.getCapability());	
+	}
+	
+	public DriverObject withApiDriver(String app) {
+		return new DriverObject().withApp(app).withDriverType(DriverType.API);
+	}
+	
+	public DriverObject withGenericDriver(String app) {
+		return new DriverObject().withApp(app).withDriverType(DriverType.API);
 	}
 
 }

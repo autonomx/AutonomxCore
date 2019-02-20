@@ -34,6 +34,8 @@ public class dataHelper {
 		String value;
 		int length = 0;
 		for (String parameter : parameters) {
+			if(parameter.contains("$"))
+				continue;
 			if (parameter.contains("@_TIME")) {
 				length = getIntFromString(parameter);
 				value = TestObject.getTestInfo().startTime.substring(0, length);

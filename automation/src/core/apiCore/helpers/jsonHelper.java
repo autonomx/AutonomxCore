@@ -1,8 +1,8 @@
 package core.apiCore.helpers;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import org.hamcrest.Matchers;
 import org.json.JSONArray;
@@ -72,7 +72,7 @@ public class jsonHelper {
 		String value = "";
 		List<String> values = getJsonListValueResponse(response, path);
 		
-		if(values.isEmpty()) {
+		if(values == null || values.isEmpty()) {
 			 value = getJsonStringResponse(response, path);
 		}
 			
@@ -84,7 +84,7 @@ public class jsonHelper {
 	public static String listToString(List<String> values) {
 		String result = "";
 		for(Object val : values) {
-			String value = val.toString();
+			String value = Objects.toString(val, "");
 			result = result + value;
 			if(values.size()>1) result+=",";
 		}

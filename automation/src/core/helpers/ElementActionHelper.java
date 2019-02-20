@@ -19,6 +19,7 @@ public class ElementActionHelper {
 		Actions actions = new Actions(AbstractDriver.getWebDriver());
 		EnhancedWebElement targetElement = Element.findElements(by);
 		actions.moveToElement(targetElement.get(0)).build().perform();
+		Helper.waitForSeconds(0.5);
 	}
 
 	/*

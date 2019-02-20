@@ -467,7 +467,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		if (isMobile() || !locatorType.equals(Element.LocatorType.css)) {
 			int listSize = elementList.size();
 			for (int i = 0; i < listSize; i++) {
-				stringList.add(elementList.get(i).getText());
+				stringList.add(elementList.get(i).getText().trim());
 			}
 		} else
 			stringList = getTextJs();

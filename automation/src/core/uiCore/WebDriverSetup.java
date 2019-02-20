@@ -17,6 +17,7 @@ import com.microsoft.appcenter.appium.Factory;
 
 import core.support.configReader.Config;
 import core.support.configReader.PropertiesReader;
+import core.support.logger.TestLog;
 import core.support.objects.DriverObject;
 import core.uiCore.driverProperties.browserType.BrowserType;
 import core.uiCore.driverProperties.driverType.DriverType;
@@ -64,9 +65,11 @@ public class WebDriverSetup {
 			if(Config.getBooleanValue("useExternalAppiumServer"))
 			{
 				int port = Config.getIntValue("appiumExternalPort");
+				TestLog.ConsoleLog("Connecting to external appium server at port " + port);
 				driver = new IOSDriver(new URL("http://localhost:"+ port + "/wd/hub"), driverObject.capabilities);
 			}
 			else {
+				TestLog.ConsoleLog("Connecting to internal appium server");
 				service = AppiumServer.startAppiumServer(driverObject);
 			//	driver = new IOSDriver(new URL("http://localhost:4723/wd/hub"), driverObject.capabilities);
 				driver = new IOSDriver(service.getUrl(), driverObject.capabilities);
