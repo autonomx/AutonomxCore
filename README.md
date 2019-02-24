@@ -67,7 +67,7 @@ or you can use the [Macaca App Inspector](https://macacajs.github.io/app-inspect
 
 # Execution:
 
-* Clone the repository https://github.com/ematean/AutomationClient
+* Clone the repository [Automaion Client](https://github.com/ematean/AutomationClient)
 * Navigate to runner/<mac,win,linux)>/<test suite of your choice>. eg. runner/mac/restTests.sh
 * The run scripts are generated from testng testSuites by runner/generateScripts.sh. Each script is associated with a suite of tests
 
