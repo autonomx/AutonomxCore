@@ -2,19 +2,22 @@ package core.uiCore.driverProperties.globalProperties;
 
 import core.support.configReader.Config;
 
+/**
+ * @author jenkins
+ *
+ */
 public class CrossPlatformProperties {
 
-	public static String PARALLEL_TEST_COUNT = "parallel_test_count";
-	public static String RETRY_COUNT = "retry_count";
-	public static String GLOBAL_TIMEOUT_SECONDS = "global_timeout_seconds";
-	public static String TEST_DATA_PATH = "testDataPath";
-	public static String AUDIO_COMMENTARY = "audio_commentary";
-	public static String IS_SINGLE_SIGNIN = "isSingleSignIn";
+	public static String PARALLEL_TEST_COUNT = "global.parallelTestCount";
+	public static String RETRY_COUNT = "global.retryCount";
+	public static String GLOBAL_TIMEOUT_SECONDS = "global.timeoutSeconds";
+	public static String AUDIO_COMMENTARY = "report.audioCommentary";
+	public static String IS_SINGLE_SIGNIN = "global.isSingleSignIn";
 	public static String LANGUAGE = "language";
-	public static String AUDIO_COMMENTARY_TYPE = "audio_commentary_type";
+	public static String AUDIO_COMMENTARY_TYPE = "report.audioCommentaryType";
 	public static String PATH = "path";
-	public static String ENABLE_BATCH_LOGGING = "enable_batch_logging";
-	public static String LOCALIZATION_FILE = "localization_file";
+	public static String ENABLE_BATCH_LOGGING = "report.enableBatchLogging";
+	public static String LOCALIZATION_FILE = "localize.file";
 
 	public static int getRetryCount() {
 		return Config.getIntValue(RETRY_COUNT);

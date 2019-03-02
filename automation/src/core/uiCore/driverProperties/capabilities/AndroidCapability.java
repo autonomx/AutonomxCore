@@ -21,21 +21,23 @@ import io.appium.java_client.remote.AndroidMobileCapabilityType;
 import io.appium.java_client.remote.MobileCapabilityType;
 import io.github.bonigarcia.wdm.WebDriverManager;
 
+/**
+ * @author ehsan.matean
+ *
+ */
 public class AndroidCapability {
 
 	public DesiredCapabilities capabilities;
-	public static String APP_DIR_PATH = "android_app_dir";
-	public static String APP_NAME = "androidApp";
-	public static String DEVICE_NAME1 = "androidDeviceName1";
-	public static String DEVICE_NAME2 = "androidDeviceName2";
-	public static String UNICODE_KEYBOARD = "androidUnicodeKeyboard";
-	public static String RESET_KEYBOARD = "androidResetKeyboard";
-	public static String FULL_RESET = "androidFullReset";
-	public static String NO_RESET = "androidNoReset";
-	public static String CHROME_VERSION = "appiumChromeVersion";
-	public static String iS_CHROME_AUTO_MANAGE = "appiumChromeAutoManage";
-	public static String CHROME_DRIVER_PATH = "appiumChromeDriverPath";
-	public static String ANDROID_TECHNOLOGY = "androidTechnology";
+	public static String APP_DIR_PATH = "android.app_dir";
+	public static String APP_NAME = "android.app";
+	public static String UNICODE_KEYBOARD = "android.capabilties.unicodeKeyboard";
+	public static String RESET_KEYBOARD = "android.capabilties.resetKeyboard";
+	public static String FULL_RESET = "android.capabilties.fullReset";
+	public static String NO_RESET = "android.capabilties.noReset";
+	public static String CHROME_VERSION = "appium.chromeVersion";
+	public static String iS_CHROME_AUTO_MANAGE = "appium.chromeAutoManage";
+	public static String CHROME_DRIVER_PATH = "appium.chromeDriverPath";
+	public static String ANDROID_TECHNOLOGY = "android.technology";
 
 	public List<String> simulatorList = new ArrayList<String>();
 	public static int SYSTEM_PORT = 8200;
@@ -58,17 +60,6 @@ public class AndroidCapability {
 	 */
 	public AndroidCapability withDevice(String device) {
 		this.simulatorList = Config.getValueList(device);
-		return this;
-	}
-
-	public AndroidCapability withDevice1() {
-		this.simulatorList = Config.getValueList(DEVICE_NAME1);
-		return this;
-	}
-
-	public AndroidCapability withDevice2() {
-		this.simulatorList = Config.getValueList(DEVICE_NAME2);
-		// setAndroidDevice();
 		return this;
 	}
 
@@ -251,10 +242,6 @@ public class AndroidCapability {
 	 */
 	public void setSimulator() {
 		List<String> devices = this.simulatorList;
-
-		// set default devices from properties
-		if (devices.isEmpty())
-			devices = Config.getValueList(DEVICE_NAME1);
 
 		if (devices == null || devices.isEmpty())
 			Helper.assertFalse("set device first");

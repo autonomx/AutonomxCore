@@ -16,7 +16,7 @@ import core.support.objects.TestObject;
 
 @SuppressWarnings("rawtypes")
 public class AnnotationTransformer implements IAnnotationTransformer {
-	public static final String THREAD_COUNT = "parallel_test_count";
+	public static final String THREAD_COUNT = "global.parallel_test_count";
 	public static final String API_TEST_RUNNER_PREFIX = "ApiRunner";
 
 	@Override

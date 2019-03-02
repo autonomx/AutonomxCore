@@ -16,7 +16,7 @@ import core.support.configReader.Config;
  */
 public class WinAppCapabilities {
 	
-	public static String WINAPP = "winApp";
+	public static String WINAPP = "win.app";
 
 
 	public DesiredCapabilities capabilities;

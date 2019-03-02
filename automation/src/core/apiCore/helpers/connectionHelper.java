@@ -9,13 +9,13 @@ import core.support.logger.TestLog;
 
 public class connectionHelper {
 
-	private static final String SSH_USER = "SshUser";
-	private static final String SSH_PASSWORD = "SshPassword";
-	private static final String SSH_HOST = "SshHost";
-	private static final String SSH_PORT = "SshPort";
-	private static final String SSH_LPORT = "SshLport";
-	private static final String SSH_RHOST = "SshRHost";
-	private static final String SSH_RPORT = "SshRport";
+	private static final String SSH_USER = "ssh.user";
+	private static final String SSH_PASSWORD = "ssh.password";
+	private static final String SSH_HOST = "ssh.host";
+	private static final String SSH_PORT = "ssh.port";
+	private static final String SSH_LPORT = "ssh.lport";
+	private static final String SSH_RHOST = "ssh.rHost";
+	private static final String SSH_RPORT = "ssh.rport";
 
 
 	/**

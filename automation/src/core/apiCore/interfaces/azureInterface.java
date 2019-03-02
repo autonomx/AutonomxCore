@@ -15,9 +15,9 @@ import core.support.logger.TestLog;
 import core.support.objects.ApiObject;
 
 public class azureInterface {
-	private static final String AZURE_ACCOUNT_KEY = "azureKey";
-	private static final String AZURE_ACCOUNT = "azureAccount";
-	private static final String UPLOAD_TO_FILE_SHARE = "uploadToFileShare";
+	private static final String AZURE_ACCOUNT_KEY = "azure.key";
+	private static final String AZURE_ACCOUNT = "azure.account";
+	private static final String UPLOAD_TO_FILE_SHARE = "azure.uploadToFileShare";
 
 	public static CloudStorageAccount conn = null;
 

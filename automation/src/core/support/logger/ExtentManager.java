@@ -25,9 +25,11 @@ import core.support.objects.TestObject;
 //OB: ExtentReports extent instance created here. That instance can be reachable by getReporter() method.
 
 public class ExtentManager {
-	public static final String LAUNCH_AFTER_REPORT = "launchReportAfterTest";
-	public static final String ENABLE_SLACK_NOTIFICATION = "enableSlackNotification";
-	public static final String ENABLE_EMAIL_REPORT = "enableEmailReport";
+	public static final String LAUNCH_AFTER_REPORT = "report.launchReportAfterTest";
+	public static final String ENABLE_SLACK_NOTIFICATION = "slack.enableSlackNotification";
+	public static final String ENABLE_EMAIL_REPORT = "email.enableEmailReport";
+	public static final String REPORT_EXPIRE_DAYS = "report.reportExpireDays";
+	
 
 	private static ExtentReports extent;
 	public static String REPORT_DEFAULT_NAME = "extent";
@@ -207,13 +209,13 @@ public class ExtentManager {
 		if (!Config.getValue(ENABLE_EMAIL_REPORT).equals("true"))
 			return;
 
-		String fromEmail = Config.getValue("fromEmail");
-		String toEmail = Config.getValue("toEmail");
-		String password = Config.getValue("emailPassword");
-		String smtpPort = Config.getValue("smtpPort");
-		String smtpHost = Config.getValue("smtpHost");
-		Boolean smtpStarttlsEnabled = Config.getBooleanValue("smtpStarttlsEnable");
-		Boolean smtpAuth = Config.getBooleanValue("smtpAuth");
+		String fromEmail = Config.getValue("email.fromEmail");
+		String toEmail = Config.getValue("email.toEmail");
+		String password = Config.getValue("email.emailPassword");
+		String smtpPort = Config.getValue("email.smtpPort");
+		String smtpHost = Config.getValue("email.smtpHost");
+		Boolean smtpStarttlsEnabled = Config.getBooleanValue("email.smtpStarttlsEnable");
+		Boolean smtpAuth = Config.getBooleanValue("email.smtpAuth");
 
 		TestLog.ConsoleLog("sending email report");
 
@@ -243,7 +245,7 @@ public class ExtentManager {
 	}
 	
 	public static void clearOldTestReports() {
-		int maxDays = Config.getIntValue("reportExpireDays");
+		int maxDays = Config.getIntValue(REPORT_EXPIRE_DAYS);
 		if (maxDays < 1)
 			return;
 

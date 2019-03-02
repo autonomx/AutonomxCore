@@ -14,7 +14,7 @@ import core.support.objects.TestObject;
 
 public class Config {
 
-	private static final String CONFIG_PREFIX = "config_";
+	private static final String CONFIG_PREFIX = "config.";
 	public static String RESOURCE_PATH = PropertiesReader.getLocalResourcePath();
 
 	/**
@@ -105,7 +105,7 @@ public class Config {
 		String value = TestObject.getTestInfo().config.get(key);
 		if (value == null) {
 			// TODO: can cause null point exception on start. need investigation
-			// TestLog.ConsoleLogWarn("value not found, default empty: " + key);
+			 TestLog.ConsoleLogWarn("value not found, default empty: " + key);
 			value = "";
 		}
 		List<String> items = Arrays.asList(value.split("\\s*,\\s*"));

@@ -20,25 +20,40 @@ import io.appium.java_client.remote.AutomationName;
 import io.appium.java_client.remote.MobileCapabilityType;
 import io.github.bonigarcia.wdm.WebDriverManager;
 
+
+/**
+ * ios.app = "eurika.app"
+ios.app_dir = "resources/"
+ios.mobile = "iPhone 7"
+ios.tablet = "iPad Air 2"
+ios.deviceVersion = "12.1"
+ios.capabilties.fullReset = false
+ios.capabilties.orientation = "landscape"
+ios.capabilties.waitForQuiescence = false
+ios.capabilties.useNewWDA = true
+ios.capabilties.clearSystemFiles = false
+ios.capabilties.shouldUseSingletonTestManager = false
+ios.capabilties.shouldUseTestManagerForVisibilityDetection = false
+ * @author jenkins
+ *
+ */
 public class IosCapability {
 
 	public DesiredCapabilities capabilities;
-	public static String APP_DIR_PATH = "ios_app_dir";
-	public static String APP_NAME = "iosApp";
-	public static String DEVICES1 = "iosDevices1";
-	public static String DEVICES2 = "iosDevices2";
+	public static String APP_DIR_PATH = "ios.app_dir";
+	public static String APP_NAME = "ios.app";
 
-	public static String DEVICE_VERSION = "iosDeviceVersion";
-	public static String DEVICE_ORIENTATION = "iosOrientation";
-	public static String FULL_RESET = "iosFullReset";
-	public static String NO_RESET = "iosNoReset";
-	public static String WAIT_FOR_QUIESCENCE = "iosWaitForQuiescence";
-	public static String USE_NEW_WDA = "iosUseNewWDA";
-	public static String CLEAR_SYSTEM_FILES = "iosclearSystemFiles";
-	public static String SHOULD_USE_SINGLETON_TEST_MANAGEMENT = "iosShouldUseSingletonTestManager";
-	public static String SHOULD_USE_TEST_MANAGER_FOR_VISIBILITY_DETECTION = "iosShouldUseTestManagerForVisibilityDetection";
-	public static String CHROME_VERSION = "appiumChromeVersion";
-	public List<String> simulatorList = new ArrayList<String>();;
+	public static String DEVICE_VERSION = "ios.deviceVersion";
+	public static String DEVICE_ORIENTATION = "ios.capabilties.orientation";
+	public static String FULL_RESET = "ios.capabilties.fullReset";
+	public static String NO_RESET = "ios.capabilties.noReset";
+	public static String WAIT_FOR_QUIESCENCE = "ios.capabilties.waitForQuiescence";
+	public static String USE_NEW_WDA = "ios.capabilties.useNewWDA";
+	public static String CLEAR_SYSTEM_FILES = "ios.capabilties.clearSystemFiles";
+	public static String SHOULD_USE_SINGLETON_TEST_MANAGEMENT = "ios.capabilties.shouldUseSingletonTestManager";
+	public static String SHOULD_USE_TEST_MANAGER_FOR_VISIBILITY_DETECTION = "ios.capabilties.shouldUseTestManagerForVisibilityDetection";
+	public static String CHROME_VERSION = "appium.chromeVersion";
+	public List<String> simulatorList = new ArrayList<String>();
 
 	public static int WDA_LOCAL_PORT = 8100;
 
@@ -67,16 +82,6 @@ public class IosCapability {
 	 */
 	public IosCapability withDevice(String device) {
 		this.simulatorList = Config.getValueList(device);
-		return this;
-	}
-
-	public IosCapability withDevice1() {
-		this.simulatorList = Config.getValueList(DEVICES1);
-		return this;
-	}
-
-	public IosCapability withDevice2() {
-		this.simulatorList = Config.getValueList(DEVICES2);
 		return this;
 	}
 
@@ -200,16 +205,8 @@ public class IosCapability {
 	public void setSimulator() {
 		List<String> devices = this.simulatorList;
 
-		// set default devices from properties
-		if (devices.isEmpty())
-			devices = Config.getValueList(DEVICES1);
-
 		if (devices == null || devices.isEmpty())
 			Helper.assertFalse("set device first");
-
-		// set default devices from properties
-		if (devices.isEmpty())
-			devices = Config.getValueList(DEVICES1);
 
 		int threads = CrossPlatformProperties.getParallelTests();
 		if (threads > devices.size())
