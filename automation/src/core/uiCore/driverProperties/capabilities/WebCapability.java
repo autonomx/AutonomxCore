@@ -50,6 +50,7 @@ public class WebCapability {
 		cliArgsCap.add("--ssl-protocol=any");
 		cliArgsCap.add("--ignore-ssl-errors=true");
 		capabilities.setCapability(PhantomJSDriverService.PHANTOMJS_CLI_ARGS, cliArgsCap);
+		
 		capabilities.setCapability("recordVideo", false);
 		capabilities.setCapability("takesScreenshot", true);
 

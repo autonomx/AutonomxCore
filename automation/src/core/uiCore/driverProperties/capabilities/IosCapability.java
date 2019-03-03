@@ -18,25 +18,12 @@ import core.support.objects.DeviceObject.DeviceType;
 import core.support.objects.TestObject;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import core.uiCore.drivers.AbstractDriver;
-import io.appium.java_client.remote.AutomationName;
 import io.appium.java_client.remote.MobileCapabilityType;
 import io.github.bonigarcia.wdm.WebDriverManager;
 
 
 /**
- * ios.app = "eurika.app"
-ios.app_dir = "resources/"
-ios.mobile = "iPhone 7"
-ios.tablet = "iPad Air 2"
-ios.deviceVersion = "12.1"
-ios.capabilties.fullReset = false
-ios.capabilties.orientation = "landscape"
-ios.capabilties.waitForQuiescence = false
-ios.capabilties.useNewWDA = true
-ios.capabilties.clearSystemFiles = false
-ios.capabilties.shouldUseSingletonTestManager = false
-ios.capabilties.shouldUseTestManagerForVisibilityDetection = false
- * @author jenkins
+ * @author ehsan.matean
  *
  */
 public class IosCapability {
@@ -46,14 +33,6 @@ public class IosCapability {
 	public static String APP_NAME = "ios.app";
 
 	public static String DEVICE_VERSION = "ios.deviceVersion";
-	public static String DEVICE_ORIENTATION = "ios.capabilties.orientation";
-	public static String FULL_RESET = "ios.capabilties.fullReset";
-	public static String NO_RESET = "ios.capabilties.noReset";
-	public static String WAIT_FOR_QUIESCENCE = "ios.capabilties.waitForQuiescence";
-	public static String USE_NEW_WDA = "ios.capabilties.useNewWDA";
-	public static String CLEAR_SYSTEM_FILES = "ios.capabilties.clearSystemFiles";
-	public static String SHOULD_USE_SINGLETON_TEST_MANAGEMENT = "ios.capabilties.shouldUseSingletonTestManager";
-	public static String SHOULD_USE_TEST_MANAGER_FOR_VISIBILITY_DETECTION = "ios.capabilties.shouldUseTestManagerForVisibilityDetection";
 	public static String CHROME_VERSION = "appium.chromeVersion";
 	public List<String> simulatorList = new ArrayList<String>();
 
