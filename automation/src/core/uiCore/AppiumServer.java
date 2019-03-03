@@ -18,10 +18,10 @@ import io.appium.java_client.service.local.flags.GeneralServerFlag;
 
 public class AppiumServer {
 
-	public static String ANDROID_HOME = "android.androidHome";
+	public static String ANDROID_HOME = "android.home";
 	public static String JAVA_HOME = "android.javaHome";
-	public static String APPIUM_LOGGING = "appium.appiumLogging";
-	public static String APPIUM_LOGGING_LEVEL = "appium.appiumLogginLevel";
+	public static String APPIUM_LOGGING = "appium.logging";
+	public static String APPIUM_LOGGING_LEVEL = "appium.logginLevel";
 	public static AppiumDriverLocalService service = null;
 	
 	/**

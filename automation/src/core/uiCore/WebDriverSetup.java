@@ -75,7 +75,7 @@ public class WebDriverSetup {
 		case ANDROID_DRIVER:
 			
 			// if external server is used
-			if(Config.getBooleanValue("useExternalAppiumServer"))
+			if(Config.getBooleanValue("appium.useExternalAppiumServer"))
 			{
 				int port = Config.getIntValue("appiumExternalPort");
 				driver = new AndroidDriver(new URL("http://localhost:"+ port + "/wd/hub"), driverObject.capabilities);

@@ -15,7 +15,7 @@ public class CrossPlatformProperties {
 	public static String IS_SINGLE_SIGNIN = "global.isSingleSignIn";
 	public static String LANGUAGE = "language";
 	public static String AUDIO_COMMENTARY_TYPE = "report.audioCommentaryType";
-	public static String PATH = "path";
+	public static String PATH = "appium.path";
 	public static String ENABLE_BATCH_LOGGING = "report.enableBatchLogging";
 	public static String LOCALIZATION_FILE = "localize.file";
 

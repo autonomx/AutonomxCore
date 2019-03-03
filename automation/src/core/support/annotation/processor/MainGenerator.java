@@ -226,19 +226,19 @@ public class MainGenerator extends AbstractProcessor {
 	}
 	
 	public DriverObject getIosTabletDriver() {
-		return new DriverObject().withiOSDriver("iosTablet");
+		return new DriverObject().withiOSDriver("ios.tablet");
 	}
 	
 	public DriverObject getIosMobileDriver() {
-		return new DriverObject().withiOSDriver("iosMobile");
+		return new DriverObject().withiOSDriver("ios.mobile");
 	}
 	
 	public DriverObject getAndroidTabletDriver() {
-		return new DriverObject().withiOSDriver("androidTablet");
+		return new DriverObject().withiOSDriver("android.tablet");
 	}
 	
 	public DriverObject getAndroidMobileDriver() {
-		return new DriverObject().withiOSDriver("androidMobile");
+		return new DriverObject().withiOSDriver("android.mobile");
 	}
 	
 	public DriverObject getWinAppDriver() {

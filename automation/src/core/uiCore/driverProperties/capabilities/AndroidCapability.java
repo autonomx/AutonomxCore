@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.openqa.selenium.remote.DesiredCapabilities;
 
@@ -28,21 +30,17 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 public class AndroidCapability {
 
 	public DesiredCapabilities capabilities;
-	public static String APP_DIR_PATH = "android.app_dir";
+	public static String APP_DIR_PATH = "android.appDir";
 	public static String APP_NAME = "android.app";
-	public static String UNICODE_KEYBOARD = "android.capabilties.unicodeKeyboard";
-	public static String RESET_KEYBOARD = "android.capabilties.resetKeyboard";
-	public static String FULL_RESET = "android.capabilties.fullReset";
-	public static String NO_RESET = "android.capabilties.noReset";
 	public static String CHROME_VERSION = "appium.chromeVersion";
 	public static String iS_CHROME_AUTO_MANAGE = "appium.chromeAutoManage";
 	public static String CHROME_DRIVER_PATH = "appium.chromeDriverPath";
-	public static String ANDROID_TECHNOLOGY = "android.technology";
+
+	
+	private static final String CAPABILITIES_PREFIX = "android.capabilties.";
 
 	public List<String> simulatorList = new ArrayList<String>();
 	public static int SYSTEM_PORT = 8200;
-
-	Config config;
 
 	public AndroidCapability() {
 		capabilities = new DesiredCapabilities();
@@ -99,27 +97,14 @@ public class AndroidCapability {
 	 * @return
 	 */
 	public AndroidCapability withAndroidCapability() {
+		
+		// sets capabilties from properties files
+		capabilities = setAndroidCapabilties();
+		
 		capabilities.setCapability(MobileCapabilityType.APP, getAppPath());
 
 		// mandatory capabilities
-		capabilities.setCapability("deviceName", "Android");
-		capabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME, Config.getValue(ANDROID_TECHNOLOGY));
-		// app reset controls
-		capabilities.setCapability(MobileCapabilityType.FULL_RESET, Config.getBooleanValue(FULL_RESET));
-		capabilities.setCapability(MobileCapabilityType.NO_RESET, Config.getBooleanValue(NO_RESET));
-		// if single signin is set, then do not reset the app after each test
-		setSingleSignIn();
-
 		// capabilities.setCapability("session-override", true);
-		// disables keyboard
-		capabilities.setCapability("unicodeKeyboard", Config.getBooleanValue(UNICODE_KEYBOARD));
-		capabilities.setCapability("resetKeyboard", Config.getBooleanValue(RESET_KEYBOARD));
-
-		capabilities.setCapability("recreateChromeDriverSessions", true);
-
-		capabilities.setCapability("autoGrantPermissions", true);
-		capabilities.setCapability("newCommandTimeout", 300);
-		capabilities.setCapability("noSign", true);
 
 		// set chrome version if value set in properties file
 		if (!getChromeDriverVersion().equals("DEFAULT")) {
@@ -128,12 +113,41 @@ public class AndroidCapability {
 			capabilities.setCapability("chromedriverExecutable", chromePath);
 		}
 
+		// set device using device manager. device manager handles multiple devices in parallel
 		setAndroidDevice();
 		
 		// set port for appium 
-		setPort(TestObject.getTestInfo().deviceName);		
+		setPort(TestObject.getTestInfo().deviceName);	
+		
+		// if single signin is set, then do not reset the app after each test
+		setSingleSignIn();
 		
         return this;
+	}
+	
+	/**
+	 * set capabilties with prefix android.capabilties.
+	 * eg. android.capabilties.fullReset="false
+	 * iterates through all property values with such prefix and adds them to android desired capabilities
+	 * @return 
+	 */
+	public DesiredCapabilities setAndroidCapabilties() {
+
+		// get all keys from config 
+		Map<String, String> propertiesMap = TestObject.getTestInfo().config;
+
+		// load config/properties values from entries with "android.capabilties." prefix
+		for (Entry<String, String> entry : propertiesMap.entrySet()) {
+			boolean isAndroidCapability = entry.getKey().toString().startsWith(CAPABILITIES_PREFIX);
+			if (isAndroidCapability) {
+				String fullKey = entry.getKey().toString();
+				String key = fullKey.substring(fullKey.lastIndexOf(".") + 1).trim();
+				String value = entry.getValue().toString().trim();
+				
+				capabilities.setCapability(key, value);
+			}
+		}
+		return capabilities;
 	}
 
 	/**
@@ -209,7 +223,7 @@ public class AndroidCapability {
 	 * 
 	 * @return
 	 */
-	public static List<String> getAndroidDeviceList() {
+	public List<String> getAndroidDeviceList() {
 		String cmd;
 		if (!Config.getValue(AppiumServer.ANDROID_HOME).isEmpty())
 			cmd = Config.getValue(AppiumServer.ANDROID_HOME) + "/platform-tools/adb devices";
@@ -229,7 +243,7 @@ public class AndroidCapability {
 		return devices;
 	}
 	
-	public static List<String> getAndroidRealDeviceList() {
+	public List<String> getAndroidRealDeviceList() {
 		List<String> devices = getAndroidDeviceList();
 		return getRealDevices(devices);
 	}
