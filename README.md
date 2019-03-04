@@ -1,3 +1,5 @@
+Documentation: https://ehsan-matean.gitbook.io/automationcore/ 
+
 # Automation Core
 
 AutomationCore provides a complete testing platform for UI (Web, iOS, Android, Win) and API testing. It provides a feature rich and viable testing solution for end to end testing. They’re designed to be fast, scalable, reliable and adaptable to any requirements for ever growing projects.  
