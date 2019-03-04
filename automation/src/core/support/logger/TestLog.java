@@ -36,7 +36,7 @@ import marytts.MaryInterface;
 @SuppressWarnings("deprecation")
 public class TestLog {
 
-	public static final String ENABLE_EXTENT_SUBSTEPS = "enableDetailedReport";
+	public static final String ENABLE_EXTENT_SUBSTEPS = "report.enableDetailedReport";
 	public static int MAX_LENGTH = 400; // in chars
 	public static String WATSON = "WATSON";
 	public static String MARY = "MARY";

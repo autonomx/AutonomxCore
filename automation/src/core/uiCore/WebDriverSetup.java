@@ -30,12 +30,9 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 
 public class WebDriverSetup {
 
-	public static String SERVER_URL = "server_url";
-	public static String SERVER_PORT = "server_port";
-	public static String ANDROID_HOME = "androidHome";
-	public static String JAVA_HOME = "javaHome";
+	public static String SERVER_URL = "web.server_url";
+	public static String SERVER_PORT = "web.server_port";
 	public static String LATEST_BROWSER_VERSION = "LATEST";
-	public static String APPIUM_LOGGING = "appiumLogging";
 
 	/**
 	 * get webdriver by type set in properties file
@@ -78,7 +75,7 @@ public class WebDriverSetup {
 		case ANDROID_DRIVER:
 			
 			// if external server is used
-			if(Config.getBooleanValue("useExternalAppiumServer"))
+			if(Config.getBooleanValue("appium.useExternalAppiumServer"))
 			{
 				int port = Config.getIntValue("appiumExternalPort");
 				driver = new AndroidDriver(new URL("http://localhost:"+ port + "/wd/hub"), driverObject.capabilities);

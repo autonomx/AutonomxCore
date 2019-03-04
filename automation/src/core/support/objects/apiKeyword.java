@@ -17,7 +17,7 @@ public class apiKeyword {
 
 		ApiObject login = TestObject.getApiDef("getToken");
 		/*
-		ApiObject login = TestObject.backend.api.getToken()
+		ApiObject login = Backend.getToken()
 		.withUserName(user.username().get())
 		.withPassword(user.password().get());
 		*/

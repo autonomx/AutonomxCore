@@ -226,19 +226,19 @@ public class MainGenerator extends AbstractProcessor {
 	}
 	
 	public DriverObject getIosTabletDriver() {
-		return new DriverObject().withiOSDriver("iosTablet");
+		return new DriverObject().withiOSDriver("ios.tablet");
 	}
 	
 	public DriverObject getIosMobileDriver() {
-		return new DriverObject().withiOSDriver("iosMobile");
+		return new DriverObject().withiOSDriver("ios.mobile");
 	}
 	
 	public DriverObject getAndroidTabletDriver() {
-		return new DriverObject().withiOSDriver("androidTablet");
+		return new DriverObject().withiOSDriver("android.tablet");
 	}
 	
 	public DriverObject getAndroidMobileDriver() {
-		return new DriverObject().withiOSDriver("androidMobile");
+		return new DriverObject().withiOSDriver("android.mobile");
 	}
 	
 	public DriverObject getWinAppDriver() {
@@ -269,22 +269,22 @@ public class MainGenerator extends AbstractProcessor {
 		
 		// ios tablet driver
 		bw.append("public DriverObject getIosTabletDriver() {\n");
-		bw.append("	return new DriverObject().withiOSDriver(\"" + moduleName + "\",\"iosTablet\");\n");
+		bw.append("	return new DriverObject().withiOSDriver(\"" + moduleName + "\",\"ios.tablet\");\n");
 		bw.append("}\n");
 		
 		// ios mobile driver
 		bw.append("public DriverObject getIosMobileDriver() {\n");
-		bw.append("	return new DriverObject().withiOSDriver(\""+ moduleName +"\",\"iosMobile\");\n");
+		bw.append("	return new DriverObject().withiOSDriver(\""+ moduleName +"\",\"ios.mobile\");\n");
 		bw.append("}\n");
 		
 		// andorid tablet driver
 		bw.append("public DriverObject getAndroidTabletDriver() {\n");
-		bw.append("	return new DriverObject().withAndroidDriver(\""+ moduleName +"\",\"androidTablet\");\n");
+		bw.append("	return new DriverObject().withAndroidDriver(\""+ moduleName +"\",\"android.tablet\");\n");
 		bw.append("}\n");
 		
 		// android mobile driver
 		bw.append("public DriverObject getAndroidMobileDriver() {\n");
-		bw.append("	return new DriverObject().withAndroidDriver(\""+ moduleName +"\",\"androidMobile\");\n");
+		bw.append("	return new DriverObject().withAndroidDriver(\""+ moduleName +"\",\"android.mobile\");\n");
 		bw.append("}\n");
 		
 		// windows driver

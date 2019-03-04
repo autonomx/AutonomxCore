@@ -123,7 +123,7 @@ public class AbstractDriverJunit {
 	 * maximized web page if maximize_browser option is set to true
 	 */
 	public static void setFullScreen() {
-		if (!Helper.mobile.isMobile() && Config.getValue("maximize_browser").equals("true")) {
+		if (!Helper.mobile.isMobile() && Config.getValue("web.maximizeBrowser").equals("true")) {
 			Helper.page.maximizePage();
 		}
 	}

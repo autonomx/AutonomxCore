@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.openqa.selenium.remote.DesiredCapabilities;
 
@@ -16,29 +18,25 @@ import core.support.objects.DeviceObject.DeviceType;
 import core.support.objects.TestObject;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import core.uiCore.drivers.AbstractDriver;
-import io.appium.java_client.remote.AutomationName;
 import io.appium.java_client.remote.MobileCapabilityType;
 import io.github.bonigarcia.wdm.WebDriverManager;
 
+
+/**
+ * @author ehsan.matean
+ *
+ */
 public class IosCapability {
 
 	public DesiredCapabilities capabilities;
-	public static String APP_DIR_PATH = "ios_app_dir";
-	public static String APP_NAME = "iosApp";
-	public static String DEVICES1 = "iosDevices1";
-	public static String DEVICES2 = "iosDevices2";
+	public static String APP_DIR_PATH = "ios.appDir";
+	public static String APP_NAME = "ios.app";
 
-	public static String DEVICE_VERSION = "iosDeviceVersion";
-	public static String DEVICE_ORIENTATION = "iosOrientation";
-	public static String FULL_RESET = "iosFullReset";
-	public static String NO_RESET = "iosNoReset";
-	public static String WAIT_FOR_QUIESCENCE = "iosWaitForQuiescence";
-	public static String USE_NEW_WDA = "iosUseNewWDA";
-	public static String CLEAR_SYSTEM_FILES = "iosclearSystemFiles";
-	public static String SHOULD_USE_SINGLETON_TEST_MANAGEMENT = "iosShouldUseSingletonTestManager";
-	public static String SHOULD_USE_TEST_MANAGER_FOR_VISIBILITY_DETECTION = "iosShouldUseTestManagerForVisibilityDetection";
-	public static String CHROME_VERSION = "appiumChromeVersion";
-	public List<String> simulatorList = new ArrayList<String>();;
+	public static String DEVICE_VERSION = "ios.deviceVersion";
+	public static String CHROME_VERSION = "appium.chromeVersion";
+	public List<String> simulatorList = new ArrayList<String>();
+
+	private static final String CAPABILITIES_PREFIX = "ios.capabilties.";
 
 	public static int WDA_LOCAL_PORT = 8100;
 
@@ -70,16 +68,6 @@ public class IosCapability {
 		return this;
 	}
 
-	public IosCapability withDevice1() {
-		this.simulatorList = Config.getValueList(DEVICES1);
-		return this;
-	}
-
-	public IosCapability withDevice2() {
-		this.simulatorList = Config.getValueList(DEVICES2);
-		return this;
-	}
-
 	public String getAppPath() {
 		String appRootPath = PropertiesReader.getLocalRootPath() + Config.getValue(APP_DIR_PATH);
 		File appPath = new File(appRootPath, Config.getValue(APP_NAME));
@@ -96,36 +84,19 @@ public class IosCapability {
 	 * 
 	 * @return
 	 */
-	@SuppressWarnings("deprecation")
 	public IosCapability withIosCapability() {
 
 		// https://github.com/appium/appium
 		// user appium desktop app for locator
+		
+		// sets capabilties from properties files
+		capabilities = setiOSCapabilties();
 
 		capabilities.setCapability(MobileCapabilityType.APP, getAppPath());
 
-		capabilities.setCapability(MobileCapabilityType.PLATFORM, "iOS");
-		capabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, Config.getValue(DEVICE_VERSION));
-		capabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME, AutomationName.IOS_XCUI_TEST);
-
-		// capabilities.setCapability(MobileCapabilityType.ORIENTATION,
-		// config.getStringProperty(DEVICE_ORIENTATION));
-
-		// app reset controls
-	
-		capabilities.setCapability("fullReset", Config.getValue(FULL_RESET));
-		
-		capabilities.setCapability("waitForQuiescence", Config.getValue(WAIT_FOR_QUIESCENCE));
-		capabilities.setCapability("shouldUseSingletonTestManager", Config.getValue(SHOULD_USE_SINGLETON_TEST_MANAGEMENT));
-		capabilities.setCapability("clearSystemFiles", Config.getValue(CLEAR_SYSTEM_FILES));
-		capabilities.setCapability("shouldUseTestManagerForVisibilityDetection",
-				Config.getValue(SHOULD_USE_TEST_MANAGER_FOR_VISIBILITY_DETECTION));
-	
 		//TODO: does not work with ios 11.4. try again in the future
 		//	capabilities.setCapability("locationServicesEnabled", true);
 		//	capabilities.setCapability("locationServicesAuthorized", true);
-	
-		capabilities.setCapability("useNewWDA", Config.getValue(USE_NEW_WDA));
 
 		// set chrome version if value set in properties file
 		if (!getDriverVersion().equals("DEFAULT")) {
@@ -143,6 +114,31 @@ public class IosCapability {
 		setSingleSignIn();
 
 		return this;
+	}
+	
+	/**
+	 * set capabilties with prefix ios.capabilties.
+	 * eg. ios.capabilties.fullReset="false
+	 * iterates through all property values with such prefix and adds them to android desired capabilities
+	 * @return 
+	 */
+	public DesiredCapabilities setiOSCapabilties() {
+
+		// get all keys from config 
+		Map<String, String> propertiesMap = TestObject.getTestInfo().config;
+
+		// load config/properties values from entries with "ios.capabilities." prefix
+		for (Entry<String, String> entry : propertiesMap.entrySet()) {
+			boolean isAndroidCapability = entry.getKey().toString().startsWith(CAPABILITIES_PREFIX);
+			if (isAndroidCapability) {
+				String fullKey = entry.getKey().toString();
+				String key = fullKey.substring(fullKey.lastIndexOf(".") + 1).trim();
+				String value = entry.getValue().toString().trim();
+				
+				capabilities.setCapability(key, value);
+			}
+		}
+		return capabilities;
 	}
 
 	/**
@@ -200,16 +196,8 @@ public class IosCapability {
 	public void setSimulator() {
 		List<String> devices = this.simulatorList;
 
-		// set default devices from properties
-		if (devices.isEmpty())
-			devices = Config.getValueList(DEVICES1);
-
 		if (devices == null || devices.isEmpty())
 			Helper.assertFalse("set device first");
-
-		// set default devices from properties
-		if (devices.isEmpty())
-			devices = Config.getValueList(DEVICES1);
 
 		int threads = CrossPlatformProperties.getParallelTests();
 		if (threads > devices.size())

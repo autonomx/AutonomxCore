@@ -1,5 +1,8 @@
 package core.uiCore.driverProperties.capabilities;
 
+
+/**
+ */
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -47,6 +50,7 @@ public class WebCapability {
 		cliArgsCap.add("--ssl-protocol=any");
 		cliArgsCap.add("--ignore-ssl-errors=true");
 		capabilities.setCapability(PhantomJSDriverService.PHANTOMJS_CLI_ARGS, cliArgsCap);
+		
 		capabilities.setCapability("recordVideo", false);
 		capabilities.setCapability("takesScreenshot", true);
 
@@ -89,12 +93,12 @@ public class WebCapability {
 	 * @return
 	 */
 	public BrowserType getBrowser() {
-		String value = Config.getValue("browserType");
+		String value = Config.getValue("web.browserType");
 		return Enum.valueOf(BrowserType.class, value);
 	}
 
 	public String getDriverVersion() {
-		String value = Config.getValue("driverVersion");
+		String value = Config.getValue("web.driverVersion");
 		return value;
 	}
 
@@ -105,7 +109,7 @@ public class WebCapability {
 	 * @return
 	 */
 	public DriverType getWebDriverType() {
-		String value = Config.getValue("webdriverType");
+		String value = Config.getValue("web.webdriverType");
 		return Enum.valueOf(DriverType.class, value);
 	}
 }

@@ -332,8 +332,8 @@ public class UtilityHelper {
 	 * properties file for values to use
 	 */
 	public static void slackNotificationWithFile(String title, String comment, String filePath) {
-		String token = Config.getValue("slackToken");
-		String channelId = Config.getValue("channelId");
+		String token = Config.getValue("slack.slackToken");
+		String channelId = Config.getValue("slack.channelId");
 
 		SlackWebApiClient webApiClient = SlackClientFactory.createWebApiClient(token);
 		File testfile = new File(filePath);

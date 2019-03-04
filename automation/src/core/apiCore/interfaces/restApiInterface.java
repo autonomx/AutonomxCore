@@ -65,7 +65,7 @@ public class restApiInterface {
 			apiObject.UriPath = "";
 
 		} else {
-			RestAssured.baseURI = Helper.stringRemoveLines(Config.getValue("UriPath"));
+			RestAssured.baseURI = Helper.stringRemoveLines(Config.getValue("api.uriPath"));
 			TestLog.logPass("request URI: " + RestAssured.baseURI + apiObject.UriPath);
 		}
 	}

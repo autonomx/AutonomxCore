@@ -19,13 +19,18 @@ import core.support.objects.ApiObject;
 import core.support.objects.KeyValue;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 
+
+/**
+ * @author ehsan.matean
+ *
+ */
 public class sqlInterface {
 
-	private static final String SQL_JDBC_DRIVER = "DBDRIVER";
-	private static final String SQL_DB_URL = "DBUrl";
-	private static final String SQL_DB_NAME = "DBName";
+	private static final String SQL_JDBC_DRIVER = "db.url";
+	private static final String SQL_DB_URL = "db.name";
+	private static final String SQL_DB_NAME = "db.username";
 	private static final String SQL_DB_USERNAME = "DBUsername";
-	private static final String SQL_DB_PASSWORD = "DBPassword";
+	private static final String SQL_DB_PASSWORD = "db.password";
 
 	public static Connection conn = null;
 

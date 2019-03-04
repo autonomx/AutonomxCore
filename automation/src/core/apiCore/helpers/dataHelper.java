@@ -30,6 +30,9 @@ public class dataHelper {
 	 * @return
 	 */
 	public static String replaceParameters(String source) {
+		
+		if (source.isEmpty()) return source;
+		
 		List<String> parameters = Helper.getValuesFromPattern(source, "<(.+?)>");
 		String value;
 		int length = 0;
