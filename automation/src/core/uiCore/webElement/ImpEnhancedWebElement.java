@@ -1,9 +1,11 @@
 package core.uiCore.webElement;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
@@ -357,7 +359,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	@Override
 	public void sendKeys(int index, CharSequence... keysToSend) {
 		int retry = 3;
-		String exception = "";
+		List<String> exception = new ArrayList<String>();
 		boolean success = false;
 		do {
 			retry--;
@@ -366,7 +368,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				isDisplayed(index);
 				if (isExist()) {
 					if (retry == 1) {
-						inputTextByAction(index, keysToSend);
+						sendKeyByAction(index, keysToSend);
 						success = true;
 						break;
 					}
@@ -376,16 +378,39 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				}
 			} catch (Exception e) {
 				resetElement();
-				exception = e.getMessage();
+				exception.add(e.getMessage());
 			}
 		} while (!success && retry > 0);
-		Helper.assertTrue("send key was not successful: " + exception, success);
+		Helper.assertTrue("send key was not successful: " + StringUtils.join(exception), success);
 	}
+	
+    @Override
+    public void sendKeysByAction(int index, CharSequence... keysToSend) {
+        int retry = 3;
+
+        boolean success = false;
+        do {
+            retry--;
+            try {
+                scrollToView(index);
+                isDisplayed(index);
+                if (isExist()) {
+                    sendKeyByAction(index, keysToSend);
+                    success = true;
+                }
+            } catch (Exception e) {
+                resetElement();
+                e.printStackTrace();
+            }
+        } while (!success && retry > 0);
+
+        Helper.assertTrue("send key was not successful", success);
+    }
 
 	/*
 	 * Enter text to an element by action
 	 */
-	public void inputTextByAction(int index, CharSequence[] keysToSend) {
+	public void sendKeyByAction(int index, CharSequence[] keysToSend) {
 
 		WebElement element = getElement(index);
 		Actions action = new Actions(webDriver);

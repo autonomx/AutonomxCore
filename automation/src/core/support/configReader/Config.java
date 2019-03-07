@@ -105,7 +105,8 @@ public class Config {
 		String value = TestObject.getTestInfo().config.get(key);
 		if (value == null) {
 			// TODO: can cause null point exception on start. need investigation
-			 TestLog.ConsoleLogWarn("value not found, default empty: " + key);
+			 System.out.println("value not found, default empty: " + key);
+			// TestLog.ConsoleLogWarn("value not found, default empty: " + key);
 			value = "";
 		}
 		List<String> items = Arrays.asList(value.split("\\s*,\\s*"));
