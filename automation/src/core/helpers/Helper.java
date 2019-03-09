@@ -2007,8 +2007,8 @@ public class Helper {
 	 * 
 	 * @param description
 	 */
-	public static void captureScreenshot() {
-		UtilityHelper.captureScreenshot();
+	public static void captureExtentReportScreenshot() {
+		UtilityHelper.captureExtentReportScreenshot();
 	}
 	
 	// action helper

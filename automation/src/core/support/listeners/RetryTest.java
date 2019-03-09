@@ -94,7 +94,7 @@ public class RetryTest implements IRetryAnalyzer {
 	public void processTestResult() {
 		logReport(ReportType.info, "run " + (TestObject.getTestInfo().runCount) + " failed ", null);
 		logReport(ReportType.debug, null, TestObject.getTestInfo().caughtThrowable);
-		Helper.captureScreenshot();
+		Helper.captureExtentReportScreenshot();
 		logError("run " + (TestObject.getTestInfo().runCount) + " failed");
 
 		if (TestObject.getTestInfo().runCount == maxRetryCount) {

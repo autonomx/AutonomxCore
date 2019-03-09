@@ -390,7 +390,7 @@ public class UtilityHelper {
 	 * 
 	 * @param description
 	 */
-	protected static void captureScreenshot() {
+	protected static void captureExtentReportScreenshot() {
 		Date now = new Date(); // java.util.Date, NOT java.sql.Date or
 								// java.sql.Timestamp!
 		String format1 = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss", Locale.ENGLISH).format(now);
@@ -405,8 +405,12 @@ public class UtilityHelper {
 			// now copy the screenshot to desired location using copyFile method
 			FileUtils.copyFile(scrFile, new File(extentReportImageFullPath));
 
-			AbstractDriver.getStep().get().log(Status.INFO, "Screenshot ",
-					MediaEntityBuilder.createScreenCaptureFromPath(extentReportImageRelativePath).build());
+			AbstractDriver.getStep().get().info("").addScreenCaptureFromPath(extentReportImageRelativePath);
+			AbstractDriver.getStep().get().info("", MediaEntityBuilder.createScreenCaptureFromPath(extentReportImageRelativePath).build());
+
+			
+		//	AbstractDriver.getStep().get().log(Status.INFO, "Screenshot ",
+				//	MediaEntityBuilder.createScreenCaptureFromPath(extentReportImageRelativePath).build());
 
 		} catch (Exception e) {
 			// TestLog.ConsoleLog("Error in the captureAndDisplayScreenShot

@@ -22,6 +22,9 @@ import com.aventstack.extentreports.gherkin.model.But;
 import com.aventstack.extentreports.gherkin.model.Given;
 import com.aventstack.extentreports.gherkin.model.Then;
 import com.aventstack.extentreports.gherkin.model.When;
+import com.aventstack.extentreports.markuputils.CodeLanguage;
+import com.aventstack.extentreports.markuputils.Markup;
+import com.aventstack.extentreports.markuputils.MarkupHelper;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.TextToSpeech;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.model.SynthesizeOptions;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.util.WaveUtils;
@@ -115,7 +118,8 @@ public class TestLog {
 	 */
 	public static void setPassSubTestStep(String subStep) {
 		TestObject.getTestInfo().testSubSteps.add(subStep);
-		AbstractDriver.getStep().get().pass(subStep);
+		Markup m = MarkupHelper.createCodeBlock(subStep, CodeLanguage.XML);
+		AbstractDriver.getStep().get().pass(m);
 	}
 
 	/**
