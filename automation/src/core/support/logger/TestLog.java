@@ -40,7 +40,7 @@ import marytts.MaryInterface;
 public class TestLog {
 
 	public static final String ENABLE_EXTENT_SUBSTEPS = "report.enableDetailedReport";
-	public static int MAX_LENGTH = 400; // in chars
+	public static int MAX_LENGTH = 400; // in chars. currently disabled
 	public static String WATSON = "WATSON";
 	public static String MARY = "MARY";
 
@@ -154,7 +154,8 @@ public class TestLog {
 	}
 
 	public static String formatMessage(String value, Object... args) {
-		value = setMaxLength(value);
+		// disabled. enable if we ever want to limit the value length
+		//value = setMaxLength(value); 
 
 		if (args == null || args.length == 0) {
 			return value;
