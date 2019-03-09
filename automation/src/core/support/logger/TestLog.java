@@ -118,7 +118,7 @@ public class TestLog {
 	 */
 	public static void setPassSubTestStep(String subStep) {
 		TestObject.getTestInfo().testSubSteps.add(subStep);
-		Markup m = MarkupHelper.createCodeBlock(subStep, CodeLanguage.XML);
+		Markup m = MarkupHelper.createCodeBlock(subStep);
 		AbstractDriver.getStep().get().pass(m);
 	}
 
