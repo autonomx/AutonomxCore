@@ -30,6 +30,7 @@ import core.uiCore.drivers.AbstractDriverTestNG;
 public class TestListener implements ITestListener, IClassListener, ISuiteListener, IConfigurationListener2 {
 
 	public static boolean isTestNG = false;
+	
 
 	// Before starting all tests, below method runs.
 	@Override
@@ -224,7 +225,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		// setup before class driver
 		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
-		new AbstractDriverTestNG().setupWebDriver(classname + "-Beforeclass", driver);
+		new AbstractDriverTestNG().setupWebDriver(classname + TestObject.BEFORE_CLASS_PREFIX, driver);
 	}
 
 	@Override
@@ -234,7 +235,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		// setup after class driver
 		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
-		new AbstractDriverTestNG().setupWebDriver(classname + "-Afterclass", driver);
+		new AbstractDriverTestNG().setupWebDriver(classname + TestObject.AFTER_CLASS_PREFIX, driver);
 	}
 
 	@Override
@@ -268,10 +269,25 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		String suitename = suite.getName();
 		suitename = suitename.replaceAll("\\s", "");
+		TestObject.SUITE_NAME = suitename;
 
 		// setup before suite driver
-		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
-		new AbstractDriverTestNG().setupWebDriver(suitename + "-Beforesuite", driver);
+		DriverObject driver = new DriverObject().withDriverType(DriverType.API).withApp(getTestPackage(suite));
+		new AbstractDriverTestNG().setupWebDriver(TestObject.SUITE_NAME + TestObject.BEFORE_SUITE_PREFIX, driver);
+	}
+	
+	/**
+	 * gets package name excluding the first item before and after .
+	 * eg. Module.web.test.LoginTest becomes web.tests
+	 * @param suite
+	 * @return
+	 */
+	private String getTestPackage(ISuite suite) {
+		String testPackageName = suite.getAllMethods().get(0).getInstance().toString();
+		testPackageName = testPackageName.substring(testPackageName.indexOf(".") + 1);
+		int lastIndex = testPackageName.lastIndexOf('.');
+		testPackageName = testPackageName.substring(0, lastIndex);
+		return testPackageName;
 	}
 
 	@Override
@@ -281,6 +297,6 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		// setup before suite driver
 		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
-		new AbstractDriverTestNG().setupWebDriver(suitename + "-Aftersuite", driver);
+		new AbstractDriverTestNG().setupWebDriver(suitename + TestObject.AFTER_SUITE_PREFIX, driver);
 	}
 }

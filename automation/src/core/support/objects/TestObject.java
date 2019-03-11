@@ -1,10 +1,19 @@
 package core.support.objects;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
@@ -29,24 +38,37 @@ import core.uiCore.drivers.AbstractDriver;
  *
  */
 
-public class TestObject {
+public class TestObject{
 
 	// apiTest : api tests read from csv files through apiTestRunner
 	// uiTest : non api tests
 	public static enum testType {
 		apiTest, uiTest
 	}
+	
+	public static enum testState {
+		suite, testClass, testMethod, defaultState
+	}
+	
+	public static String BEFORE_SUITE_PREFIX = "-Beforesuite";
+	public static String AFTER_SUITE_PREFIX = "-Aftersuite";
+	public static String BEFORE_CLASS_PREFIX = "-Beforeclass";
+	public static String AFTER_CLASS_PREFIX = "-Afterclass";
 
 	public static final String DEFAULT_TEST = "core";
 	public static final String DEFAULT_APP = "auto";
+	public static String SUITE_NAME = ""; // suite name is global to all tests in the run
+	public static String APP_IDENTIFIER = ""; // app name associated with test run. If suite is default, use app identifier 
+
+	public static final String TEST_APP_API = "api";
 
 	public List<WebDriver> webDriverList = new ArrayList<WebDriver>();
-	public String app;
+	public String app = "";
 	public testType type;
-	public String testId;
-	public String testName;
-	public String className;
-	public String deviceName; // device name for mobile devices
+	public String testId = "";
+	public String testName = "";
+	public String className = "";
+	public String deviceName = ""; // device name for mobile devices
 
 	public String testFileClassName; // same as class name except for api tests
 	public Boolean isTestMethod = false; // distinguish between before,after class and test method
@@ -56,7 +78,7 @@ public class TestObject {
 	public Boolean isForcedRestart = false; // incase of test failed or other situations
 
 	public boolean isLoggedIn = true;
-	public String loggedInUser;
+	public String loggedInUser = "";
 	public String loggedInPassword;
 	public int runCount = 0;
 	public Boolean isTestPass = false;
@@ -104,7 +126,7 @@ public class TestObject {
 	 * current driver with test
 	 */
 	public static void initializeTest(String testId) {
-		DriverObject driver = new DriverObject().withApp("api");
+		DriverObject driver = new DriverObject().withApp(TEST_APP_API);
 		initializeTest(driver, testId);
 	}
 
@@ -113,8 +135,13 @@ public class TestObject {
 	 * current driver with test
 	 */
 	public static void initializeTest(DriverObject driver, String testId) {
-		if (isBeforeTest(testId)) {
+		
+		if (isBeforeTest(testId)) { // testobject is initiated only once
 			TestObject test = new TestObject();
+
+			// inherits test object values from parent. eg.beforeClass from test suite. test method from before class
+			test = inheritParent(driver, testId);		
+			
 			test.withTestId(testId).withTestName(test.getTestName()).withTestStartTime(getTimeMiliseconds())
 					.withApp(driver.app).withRandomStringIdentifier();
 			TestObject.testInfo.put(testId, test);
@@ -125,6 +152,63 @@ public class TestObject {
 
 			TestObject.getTestInfo().type = testType.uiTest;
 		}
+	}
+	
+	/**
+	 * Inheritance structure for test object
+	 * 
+	 * before suite -> before class -> test method
+	 * before suite -> before class -> after class
+	 * before suite -
+	 * @return 
+	 */
+	public static TestObject inheritParent(DriverObject driver, String testId) {
+		TestObject test = new TestObject();
+		// add config object from previous state to new test object
+		test.config.putAll(getTestObjectInheritence(driver, testId).config);
+		
+		return test;
+	}
+	
+	
+	/**
+	 * Inheritance structure for test object
+	 * 
+	 * before suite -> before class -> test method
+	 * before suite -> before class -> after class
+	 * before suite -> after suite
+	 * @return 
+	 */
+	public static TestObject getTestObjectInheritence(DriverObject driver, String testId) {
+		// gets test state of test object: suite, testClass, testMethod
+		testState testObjectState = getTestState(testId);
+
+		String[] testValues = testId.split("-");
+		String testName = testValues[0];
+		
+		// service level tests are handled in ApiTestDriver
+		if(driver.app.equals(TEST_APP_API)) return new TestObject();
+		
+		// if default test, return itself. Not gaining from other test objects
+		if(testName.equals(DEFAULT_TEST)) return new TestObject();
+		
+		// if before class, inherit test object from before suite
+		if(testId.contains(BEFORE_CLASS_PREFIX))
+			return TestObject.getTestInfo(TestObject.SUITE_NAME + BEFORE_SUITE_PREFIX);
+		
+		// if before test, inherit test object from before class
+		if(testObjectState == testState.testMethod) 
+			return TestObject.getTestInfo(testName + BEFORE_CLASS_PREFIX);
+		
+		// if after class, inherit test object from before class
+		if(testId.contains(AFTER_CLASS_PREFIX))
+			return TestObject.getTestInfo(testName + BEFORE_CLASS_PREFIX);
+		
+		// if after suite, inherit test object from before suite
+		if(testId.contains(AFTER_SUITE_PREFIX))
+			return TestObject.getTestInfo(TestObject.SUITE_NAME + BEFORE_SUITE_PREFIX);
+
+		return new TestObject();
 	}
 
 	/**
@@ -170,6 +254,27 @@ public class TestObject {
 		if (TestObject.getTestInfo(DEFAULT_TEST).app.equals(DEFAULT_APP))
 			TestObject.getTestInfo(DEFAULT_TEST).withApp(driver.app);
 	}
+	
+	/**
+	 * get the state of the test object
+	 * can be suite, testClass, testMethod
+	 * @param testName
+	 * @return 
+	 */
+	public static testState getTestState(String testName) {
+		
+		if(testName.contains(BEFORE_SUITE_PREFIX) || testName.contains(AFTER_SUITE_PREFIX))
+				return testState.suite;
+		
+		if(testName.contains(BEFORE_CLASS_PREFIX) || testName.contains(AFTER_CLASS_PREFIX))
+			return testState.testClass;
+		
+		if(testName.equals(DEFAULT_TEST))
+			return testState.defaultState;
+		
+		else
+			return testState.testMethod;
+	}
 
 	public static void setTestName(String testName) {
 		TestObject.currentTestName.set(testName);
@@ -185,6 +290,7 @@ public class TestObject {
 
 	public static String getTestId() {
 		String testId = TestObject.currentTestId.get();
+		
 		// if testId = null, set to default test
 		if (testId == null || testId.isEmpty())
 			testId = TestObject.DEFAULT_TEST;

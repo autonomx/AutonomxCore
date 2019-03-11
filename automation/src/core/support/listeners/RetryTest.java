@@ -8,12 +8,15 @@ import org.testng.ITestResult;
 
 import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.Status;
+import com.aventstack.extentreports.markuputils.Markup;
+import com.aventstack.extentreports.markuputils.MarkupHelper;
 
 import core.helpers.Helper;
 import core.helpers.excelHelper.ExcelObject;
 import core.support.logger.TestLog;
 import core.support.objects.DriverObject;
 import core.support.objects.TestObject;
+import core.uiCore.drivers.AbstractDriver;
 import core.uiCore.drivers.AbstractDriverTestNG;
 
 public class RetryTest implements IRetryAnalyzer {
@@ -22,7 +25,7 @@ public class RetryTest implements IRetryAnalyzer {
 			"SessionNotFoundException", "UnreachableBrowserException", "loginException" };
 
 	public enum ReportType {
-		pass, info, warning, debug, fail
+		pass, info, warning, debug, fail, code
 	}
 
 	// needs to be removed. used only for headcheck login tests
@@ -93,10 +96,17 @@ public class RetryTest implements IRetryAnalyzer {
 	 */
 	public void processTestResult() {
 		logReport(ReportType.info, "run " + (TestObject.getTestInfo().runCount) + " failed ", null);
-		logReport(ReportType.debug, null, TestObject.getTestInfo().caughtThrowable);
-		Helper.captureExtentReportScreenshot();
-		logError("run " + (TestObject.getTestInfo().runCount) + " failed");
+		
+		logReport(ReportType.code, TestObject.getTestInfo().caughtThrowable.toString(), null);
 
+		//logReport(ReportType.debug, null, TestObject.getTestInfo().caughtThrowable);
+		
+		// capture error screenshot
+		Helper.captureExtentReportScreenshot();
+		
+		
+		logError("run " + (TestObject.getTestInfo().runCount) + " failed");
+		
 		if (TestObject.getTestInfo().runCount == maxRetryCount) {
 			logReport(ReportType.fail, "giving up after " + maxRetryCount + " failures", null);
 			logError("giving up after " + maxRetryCount + " failures");
@@ -123,6 +133,10 @@ public class RetryTest implements IRetryAnalyzer {
 			break;
 		case fail:
 			getStep().fail(value);
+			break;
+		case code:
+			Markup m = MarkupHelper.createCodeBlock(value);
+			getStep().info(m);
 			break;
 		default:
 			break;

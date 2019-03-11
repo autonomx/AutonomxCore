@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Map.Entry;
 
@@ -13,6 +15,7 @@ import org.apache.commons.io.FileUtils;
 import com.aventstack.extentreports.AnalysisStrategy;
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
+import com.aventstack.extentreports.reporter.ExtentKlovReporter;
 import com.aventstack.extentreports.reporter.configuration.Protocol;
 import com.aventstack.extentreports.reporter.configuration.Theme;
 
@@ -25,14 +28,19 @@ import core.support.objects.TestObject;
 //OB: ExtentReports extent instance created here. That instance can be reachable by getReporter() method.
 
 public class ExtentManager {
+	
 	public static final String LAUNCH_AFTER_REPORT = "report.launchReportAfterTest";
 	public static final String ENABLE_SLACK_NOTIFICATION = "slack.enableSlackNotification";
 	public static final String ENABLE_EMAIL_REPORT = "email.enableEmailReport";
 	public static final String REPORT_EXPIRE_DAYS = "report.reportExpireDays";
-	
+	public static final String REPORT_TYPE = "report.reporterType";
+	public static final String HTML_REPORT_TYPE = "html";
+	public static final String KLOV_REPORT_TYPE = "klov";
 
 	private static ExtentReports extent;
+
 	public static String REPORT_DEFAULT_NAME = "extent";
+	public static ExtentKlovReporter klovReporter;
 
 	public static String TEST_OUTPUT_PATH = "/test-output/";
 	public static String TEST_OUTPUT_FULL_PATH = Helper.getCurrentDir() + "/test-output/";
@@ -74,31 +82,60 @@ public class ExtentManager {
 	}
 
 	public static ExtentReports createInstance(String fileName) {
+		
+		extent = new ExtentReports();
+		
+		// setup html reporter
 		ExtentHtmlReporter htmlReporter = new ExtentHtmlReporter(fileName);
 		htmlReporter.config().setAutoCreateRelativePathMedia(true);
-	//	htmlReporter.config().setTestViewChartLocation(ChartLocation.TOP);
-	//	htmlReporter.config().setChartVisibilityOnOpen(true);
 		htmlReporter.config().setTheme(Theme.STANDARD);
 		htmlReporter.config().setDocumentTitle(fileName);
 		htmlReporter.config().setEncoding("utf-8");
-		htmlReporter.config().setJS("js-string");
-		htmlReporter.config().setCSS("css-string");
 		htmlReporter.config().setProtocol(Protocol.HTTPS);
 		htmlReporter.config().setReportName(fileName);
 		htmlReporter.config().enableTimeline(true);
 		htmlReporter.setAnalysisStrategy(AnalysisStrategy.TEST);
 		
-
-		extent = new ExtentReports();
-		extent.attachReporter(htmlReporter);
+		if(Config.getValue(REPORT_TYPE).equals(HTML_REPORT_TYPE))
+			extent.attachReporter(htmlReporter);
+		
+		// setup klov reporter
+		setKlovReportReporter();
+			
 		return extent;
+	}
+	
+	/**
+	 * if test are run through suite, set project name as suite
+	 * if test are run outside of suite, use the module/app name
+	 */
+	public static void setKlovReportReporter() {
+		// setup klov reporter
+		klovReporter = new ExtentKlovReporter();
+	    klovReporter.initMongoDbConnection("localhost", 27017);	    
+	    klovReporter.initKlovServerConnection("http://localhost");
+		
+		if(TestObject.SUITE_NAME.contains("Default"))
+			klovReporter.setProjectName(TestObject.getTestInfo().app);
+		else
+			klovReporter.setProjectName(TestObject.SUITE_NAME);
+		
+
+        //Get current date time
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formatDateTime = now.format(formatter);
+        klovReporter.setReportName(formatDateTime);
+        
+		if(Config.getValue(REPORT_TYPE).equals(KLOV_REPORT_TYPE))
+			extent.attachReporter(klovReporter);
 	}
 
 	/**
 	 * launches the report html page after test run
 	 */
 	public static void launchReportAfterTest() {
-		if (Config.getValue(LAUNCH_AFTER_REPORT).equals("true")) {
+		if (Config.getBooleanValue(LAUNCH_AFTER_REPORT)) {
 
 			File htmlFile = new File(getReportHTMLFullPath());
 
@@ -112,6 +149,7 @@ public class ExtentManager {
 	}
 
 	public static void writeTestReport() {
+		//setKlovReportInfo();
 		removeEmptyTestNodesFromReport();
 		try {
 			new File(getReportRootFullPath()).mkdirs();

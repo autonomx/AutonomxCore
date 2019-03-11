@@ -391,8 +391,8 @@ public class UtilityHelper {
 	 * @param description
 	 */
 	protected static void captureExtentReportScreenshot() {
-		Date now = new Date(); // java.util.Date, NOT java.sql.Date or
-								// java.sql.Timestamp!
+		Date now = new Date(); 
+		
 		String format1 = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss", Locale.ENGLISH).format(now);
 		String extentReportImageFullPath = ExtentManager.getScreenshotsFolderFullPath()
 				+ TestObject.getTestInfo().testName + "-" + format1 + ".png";
@@ -405,16 +405,14 @@ public class UtilityHelper {
 			// now copy the screenshot to desired location using copyFile method
 			FileUtils.copyFile(scrFile, new File(extentReportImageFullPath));
 
-			AbstractDriver.getStep().get().info("").addScreenCaptureFromPath(extentReportImageRelativePath);
-			AbstractDriver.getStep().get().info("", MediaEntityBuilder.createScreenCaptureFromPath(extentReportImageRelativePath).build());
-
-			
-		//	AbstractDriver.getStep().get().log(Status.INFO, "Screenshot ",
-				//	MediaEntityBuilder.createScreenCaptureFromPath(extentReportImageRelativePath).build());
+			// for hmtl report, use relative path (we need to be able to email the report)
+			if(Config.getValue(ExtentManager.REPORT_TYPE).equals(ExtentManager.HTML_REPORT_TYPE))
+				AbstractDriver.getStep().get().info("").addScreenCaptureFromPath(extentReportImageRelativePath);
+			else
+				AbstractDriver.getStep().get().info("").addScreenCaptureFromPath(extentReportImageFullPath);
 
 		} catch (Exception e) {
-			// TestLog.ConsoleLog("Error in the captureAndDisplayScreenShot
-			// method: " + e.getMessage());
+			e.getMessage();
 		}
 	}
 
