@@ -1,19 +1,10 @@
 package core.support.objects;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
@@ -22,10 +13,10 @@ import org.openqa.selenium.WebDriver;
 
 import com.aventstack.extentreports.ExtentTest;
 
-import core.apiCore.helpers.csvReader;
+import core.apiCore.helpers.CsvReader;
 import core.helpers.Helper;
 import core.support.configReader.Config;
-import core.support.logger.logObject;
+import core.support.logger.LogObject;
 import core.uiCore.drivers.AbstractDriver;
 
 /**
@@ -47,7 +38,7 @@ public class TestObject{
 	}
 	
 	public static enum testState {
-		suite, testClass, testMethod, defaultState
+		suite, testClass, testMethod, apiTestMethod, defaultState
 	}
 	
 	public static String BEFORE_SUITE_PREFIX = "-Beforesuite";
@@ -71,7 +62,6 @@ public class TestObject{
 	public String deviceName = ""; // device name for mobile devices
 
 	public String testFileClassName; // same as class name except for api tests
-	public Boolean isTestMethod = false; // distinguish between before,after class and test method
 
 	public DriverObject currentDriver;
 	public Boolean isFirstRun = false; // is the test running from beginning
@@ -103,7 +93,7 @@ public class TestObject{
 	public String startTime; // start time of test in milliseconds
 	public String randStringIdentifier; // random identifier for the test
 
-	public List<logObject> testLog = new ArrayList<logObject>();
+	public List<LogObject> testLog = new ArrayList<LogObject>();
 	public Map<String, String> languageMap = new ConcurrentHashMap<String, String>();
 	public Map<String, ApiObject> apiMap = new ConcurrentHashMap<String, ApiObject>();// api keywords
 	public Map<String, String> config = new ConcurrentHashMap<String, String>();
@@ -148,7 +138,7 @@ public class TestObject{
 			// loads all property values into config map
 			Config.loadConfig(testId);
 			// loads all the keywords for api references
-			csvReader.getAllKeywords();
+			CsvReader.getAllKeywords();
 
 			TestObject.getTestInfo().type = testType.uiTest;
 		}
@@ -166,7 +156,7 @@ public class TestObject{
 		TestObject test = new TestObject();
 		// add config object from previous state to new test object
 		test.config.putAll(getTestObjectInheritence(driver, testId).config);
-		
+			
 		return test;
 	}
 	
@@ -354,6 +344,7 @@ public class TestObject{
 	 * when all tests in csv files have finished for api csv tests, we're reseting
 	 * the test count per csv file.
 	 * 
+	 * called on test failure and test success
 	 * @return
 	 */
 	public void resetTestObject() {
@@ -368,9 +359,16 @@ public class TestObject{
 			String testname = TestObject.getTestInfo(testId).testName;
 			String testFileClass = TestObject.getTestInfo(testId).testFileClassName;
 			List<WebDriver> webDrivers = TestObject.getTestInfo(testId).webDriverList;
-
+			
+			// after method run after test success or test failure, hence run count should not be reset
+			int runCount = TestObject.getTestInfo(testId).runCount;
+			
 			TestObject.testInfo.put(testId,
-					new TestObject().withTestId(testId).withTestName(testname).withTestFileClassName(testFileClass).withWebDriverList(webDrivers));
+					new TestObject().withTestId(testId)
+					.withTestName(testname)
+					.withTestFileClassName(testFileClass)
+					.withWebDriverList(webDrivers)
+					.withRunCount(runCount));
 
 			// populate the config with default values
 			TestObject.getTestInfo(testId).config.putAll(TestObject.getTestInfo(TestObject.DEFAULT_TEST).config);
@@ -406,7 +404,7 @@ public class TestObject{
 	 * @return
 	 */
 	public static ApiObject getApiDef(String key) {
-		csvReader.getAllKeywords();
+		CsvReader.getAllKeywords();
 		return TestObject.getTestInfo().apiMap.get(key);
 	}
 
@@ -498,7 +496,7 @@ public class TestObject{
 		return isLoggedIn;
 	}
 
-	public TestObject withRerunCount(int rerunCount) {
+	public TestObject withRunCount(int rerunCount) {
 		this.runCount = rerunCount;
 		return this;
 	}

@@ -30,7 +30,6 @@ import core.uiCore.drivers.AbstractDriverTestNG;
 public class TestListener implements ITestListener, IClassListener, ISuiteListener, IConfigurationListener2 {
 
 	public static boolean isTestNG = false;
-	
 
 	// Before starting all tests, below method runs.
 	@Override
@@ -58,7 +57,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		// overwrite existing report
 		ExtentManager.clearTestReport();
-		
+
 		// delete old reports
 		ExtentManager.clearOldTestReports();
 	}
@@ -129,10 +128,10 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 				DriverObject.setDriverAvailabiltity(AbstractDriverTestNG.getWebDriver(), true);
 			}
 		}
-		
+
 		// mobile device is now available again
 		DeviceManager.setDeviceAvailability(true);
-		
+
 		// reset test object
 		TestObject.getTestInfo().resetTestObject();
 	}
@@ -269,24 +268,34 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		String suitename = suite.getName();
 		suitename = suitename.replaceAll("\\s", "");
+
+		// global identified for the app. if suite is default, then app_indentifier is
+		// used for test run id
+		TestObject.APP_IDENTIFIER = getTestPackage(suite);
 		TestObject.SUITE_NAME = suitename;
 
 		// setup before suite driver
-		DriverObject driver = new DriverObject().withDriverType(DriverType.API).withApp(getTestPackage(suite));
+		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
 		new AbstractDriverTestNG().setupWebDriver(TestObject.SUITE_NAME + TestObject.BEFORE_SUITE_PREFIX, driver);
 	}
-	
+
 	/**
-	 * gets package name excluding the first item before and after .
-	 * eg. Module.web.test.LoginTest becomes web.tests
+	 * gets package name excluding the first item before and after . eg.
+	 * Module.web.test.LoginTest becomes web.tests
+	 * 
 	 * @param suite
 	 * @return
 	 */
 	private String getTestPackage(ISuite suite) {
-		String testPackageName = suite.getAllMethods().get(0).getInstance().toString();
-		testPackageName = testPackageName.substring(testPackageName.indexOf(".") + 1);
-		int lastIndex = testPackageName.lastIndexOf('.');
-		testPackageName = testPackageName.substring(0, lastIndex);
+		String testPackageName = "";
+		try {
+			testPackageName = suite.getAllMethods().get(0).getInstance().toString();
+			testPackageName = testPackageName.substring(testPackageName.indexOf(".") + 1);
+			int lastIndex = testPackageName.lastIndexOf('.');
+			testPackageName = testPackageName.substring(0, lastIndex);
+		} catch (Exception e) {
+			e.getMessage();
+		}
 		return testPackageName;
 	}
 

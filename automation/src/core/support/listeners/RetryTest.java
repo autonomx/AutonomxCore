@@ -16,7 +16,6 @@ import core.helpers.excelHelper.ExcelObject;
 import core.support.logger.TestLog;
 import core.support.objects.DriverObject;
 import core.support.objects.TestObject;
-import core.uiCore.drivers.AbstractDriver;
 import core.uiCore.drivers.AbstractDriverTestNG;
 
 public class RetryTest implements IRetryAnalyzer {

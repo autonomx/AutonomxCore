@@ -2,8 +2,8 @@ package core.apiCore.interfaces;
 
 import static io.restassured.RestAssured.given;
 
-import core.apiCore.helpers.dataHelper;
-import core.apiCore.helpers.jsonHelper;
+import core.apiCore.helpers.DataHelper;
+import core.apiCore.helpers.JsonHelper;
 import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.logger.TestLog;
@@ -13,7 +13,7 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
-public class restApiInterface {
+public class RestApiInterface {
 
 	/*
 	 * (String TestSuite, String TestCaseID, String RunFlag, String Description,
@@ -35,7 +35,7 @@ public class restApiInterface {
 		if(apiObject == null) Helper.assertFalse("apiobject is null");
 		
 		// replace parameters for request body
-		apiObject.RequestBody = dataHelper.replaceParameters(apiObject.RequestBody);
+		apiObject.RequestBody = DataHelper.replaceParameters(apiObject.RequestBody);
 
 		// set base uri
 		setURI(apiObject);
@@ -55,7 +55,7 @@ public class restApiInterface {
 	public static void setURI(ApiObject apiObject) {
 
 		// replace place holder values for uri
-		apiObject.UriPath = dataHelper.replaceParameters(apiObject.UriPath);
+		apiObject.UriPath = DataHelper.replaceParameters(apiObject.UriPath);
 		apiObject.UriPath = Helper.stringRemoveLines(apiObject.UriPath);
 		// if uri is full path, then set base uri as whats provided in csv file
 		// else use baseURI from properties as base uri and extend it with csv file uri
@@ -84,7 +84,7 @@ public class restApiInterface {
 		}
 
 		// saves response values to config object
-		jsonHelper.saveOutboundJsonParameters(response, apiObject.OutputParams);
+		JsonHelper.saveOutboundJsonParameters(response, apiObject.OutputParams);
 
 		validateExpectedValues(response, apiObject);
 	}
@@ -96,14 +96,14 @@ public class restApiInterface {
 
 		// validate response body against expected json string
 		if (!apiObject.ExpectedResponse.isEmpty()) {
-			apiObject.ExpectedResponse = dataHelper.replaceParameters(apiObject.ExpectedResponse);
+			apiObject.ExpectedResponse = DataHelper.replaceParameters(apiObject.ExpectedResponse);
 
 			// separate the expected response by &&
 			String[] criteria = apiObject.ExpectedResponse.split("&&");
 			for (String criterion : criteria) {
-				Helper.assertTrue("expected is not valid format: " + criterion, jsonHelper.isValidExpectation(criterion));
-				jsonHelper.validateByJsonBody(criterion, response);
-				jsonHelper.validateByKeywords(criterion, response);
+				Helper.assertTrue("expected is not valid format: " + criterion, JsonHelper.isValidExpectation(criterion));
+				JsonHelper.validateByJsonBody(criterion, response);
+				JsonHelper.validateByKeywords(criterion, response);
 			}
 		}
 	}
@@ -124,7 +124,7 @@ public class restApiInterface {
 		}
 
 		// replace parameters for request body
-		apiObject.RequestHeaders = dataHelper.replaceParameters(apiObject.RequestHeaders);
+		apiObject.RequestHeaders = DataHelper.replaceParameters(apiObject.RequestHeaders);
 
 		// if Authorization is set
 		if (apiObject.RequestHeaders.contains("Authorization:")) {
@@ -185,7 +185,7 @@ public class restApiInterface {
 		}
 
 		// replace parameters for request body
-		apiObject.Option = dataHelper.replaceParameters(apiObject.Option);
+		apiObject.Option = DataHelper.replaceParameters(apiObject.Option);
 
 		// if additional options
 		switch (apiObject.Option) {

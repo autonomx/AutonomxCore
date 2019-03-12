@@ -1,14 +1,15 @@
 package core.apiCore;
 
-import core.apiCore.interfaces.azureInterface;
-import core.apiCore.interfaces.restApiInterface;
-import core.apiCore.interfaces.sqlInterface;
-import core.apiCore.interfaces.testPrepare;
+import core.apiCore.interfaces.AzureInterface;
+import core.apiCore.interfaces.RestApiInterface;
+import core.apiCore.interfaces.SqlInterface;
+import core.apiCore.interfaces.TestPrepare;
 import core.helpers.Helper;
 import core.support.objects.ApiObject;
 import core.uiCore.drivers.AbstractDriverTestNG;
 
-public class apiRunner {
+public class ServiceRunner {
+	public static final String SERVICE_TEST_RUNNER_ID = "ServiceTestRunner"; // matches the name of the service test runner class
 	private static final String RESTFULL_API_INTERFACE = "RESTfulAPI";
 	private static final String SQL_DB_INTERFACE = "SQLDB";
 
@@ -22,16 +23,16 @@ public class apiRunner {
 
 		switch (apiObject.InterfaceType) {
 		case RESTFULL_API_INTERFACE:
-			restApiInterface.RestfullApiInterface(apiObject);
+			RestApiInterface.RestfullApiInterface(apiObject);
 			break;
 		case SQL_DB_INTERFACE:
-			sqlInterface.DataBaseInterface(apiObject);
+			SqlInterface.DataBaseInterface(apiObject);
 			break;
 		case AZURE_INTERFACE:
-			azureInterface.AzureInterface(apiObject);
+			AzureInterface.AzureInterface(apiObject);
 			break;
 		case TEST_PREPARE_INTERFACE:
-			testPrepare.TestPrepareInterface(apiObject);
+			TestPrepare.TestPrepareInterface(apiObject);
 			break;
 		default:
 			Helper.assertFalse("no interface found: " + apiObject.InterfaceType);

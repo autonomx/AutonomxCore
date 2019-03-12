@@ -3,7 +3,7 @@ package core.apiCore.interfaces;
 import core.helpers.Helper;
 import core.support.objects.ApiObject;
 
-public class testPrepare {
+public class TestPrepare {
 	private static final String WAIT_FOR_SECONDS = "waitForSeconds";
 
 	/**

@@ -1,6 +1,6 @@
 package core.apiCore.driver;
 
-import core.apiCore.helpers.csvReader;
+import core.apiCore.helpers.CsvReader;
 import core.support.logger.TestLog;
 import core.support.objects.ApiObject;
 import core.support.objects.TestObject;
@@ -39,7 +39,7 @@ public class ApiTestDriver {
 	 * @param driverObject
 	 */
 	public void initTest(ApiObject apiObject) {
-		String APP = "apiRunner";
+		String APP = "ServiceRunner";
 
 		setTestId(apiObject);
 		String testId = TestObject.currentTestId.get();
@@ -71,12 +71,12 @@ public class ApiTestDriver {
 
 		// initialize per test run
 		if (TestObject.getTestInfo().testCountInCsvFile == 0)
-			TestObject.getTestInfo().testCountInCsvFile = csvReader.getCsvTestListForTestRunner(apiObject.tcName)
+			TestObject.getTestInfo().testCountInCsvFile = CsvReader.getCsvTestListForTestRunner(apiObject.tcName)
 					.size();
 	}
 
 	public static boolean isTestComplete() {
-		if (TestObject.getTestInfo().currentTestIndex == csvReader.getCsvTestcount()) {
+		if (TestObject.getTestInfo().currentTestIndex == CsvReader.getCsvTestcount()) {
 			TestObject.getTestInfo().isTestComplete = true;
 			return true;
 		}

@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
-import core.apiCore.dataProvider;
+import core.apiCore.TestDataProvider;
 import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.configReader.PropertiesReader;
@@ -21,7 +21,7 @@ import core.support.objects.KeyValue;
 import core.support.objects.TestObject;
 import io.netty.util.internal.StringUtil;
 
-public class dataHelper {
+public class DataHelper {
 
 	/**
 	 * replaces placeholder values with values from config properties
@@ -115,7 +115,7 @@ public class dataHelper {
 	}
 	
 	public static String getTemplateFile(String file) {
-		String templatePath = Config.getValue(dataProvider.TEST_DATA_TEMPLATE_PATH);
+		String templatePath = Config.getValue(TestDataProvider.TEST_DATA_TEMPLATE_PATH);
 		String templateTestPath = PropertiesReader.getLocalRootPath() + templatePath;
 
 		return templateTestPath + file;	

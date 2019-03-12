@@ -30,8 +30,8 @@ import com.microsoft.azure.servicebus.ReceiveMode;
 import com.microsoft.azure.servicebus.primitives.ConnectionStringBuilder;
 import com.microsoft.azure.servicebus.primitives.ServiceBusException;
 
-import core.apiCore.helpers.dataHelper;
-import core.apiCore.helpers.xmlHelper;
+import core.apiCore.helpers.DataHelper;
+import core.apiCore.helpers.XmlHelper;
 import core.helpers.Helper;
 import core.helpers.StopWatchHelper;
 import core.support.configReader.Config;
@@ -40,7 +40,7 @@ import core.support.objects.ApiObject;
 import core.support.objects.TestObject;
 
 
-public class serviceBusInterface {
+public class ServiceBusInterface {
 
 	public enum SBEnv {
 		DEFAULT, SAP, TOPIC_DLQ, HOST1, HOST2, ALERT
@@ -190,7 +190,7 @@ public class serviceBusInterface {
 				String key = values[2];
 				String value = entry.getValue();
 				
-				instance = sbInstance.get(type) == null ? new serviceBusInterface().new serviceBus() : sbInstance.get(type);
+				instance = sbInstance.get(type) == null ? new ServiceBusInterface().new serviceBus() : sbInstance.get(type);
 				switch (key) {
 				case "connectionStr":
 					instance.connectionStr = key;
@@ -231,12 +231,12 @@ public class serviceBusInterface {
 		serviceBus serviceBus = getInstance(apiObject.Option);
 
 		// replace parameters
-		apiObject.RequestBody = dataHelper.replaceParameters(apiObject.RequestBody);
-		apiObject.ExpectedResponse = dataHelper.replaceParameters(apiObject.ExpectedResponse);
+		apiObject.RequestBody = DataHelper.replaceParameters(apiObject.RequestBody);
+		apiObject.ExpectedResponse = DataHelper.replaceParameters(apiObject.ExpectedResponse);
 
 		// Get request body using template and/or requestBody data column
 		apiObject.RequestBody = getRequestBodyFromTemplate(apiObject.RequestBody, apiObject.TemplateFile, apiObject.ContentType);
-		apiObject.RequestBody = dataHelper.replaceParameters(apiObject.RequestBody);
+		apiObject.RequestBody = DataHelper.replaceParameters(apiObject.RequestBody);
 
 		// get unique identifier for request body to match outbound message
 		String msgID = generateMessageId(apiObject.RequestBody);
@@ -298,12 +298,12 @@ public class serviceBusInterface {
 
 		// Get request body using template and/or requestBody data column
 		if (!templateFile.isEmpty()) {
-			String templateFilePath = dataHelper.getTemplateFile(templateFile);
+			String templateFilePath = DataHelper.getTemplateFile(templateFile);
 
 			// contents of templateFile become the requestBody
 			if (requestBody.isEmpty()) {
 				//TODO: uncomment and fix
-			//	requestBody = dataHelper.convertTemplateToString(templateFilePath);
+			//	requestBody = DataHelper.convertTemplateToString(templateFilePath);
 			} else {
 				// contents of requestBody replace values in templateFile
 				//TODO: uncomment and fix
@@ -333,7 +333,7 @@ public class serviceBusInterface {
 		CopyOnWriteArrayList<IMessage> filteredMessages = new CopyOnWriteArrayList<>();
 
 		// gets the host from the options
-		String hostSelector = dataHelper.getTagValue(options, "host");
+		String hostSelector = DataHelper.getTagValue(options, "host");
 
 		IMessageReceiver receiver = getReceiver(serviceBus, hostSelector);
 
@@ -407,7 +407,7 @@ public class serviceBusInterface {
 
 				if (comparePartialExpected ) {
 					isTestPass = true;
-					xmlHelper.addOutputParamValuesToConfig(outputParams, outboundQueueMsg);
+					XmlHelper.addOutputParamValuesToConfig(outputParams, outboundQueueMsg);
 					break;
 				}
 
@@ -479,7 +479,7 @@ public class serviceBusInterface {
 			// Verify the outbound message from other test frameworks
             if (!outputParams.isEmpty() && (outboundQueueMsg.contains(FORM_SUBMITTED) || outboundQueueMsg.contains(HOST_FORM_SUBMITTED))) {                    
 
-				dataHelper.addOutputMessageToConfigParams(outputParams, outboundQueueMsg);
+				DataHelper.addOutputMessageToConfigParams(outputParams, outboundQueueMsg);
 			}
 			// Not checking anything in outbound queue, so add in small
 			// wait until host order created and also SQL DB order table updated
@@ -617,7 +617,7 @@ public class serviceBusInterface {
 
 		
 		 if (!partialExpStr.isEmpty())
-			orderValue = dataHelper.getTagValue(partialExpStr, key);
+			orderValue = DataHelper.getTagValue(partialExpStr, key);
 		if (!orderValue.isEmpty())
 			filteredMessages = findMessages(hostSelector, orderValue);
 		return filteredMessages;
@@ -739,7 +739,7 @@ public class serviceBusInterface {
 				else {
 					String outboundMessage = new String(message.getBody());
 					if (outboundMessage.contains(MESSAGE_ID_PREFIX)) {
-						correlationId = dataHelper.getTagValue(outboundMessage, "MsgCorrelationID");
+						correlationId = DataHelper.getTagValue(outboundMessage, "MsgCorrelationID");
 						TestLog.logPass("messageId received. correlationId: " + correlationId);
 					}
 
@@ -776,7 +776,7 @@ public class serviceBusInterface {
 			} else {
 				// Assert.assertFalse(outboundQueueMsg.isEmpty(), "No messages received.");
 
-				expStr = dataHelper.replaceParameters(expStr);
+				expStr = DataHelper.replaceParameters(expStr);
 
 				Diff diffWithExpected = DiffBuilder.compare(Input.fromString(outboundQueueMsg))
 						.withTest(Input.fromString(expStr)).ignoreComments().ignoreWhitespace().checkForSimilar()
@@ -913,7 +913,7 @@ public class serviceBusInterface {
 			} else {
 				// Assert.assertFalse(outboundQueueMsg.isEmpty(), "No messages received.");
 
-				notExpStr = dataHelper.replaceParameters(notExpStr);
+				notExpStr = DataHelper.replaceParameters(notExpStr);
 				//TODO: uncomment and fix
 /*
 				XmlConverter saxXmlReader = XmlConverter.getInstance();

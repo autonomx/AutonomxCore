@@ -17,7 +17,7 @@ import core.support.logger.TestLog;
 import core.support.objects.KeyValue;
 import io.restassured.response.Response;
 
-public class jsonHelper {
+public class JsonHelper {
 
 	/**
 	 * replaces output parameter with response values eg. $token with id form values
@@ -44,9 +44,9 @@ public class jsonHelper {
 		if (keyValue.isEmpty()) return;
 		
 		// replace parameters for outputParam
-		keyValue = dataHelper.replaceParameters(keyValue);
+		keyValue = DataHelper.replaceParameters(keyValue);
 		
-		List<KeyValue> keywords = dataHelper.getValidationMap(keyValue);
+		List<KeyValue> keywords = DataHelper.getValidationMap(keyValue);
 		for (KeyValue keyword : keywords) {
 			String key = keyword.value.replace("$", "").replace("<", "").replace(">", "").trim();
 			// gets json value. if list, returns string separated by comma
@@ -154,7 +154,7 @@ public class jsonHelper {
 			String responseString = getJsonValue(response, jsonPath);
 			
 			// validate response
-			dataHelper.validateCommand(command, responseString, expectedValue, keyword.position);
+			DataHelper.validateCommand(command, responseString, expectedValue, keyword.position);
 		}
 	}
 	
@@ -186,7 +186,7 @@ public class jsonHelper {
 	 */
 	public static void validateByJsonBody(String expectedJson, Response response) {
 		expectedJson = Helper.stringNormalize(expectedJson);
-		if (jsonHelper.isJSONValid(expectedJson)) {
+		if (JsonHelper.isJSONValid(expectedJson)) {
 			TestLog.logPass("expected: " + Helper.stringRemoveLines(expectedJson));
 			String body = response.getBody().asString();
 			try {
@@ -197,7 +197,7 @@ public class jsonHelper {
 		}
 	}
 	public static boolean isValidExpectation(String expectedJson) {
-		if (jsonHelper.isJSONValid(expectedJson)) {
+		if (JsonHelper.isJSONValid(expectedJson)) {
 			return true;
 		}
 		expectedJson = Helper.stringNormalize(expectedJson);
@@ -215,12 +215,12 @@ public class jsonHelper {
 	 */
 	public static void validateByKeywords(String expectedJson, Response response) {
 		expectedJson = Helper.stringNormalize(expectedJson);
-		if (!jsonHelper.isJSONValid(expectedJson)) {
+		if (!JsonHelper.isJSONValid(expectedJson)) {
 			if (expectedJson.startsWith("_VERIFY_JSON_PART_")) {
 				// get hashmap of json path and verification
-				List<KeyValue> keywords = dataHelper.getValidationMap(expectedJson);
+				List<KeyValue> keywords = DataHelper.getValidationMap(expectedJson);
 				// validate based on keywords
-				jsonHelper.validateJsonKeywords(keywords, response);
+				JsonHelper.validateJsonKeywords(keywords, response);
 
 				// response is not empty
 			} else if (expectedJson.startsWith("_NOT_EMPTY_")) {

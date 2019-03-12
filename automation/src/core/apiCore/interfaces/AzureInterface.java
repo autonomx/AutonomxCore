@@ -8,13 +8,13 @@ import com.microsoft.azure.storage.file.CloudFileClient;
 import com.microsoft.azure.storage.file.CloudFileDirectory;
 import com.microsoft.azure.storage.file.CloudFileShare;
 
-import core.apiCore.helpers.dataHelper;
+import core.apiCore.helpers.DataHelper;
 import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.logger.TestLog;
 import core.support.objects.ApiObject;
 
-public class azureInterface {
+public class AzureInterface {
 	private static final String AZURE_ACCOUNT_KEY = "azure.key";
 	private static final String AZURE_ACCOUNT = "azure.account";
 	private static final String UPLOAD_TO_FILE_SHARE = "azure.uploadToFileShare";
@@ -67,7 +67,7 @@ public class azureInterface {
 		CloudFileDirectory cloudFileDirectory = getCloudfileDirectory(apiObject);
 
 
-		String filePath = dataHelper.getTemplateFile(apiObject.TemplateFile);
+		String filePath = DataHelper.getTemplateFile(apiObject.TemplateFile);
 	
 		// Define the path to a local file.
 		TestLog.logPass("uploading file: " + apiObject.TemplateFile);

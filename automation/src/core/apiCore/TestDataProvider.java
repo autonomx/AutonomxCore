@@ -6,10 +6,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.log4j.Logger;
 import org.testng.annotations.DataProvider;
 
-import core.apiCore.helpers.csvReader;
+import core.apiCore.helpers.CsvReader;
 import core.support.configReader.Config;
 
-public class dataProvider {
+public class TestDataProvider {
 
 	public static String TEST_DATA_PATH;
 	public static final String TEST_DATA_TEMPLATE_PATH = "api.templatePath";
@@ -26,13 +26,13 @@ public class dataProvider {
 
 	@DataProvider(name = "parallelRun")
 	public synchronized Iterator<Object[]> providerParallel() {
-		dataProvider.TEST_DATA_PATH = Config.getValue(dataProvider.TEST_DATA_PARALLEL_PATH);
-		return csvReader.getTestCasesFromCsvFile().iterator();
+		TestDataProvider.TEST_DATA_PATH = Config.getValue(TestDataProvider.TEST_DATA_PARALLEL_PATH);
+		return CsvReader.getTestCasesFromCsvFile().iterator();
 	}
 
 	@DataProvider(name = "sequentialRun")
 	public synchronized Iterator<Object[]> providerSequential() {
-		dataProvider.TEST_DATA_PATH = Config.getValue(dataProvider.TEST_DATA_PARALLEL_PATH);
-		return csvReader.getTestCasesFromCsvFile().iterator();
+		TestDataProvider.TEST_DATA_PATH = Config.getValue(TestDataProvider.TEST_DATA_PARALLEL_PATH);
+		return CsvReader.getTestCasesFromCsvFile().iterator();
 	}
 }
