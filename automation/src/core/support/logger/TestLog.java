@@ -66,37 +66,37 @@ public class TestLog {
 	}
 
 	public static void Background(String value, Object... args) {
-		setTestStep(getTestScenario().createNode(Background.class, formatMessage(value, args)));
+		setTestStep(getTestScenario().createNode(Background.class, formatMessage(value, args)).pass(""));
 	}
 
 	public static void But(String value, Object... args) {
 		logConsoleMessage(Priority.INFO, "But " + formatMessage(value, args));
-		setTestStep(getTestScenario().createNode(But.class, "But " +formatMessage(value, args)));
+		setTestStep(getTestScenario().createNode(But.class, "But " +formatMessage(value, args)).pass(""));
 	}
 
 	public static void Given(String value, Object... args) {
 		logConsoleMessage(Priority.INFO, "Given " + formatMessage(value, args));
-		setTestStep(getTestScenario().createNode(Given.class, "Given " + formatMessage(value, args)));
+		setTestStep(getTestScenario().createNode(Given.class, "Given " + formatMessage(value, args)).pass(""));
 	}
 
 	public static void When(String value, Object... args) {
 		logConsoleMessage(Priority.INFO, "When " + formatMessage(value, args));
 
-		setTestStep(getTestScenario().createNode(When.class,"When " + formatMessage(value, args)));
+		setTestStep(getTestScenario().createNode(When.class,"When " + formatMessage(value, args)).pass(""));
 		playAudio("When " + formatMessage(value, args));
 	}
 
 	public static void And(String value, Object... args) {
 		logConsoleMessage(Priority.INFO, "And " + formatMessage(value, args));
 
-		setTestStep(getTestScenario().createNode(And.class, "And " + formatMessage(value, args)));
+		setTestStep(getTestScenario().createNode(And.class, "And " + formatMessage(value, args)).pass(""));
 		playAudio("And " + formatMessage(value, args));
 	}
 
 	public static void Then(String value, Object... args) {
 		logConsoleMessage(Priority.INFO, "Then " + formatMessage(value, args));
 
-		setTestStep(getTestScenario().createNode(Then.class,"Then " + formatMessage(value, args)));
+		setTestStep(getTestScenario().createNode(Then.class,"Then " + formatMessage(value, args)).pass(""));
 		playAudio("Then " + formatMessage(value, args));
 	}
 

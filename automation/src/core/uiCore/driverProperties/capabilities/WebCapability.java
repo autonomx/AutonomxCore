@@ -10,7 +10,6 @@ import java.util.logging.Level;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.logging.LogType;
 import org.openqa.selenium.logging.LoggingPreferences;
-import org.openqa.selenium.phantomjs.PhantomJSDriverService;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
@@ -44,13 +43,6 @@ public class WebCapability {
 		System.setProperty("webdriver.chrome.args", "--disable-logging");
 		System.setProperty("webdriver.chrome.silentOutput", "true");
 
-		// set phantomjs capabilities
-		ArrayList<String> cliArgsCap = new ArrayList<String>();
-		cliArgsCap.add("--web-security=false");
-		cliArgsCap.add("--ssl-protocol=any");
-		cliArgsCap.add("--ignore-ssl-errors=true");
-		capabilities.setCapability(PhantomJSDriverService.PHANTOMJS_CLI_ARGS, cliArgsCap);
-		
 		capabilities.setCapability("recordVideo", false);
 		capabilities.setCapability("takesScreenshot", true);
 

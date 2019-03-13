@@ -5,11 +5,11 @@ import java.net.URL;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.opera.OperaDriver;
-import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 import com.microsoft.appcenter.appium.EnhancedAndroidDriver;
@@ -132,9 +132,6 @@ public class WebDriverSetup {
 			WebDriverManager.operadriver().version(driverObject.driverVersion).setup();
 			driver = new OperaDriver(driverObject.capabilities);
 			break;
-		case PHANTOMJS:
-			WebDriverManager.phantomjs().version(driverObject.driverVersion).setup();
-			driver = new PhantomJSDriver(driverObject.capabilities);
 		default:
 			throw new IllegalStateException("Unsupported browsertype " + browserType);
 		}

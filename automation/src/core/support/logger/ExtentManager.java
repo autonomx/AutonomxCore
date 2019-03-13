@@ -97,7 +97,8 @@ public class ExtentManager {
 	public static ExtentReports createInstance(String fileName) {
 
 		extent = new ExtentReports();
-
+		extent.setAnalysisStrategy(AnalysisStrategy.BDD);
+		
 		// setup html reporter
 		ExtentHtmlReporter htmlReporter = new ExtentHtmlReporter(fileName);
 		htmlReporter.config().setAutoCreateRelativePathMedia(true);
@@ -174,6 +175,8 @@ public class ExtentManager {
 		klovReporter = new ExtentKlovReporter();
 		klovReporter.initMongoDbConnection(Config.getValue(KLOV_MONGODB_URL));
 		klovReporter.initKlovServerConnection(Config.getValue(KLOV_SERVER_URL));
+		
+		klovReporter.setAnalysisStrategy(AnalysisStrategy.BDD);
 
 		// set project name. if suite name is set (from suite file) then use, else get
 		// test project name
@@ -230,6 +233,7 @@ public class ExtentManager {
 	}
 
 	/**
+	 * Note: currently disabled as we're only adding test nodes to report
 	 * removes empty logs from the test report these are logs that are initialized,
 	 * but no test steps have been added to them note: test suite is removed, cause
 	 * the feature when empty cannot be removed. feature in code is not associated

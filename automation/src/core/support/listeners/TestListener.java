@@ -146,7 +146,6 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		// print out console logs to console if batch logging is enabled
 		TestLog.printLogsToConsole();
 		// set forced restart to true, so new driver is created for next test
-		TestObject.getTestInfo().runCount = 0;
 		TestObject.getTestInfo().withIsForcedRestart(true);
 		TestObject.getTestInfo().isFirstRun = true;
 
