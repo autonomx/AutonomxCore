@@ -19,11 +19,11 @@ import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
+import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
-import javax.lang.model.SourceVersion;
 
 import com.google.auto.service.AutoService;
 
@@ -31,8 +31,9 @@ import core.support.annotation.Panel;
 
 @SupportedAnnotationTypes(value = { "core.support.annotation.Panel" })
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
-@AutoService(AbstractProcessor.class)
+@AutoService(javax.annotation.processing.Processor.class)
 public class MainGenerator extends AbstractProcessor {
+	
 	JavaFileObject moduleManagerFileObject = null;
 	JavaFileObject moduleFileObject = null;
 
