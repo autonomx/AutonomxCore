@@ -4,7 +4,6 @@ package core.uiCore.driverProperties.capabilities;
 /**
  */
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.logging.Level;
 
 import org.openqa.selenium.chrome.ChromeOptions;

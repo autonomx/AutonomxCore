@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.core</groupId>
-	<artifactId>AutomationCore</artifactId>
+	<artifactId>automationCore</artifactId>
 	<version>1.0.33</version>
 	<packaging>jar</packaging>
 	<build>
@@ -354,6 +354,13 @@
 			<groupId>org.reflections</groupId>
 			<artifactId>reflections</artifactId>
 			<version>0.9.10</version>
+		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/com.google.auto.service/auto-service -->
+		<dependency>
+		    <groupId>com.google.auto.service</groupId>
+		    <artifactId>auto-service</artifactId>
+		    <version>1.0-rc4</version>
 		</dependency>
 		
 	</dependencies>

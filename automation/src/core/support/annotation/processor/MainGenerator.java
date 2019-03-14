@@ -18,14 +18,20 @@ import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
+import javax.lang.model.SourceVersion;
+
+import com.google.auto.service.AutoService;
 
 import core.support.annotation.Panel;
-    
+
 @SupportedAnnotationTypes(value = { "core.support.annotation.Panel" })
+@SupportedSourceVersion(SourceVersion.RELEASE_6)
+@AutoService(AbstractProcessor.class)
 public class MainGenerator extends AbstractProcessor {
 	JavaFileObject moduleManagerFileObject = null;
 	JavaFileObject moduleFileObject = null;
@@ -41,16 +47,16 @@ public class MainGenerator extends AbstractProcessor {
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 
-		if(!isAnnotationRun) {
+		if (!isAnnotationRun) {
 			isAnnotationRun = true;
-			
+
 			System.out.println("Annotation called");
 			Map<String, List<Element>> appMap = getPanelMap(roundEnv);
-			
+
 			try {
 				writePanelManagerClass(appMap);
 				writeModuleManagerClass(appMap);
-				//writeModuleClass(appMap);
+				// writeModuleClass(appMap);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -77,10 +83,12 @@ public class MainGenerator extends AbstractProcessor {
 		}
 
 	}
+
 	public void writeModuleClass(Map<String, List<Element>> panelMap) throws IOException {
 
 		// proceed if app manager has not been created
-		if(moduleFileObject != null) return;
+		if (moduleFileObject != null)
+			return;
 		// returns module.android.panel
 		String modulePath = getFirstModuleFullPath(panelMap);
 
@@ -102,14 +110,13 @@ public class MainGenerator extends AbstractProcessor {
 		bw.append("package " + ROOT_PATH + ";\n");
 		bw.newLine();
 		bw.newLine();
-		bw.append("public class "+ MODULE_CLASS +" {\n\n\n");
-		bw.append("public " + MODULE_MANAGER_CLASS + " module = new " + MODULE_MANAGER_CLASS +"();\n");
+		bw.append("public class " + MODULE_CLASS + " {\n\n\n");
+		bw.append("public " + MODULE_MANAGER_CLASS + " module = new " + MODULE_MANAGER_CLASS + "();\n");
 		bw.append("}\n");
 
 		bw.flush();
 		bw.close();
 	}
-
 
 	public void writeModuleManagerClass(Map<String, List<Element>> panelMap) throws IOException {
 		// returns module.android.panel
@@ -119,8 +126,9 @@ public class MainGenerator extends AbstractProcessor {
 		String rootModulePath = getRootPath(modulePath);
 
 		// proceed if app manager has not been created
-		if(moduleManagerFileObject != null) return;
-		
+		if (moduleManagerFileObject != null)
+			return;
+
 		// create file: module.appManager.java
 		JavaFileObject fileObject = createFile(rootModulePath);
 
@@ -137,11 +145,10 @@ public class MainGenerator extends AbstractProcessor {
 
 		// eg. import module.android.androidPanel
 		/*
-		for (Entry<String, List<Element>> entry : panelMap.entrySet()) {
-			Element firstElement = entry.getValue().get(0);
-			bw.append("import " + getPackagePath(firstElement) + "." + entry.getKey() + "Panel" + ";\n");
-		}
-*/
+		 * for (Entry<String, List<Element>> entry : panelMap.entrySet()) { Element
+		 * firstElement = entry.getValue().get(0); bw.append("import " +
+		 * getPackagePath(firstElement) + "." + entry.getKey() + "Panel" + ";\n"); }
+		 */
 		bw.newLine();
 
 		bw.append("public class ModuleManager {\n");
@@ -149,7 +156,8 @@ public class MainGenerator extends AbstractProcessor {
 		// add panel declarations
 		for (Entry<String, List<Element>> entry : panelMap.entrySet()) {
 			Element firstElement = entry.getValue().get(0);
-			bw.append("	public " + getPackagePath(firstElement) +"."+ PANEL_MANAGER_CLASS +" " + entry.getKey() + " = new " + getPackagePath(firstElement) +"."+ "PanelManager"+"();\n");
+			bw.append("	public " + getPackagePath(firstElement) + "." + PANEL_MANAGER_CLASS + " " + entry.getKey()
+					+ " = new " + getPackagePath(firstElement) + "." + "PanelManager" + "();\n");
 		}
 
 		bw.append("}\n");
@@ -170,7 +178,6 @@ public class MainGenerator extends AbstractProcessor {
 			System.out.println("panel name: " + entry.getKey());
 			System.out.println("panel value: " + entry.getValue().get(0).asType().toString());
 
-			
 			JavaFileObject fileObject = createFile(firstElement);
 
 			BufferedWriter bw = new BufferedWriter(fileObject.openWriter());
@@ -202,104 +209,98 @@ public class MainGenerator extends AbstractProcessor {
 			for (Element element : entry.getValue()) {
 				String panelName = element.getSimpleName().toString();
 
-				bw.append("public " + panelName + " " + panelName.replace("Panel", "").toLowerCase() + " = new " + panelName + "(this);\n");
+				bw.append("public " + panelName + " " + panelName.replace("Panel", "").toLowerCase() + " = new "
+						+ panelName + "(this);\n");
 			}
 			bw.newLine();
-			
+
 			writeDrivers(getModuleName(firstElement), bw);
 
 			bw.append("}\n");
 
 			bw.flush();
 			bw.close();
-            System.out.println("completed: " +  entry.getKey());
+			System.out.println("completed: " + entry.getKey());
 		}
 	}
-	
+
 	/**
-	public DriverObject getWebDriver() {
-		return new DriverObject().withWebDriver("webApp", Config.getValue("webApp"));
-	}
-	
-		public DriverObject getWebDriver(String url) {
-		return new DriverObject().withWebDriver("webApp", Config.getValue(url));
-	}
-	
-	public DriverObject getIosTabletDriver() {
-		return new DriverObject().withiOSDriver("ios.tablet");
-	}
-	
-	public DriverObject getIosMobileDriver() {
-		return new DriverObject().withiOSDriver("ios.mobile");
-	}
-	
-	public DriverObject getAndroidTabletDriver() {
-		return new DriverObject().withiOSDriver("android.tablet");
-	}
-	
-	public DriverObject getAndroidMobileDriver() {
-		return new DriverObject().withiOSDriver("android.mobile");
-	}
-	
-	public DriverObject getWinAppDriver() {
-		return new DriverObject().withWinDriver();
-	}	
-	
-	public DriverObject getApiDriver() {
-		return new DriverObject().withDriverType(DriverType.API);
-	}
-	
-	public DriverObject getGenericDriver() {
-		return new DriverObject().withDriverType(DriverType.API);
-	}
-	 * @throws IOException 
-	*/
-	
+	 * public DriverObject getWebDriver() { return new
+	 * DriverObject().withWebDriver("webApp", Config.getValue("webApp")); }
+	 * 
+	 * public DriverObject getWebDriver(String url) { return new
+	 * DriverObject().withWebDriver("webApp", Config.getValue(url)); }
+	 * 
+	 * public DriverObject getIosTabletDriver() { return new
+	 * DriverObject().withiOSDriver("ios.tablet"); }
+	 * 
+	 * public DriverObject getIosMobileDriver() { return new
+	 * DriverObject().withiOSDriver("ios.mobile"); }
+	 * 
+	 * public DriverObject getAndroidTabletDriver() { return new
+	 * DriverObject().withiOSDriver("android.tablet"); }
+	 * 
+	 * public DriverObject getAndroidMobileDriver() { return new
+	 * DriverObject().withiOSDriver("android.mobile"); }
+	 * 
+	 * public DriverObject getWinAppDriver() { return new
+	 * DriverObject().withWinDriver(); }
+	 * 
+	 * public DriverObject getApiDriver() { return new
+	 * DriverObject().withDriverType(DriverType.API); }
+	 * 
+	 * public DriverObject getGenericDriver() { return new
+	 * DriverObject().withDriverType(DriverType.API); }
+	 * 
+	 * @throws IOException
+	 */
+
 	public void writeDrivers(String moduleName, BufferedWriter bw) throws IOException {
-		
+
 		// web driver
 		bw.append("public DriverObject getWebDriver() {\n");
-		bw.append("	return new DriverObject().withWebDriver(\""+ moduleName +"\", Config.getValue(\""+ moduleName +"\"));\n");
+		bw.append("	return new DriverObject().withWebDriver(\"" + moduleName + "\", Config.getValue(\"" + moduleName
+				+ "\"));\n");
 		bw.append("}\n");
-		
+
 		// web driver
 		bw.append("public DriverObject getWebDriver(String url) {\n");
-		bw.append("	return new DriverObject().withWebDriver(\""+ moduleName +"\", Config.getValue(url));\n");
+		bw.append("	return new DriverObject().withWebDriver(\"" + moduleName + "\", Config.getValue(url));\n");
 		bw.append("}\n");
-		
+
 		// ios tablet driver
 		bw.append("public DriverObject getIosTabletDriver() {\n");
 		bw.append("	return new DriverObject().withiOSDriver(\"" + moduleName + "\",\"ios.tablet\");\n");
 		bw.append("}\n");
-		
+
 		// ios mobile driver
 		bw.append("public DriverObject getIosMobileDriver() {\n");
-		bw.append("	return new DriverObject().withiOSDriver(\""+ moduleName +"\",\"ios.mobile\");\n");
+		bw.append("	return new DriverObject().withiOSDriver(\"" + moduleName + "\",\"ios.mobile\");\n");
 		bw.append("}\n");
-		
+
 		// andorid tablet driver
 		bw.append("public DriverObject getAndroidTabletDriver() {\n");
-		bw.append("	return new DriverObject().withAndroidDriver(\""+ moduleName +"\",\"android.tablet\");\n");
+		bw.append("	return new DriverObject().withAndroidDriver(\"" + moduleName + "\",\"android.tablet\");\n");
 		bw.append("}\n");
-		
+
 		// android mobile driver
 		bw.append("public DriverObject getAndroidMobileDriver() {\n");
-		bw.append("	return new DriverObject().withAndroidDriver(\""+ moduleName +"\",\"android.mobile\");\n");
+		bw.append("	return new DriverObject().withAndroidDriver(\"" + moduleName + "\",\"android.mobile\");\n");
 		bw.append("}\n");
-		
+
 		// windows driver
 		bw.append("public DriverObject getWinAppDriver() {\n");
-		bw.append("	return new DriverObject().withWinDriver(\""+ moduleName +"\");\n");
+		bw.append("	return new DriverObject().withWinDriver(\"" + moduleName + "\");\n");
 		bw.append("}\n");
-		
+
 		// api driver
 		bw.append("public DriverObject getApiDriver() {\n");
-		bw.append("	return new DriverObject().withApiDriver(\""+ moduleName +"\");\n");
+		bw.append("	return new DriverObject().withApiDriver(\"" + moduleName + "\");\n");
 		bw.append("}\n");
-		
+
 		// generic driver
 		bw.append("public DriverObject getGenericDriver() {\n");
-		bw.append("	return new DriverObject().withGenericDriver(\""+ moduleName +"\");\n");
+		bw.append("	return new DriverObject().withGenericDriver(\"" + moduleName + "\");\n");
 		bw.append("}\n");
 	}
 
@@ -310,12 +311,13 @@ public class MainGenerator extends AbstractProcessor {
 	 * @return
 	 */
 	public Map<String, List<Element>> getPanelMap(RoundEnvironment roundEnv) {
-		
+
 		return addElementsToPanelMap(roundEnv);
 	}
-	
+
 	/**
 	 * get initialized map, and fill in elements list with panel elements
+	 * 
 	 * @param roundEnv
 	 * @return
 	 */
@@ -325,27 +327,29 @@ public class MainGenerator extends AbstractProcessor {
 		for (Entry<String, List<Element>> entry : panelMap.entrySet()) {
 			List<Element> elements = new ArrayList<Element>();
 			moduleName = entry.getKey();
-		// This loop will process all the classes annotated with @Panel
+			// This loop will process all the classes annotated with @Panel
 			for (Element element : roundEnv.getElementsAnnotatedWith(Panel.class)) {
 				if (element.getKind() == ElementKind.CLASS) {
 					String currentModuleName = getModuleName(element);
-					
-					if(currentModuleName.equals(entry.getKey())) {
-						System.out.println("addElementsToPanelMap: module: " + currentModuleName + " adding panel: " + element.asType().toString());
+
+					if (currentModuleName.equals(entry.getKey())) {
+						System.out.println("addElementsToPanelMap: module: " + currentModuleName + " adding panel: "
+								+ element.asType().toString());
 						elements.add(element);
 					}
-	
-				 }
+
+				}
 			}
-			System.out.println("addElementsToPanelMap: moduleName: " + moduleName + " panel count: " + elements.size() );
+			System.out.println("addElementsToPanelMap: moduleName: " + moduleName + " panel count: " + elements.size());
 			panelMap.put(moduleName, elements);
 
 		}
 		return panelMap;
 	}
-	
+
 	/**
-	 * creates a map of modules, but does not add the elements 
+	 * creates a map of modules, but does not add the elements
+	 * 
 	 * @param roundEnv
 	 * @return
 	 */
@@ -362,8 +366,6 @@ public class MainGenerator extends AbstractProcessor {
 		}
 		return map;
 	}
-	
-
 
 	/**
 	 * gets module name. eg. module.android.LoginPanel with return android
@@ -415,7 +417,7 @@ public class MainGenerator extends AbstractProcessor {
 		}
 		return sourceClass;
 	}
-	
+
 	/**
 	 * create module class
 	 * 
@@ -451,8 +453,9 @@ public class MainGenerator extends AbstractProcessor {
 		System.out.println("creating Panel manager: " + getPackagePath(element) + "." + PANEL_MANAGER_CLASS);
 		JavaFileObject fileObject = processingEnv.getFiler()
 				.createSourceFile(getPackagePath(element) + "." + PANEL_MANAGER_CLASS);
-//		JavaFileObject fileObject = processingEnv.getFiler()
-//				.createSourceFile(getPackagePath(element) + "." + getModuleName(element) + "Panel");
+		// JavaFileObject fileObject = processingEnv.getFiler()
+		// .createSourceFile(getPackagePath(element) + "." + getModuleName(element) +
+		// "Panel");
 		return fileObject;
 	}
 
