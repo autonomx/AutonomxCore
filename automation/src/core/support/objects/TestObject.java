@@ -13,10 +13,10 @@ import org.openqa.selenium.WebDriver;
 
 import com.aventstack.extentreports.ExtentTest;
 
-import core.apiCore.helpers.csvReader;
+import core.apiCore.helpers.CsvReader;
 import core.helpers.Helper;
 import core.support.configReader.Config;
-import core.support.logger.logObject;
+import core.support.logger.LogObject;
 import core.uiCore.drivers.AbstractDriver;
 
 /**
@@ -29,34 +29,46 @@ import core.uiCore.drivers.AbstractDriver;
  *
  */
 
-public class TestObject {
+public class TestObject{
 
 	// apiTest : api tests read from csv files through apiTestRunner
 	// uiTest : non api tests
 	public static enum testType {
 		apiTest, uiTest
 	}
+	
+	public static enum testState {
+		suite, testClass, testMethod, apiTestMethod, defaultState
+	}
+	
+	public static String BEFORE_SUITE_PREFIX = "-Beforesuite";
+	public static String AFTER_SUITE_PREFIX = "-Aftersuite";
+	public static String BEFORE_CLASS_PREFIX = "-Beforeclass";
+	public static String AFTER_CLASS_PREFIX = "-Afterclass";
 
 	public static final String DEFAULT_TEST = "core";
 	public static final String DEFAULT_APP = "auto";
+	public static String SUITE_NAME = ""; // suite name is global to all tests in the run
+	public static String APP_IDENTIFIER = ""; // app name associated with test run. If suite is default, use app identifier 
+
+	public static final String TEST_APP_API = "api";
 
 	public List<WebDriver> webDriverList = new ArrayList<WebDriver>();
-	public String app;
+	public String app = "";
 	public testType type;
-	public String testId;
-	public String testName;
-	public String className;
-	public String deviceName; // device name for mobile devices
+	public String testId = "";
+	public String testName = "";
+	public String className = "";
+	public String deviceName = ""; // device name for mobile devices
 
 	public String testFileClassName; // same as class name except for api tests
-	public Boolean isTestMethod = false; // distinguish between before,after class and test method
 
 	public DriverObject currentDriver;
 	public Boolean isFirstRun = false; // is the test running from beginning
 	public Boolean isForcedRestart = false; // incase of test failed or other situations
 
 	public boolean isLoggedIn = true;
-	public String loggedInUser;
+	public String loggedInUser = "";
 	public String loggedInPassword;
 	public int runCount = 0;
 	public Boolean isTestPass = false;
@@ -81,7 +93,7 @@ public class TestObject {
 	public String startTime; // start time of test in milliseconds
 	public String randStringIdentifier; // random identifier for the test
 
-	public List<logObject> testLog = new ArrayList<logObject>();
+	public List<LogObject> testLog = new ArrayList<LogObject>();
 	public Map<String, String> languageMap = new ConcurrentHashMap<String, String>();
 	public Map<String, ApiObject> apiMap = new ConcurrentHashMap<String, ApiObject>();// api keywords
 	public Map<String, String> config = new ConcurrentHashMap<String, String>();
@@ -104,7 +116,7 @@ public class TestObject {
 	 * current driver with test
 	 */
 	public static void initializeTest(String testId) {
-		DriverObject driver = new DriverObject().withApp("api");
+		DriverObject driver = new DriverObject().withApp(TEST_APP_API);
 		initializeTest(driver, testId);
 	}
 
@@ -113,18 +125,80 @@ public class TestObject {
 	 * current driver with test
 	 */
 	public static void initializeTest(DriverObject driver, String testId) {
-		if (isBeforeTest(testId)) {
+		
+		if (isBeforeTest(testId)) { // testobject is initiated only once
 			TestObject test = new TestObject();
+
+			// inherits test object values from parent. eg.beforeClass from test suite. test method from before class
+			test = inheritParent(driver, testId);		
+			
 			test.withTestId(testId).withTestName(test.getTestName()).withTestStartTime(getTimeMiliseconds())
 					.withApp(driver.app).withRandomStringIdentifier();
 			TestObject.testInfo.put(testId, test);
 			// loads all property values into config map
 			Config.loadConfig(testId);
 			// loads all the keywords for api references
-			csvReader.getAllKeywords();
+			CsvReader.getAllKeywords();
 
 			TestObject.getTestInfo().type = testType.uiTest;
 		}
+	}
+	
+	/**
+	 * Inheritance structure for test object
+	 * 
+	 * before suite -> before class -> test method
+	 * before suite -> before class -> after class
+	 * before suite -
+	 * @return 
+	 */
+	public static TestObject inheritParent(DriverObject driver, String testId) {
+		TestObject test = new TestObject();
+		// add config object from previous state to new test object
+		test.config.putAll(getTestObjectInheritence(driver, testId).config);
+			
+		return test;
+	}
+	
+	
+	/**
+	 * Inheritance structure for test object
+	 * 
+	 * before suite -> before class -> test method
+	 * before suite -> before class -> after class
+	 * before suite -> after suite
+	 * @return 
+	 */
+	public static TestObject getTestObjectInheritence(DriverObject driver, String testId) {
+		// gets test state of test object: suite, testClass, testMethod
+		testState testObjectState = getTestState(testId);
+
+		String[] testValues = testId.split("-");
+		String testName = testValues[0];
+		
+		// service level tests are handled in ApiTestDriver
+		if(driver.app.equals(TEST_APP_API)) return new TestObject();
+		
+		// if default test, return itself. Not gaining from other test objects
+		if(testName.equals(DEFAULT_TEST)) return new TestObject();
+		
+		// if before class, inherit test object from before suite
+		if(testId.contains(BEFORE_CLASS_PREFIX))
+			return TestObject.getTestInfo(TestObject.SUITE_NAME + BEFORE_SUITE_PREFIX);
+		
+		// if before test, inherit test object from before class
+		if(testObjectState == testState.testMethod) 
+			return TestObject.getTestInfo(testName + BEFORE_CLASS_PREFIX);
+		
+		// if after class, inherit test object from before class
+		if(testId.contains(AFTER_CLASS_PREFIX))
+			return TestObject.getTestInfo(testName + BEFORE_CLASS_PREFIX);
+		
+		// if after suite, inherit test object from before suite
+		if(testId.contains(AFTER_SUITE_PREFIX))
+			return TestObject.getTestInfo(TestObject.SUITE_NAME + BEFORE_SUITE_PREFIX);
+
+		return new TestObject();
 	}
 
 	/**
@@ -170,6 +244,27 @@ public class TestObject {
 		if (TestObject.getTestInfo(DEFAULT_TEST).app.equals(DEFAULT_APP))
 			TestObject.getTestInfo(DEFAULT_TEST).withApp(driver.app);
 	}
+	
+	/**
+	 * get the state of the test object
+	 * can be suite, testClass, testMethod
+	 * @param testName
+	 * @return 
+	 */
+	public static testState getTestState(String testName) {
+		
+		if(testName.contains(BEFORE_SUITE_PREFIX) || testName.contains(AFTER_SUITE_PREFIX))
+				return testState.suite;
+		
+		if(testName.contains(BEFORE_CLASS_PREFIX) || testName.contains(AFTER_CLASS_PREFIX))
+			return testState.testClass;
+		
+		if(testName.equals(DEFAULT_TEST))
+			return testState.defaultState;
+		
+		else
+			return testState.testMethod;
+	}
 
 	public static void setTestName(String testName) {
 		TestObject.currentTestName.set(testName);
@@ -185,6 +280,7 @@ public class TestObject {
 
 	public static String getTestId() {
 		String testId = TestObject.currentTestId.get();
+		
 		// if testId = null, set to default test
 		if (testId == null || testId.isEmpty())
 			testId = TestObject.DEFAULT_TEST;
@@ -248,6 +344,7 @@ public class TestObject {
 	 * when all tests in csv files have finished for api csv tests, we're reseting
 	 * the test count per csv file.
 	 * 
+	 * called on test failure and test success
 	 * @return
 	 */
 	public void resetTestObject() {
@@ -262,9 +359,16 @@ public class TestObject {
 			String testname = TestObject.getTestInfo(testId).testName;
 			String testFileClass = TestObject.getTestInfo(testId).testFileClassName;
 			List<WebDriver> webDrivers = TestObject.getTestInfo(testId).webDriverList;
-
+			
+			// after method run after test success or test failure, hence run count should not be reset
+			int runCount = TestObject.getTestInfo(testId).runCount;
+			
 			TestObject.testInfo.put(testId,
-					new TestObject().withTestId(testId).withTestName(testname).withTestFileClassName(testFileClass).withWebDriverList(webDrivers));
+					new TestObject().withTestId(testId)
+					.withTestName(testname)
+					.withTestFileClassName(testFileClass)
+					.withWebDriverList(webDrivers)
+					.withRunCount(runCount));
 
 			// populate the config with default values
 			TestObject.getTestInfo(testId).config.putAll(TestObject.getTestInfo(TestObject.DEFAULT_TEST).config);
@@ -300,7 +404,7 @@ public class TestObject {
 	 * @return
 	 */
 	public static ApiObject getApiDef(String key) {
-		csvReader.getAllKeywords();
+		CsvReader.getAllKeywords();
 		return TestObject.getTestInfo().apiMap.get(key);
 	}
 
@@ -392,7 +496,7 @@ public class TestObject {
 		return isLoggedIn;
 	}
 
-	public TestObject withRerunCount(int rerunCount) {
+	public TestObject withRunCount(int rerunCount) {
 		this.runCount = rerunCount;
 		return this;
 	}

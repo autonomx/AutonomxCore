@@ -3,36 +3,57 @@ package core.support.logger;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.io.FileUtils;
 
 import com.aventstack.extentreports.AnalysisStrategy;
 import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.gherkin.model.Feature;
+import com.aventstack.extentreports.gherkin.model.Scenario;
 import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
-import com.aventstack.extentreports.reporter.configuration.ChartLocation;
+import com.aventstack.extentreports.reporter.ExtentKlovReporter;
+import com.aventstack.extentreports.reporter.configuration.Protocol;
 import com.aventstack.extentreports.reporter.configuration.Theme;
 
+import core.apiCore.ServiceRunner;
 import core.helpers.Helper;
 import core.helpers.UtilityHelper;
 import core.helpers.emailHelper.EmailObject;
 import core.support.configReader.Config;
 import core.support.objects.TestObject;
+import core.support.objects.TestObject.testState;
 
 //OB: ExtentReports extent instance created here. That instance can be reachable by getReporter() method.
 
 public class ExtentManager {
+
 	public static final String LAUNCH_AFTER_REPORT = "report.launchReportAfterTest";
 	public static final String ENABLE_SLACK_NOTIFICATION = "slack.enableSlackNotification";
 	public static final String ENABLE_EMAIL_REPORT = "email.enableEmailReport";
 	public static final String REPORT_EXPIRE_DAYS = "report.reportExpireDays";
-	
+	public static final String REPORT_TYPE = "report.reporterType";
+	public static final String HTML_REPORT_TYPE = "html";
+	public static final String KLOV_REPORT_TYPE = "klov";
+	public static final String KLOV_SERVER_URL = "klov.server.url";
+	public static final String KLOV_MONGODB_URL = "klov.mongodb.url";
+
+	// list of classes (features)
+	public static Map<String, ExtentTest> classList = new HashMap<String, ExtentTest>();
 
 	private static ExtentReports extent;
+
 	public static String REPORT_DEFAULT_NAME = "extent";
+	public static ExtentKlovReporter klovReporter;
 
 	public static String TEST_OUTPUT_PATH = "/test-output/";
 	public static String TEST_OUTPUT_FULL_PATH = Helper.getCurrentDir() + "/test-output/";
@@ -47,7 +68,7 @@ public class ExtentManager {
 	public static String getScreenshotsFolderFullPath() {
 		return getReportRootFullPath() + "screenshots/";
 	}
-	
+
 	public static String getScreenshotsFolderRelativePath() {
 		return "screenshots/";
 	}
@@ -61,52 +82,147 @@ public class ExtentManager {
 	}
 
 	/**
-	 * gets report folder path
-	 * eg.selenium/test-output/testReports/20181124/core/
+	 * gets report folder path eg.selenium/test-output/testReports/20181124/core/
+	 * 
 	 * @return
 	 */
 	public static String getReportRootRelativePath() {
 		DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
 		Date date = new Date();
-		String folderName =  dateFormat.format(date);
+		String folderName = dateFormat.format(date);
 		return TEST_OUTPUT_PATH + "testReports/" + folderName + "/"
 				+ TestObject.getTestInfo(TestObject.DEFAULT_TEST).app + "/";
 	}
 
 	public static ExtentReports createInstance(String fileName) {
+
+		extent = new ExtentReports();
+		extent.setAnalysisStrategy(AnalysisStrategy.BDD);
+		
+		// setup html reporter
 		ExtentHtmlReporter htmlReporter = new ExtentHtmlReporter(fileName);
-		htmlReporter.config().setTestViewChartLocation(ChartLocation.TOP);
-		htmlReporter.config().setChartVisibilityOnOpen(true);
+		htmlReporter.config().setAutoCreateRelativePathMedia(true);
 		htmlReporter.config().setTheme(Theme.STANDARD);
 		htmlReporter.config().setDocumentTitle(fileName);
 		htmlReporter.config().setEncoding("utf-8");
+		htmlReporter.config().setProtocol(Protocol.HTTPS);
 		htmlReporter.config().setReportName(fileName);
-		htmlReporter.setAnalysisStrategy(AnalysisStrategy.TEST);
+		htmlReporter.config().enableTimeline(true);
+		htmlReporter.setAnalysisStrategy(AnalysisStrategy.BDD);
 
-		extent = new ExtentReports();
-		extent.attachReporter(htmlReporter);
+		if (Config.getValue(REPORT_TYPE).equals(HTML_REPORT_TYPE))
+			extent.attachReporter(htmlReporter);
+
+		// setup klov reporter
+		setKlovReportReporter();
+
 		return extent;
+	}
+
+	// TODO: set in test listener
+	public static void setupReportPage() {
+		// will run only once per test run
+		// initializes the test report html page
+		if (TestObject.getTestInfo().runCount == 0) {
+			extent = ExtentManager.getReporter();
+		}
+	}
+
+	public static void reportSetup() {
+
+		testState state = TestObject.getTestState(TestObject.getTestInfo().testId);
+		if (!state.equals(testState.testMethod))
+			return;
+
+		// will run only once per test run
+		// initializes the test report html page
+		setupReportPage();
+
+		// will create parent once per class
+		// initializes the test instance
+		String className = TestObject.getTestInfo().getClassName();
+		
+		// if service test runner, return. Service tests have different test names once the test starts, based on csv data
+		if(className.equals(ServiceRunner.SERVICE_TEST_RUNNER_ID))
+			return;
+		
+		if (!classList.containsKey(className)) {
+			String testParent = className.substring(className.lastIndexOf('.') + 1).trim();
+			testParent = parseTestName(testParent);
+			ExtentTest feature = extent.createTest(Feature.class, testParent);
+			classList.put(className, feature);
+			TestObject.getTestInfo().testFeature = feature;
+		}
+
+		// will run once every test
+		// initializes test report
+		if (TestObject.getTestInfo().runCount == 0) {
+			TestObject.getTestInfo().incremenetRunCount();
+			String testChild = TestObject.getTestInfo().testName;
+			testChild = parseTestName(testChild);
+			ExtentTest scenario = classList.get(className).createNode(Scenario.class, testChild);
+			TestObject.getTestInfo().withTestScenario(scenario);
+			TestLog.Background(TestObject.getTestInfo().testName + " initialized successfully");
+		}
+	}
+
+	/**
+	 * if test are run through suite, set project name as suite if test are run
+	 * outside of suite, use the module/app name
+	 */
+	public static void setKlovReportReporter() {
+		// setup klov reporter
+		klovReporter = new ExtentKlovReporter();
+		klovReporter.initMongoDbConnection(Config.getValue(KLOV_MONGODB_URL));
+		klovReporter.initKlovServerConnection(Config.getValue(KLOV_SERVER_URL));
+		
+		klovReporter.setAnalysisStrategy(AnalysisStrategy.BDD);
+
+		// set project name. if suite name is set (from suite file) then use, else get
+		// test project name
+		if (TestObject.SUITE_NAME.contains("Default"))
+			klovReporter.setProjectName(TestObject.APP_IDENTIFIER);
+		else
+			klovReporter.setProjectName(TestObject.SUITE_NAME);
+
+		// set report name as current date time
+		LocalDateTime now = LocalDateTime.now();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		String formatDateTime = now.format(formatter);
+		klovReporter.setReportName(formatDateTime);
+
+		if (Config.getValue(REPORT_TYPE).equals(KLOV_REPORT_TYPE))
+			extent.attachReporter(klovReporter);
 	}
 
 	/**
 	 * launches the report html page after test run
+	 * 
+	 * @throws Exception
 	 */
 	public static void launchReportAfterTest() {
-		if (Config.getValue(LAUNCH_AFTER_REPORT).equals("true")) {
+		if (Config.getBooleanValue(LAUNCH_AFTER_REPORT)) {
 
-			File htmlFile = new File(getReportHTMLFullPath());
-
-			// open the default web browser for the HTML page
+			URI link = null;
 			try {
-				Desktop.getDesktop().browse(htmlFile.toURI());
-			} catch (IOException e) {
+				if (Config.getValue(REPORT_TYPE).equals(KLOV_REPORT_TYPE)) {
+					link = new URI(Config.getValue(KLOV_SERVER_URL));
+				}
+				if (Config.getValue(REPORT_TYPE).equals(HTML_REPORT_TYPE)) {
+					link = new File(getReportHTMLFullPath()).toURI();
+				}
+
+				// open the default web browser for the HTML page
+
+				Desktop.getDesktop().browse(link);
+			} catch (Exception e) {
 				e.getMessage();
 			}
 		}
 	}
 
 	public static void writeTestReport() {
-		removeEmptyTestNodesFromReport();
+		// removeEmptyTestNodesFromReport();
 		try {
 			new File(getReportRootFullPath()).mkdirs();
 			new File(getReportHTMLFullPath()).createNewFile();
@@ -117,52 +233,59 @@ public class ExtentManager {
 	}
 
 	/**
+	 * Note: currently disabled as we're only adding test nodes to report
 	 * removes empty logs from the test report these are logs that are initialized,
 	 * but no test steps have been added to them note: test suite is removed, cause
 	 * the feature when empty cannot be removed. feature in code is not associated
 	 * with test steps TODO: find a way to preserve suite logs
 	 */
 	public static void removeEmptyTestNodesFromReport() {
-		
-			// remove default test
-			/*
-			 * boolean hasChild =
-			 * TestObject.getTestInfo(TestObject.DEFAULT_TEST).testFeature.getModel().
-			 * isChildNode(); ExtentTest test =
-			 * TestObject.getTestInfo(TestObject.DEFAULT_TEST).testFeature;
-			 * ExtentManager.getReporter().removeTest(test);
-			 */
-			// remove suite logs
-			// TODO: find way to remove empty before suitfrom report
-			for (Entry<String, TestObject> entry : TestObject.testInfo.entrySet()) {
-				if (entry.getValue().testName.contains("Beforesuite") || entry.getValue().testName.contains("Aftersuite")) {
-					try {
-						ExtentManager.getReporter().removeTest(entry.getValue().testFeature);
-					} catch (Exception e) {
-						e.getMessage();
-					}
-				}
-			}
 
-			// remove all tests with no test substeps. this means, no logging was done for
-			// the test
-			for (Entry<String, TestObject> entry : TestObject.testInfo.entrySet()) {
-				if (entry.getValue().testScenerio != null && entry.getValue().testSubSteps.size() == 0) {
-					try {
-						ExtentManager.getReporter().removeTest(entry.getValue().testScenerio);
-					} catch (Exception e) {
-						e.getMessage();
-					}
+		// remove default test
+		/*
+		 * boolean hasChild =
+		 * TestObject.getTestInfo(TestObject.DEFAULT_TEST).testFeature.getModel().
+		 * isChildNode(); ExtentTest test =
+		 * TestObject.getTestInfo(TestObject.DEFAULT_TEST).testFeature;
+		 * ExtentManager.getReporter().removeTest(test);
+		 */
+		// remove suite logs
+		// TODO: find way to remove empty before suitfrom report
+		for (Entry<String, TestObject> entry : TestObject.testInfo.entrySet()) {
+			if (entry.getValue().testName.contains("Beforesuite") || entry.getValue().testName.contains("Aftersuite")) {
+				try {
+					ExtentManager.getReporter().removeTest(entry.getValue().testFeature);
+				} catch (Exception e) {
+					e.getMessage();
 				}
 			}
 		}
 
+		// remove all tests with no test substeps. this means, no logging was done for
+		// the test
+		for (Entry<String, TestObject> entry : TestObject.testInfo.entrySet()) {
+			if (entry.getValue().testScenerio != null && entry.getValue().testSubSteps.size() <= 1) {
+				try {
+					ExtentManager.getReporter().removeTest(entry.getValue().testScenerio);
+				} catch (Exception e) {
+					e.getMessage();
+				}
+			}
+		}
+	}
+
 	/**
-	 * prints the test report link
+	 * prints the test report link for klov or html report type
 	 */
 	public static void printReportLink() {
-		File htmlFile = new File(getReportHTMLFullPath());
-		System.out.println("Extent test report link: " + htmlFile.toURI());
+		String link = "";
+		if (Config.getValue(REPORT_TYPE).equals(KLOV_REPORT_TYPE)) {
+			link = Config.getValue(KLOV_SERVER_URL);
+		}
+		if (Config.getValue(REPORT_TYPE).equals(HTML_REPORT_TYPE)) {
+			link = new File(getReportHTMLFullPath()).toURI().toString();
+		}
+		System.out.println("Extent test report link: " + link);
 	}
 
 	/**
@@ -225,9 +348,10 @@ public class ExtentManager {
 		String comment = getReportName() + " automated tests complete. " + message;
 
 		EmailObject email = new EmailObject().withToEmail(toEmail).withPassword(password).withFromEmail(fromEmail)
-				.withSmtpPort(smtpPort).withSmtpHost(smtpHost).withSmtpStarttlsEnabled(smtpStarttlsEnabled).withSmtpAuth(smtpAuth)
-				.withRecipientEmail(toEmail).withBody(comment).withSubject(getReportName() + " test report")
-				.withAttachmentPath(zipFilePath).withAttachmentFile("testReport.zip");
+				.withSmtpPort(smtpPort).withSmtpHost(smtpHost).withSmtpStarttlsEnabled(smtpStarttlsEnabled)
+				.withSmtpAuth(smtpAuth).withRecipientEmail(toEmail).withBody(comment)
+				.withSubject(getReportName() + " test report").withAttachmentPath(zipFilePath)
+				.withAttachmentFile("testReport.zip");
 
 		Helper.sendMail(email);
 	}
@@ -243,7 +367,7 @@ public class ExtentManager {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void clearOldTestReports() {
 		int maxDays = Config.getIntValue(REPORT_EXPIRE_DAYS);
 		if (maxDays < 1)
@@ -268,5 +392,22 @@ public class ExtentManager {
 				}
 			}
 		}
+	}
+
+	/**
+	 * formats test name to format from: "loginTest" to "Login Test"
+	 * 
+	 * @param value
+	 * @return
+	 */
+	public static String parseTestName(String value) {
+		String formatted = "";
+		value = value.replace("_", " ");
+
+		for (String w : value.split("(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])")) {
+			w = w.substring(0, 1).toUpperCase() + w.substring(1).toLowerCase();
+			formatted = formatted + " " + w;
+		}
+		return formatted.trim();
 	}
 }

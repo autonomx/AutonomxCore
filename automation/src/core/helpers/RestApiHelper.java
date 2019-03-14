@@ -3,7 +3,7 @@ package core.helpers;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import core.apiCore.interfaces.restApiInterface;
+import core.apiCore.interfaces.RestApiInterface;
 import core.support.configReader.Config;
 import core.support.logger.TestLog;
 import core.support.objects.ApiObject;
@@ -36,7 +36,7 @@ public class RestApiHelper {
 			String variable, String targerApi) throws JSONException {
 		// gets all api values
 		ApiObject api = TestObject.getApiDef(getApi);
-		Response response = restApiInterface.RestfullApiInterface(api);
+		Response response = RestApiInterface.RestfullApiInterface(api);
 		JSONArray valueArray = new JSONArray(response.body().asString());
 
 		for (int i = 0; i < valueArray.length(); i++) {
@@ -49,7 +49,7 @@ public class RestApiHelper {
 				Config.putValue(variable, id);
 				api = TestObject.getApiDef(targerApi);
 
-				restApiInterface.RestfullApiInterface(api);
+				RestApiInterface.RestfullApiInterface(api);
 			}
 		}
 	}
@@ -77,7 +77,7 @@ public class RestApiHelper {
 			String variable, String targerApi) throws JSONException {
 		// gets all api values
 		ApiObject api = TestObject.getApiDef(getApi);
-		Response response = restApiInterface.RestfullApiInterface(api);
+		Response response = RestApiInterface.RestfullApiInterface(api);
 		JSONArray valueArray = new JSONArray(response.body().asString());
 
 		for (int i = 0; i < valueArray.length(); i++) {
@@ -90,7 +90,7 @@ public class RestApiHelper {
 				Config.putValue(variable, id);
 				api = TestObject.getApiDef(targerApi);
 
-				restApiInterface.RestfullApiInterface(api);
+				RestApiInterface.RestfullApiInterface(api);
 			}
 		}
 	}

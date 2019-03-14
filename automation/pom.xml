@@ -3,8 +3,8 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.core</groupId>
-	<artifactId>AutomationCore</artifactId>
-	<version>1.0.31</version>
+	<artifactId>automationCore</artifactId>
+	<version>1.0.34</version>
 	<packaging>jar</packaging>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
@@ -108,7 +108,7 @@
 		<dependency>
 			<groupId>io.github.bonigarcia</groupId>
 			<artifactId>webdrivermanager</artifactId>
-			<version>3.0.0</version>
+			<version>3.3.0</version>
 		</dependency>
 
 		<dependency>
@@ -117,34 +117,9 @@
 			<version>3.14.0</version>
 		</dependency>
 		<dependency>
-			<groupId>com.github.detro</groupId>
-			<artifactId>phantomjsdriver</artifactId>
-			<version>1.2.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.seleniumhq.selenium</groupId>
-			<artifactId>selenium-chrome-driver</artifactId>
-			<version>3.14.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.seleniumhq.selenium</groupId>
-			<artifactId>selenium-firefox-driver</artifactId>
-			<version>3.14.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.seleniumhq.selenium</groupId>
-			<artifactId>selenium-ie-driver</artifactId>
-			<version>3.14.0</version>
-		</dependency>
-		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 			<version>1.2.17</version>
-		</dependency>
-		<dependency>
-			<groupId>org.seleniumhq.selenium</groupId>
-			<artifactId>selenium-support</artifactId>
-			<version>3.14.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -161,7 +136,7 @@
 		<dependency>
 			<groupId>com.aventstack</groupId>
 			<artifactId>extentreports</artifactId>
-			<version>3.1.5</version>
+			<version>4.0.9</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/javax.mail/mail -->
@@ -379,6 +354,13 @@
 			<groupId>org.reflections</groupId>
 			<artifactId>reflections</artifactId>
 			<version>0.9.10</version>
+		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/com.google.auto.service/auto-service -->
+		<dependency>
+		    <groupId>com.google.auto.service</groupId>
+		    <artifactId>auto-service</artifactId>
+		    <version>1.0-rc4</version>
 		</dependency>
 		
 	</dependencies>

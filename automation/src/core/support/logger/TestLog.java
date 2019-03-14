@@ -22,6 +22,8 @@ import com.aventstack.extentreports.gherkin.model.But;
 import com.aventstack.extentreports.gherkin.model.Given;
 import com.aventstack.extentreports.gherkin.model.Then;
 import com.aventstack.extentreports.gherkin.model.When;
+import com.aventstack.extentreports.markuputils.Markup;
+import com.aventstack.extentreports.markuputils.MarkupHelper;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.TextToSpeech;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.model.SynthesizeOptions;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.util.WaveUtils;
@@ -37,7 +39,7 @@ import marytts.MaryInterface;
 public class TestLog {
 
 	public static final String ENABLE_EXTENT_SUBSTEPS = "report.enableDetailedReport";
-	public static int MAX_LENGTH = 400; // in chars
+	public static int MAX_LENGTH = 400; // in chars. currently disabled
 	public static String WATSON = "WATSON";
 	public static String MARY = "MARY";
 
@@ -64,37 +66,37 @@ public class TestLog {
 	}
 
 	public static void Background(String value, Object... args) {
-		setTestStep(getTestScenario().createNode(Background.class, formatMessage(value, args)));
+		setTestStep(getTestScenario().createNode(Background.class, formatMessage(value, args)).pass(""));
 	}
 
 	public static void But(String value, Object... args) {
 		logConsoleMessage(Priority.INFO, "But " + formatMessage(value, args));
-		setTestStep(getTestScenario().createNode(But.class, formatMessage(value, args)));
+		setTestStep(getTestScenario().createNode(But.class, "But " +formatMessage(value, args)).pass(""));
 	}
 
 	public static void Given(String value, Object... args) {
 		logConsoleMessage(Priority.INFO, "Given " + formatMessage(value, args));
-		setTestStep(getTestScenario().createNode(Given.class, formatMessage(value, args)));
+		setTestStep(getTestScenario().createNode(Given.class, "Given " + formatMessage(value, args)).pass(""));
 	}
 
 	public static void When(String value, Object... args) {
 		logConsoleMessage(Priority.INFO, "When " + formatMessage(value, args));
 
-		setTestStep(getTestScenario().createNode(When.class, formatMessage(value, args)));
+		setTestStep(getTestScenario().createNode(When.class,"When " + formatMessage(value, args)).pass(""));
 		playAudio("When " + formatMessage(value, args));
 	}
 
 	public static void And(String value, Object... args) {
 		logConsoleMessage(Priority.INFO, "And " + formatMessage(value, args));
 
-		setTestStep(getTestScenario().createNode(And.class, formatMessage(value, args)));
+		setTestStep(getTestScenario().createNode(And.class, "And " + formatMessage(value, args)).pass(""));
 		playAudio("And " + formatMessage(value, args));
 	}
 
 	public static void Then(String value, Object... args) {
 		logConsoleMessage(Priority.INFO, "Then " + formatMessage(value, args));
 
-		setTestStep(getTestScenario().createNode(Then.class, formatMessage(value, args)));
+		setTestStep(getTestScenario().createNode(Then.class,"Then " + formatMessage(value, args)).pass(""));
 		playAudio("Then " + formatMessage(value, args));
 	}
 
@@ -104,6 +106,9 @@ public class TestLog {
 	 * @param testStep
 	 */
 	public static void setTestStep(ExtentTest testStep) {
+		// if test step is not set, do not log. Test will be set in test method state only.
+		if(TestObject.getTestInfo().testSteps == null) return;
+		
 		TestObject.getTestInfo().testSteps.add(testStep);
 		AbstractDriver.getStep().set(testStep);
 	}
@@ -115,7 +120,8 @@ public class TestLog {
 	 */
 	public static void setPassSubTestStep(String subStep) {
 		TestObject.getTestInfo().testSubSteps.add(subStep);
-		AbstractDriver.getStep().get().pass(subStep);
+		Markup m = MarkupHelper.createCodeBlock(subStep);
+		AbstractDriver.getStep().get().pass(m);
 	}
 
 	/**
@@ -150,7 +156,8 @@ public class TestLog {
 	}
 
 	public static String formatMessage(String value, Object... args) {
-		value = setMaxLength(value);
+		// disabled. enable if we ever want to limit the value length
+		//value = setMaxLength(value); 
 
 		if (args == null || args.length == 0) {
 			return value;
@@ -273,7 +280,7 @@ public class TestLog {
 
 		// if bathch logging is enabled, keep track of all logs for bu
 		if (!TestObject.getTestInfo().isTestComplete && enableBatchLogging) {
-			logObject log = new logObject(value, priority);
+			LogObject log = new LogObject(value, priority);
 			TestObject.getTestInfo().testLog.add(log);
 		}
 	}
@@ -307,7 +314,7 @@ public class TestLog {
 		if (TestObject.testInfo.get(testId) == null)
 			return;
 
-		List<logObject> logs = TestObject.getTestInfo(testId).testLog;
+		List<LogObject> logs = TestObject.getTestInfo(testId).testLog;
 		printLogs(logs, testId);
 
 	}
@@ -317,7 +324,7 @@ public class TestLog {
 	 * 
 	 * @param logs
 	 */
-	public static void printLogs(List<logObject> logs) {
+	public static void printLogs(List<LogObject> logs) {
 		printLogs(logs, "");
 	}
 
@@ -326,20 +333,20 @@ public class TestLog {
 	 * 
 	 * @param logs
 	 */
-	public static void printLogs(List<logObject> testLog, String testId) {
+	public static void printLogs(List<LogObject> testLog, String testId) {
 		if (testLog.isEmpty())
 			return;
 
-		for (logObject log : testLog) {
+		for (LogObject log : testLog) {
 			if (testId.isEmpty()) {
 				TestObject.getTestInfo().log.log(log.priority, log.value);
 			} else
 				TestObject.getTestInfo(testId).log.log(log.priority, log.value);
 		}
 		if (testId.isEmpty())
-			TestObject.getTestInfo().testLog = new ArrayList<logObject>();
+			TestObject.getTestInfo().testLog = new ArrayList<LogObject>();
 		else
-			TestObject.getTestInfo(testId).testLog = new ArrayList<logObject>();
+			TestObject.getTestInfo(testId).testLog = new ArrayList<LogObject>();
 
 	}
 }

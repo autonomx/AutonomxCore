@@ -1,13 +1,13 @@
 package core.support.objects;
 
-import core.apiCore.helpers.csvReader;
-import core.apiCore.interfaces.restApiInterface;
+import core.apiCore.helpers.CsvReader;
+import core.apiCore.interfaces.RestApiInterface;
 import core.support.configReader.Config;
 
-public class apiKeyword {
+public class ApiKeyword {
 	
 	public static ApiObject getApiDef(String key) {
-		csvReader.getAllKeywords();
+		CsvReader.getAllKeywords();
 		return TestObject.getTestInfo().apiMap.get(key);
 	}
 	
@@ -21,6 +21,6 @@ public class apiKeyword {
 		.withUserName(user.username().get())
 		.withPassword(user.password().get());
 		*/
-		restApiInterface.RestfullApiInterface(login);
+		RestApiInterface.RestfullApiInterface(login);
 	}
 }

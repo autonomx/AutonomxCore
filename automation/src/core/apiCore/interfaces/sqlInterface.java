@@ -8,9 +8,9 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import core.apiCore.helpers.connectionHelper;
-import core.apiCore.helpers.dataHelper;
-import core.apiCore.helpers.sqlHelper;
+import core.apiCore.helpers.ConnectionHelper;
+import core.apiCore.helpers.DataHelper;
+import core.apiCore.helpers.SqlHelper;
 import core.helpers.Helper;
 import core.helpers.StopWatchHelper;
 import core.support.configReader.Config;
@@ -24,7 +24,7 @@ import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
  * @author ehsan.matean
  *
  */
-public class sqlInterface {
+public class SqlInterface {
 
 	private static final String SQL_JDBC_DRIVER = "db.url";
 	private static final String SQL_DB_URL = "db.name";
@@ -67,7 +67,7 @@ public class sqlInterface {
 			try {
 				
 				// connect through ssh if set in api config
-				connectionHelper.sshConnect();
+				ConnectionHelper.sshConnect();
 				
 				// Register JDBC driver
 				String SQLDriver = Config.getValue(SQL_JDBC_DRIVER);
@@ -106,7 +106,7 @@ public class sqlInterface {
 	public static ResultSet evaluateDbQuery(ApiObject apiObject) throws Exception {
 
 		// replace parameters for request body
-		apiObject.RequestBody = dataHelper.replaceParameters(apiObject.RequestBody);
+		apiObject.RequestBody = DataHelper.replaceParameters(apiObject.RequestBody);
 
 		// execute query
 		String sql = apiObject.RequestBody;
@@ -143,7 +143,7 @@ public class sqlInterface {
 		resSet.next();
 
 		// saves response values to config object
-		sqlHelper.saveOutboundSQLParameters(resSet, apiObject.OutputParams);
+		SqlHelper.saveOutboundSQLParameters(resSet, apiObject.OutputParams);
 
 		// validate partial expected response if exists
 		validateExpectedResponse(apiObject.ExpectedResponse, resSet);
@@ -191,17 +191,17 @@ public class sqlInterface {
 		if (expected.isEmpty())
 			return;
 		// validate response body against expected string
-		expected = dataHelper.replaceParameters(expected);
+		expected = DataHelper.replaceParameters(expected);
 		TestLog.logPass("expected result: " + Helper.stringRemoveLines(expected));
 
 		// separate the expected response by &&
 		String[] criteria = expected.split("&&");
 		for (String criterion : criteria) {
-			if (sqlHelper.isValidJson(criterion)) {
-				sqlHelper.validateByJsonBody(criterion, resSet);
+			if (SqlHelper.isValidJson(criterion)) {
+				SqlHelper.validateByJsonBody(criterion, resSet);
 			} else {
-				List<KeyValue> keywords = dataHelper.getValidationMap(expected);
-				sqlHelper.validateSqlKeywords(keywords, resSet);
+				List<KeyValue> keywords = DataHelper.getValidationMap(expected);
+				SqlHelper.validateSqlKeywords(keywords, resSet);
 			}
 		}
 	}

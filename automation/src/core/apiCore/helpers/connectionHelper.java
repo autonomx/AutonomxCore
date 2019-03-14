@@ -7,7 +7,7 @@ import com.jcraft.jsch.Session;
 import core.support.configReader.Config;
 import core.support.logger.TestLog;
 
-public class connectionHelper {
+public class ConnectionHelper {
 
 	private static final String SSH_USER = "ssh.user";
 	private static final String SSH_PASSWORD = "ssh.password";

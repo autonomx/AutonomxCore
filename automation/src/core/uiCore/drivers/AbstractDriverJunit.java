@@ -16,7 +16,6 @@ import org.openqa.selenium.WebDriver;
 
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
-import com.aventstack.extentreports.gherkin.model.Scenario;
 import com.microsoft.appcenter.appium.EnhancedAndroidDriver;
 import com.microsoft.appcenter.appium.Factory;
 
@@ -66,7 +65,7 @@ public class AbstractDriverJunit {
 	public WebDriver setupWebDriver(DriverObject driverObject) throws Exception {
 
 		initTest(driverObject);
-		reportSetup();
+		ExtentManager.reportSetup();
 
 		// setup web driver if the test is not api
 		TestLog.ConsoleLog("driverObject.driverType: " + driverObject.driverType);
@@ -205,37 +204,6 @@ public class AbstractDriverJunit {
 			extent = ExtentManager.getReporter();
 			isBeforeTestRun = false;
 		}
-	}
-
-	public void reportSetup() {
-		synchronized (AbstractDriverJunit.class) {
-			// will run only once per test run
-			// initializes the test report html page
-			setupReportPage();
-
-			// will create parent once per class
-			// initializes the test instance
-			String className = TestObject.getTestInfo().getClassName();
-			if (!testList.containsKey(className)) {
-				String testParent = className.substring(className.lastIndexOf('.') + 1).trim();
-				testParent = parseTestName(testParent);
-				ExtentTest feature = extent.createTest(testParent);
-				testList.put(className, feature);
-			}
-
-			// will run once every test
-			// initializes test report
-			if (isBeforeTest()) {
-				String testChild = TestObject.getTestInfo().testName;
-				testChild = parseTestName(testChild);
-				ExtentTest scenario = testList.get(className).createNode(Scenario.class, testChild);
-				TestObject.getTestInfo().withTestScenario(scenario);
-			}
-		}
-		if (retry.getTest() != null)
-			TestObject.getTestInfo().withTestScenario(retry.getTest());
-
-		TestLog.Given(TestObject.getTestInfo().testName + " test initialized successfully");
 	}
 
 	/**

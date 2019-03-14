@@ -161,7 +161,7 @@ public class RetryTest implements TestRule {
 		} else {
 			logReport(ReportType.info, "run " + (testRun) + " failed ", null);
 			logReport(ReportType.debug, null, TestObject.getTestInfo().caughtThrowable);
-			Helper.captureScreenshot();
+			Helper.captureExtentReportScreenshot();
 			TestLog.ConsoleLogError("run " + (testRun) + " failed");
 			DriverObject.quitTestDrivers();
 

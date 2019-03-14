@@ -16,7 +16,7 @@ import core.support.logger.TestLog;
 import core.support.objects.KeyValue;
 import io.restassured.response.Response;
 
-public class sqlHelper {
+public class SqlHelper {
 
 	/**
 	 * replaces output parameter with response values eg. $token with id form
@@ -29,7 +29,7 @@ public class sqlHelper {
 		if (response == null || outputParam.isEmpty())
 			return;
 
-		jsonHelper.configMapJsonKeyValues(response, outputParam);
+		JsonHelper.configMapJsonKeyValues(response, outputParam);
 	}
 	
 	/** replaces output parameter with response values eg. $token with id form
@@ -59,9 +59,9 @@ public class sqlHelper {
 		keyValue = setRandomRowValue(resSet, keyValue);
 		
 		// replace parameters for outputParam
-		keyValue = dataHelper.replaceParameters(keyValue);
+		keyValue = DataHelper.replaceParameters(keyValue);
 		
-		List<KeyValue> keywords = dataHelper.getValidationMap(keyValue);
+		List<KeyValue> keywords = DataHelper.getValidationMap(keyValue);
 		for (KeyValue keyword : keywords) {
 			String key = keyword.value.replace("$", "").replace("<", "").replace(">", "").trim();
 			String value ="";
@@ -162,7 +162,7 @@ public class sqlHelper {
 			}
 			
 			// validate response
-			dataHelper.validateCommand(command, responseString, expectedValue);
+			DataHelper.validateCommand(command, responseString, expectedValue);
 		}
 	}
 
@@ -174,7 +174,7 @@ public class sqlHelper {
 	 * @throws SQLException
 	 */
 	public static void validateByJsonBody(String expectedJson, ResultSet resSet) throws SQLException {
-		if (sqlHelper.isValidJson(expectedJson)) {
+		if (SqlHelper.isValidJson(expectedJson)) {
 			TestLog.logPass("expected: " + Helper.stringRemoveLines(expectedJson));
 			String key = StringUtils.substringBefore(expectedJson, ":");
 			String json = StringUtils.substringAfter(expectedJson, ":");
@@ -196,6 +196,6 @@ public class sqlHelper {
 	 */
 	public static boolean isValidJson(String expected) {
 		String value = StringUtils.substringAfter(expected, ":");
-		return jsonHelper.isJSONValid(value);
+		return JsonHelper.isJSONValid(value);
 	}
 }

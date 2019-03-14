@@ -25,6 +25,8 @@ public interface EnhancedWebElement extends WebElement {
 	void sendKeys(CharSequence... keysToSend);
 
 	void sendKeys(int index, CharSequence... keysToSend);
+	
+	void sendKeysByAction(int index, CharSequence... keysToSend);
 
 	void scrollToView();
 

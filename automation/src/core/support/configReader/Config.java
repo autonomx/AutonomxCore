@@ -46,6 +46,7 @@ public class Config {
 			}
 		}
 	}
+	
 
 	/**
 	 * get all key values from property files in directory at path
@@ -104,8 +105,8 @@ public class Config {
 
 		String value = TestObject.getTestInfo().config.get(key);
 		if (value == null) {
-			// TODO: can cause null point exception on start. need investigation
-			 System.out.println("value not found, default empty: " + key);
+			// TODO: can cause stack over flow on startup
+			System.out.println("value not found, default empty: " + key);
 			// TestLog.ConsoleLogWarn("value not found, default empty: " + key);
 			value = "";
 		}

@@ -26,7 +26,7 @@ import org.xml.sax.InputSource;
 
 import core.support.logger.TestLog;
 
-public class xmlHelper {
+public class XmlHelper {
     /**
      * Convert a contents of a Document to a String
      * 
@@ -95,7 +95,7 @@ public class xmlHelper {
 				retry--;
 
 				String inputFileContents = new String(Files.readAllBytes(Paths.get(inputFilePath)));
-				inputFileContents = dataHelper.replaceParameters(inputFileContents);
+				inputFileContents = DataHelper.replaceParameters(inputFileContents);
 				DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 				DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 				doc = dBuilder.parse(new InputSource(new StringReader(inputFileContents)));

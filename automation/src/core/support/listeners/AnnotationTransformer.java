@@ -7,8 +7,8 @@ import org.testng.IAnnotationTransformer;
 import org.testng.IRetryAnalyzer;
 import org.testng.annotations.ITestAnnotation;
 
-import core.apiCore.dataProvider;
-import core.apiCore.helpers.csvReader;
+import core.apiCore.TestDataProvider;
+import core.apiCore.helpers.CsvReader;
 import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.objects.DriverObject;
@@ -55,10 +55,10 @@ public class AnnotationTransformer implements IAnnotationTransformer {
 		// set thread count for api test type
 		setApiThreadCount(annotation, testClass, testConstructor, testMethod);
 
-		int csvTestCount = csvReader.getCsvFileCount();
+		int csvTestCount = CsvReader.getCsvFileCount();
 
 		// set test run count to 1, for 1 csv file to run
-		if (!(Config.getValue(dataProvider.TEST_CASE_FILE).isEmpty())) {
+		if (!(Config.getValue(TestDataProvider.TEST_CASE_FILE).isEmpty())) {
 			csvTestCount = 1;
 		}
 		// set test loop to the number of csv files in the folder
@@ -84,14 +84,14 @@ public class AnnotationTransformer implements IAnnotationTransformer {
 		// if non optimized or sequential, set thread count to 1
 		if (testName.equals("parallelApiRunner")) {
 			annotation.setThreadPoolSize(Integer.valueOf(Config.getValue(THREAD_COUNT)));
-			dataProvider.TEST_DATA_PATH = Config.getValue(dataProvider.TEST_DATA_PARALLEL_PATH);
+			TestDataProvider.TEST_DATA_PATH = Config.getValue(TestDataProvider.TEST_DATA_PARALLEL_PATH);
 		} else if (testName.equals("NonOptimizedApiRunner")) {
 			annotation.setThreadPoolSize(1);
-			dataProvider.TEST_DATA_PATH = Config.getValue(dataProvider.TEST_DATA_NONE_OPTIMISED_PATH);
+			TestDataProvider.TEST_DATA_PATH = Config.getValue(TestDataProvider.TEST_DATA_NONE_OPTIMISED_PATH);
 
 		} else if (testName.equals("SequentialApiRunner")) {
 			annotation.setThreadPoolSize(1);
-			dataProvider.TEST_DATA_PATH = Config.getValue(dataProvider.TEST_DATA_SEQUENTIAL_PATH);
+			TestDataProvider.TEST_DATA_PATH = Config.getValue(TestDataProvider.TEST_DATA_SEQUENTIAL_PATH);
 		}
 	}
 }

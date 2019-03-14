@@ -12,7 +12,6 @@ import org.testng.annotations.Listeners;
 
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
-import com.aventstack.extentreports.gherkin.model.Scenario;
 
 import core.apiCore.driver.ApiTestDriver;
 import core.helpers.Helper;
@@ -51,12 +50,12 @@ public class AbstractDriverTestNG {
 		Logger log = Logger.getLogger("");
 		TestObject.getTestInfo().log = log;
 
-		reportSetup();
+		ExtentManager.reportSetup();
 	}
 
 	public synchronized static WebDriver setupWebDriver(DriverObject driverObject) throws Exception {
 		initTest(driverObject);
-		reportSetup();
+		ExtentManager.reportSetup();
 
 		// setup web driver if the test is not api
 		TestLog.ConsoleLogDebug("driverObject.driverType: " + driverObject.driverType);
@@ -176,62 +175,6 @@ public class AbstractDriverTestNG {
 	public String getClassName() {
 		String className = getClass().toString().substring(getClass().toString().lastIndexOf(".") + 1);
 		return className;
-	}
-
-	// TODO: set in test listener
-	public static void setupReportPage() {
-		// will run only once per test run
-		// initializes the test report html page
-		if (TestObject.getTestInfo().runCount == 0) {
-			extent = ExtentManager.getReporter();
-		}
-	}
-
-	public static void reportSetup() {
-		synchronized (AbstractDriverTestNG.class) {
-			// will run only once per test run
-			// initializes the test report html page
-			setupReportPage();
-
-			// will create parent once per class
-			// initializes the test instance
-			String className = TestObject.getTestInfo().getClassName();
-			if (!classList.containsKey(className)) {
-				String testParent = className.substring(className.lastIndexOf('.') + 1).trim();
-				testParent = parseTestName(testParent);
-				ExtentTest feature = extent.createTest(testParent);
-				classList.put(className, feature);
-				TestObject.getTestInfo().testFeature = feature;
-			}
-
-			// will run once every test
-			// initializes test report
-			if (TestObject.getTestInfo().runCount == 0) {
-				TestObject.getTestInfo().incremenetRunCount();
-				String testChild = TestObject.getTestInfo().testName;
-				testChild = parseTestName(testChild);
-				ExtentTest scenario = classList.get(className).createNode(Scenario.class, testChild);
-				TestObject.getTestInfo().withTestScenario(scenario);
-				TestLog.Background(TestObject.getTestInfo().testName + " initialized successfully");
-			}
-		}
-	}
-
-	/**
-	 * formats test name to format from: "loginTest" to "Login Test"
-	 * 
-	 * @param value
-	 * @return
-	 */
-	public static String parseTestName(String value) {
-		String formatted = "";
-		value = value.replace("_", " ");
-
-		for (String w : value.split("(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])")) {
-			w = w.substring(0, 1).toUpperCase() + w.substring(1).toLowerCase();
-			formatted = formatted + " " + w;
-		}
-		return formatted.trim();
 	}
 
 	public static WebDriver createDriver(DriverObject driverObject) throws Exception {

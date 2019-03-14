@@ -12,14 +12,14 @@ import java.util.stream.IntStream;
 import org.apache.commons.lang3.ArrayUtils;
 
 import au.com.bytecode.opencsv.CSVReader;
-import core.apiCore.dataProvider;
+import core.apiCore.TestDataProvider;
 import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.configReader.PropertiesReader;
 import core.support.objects.ApiObject;
 import core.support.objects.TestObject;
 
-public class csvReader {
+public class CsvReader {
 
 	/**
 	 * gets the tests from csv file based on the current test file index
@@ -31,11 +31,11 @@ public class csvReader {
 		int index = getCurrentTestInvocation();
 
 		// if single test case is specified, then only load that file
-		String testCaseFile = Config.getValue(dataProvider.TEST_CASE_FILE);
+		String testCaseFile = Config.getValue(TestDataProvider.TEST_CASE_FILE);
 		if (!testCaseFile.isEmpty())
 			index = getCsvFileIndex(testCaseFile);
 
-		String csvFileName = csvReader.getCsvFileFromIndex(index);
+		String csvFileName = CsvReader.getCsvFileFromIndex(index);
 
 		List<String[]> csvList = getCsvTestListForTestRunner(csvFileName);
 		for (int i = 0; i < csvList.size(); i++) {
@@ -45,7 +45,7 @@ public class csvReader {
 
 			// for single test case selection. Both test case file and test case have to be
 			// set
-			String testCase = Config.getValue(dataProvider.TEST_CASE);
+			String testCase = Config.getValue(TestDataProvider.TEST_CASE);
 			if (testCaseFile.isEmpty() || testCase.isEmpty())
 				testCases.add(csvRow);
 			else if (csvRow[1].equals(testCase)) {
@@ -92,9 +92,9 @@ public class csvReader {
 	 * gets all keywords and stores them in apiMap in testObject
 	 */
 	public synchronized static void getAllKeywords() {
-		String testFolderPath = Config.getValue(dataProvider.API_KEYWORD_PATH);
+		String testFolderPath = Config.getValue(TestDataProvider.API_KEYWORD_PATH);
 		String csvTestPath = PropertiesReader.getLocalRootPath() + testFolderPath;
-		csvReader.getAllTestCases(csvTestPath, ".csv");
+		CsvReader.getAllTestCases(csvTestPath, ".csv");
 	}
 
 	/**
@@ -110,7 +110,7 @@ public class csvReader {
 			String activeTest = TestObject.getTestInfo().testCsvFileName;
 			return getCsvFileIndex(activeTest);
 		}
-		return dataProvider.csvFileIndex.getAndIncrement();
+		return TestDataProvider.csvFileIndex.getAndIncrement();
 	}
 
 	/**
@@ -133,7 +133,7 @@ public class csvReader {
 	 * @return
 	 */
 	public static ArrayList<File> getCsvFileList() {
-		String csvTestPath = PropertiesReader.getLocalRootPath() + dataProvider.TEST_DATA_PATH;
+		String csvTestPath = PropertiesReader.getLocalRootPath() + TestDataProvider.TEST_DATA_PATH;
 		ArrayList<File> csvFiles = Helper.getFileList(csvTestPath, ".csv");
 		return csvFiles;
 	}

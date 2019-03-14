@@ -57,7 +57,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		// overwrite existing report
 		ExtentManager.clearTestReport();
-		
+
 		// delete old reports
 		ExtentManager.clearOldTestReports();
 	}
@@ -128,10 +128,10 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 				DriverObject.setDriverAvailabiltity(AbstractDriverTestNG.getWebDriver(), true);
 			}
 		}
-		
+
 		// mobile device is now available again
 		DeviceManager.setDeviceAvailability(true);
-		
+
 		// reset test object
 		TestObject.getTestInfo().resetTestObject();
 	}
@@ -146,7 +146,6 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		// print out console logs to console if batch logging is enabled
 		TestLog.printLogsToConsole();
 		// set forced restart to true, so new driver is created for next test
-		TestObject.getTestInfo().runCount = 0;
 		TestObject.getTestInfo().withIsForcedRestart(true);
 		TestObject.getTestInfo().isFirstRun = true;
 
@@ -224,7 +223,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		// setup before class driver
 		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
-		new AbstractDriverTestNG().setupWebDriver(classname + "-Beforeclass", driver);
+		new AbstractDriverTestNG().setupWebDriver(classname + TestObject.BEFORE_CLASS_PREFIX, driver);
 	}
 
 	@Override
@@ -234,7 +233,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		// setup after class driver
 		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
-		new AbstractDriverTestNG().setupWebDriver(classname + "-Afterclass", driver);
+		new AbstractDriverTestNG().setupWebDriver(classname + TestObject.AFTER_CLASS_PREFIX, driver);
 	}
 
 	@Override
@@ -269,9 +268,34 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		String suitename = suite.getName();
 		suitename = suitename.replaceAll("\\s", "");
 
+		// global identified for the app. if suite is default, then app_indentifier is
+		// used for test run id
+		TestObject.APP_IDENTIFIER = getTestPackage(suite);
+		TestObject.SUITE_NAME = suitename;
+
 		// setup before suite driver
 		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
-		new AbstractDriverTestNG().setupWebDriver(suitename + "-Beforesuite", driver);
+		new AbstractDriverTestNG().setupWebDriver(TestObject.SUITE_NAME + TestObject.BEFORE_SUITE_PREFIX, driver);
+	}
+
+	/**
+	 * gets package name excluding the first item before and after . eg.
+	 * Module.web.test.LoginTest becomes web.tests
+	 * 
+	 * @param suite
+	 * @return
+	 */
+	private String getTestPackage(ISuite suite) {
+		String testPackageName = "";
+		try {
+			testPackageName = suite.getAllMethods().get(0).getInstance().toString();
+			testPackageName = testPackageName.substring(testPackageName.indexOf(".") + 1);
+			int lastIndex = testPackageName.lastIndexOf('.');
+			testPackageName = testPackageName.substring(0, lastIndex);
+		} catch (Exception e) {
+			e.getMessage();
+		}
+		return testPackageName;
 	}
 
 	@Override
@@ -281,6 +305,6 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		// setup before suite driver
 		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
-		new AbstractDriverTestNG().setupWebDriver(suitename + "-Aftersuite", driver);
+		new AbstractDriverTestNG().setupWebDriver(suitename + TestObject.AFTER_SUITE_PREFIX, driver);
 	}
 }
