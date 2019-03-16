@@ -39,7 +39,7 @@ import core.support.logger.TestLog;
 import core.support.objects.ApiObject;
 import core.support.objects.TestObject;
 
-
+@SuppressWarnings("unused")
 public class ServiceBusInterface {
 
 	public enum SBEnv {

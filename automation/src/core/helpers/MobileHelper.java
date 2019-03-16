@@ -158,6 +158,7 @@ public class MobileHelper {
 	 * 
 	 * @param element
 	 */
+	@SuppressWarnings("unused")
 	@Deprecated
 	private void scrollToiOS(EnhancedBy element) {
 		if (isIOS()) {
@@ -177,6 +178,7 @@ public class MobileHelper {
 
 	// iOS scroll by object
 	@Deprecated
+	@SuppressWarnings("unused")
 	private boolean swipeToDirection_iOS_XCTest(EnhancedBy element, String direction) {
 		try {
 			EnhancedWebElement targetElement = Element.findElements(element);
@@ -206,6 +208,7 @@ public class MobileHelper {
 	 * @return
 	 */
 	@Deprecated 
+	@SuppressWarnings("unused")
 	private boolean scrollToDirection_iOS_XCTest(EnhancedBy element, String direction) {
 		// The main difference from swipe call with the same argument is that scroll
 		// will try to move
@@ -313,6 +316,7 @@ public class MobileHelper {
 	 * 
 	 * @param context
 	 */
+	@SuppressWarnings("unchecked")
 	public void setAppiumContexts(String context) {
 		TestLog.logPass("I set context to '" + context + "'");
 		Set<String> contextNames = getAppiumDriver().getContextHandles();

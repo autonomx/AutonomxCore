@@ -29,7 +29,7 @@ public class ServiceRunner {
 			SqlInterface.DataBaseInterface(apiObject);
 			break;
 		case AZURE_INTERFACE:
-			AzureInterface.AzureInterface(apiObject);
+			AzureInterface.AzureClientInterface(apiObject);
 			break;
 		case TEST_PREPARE_INTERFACE:
 			TestPrepare.TestPrepareInterface(apiObject);

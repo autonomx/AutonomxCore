@@ -159,11 +159,9 @@ public class XmlHelper {
      * @param xmlString
      * @return ArrayList
      */
-    public ArrayList getXPaths(String xmlString) {
+    public ArrayList<String> getXPaths(String xmlString) {
         
         ArrayList<String> xPathList = null;
-        
-      
         return xPathList;
     }
 	

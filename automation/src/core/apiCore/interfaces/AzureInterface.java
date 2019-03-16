@@ -35,7 +35,7 @@ public class AzureInterface {
 	 * @return
 	 * @throws Exception
 	 */
-	public static void AzureInterface(ApiObject apiObject) throws Exception {
+	public static void AzureClientInterface(ApiObject apiObject) throws Exception {
 		connectAzure();
 		switch (apiObject.Method) {
 		case UPLOAD_TO_FILE_SHARE:
