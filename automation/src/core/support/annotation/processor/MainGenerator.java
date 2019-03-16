@@ -18,8 +18,6 @@ import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import javax.tools.JavaFileObject;
-
 import com.google.auto.service.AutoService;
 
 import core.support.annotation.helper.PanelMapHelper;
@@ -31,15 +29,6 @@ import core.support.annotation.template.PanelManager;
 @AutoService(javax.annotation.processing.Processor.class)
 public class MainGenerator extends AbstractProcessor {
 	
-	JavaFileObject moduleManagerFileObject = null;
-	JavaFileObject moduleFileObject = null;
-
-	String ROOT_PATH = "moduleManager";
-	public static String MODULE_MANAGER_CLASS = "ModuleManager";
-	public static String PANEL_MANAGER_CLASS = "PanelManager";
-
-	public static String MODULE_CLASS = "ModuleBase";
-
 	private static boolean isAnnotationRun = false;
 	public static ProcessingEnvironment PROCESS_ENV;
 
