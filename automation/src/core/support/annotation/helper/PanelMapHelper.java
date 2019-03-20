@@ -1,5 +1,6 @@
 package core.support.annotation.helper;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -75,6 +76,30 @@ public class PanelMapHelper {
 			}
 		}
 		return map;
+	}
+	
+	/**
+	 * creates a map of modules with list of csv data files
+	 * @param files
+	 * @return
+	 */
+	public static Map<String, List<File>> getDataModuleMap(List<File> files){
+		
+		Map<String, List<File>> moduleMap = new HashMap<String, List<File>>();
+		
+		for(File file : files) {
+			List<File> dataFiles = new ArrayList<File>();
+			String module = PackageHelper.getModuleFromFullPath(file);	
+			
+			if( moduleMap.get(module) != null) {
+				dataFiles = moduleMap.get(module);
+				dataFiles.add(file);
+			}else {
+				dataFiles.add(file);
+			}
+			moduleMap.put(module, dataFiles);		
+		}
+		return moduleMap;
 	}
 
 }

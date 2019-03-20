@@ -1,10 +1,15 @@
 package core.support.annotation.helper;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.lang.model.element.Element;
+
+import core.helpers.Helper;
 
 public class PackageHelper {
 	
@@ -12,6 +17,8 @@ public class PackageHelper {
 	public static String PANEL_MANAGER_CLASS = "PanelManager";
 	public static String ROOT_PATH = "moduleManager";
 	public static String MODULE_CLASS = "ModuleBase";
+	public static String DATA_PATH = "data";
+
 
 	/**
 	 * gets module name. eg. module.android.LoginPanel with return android
@@ -62,6 +69,38 @@ public class PackageHelper {
 			break;
 		}
 		return sourceClass;
+	}
+	
+	/**
+	 * returns the module name from the file path
+	 * module is directory after "module" directory
+	 * @return
+	 */
+	public static String getModuleFromFullPath(File file) {
+		String[] directories = file.getAbsolutePath().split("/");
+		for(int i = 0; i< directories.length; i++) {
+			if(directories[i].equals("module"))
+				return directories[i+1];
+		}
+		Helper.assertFalse("module directory not found from: " + file.getAbsolutePath());
+		return "";
+	}
+	
+	/**
+	 * gets the list of modules that have csv data files
+	 * @param files
+	 * @return
+	 */
+	public static Set<String> getModuleList(List<File> files){
+		 // unique modules
+		 Set<String> modules = new TreeSet<>();
+
+		for(File file : files) {
+			String module = getModuleFromFullPath(file);
+			modules.add(module);
+		}
+		
+		return modules;
 	}
 
 }

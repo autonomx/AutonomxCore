@@ -1,10 +1,13 @@
 package core.support.annotation.helper;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 
 import javax.lang.model.element.Element;
 import javax.tools.JavaFileObject;
+
+import org.apache.commons.lang3.StringUtils;
 
 import core.support.annotation.processor.MainGenerator;
 
@@ -13,9 +16,16 @@ public class FileCreatorHelper {
 	
 	public static JavaFileObject moduleManagerFileObject = null;
 	public static JavaFileObject moduleFileObject = null;
+	public static JavaFileObject CSVDATA_CSV_File_Object = null;
+	public static JavaFileObject CSVDATA_DATA_File_Object = null;
+	public static JavaFileObject CSVDATA_MODULE_File_Object = null;
+
+
+	public static String MODULE_ROOT = "module";
+	public static String DATA_ROOT = "data";
 	
 	/**
-	 * test file to generate
+	 * test file to generate file creating is working
 	 */
 	public static void defaultCreateFile() {
 
@@ -68,11 +78,41 @@ public class FileCreatorHelper {
 		System.out.println("createFile: " + PackageHelper.getPackagePath(element) + "." + PackageHelper.PANEL_MANAGER_CLASS);
 		JavaFileObject fileObject = MainGenerator.PROCESS_ENV.getFiler()
 				.createSourceFile(PackageHelper.getPackagePath(element) + "." + PackageHelper.PANEL_MANAGER_CLASS);
-		// JavaFileObject fileObject = processingEnv.getFiler()
-		// .createSourceFile(getPackagePath(element) + "." + getModuleName(element) +
-		// "Panel");
+
 		return fileObject;
 	}
-
-
+	
+	/**
+	 * create csv data object files. eg. data.webApp.User.java
+	 * 
+	 * @param element
+	 * @return
+	 * @throws IOException
+	 */
+	public static JavaFileObject createFileAbsolutePath(String filePath) throws IOException {
+		CSVDATA_CSV_File_Object = MainGenerator.PROCESS_ENV.getFiler().createSourceFile(filePath);
+		return CSVDATA_CSV_File_Object;
+	}
+	
+	/**
+	 * create csv module object file. eg. data.webApp.webApp.java
+	 * @param module
+	 * @return
+	 * @throws IOException
+	 */
+	public static JavaFileObject createCsvModuleObjectFile(String module) throws IOException {
+		CSVDATA_CSV_File_Object = MainGenerator.PROCESS_ENV.getFiler().createSourceFile(PackageHelper.DATA_PATH + "." + module + "." + module);
+		return CSVDATA_CSV_File_Object;
+	}
+	
+	/**
+	 * create data file for csv data object. eg. data.data.java
+	 * @param file
+	 * @return
+	 * @throws IOException
+	 */
+	public static JavaFileObject createCSVDataObjectFile(File file) throws IOException {
+		CSVDATA_DATA_File_Object = MainGenerator.PROCESS_ENV.getFiler().createSourceFile(PackageHelper.DATA_PATH + "." + StringUtils.capitalize(DATA_ROOT) );
+		return CSVDATA_DATA_File_Object;
+	}
 }

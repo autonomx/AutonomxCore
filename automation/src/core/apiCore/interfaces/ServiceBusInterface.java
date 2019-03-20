@@ -303,7 +303,7 @@ public class ServiceBusInterface {
 			// contents of templateFile become the requestBody
 			if (requestBody.isEmpty()) {
 				//TODO: uncomment and fix
-			//	requestBody = DataHelper.convertTemplateToString(templateFilePath);
+			//	requestBody = DataObjectHelper.convertTemplateToString(templateFilePath);
 			} else {
 				// contents of requestBody replace values in templateFile
 				//TODO: uncomment and fix

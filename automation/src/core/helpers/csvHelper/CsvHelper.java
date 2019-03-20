@@ -51,6 +51,27 @@ public class CsvHelper {
 		}
 		return csvList;
 	}
+	
+	/**
+	 * gets all csv data in list of string arrays
+	 * 
+	 * @param csv
+	 *            - requires. csv.csvFile
+	 * @return
+	 * @throws Exception
+	 */
+	public static List<String[]> getAllCsvData(String filePath) {
+		List<String[]> csvList = new ArrayList<String[]>();
+		CSVReader readcsv;
+		try {
+			readcsv = new CSVReader(new FileReader(filePath));
+			csvList = readcsv.readAll();
+			readcsv.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return csvList;
+	}
 
 	/**
 	 * 

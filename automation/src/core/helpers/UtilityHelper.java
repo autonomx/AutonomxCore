@@ -381,6 +381,26 @@ public class UtilityHelper {
 		}
 		return testFiles;
 	}
+	
+	/**
+	 * gets list of files including from sub folder based on type. eg. ".csv"
+	 * @return 
+	 */
+	protected static List<File> getFileListWithSubfolders(String directoryName, String type, List<File> files) {
+	    File directory = new File(directoryName);
+
+	    // Get all files from a directory.
+	    File[] fList = directory.listFiles();
+	    if(fList != null)
+	        for (File file : fList) {      
+	            if (file.isFile() && file.getName().endsWith(type)) {
+	                files.add(file);
+	            } else if (file.isDirectory()) {
+	            	getFileListWithSubfolders(file.getAbsolutePath(), type, files);
+	            }
+	        }
+	    return files;
+	 }
 
 	/**
 	 * captures screenshot and attaches to extent test report

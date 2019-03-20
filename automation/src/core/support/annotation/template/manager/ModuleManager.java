@@ -1,4 +1,4 @@
-package core.support.annotation.template;
+package core.support.annotation.template.manager;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
