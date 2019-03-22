@@ -2,18 +2,18 @@ package core.apiCore.driver;
 
 import core.apiCore.helpers.CsvReader;
 import core.support.logger.TestLog;
-import core.support.objects.ApiObject;
+import core.support.objects.ServiceObject;
 import core.support.objects.TestObject;
 import core.support.objects.TestObject.testType;
 
 public class ApiTestDriver {
 	// public static ThreadLocal<Logger> log = new ThreadLocal<Logger>();
 
-	public static void setTestId(ApiObject apiObject) {
+	public static void setTestId(ServiceObject apiObject) {
 		String csvFileName = getTestClass(apiObject);
 
-		TestObject.setTestName(apiObject.TestCaseID);
-		TestObject.setTestId(csvFileName + "-" + apiObject.TestCaseID);
+		TestObject.setTestName(apiObject.getTestCaseID());
+		TestObject.setTestId(csvFileName + "-" + apiObject.getTestCaseID());
 	}
 
 	/**
@@ -23,8 +23,8 @@ public class ApiTestDriver {
 	 * @param apiObject
 	 * @return
 	 */
-	public static String getTestClass(ApiObject apiObject) {
-		String testClass = apiObject.tcName;
+	public static String getTestClass(ServiceObject apiObject) {
+		String testClass = apiObject.getTcName();
 		testClass = testClass.split("\\.")[0];
 		testClass = testClass.replace("TestCases_", "");
 		return testClass;
@@ -38,7 +38,7 @@ public class ApiTestDriver {
 	 * 
 	 * @param driverObject
 	 */
-	public void initTest(ApiObject apiObject) {
+	public void initTest(ServiceObject apiObject) {
 		String APP = "ServiceRunner";
 
 		setTestId(apiObject);
@@ -62,16 +62,16 @@ public class ApiTestDriver {
 
 		TestObject.getTestInfo().type = testType.apiTest;
 		TestObject.getTestInfo().app = APP;
-		TestObject.getTestInfo().testCsvFileName = apiObject.tcName;
+		TestObject.getTestInfo().testCsvFileName = apiObject.getTcName();
 
 		TestObject.getTestInfo().className = getTestClass(apiObject);
 
-		TestObject.getTestInfo().testName = apiObject.TestCaseID;
-		TestObject.getTestInfo().currentTestIndex = Integer.valueOf(apiObject.tcIndex);
+		TestObject.getTestInfo().testName = apiObject.getTestCaseID();
+		TestObject.getTestInfo().currentTestIndex = Integer.valueOf(apiObject.getTcIndex());
 
 		// initialize per test run
 		if (TestObject.getTestInfo().testCountInCsvFile == 0)
-			TestObject.getTestInfo().testCountInCsvFile = CsvReader.getCsvTestListForTestRunner(apiObject.tcName)
+			TestObject.getTestInfo().testCountInCsvFile = CsvReader.getCsvTestListForTestRunner(apiObject.getTcName())
 					.size();
 	}
 

@@ -19,8 +19,8 @@ import core.support.configReader.Config;
 import core.support.listeners.RetryTest;
 import core.support.logger.ExtentManager;
 import core.support.logger.TestLog;
-import core.support.objects.ApiObject;
 import core.support.objects.DriverObject;
+import core.support.objects.ServiceObject;
 import core.support.objects.TestObject;
 import core.uiCore.WebDriverSetup;
 import core.uiCore.driverProperties.driverType.DriverType;
@@ -43,7 +43,7 @@ public class AbstractDriverTestNG {
 
 	}
 
-	public synchronized void setupApiDriver(ApiObject apiObject) throws Exception {
+	public synchronized void setupApiDriver(ServiceObject apiObject) throws Exception {
 		new ApiTestDriver().initTest(apiObject);
 
 		// initiallize logging

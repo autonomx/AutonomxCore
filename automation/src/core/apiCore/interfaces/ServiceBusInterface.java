@@ -36,7 +36,7 @@ import core.helpers.Helper;
 import core.helpers.StopWatchHelper;
 import core.support.configReader.Config;
 import core.support.logger.TestLog;
-import core.support.objects.ApiObject;
+import core.support.objects.ServiceObject;
 import core.support.objects.TestObject;
 
 @SuppressWarnings("unused")
@@ -226,27 +226,27 @@ public class ServiceBusInterface {
 	 * @param partialExpStr
 	 * @param notExpStr
 	 */
-	public static void testServiceBus(ApiObject apiObject) {
+	public static void testServiceBus(ServiceObject apiObject) {
 
-		serviceBus serviceBus = getInstance(apiObject.Option);
+		serviceBus serviceBus = getInstance(apiObject.getOption());
 
 		// replace parameters
-		apiObject.RequestBody = DataHelper.replaceParameters(apiObject.RequestBody);
-		apiObject.ExpectedResponse = DataHelper.replaceParameters(apiObject.ExpectedResponse);
+		apiObject.withRequestBody(DataHelper.replaceParameters(apiObject.getRequestBody()));
+		apiObject.withExpectedResponse( DataHelper.replaceParameters(apiObject.getExpectedResponse()));
 
 		// Get request body using template and/or requestBody data column
-		apiObject.RequestBody = getRequestBodyFromTemplate(apiObject.RequestBody, apiObject.TemplateFile, apiObject.ContentType);
-		apiObject.RequestBody = DataHelper.replaceParameters(apiObject.RequestBody);
+		apiObject.withRequestBody(getRequestBodyFromTemplate(apiObject.getRequestBody(), apiObject.getTemplateFile(), apiObject.getContentType()));
+		apiObject.withRequestBody(DataHelper.replaceParameters(apiObject.getRequestBody()));
 
 		// get unique identifier for request body to match outbound message
-		String msgID = generateMessageId(apiObject.RequestBody);
+		String msgID = generateMessageId(apiObject.getRequestBody());
 
 		// send the message through service bus
-		sendMessage(apiObject.RequestBody, serviceBus, msgID);
+		sendMessage(apiObject.getRequestBody(), serviceBus, msgID);
 
 		// receives and verifies the outbound message against the expected results
-		boolean isTestPass = receiveAndVerifyOutboundMessage(serviceBus, msgID, apiObject.Option, apiObject.RequestBody, apiObject.OutputParams,
-				 apiObject.ExpectedResponse);	
+		boolean isTestPass = receiveAndVerifyOutboundMessage(serviceBus, msgID, apiObject.getOption(), apiObject.getRequestBody(), apiObject.getOutputParams(),
+				 apiObject.getExpectedResponse());	
 		if(msgID.isEmpty())
 			Helper.assertTrue("correct messages not received. SB Verification test, please investigate previous test for proper outbound message", isTestPass);
 		Helper.assertTrue("correct messages not received", isTestPass);

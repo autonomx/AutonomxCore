@@ -95,7 +95,7 @@ public class TestObject{
 
 	public List<LogObject> testLog = new ArrayList<LogObject>();
 	public Map<String, String> languageMap = new ConcurrentHashMap<String, String>();
-	public Map<String, ApiObject> apiMap = new ConcurrentHashMap<String, ApiObject>();// api keywords
+	public Map<String, ServiceObject> apiMap = new ConcurrentHashMap<String, ServiceObject>();// api keywords
 	public Map<String, String> config = new ConcurrentHashMap<String, String>();
 
 	public static ThreadLocal<String> currentTestName = new ThreadLocal<String>();
@@ -403,7 +403,7 @@ public class TestObject{
 	 * @param key
 	 * @return
 	 */
-	public static ApiObject getApiDef(String key) {
+	public static ServiceObject getApiDef(String key) {
 		CsvReader.getAllKeywords();
 		return TestObject.getTestInfo().apiMap.get(key);
 	}

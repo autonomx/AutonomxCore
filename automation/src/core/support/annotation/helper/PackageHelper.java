@@ -18,6 +18,7 @@ public class PackageHelper {
 	public static String ROOT_PATH = "moduleManager";
 	public static String MODULE_CLASS = "ModuleBase";
 	public static String DATA_PATH = "data";
+	public static String SERVICE_PATH = "serviceManager";
 
 
 	/**

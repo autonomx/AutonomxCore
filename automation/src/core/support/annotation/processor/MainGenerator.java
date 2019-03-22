@@ -26,6 +26,8 @@ import core.support.annotation.template.dataObject.DataClass;
 import core.support.annotation.template.dataObject.ModuleClass;
 import core.support.annotation.template.manager.ModuleManager;
 import core.support.annotation.template.manager.PanelManager;
+import core.support.annotation.template.service.Service;
+import core.support.annotation.template.service.ServiceData;
 
 @SupportedAnnotationTypes(value = { "core.support.annotation.Panel" })
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
@@ -56,6 +58,10 @@ public class MainGenerator extends AbstractProcessor {
 				CsvDataObject.writeCsvDataClass();
 				ModuleClass.writeModuleClass();
 				DataClass.writeDataClass();
+				
+				// generate service keywords
+				ServiceData.writeServiceDataClass();
+				Service.writeServiceClass();
 				
 			} catch (Exception e) {
 				e.printStackTrace();

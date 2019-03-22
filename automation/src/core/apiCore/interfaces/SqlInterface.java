@@ -15,8 +15,8 @@ import core.helpers.Helper;
 import core.helpers.StopWatchHelper;
 import core.support.configReader.Config;
 import core.support.logger.TestLog;
-import core.support.objects.ApiObject;
 import core.support.objects.KeyValue;
+import core.support.objects.ServiceObject;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 
 
@@ -48,7 +48,7 @@ public class SqlInterface {
 	 * @return
 	 * @throws Exception
 	 */
-	public static void DataBaseInterface(ApiObject apiObject) throws Exception {
+	public static void DataBaseInterface(ServiceObject apiObject) throws Exception {
 		// connect to db
 		connectDb();
 		// evaluate the sql query
@@ -103,13 +103,13 @@ public class SqlInterface {
 	 * @return
 	 * @throws Exception
 	 */
-	public static ResultSet evaluateDbQuery(ApiObject apiObject) throws Exception {
+	public static ResultSet evaluateDbQuery(ServiceObject apiObject) throws Exception {
 
 		// replace parameters for request body
-		apiObject.RequestBody = DataHelper.replaceParameters(apiObject.RequestBody);
+		apiObject.withRequestBody(DataHelper.replaceParameters(apiObject.getRequestBody()));
 
 		// execute query
-		String sql = apiObject.RequestBody;
+		String sql = apiObject.getRequestBody();
 		TestLog.logPass("sql statement: " + sql);
 
 		PreparedStatement sqlStmt = conn.prepareStatement(sql,ResultSet.TYPE_SCROLL_INSENSITIVE, 
@@ -128,10 +128,10 @@ public class SqlInterface {
 	 * @param resSet
 	 * @throws Exception 
 	 */
-	public static void evaluateReponse(ApiObject apiObject, ResultSet resSet) throws Exception {
+	public static void evaluateReponse(ServiceObject apiObject, ResultSet resSet) throws Exception {
 
 		// return if expected response is empty
-		if (apiObject.ExpectedResponse.isEmpty() && apiObject.OutputParams.isEmpty())
+		if (apiObject.getExpectedResponse().isEmpty() && apiObject.getOutputParams().isEmpty())
 			return;
 
 		// fail test if no results returned
@@ -143,10 +143,10 @@ public class SqlInterface {
 		resSet.next();
 
 		// saves response values to config object
-		SqlHelper.saveOutboundSQLParameters(resSet, apiObject.OutputParams);
+		SqlHelper.saveOutboundSQLParameters(resSet, apiObject.getOutputParams());
 
 		// validate partial expected response if exists
-		validateExpectedResponse(apiObject.ExpectedResponse, resSet);
+		validateExpectedResponse(apiObject.getExpectedResponse(), resSet);
 
 		// Clean-up environment
 		resSet.close();
@@ -161,7 +161,7 @@ public class SqlInterface {
 	 * @return
 	 * @throws SQLException
 	 */
-	public static ResultSet executeAndWaitForDbResponse(PreparedStatement sqlStmt, ApiObject apiObject)
+	public static ResultSet executeAndWaitForDbResponse(PreparedStatement sqlStmt, ServiceObject apiObject)
 			throws SQLException {
 		int timeout = CrossPlatformProperties.getGlobalTimeout();
 		ResultSet resSet;
@@ -173,7 +173,7 @@ public class SqlInterface {
 			resSet = sqlStmt.getResultSet();
 
 			// if no response expected, do not wait for response
-			if (apiObject.ExpectedResponse.isEmpty())
+			if (apiObject.getExpectedResponse().isEmpty())
 				return resSet;
 
 			if (resSet.isBeforeFirst()) {

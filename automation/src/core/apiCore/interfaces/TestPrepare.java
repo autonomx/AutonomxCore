@@ -1,7 +1,7 @@
 package core.apiCore.interfaces;
 
 import core.helpers.Helper;
-import core.support.objects.ApiObject;
+import core.support.objects.ServiceObject;
 
 public class TestPrepare {
 	private static final String WAIT_FOR_SECONDS = "waitForSeconds";
@@ -20,8 +20,8 @@ public class TestPrepare {
 	 * @return
 	 * @throws Exception
 	 */
-	public static void TestPrepareInterface(ApiObject apiObject) throws Exception {
-		switch (apiObject.Method) {
+	public static void TestPrepareInterface(ServiceObject apiObject) throws Exception {
+		switch (apiObject.getMethod()) {
 		case WAIT_FOR_SECONDS:
 			waitForSeconds(apiObject);
 			break;
@@ -31,8 +31,8 @@ public class TestPrepare {
 		}
 	}
 
-	public static void waitForSeconds(ApiObject apiObject) throws Exception {
-		int seconds = Integer.valueOf(apiObject.Option);
+	public static void waitForSeconds(ServiceObject apiObject) throws Exception {
+		int seconds = Integer.valueOf(apiObject.getOption());
 		Helper.wait.waitForSeconds(seconds);
 	}
 

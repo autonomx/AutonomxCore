@@ -7,7 +7,7 @@ import core.apiCore.helpers.JsonHelper;
 import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.logger.TestLog;
-import core.support.objects.ApiObject;
+import core.support.objects.ServiceObject;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
@@ -30,12 +30,12 @@ public class RestApiInterface {
 	 * @param apiObject
 	 * @return
 	 */
-	public static Response RestfullApiInterface(ApiObject apiObject) {
+	public static Response RestfullApiInterface(ServiceObject apiObject) {
 		
 		if(apiObject == null) Helper.assertFalse("apiobject is null");
 		
 		// replace parameters for request body
-		apiObject.RequestBody = DataHelper.replaceParameters(apiObject.RequestBody);
+		apiObject.withRequestBody(DataHelper.replaceParameters(apiObject.getRequestBody()));
 
 		// set base uri
 		setURI(apiObject);
@@ -52,54 +52,54 @@ public class RestApiInterface {
 	/**
 	 * sets base uri for api call
 	 */
-	public static void setURI(ApiObject apiObject) {
+	public static void setURI(ServiceObject apiObject) {
 
 		// replace place holder values for uri
-		apiObject.UriPath = DataHelper.replaceParameters(apiObject.UriPath);
-		apiObject.UriPath = Helper.stringRemoveLines(apiObject.UriPath);
+		apiObject.withUriPath(DataHelper.replaceParameters(apiObject.getUriPath()));
+		apiObject.withUriPath(Helper.stringRemoveLines(apiObject.getUriPath()));
 		// if uri is full path, then set base uri as whats provided in csv file
 		// else use baseURI from properties as base uri and extend it with csv file uri
 		// path
-		if (apiObject.UriPath.startsWith("http")) {
-			RestAssured.baseURI = apiObject.UriPath;
-			apiObject.UriPath = "";
+		if (apiObject.getUriPath().startsWith("http")) {
+			RestAssured.baseURI = apiObject.getUriPath();
+			apiObject.withUriPath("");
 
 		} else {
 			RestAssured.baseURI = Helper.stringRemoveLines(Config.getValue("api.uriPath"));
-			TestLog.logPass("request URI: " + RestAssured.baseURI + apiObject.UriPath);
+			TestLog.logPass("request URI: " + RestAssured.baseURI + apiObject.getUriPath());
 		}
 	}
 
-	public static void validateResponse(Response response, ApiObject apiObject) {
+	public static void validateResponse(Response response, ServiceObject apiObject) {
 
 		// fail test if no response is returned
 		if (response == null)
 			Helper.assertTrue("no response returned", false);
 
 		// validate status code
-		if (!apiObject.RespCodeExp.isEmpty()) {
-			TestLog.logPass("expected status code: " + apiObject.RespCodeExp + " response status code: "
+		if (!apiObject.getOutputParams().isEmpty()) {
+			TestLog.logPass("expected status code: " + apiObject.getOutputParams() + " response status code: "
 					+ response.getStatusCode());
-			response.then().statusCode(Integer.valueOf(apiObject.RespCodeExp));
+			response.then().statusCode(Integer.valueOf(apiObject.getOutputParams()));
 		}
 
 		// saves response values to config object
-		JsonHelper.saveOutboundJsonParameters(response, apiObject.OutputParams);
+		JsonHelper.saveOutboundJsonParameters(response, apiObject.getOutputParams());
 
 		validateExpectedValues(response, apiObject);
 	}
 
-	public static void validateExpectedValues(Response response, ApiObject apiObject) {
+	public static void validateExpectedValues(Response response, ServiceObject apiObject) {
 		// get response body as string
 		String body = response.getBody().asString();
 		TestLog.logPass("response: " + body);
 
 		// validate response body against expected json string
-		if (!apiObject.ExpectedResponse.isEmpty()) {
-			apiObject.ExpectedResponse = DataHelper.replaceParameters(apiObject.ExpectedResponse);
+		if (!apiObject.getExpectedResponse().isEmpty()) {
+			apiObject.withExpectedResponse(DataHelper.replaceParameters(apiObject.getExpectedResponse()));
 
 			// separate the expected response by &&
-			String[] criteria = apiObject.ExpectedResponse.split("&&");
+			String[] criteria = apiObject.getExpectedResponse().split("&&");
 			for (String criterion : criteria) {
 				Helper.assertTrue("expected is not valid format: " + criterion, JsonHelper.isValidExpectation(criterion));
 				JsonHelper.validateByJsonBody(criterion, response);
@@ -114,26 +114,26 @@ public class RestApiInterface {
 	 * @param apiObject
 	 * @return
 	 */
-	public static RequestSpecification evaluateRequestHeaders(ApiObject apiObject) {
+	public static RequestSpecification evaluateRequestHeaders(ServiceObject apiObject) {
 		// set request
 		RequestSpecification request = null;
 
 		// if no RequestHeaders specified
-		if (apiObject.RequestHeaders.isEmpty()) {
+		if (apiObject.getRequestHeaders().isEmpty()) {
 			return given();
 		}
 
 		// replace parameters for request body
-		apiObject.RequestHeaders = DataHelper.replaceParameters(apiObject.RequestHeaders);
+		apiObject.withRequestHeaders( DataHelper.replaceParameters(apiObject.getRequestHeaders()));
 
 		// if Authorization is set
-		if (apiObject.RequestHeaders.contains("Authorization:")) {
-			String token = apiObject.RequestHeaders.replace("Authorization:", "");
+		if (apiObject.getRequestHeaders().contains("Authorization:")) {
+			String token = apiObject.getRequestHeaders().replace("Authorization:", "");
 			request = given().header("Authorization", token);
 		}
 
 		// if additional request headers
-		switch (apiObject.RequestHeaders) {
+		switch (apiObject.getRequestHeaders()) {
 		case "INVALID_TOKEN":
 			request = given().header("Authorization", "invalid");
 			break;
@@ -147,17 +147,17 @@ public class RestApiInterface {
 		return request;
 	}
 	
-	public static RequestSpecification evaluateRequestBody(ApiObject apiObject, RequestSpecification request) {
-		if(apiObject.RequestBody.isEmpty()) return request;
+	public static RequestSpecification evaluateRequestBody(ServiceObject apiObject, RequestSpecification request) {
+		if(apiObject.getRequestBody().isEmpty()) return request;
 		
 		// set content type
-		request = request.contentType(apiObject.ContentType);
+		request = request.contentType(apiObject.getContentType());
 		
 		// set form data
-		if(apiObject.ContentType.contains("form")) {
+		if(apiObject.getContentType().contains("form")) {
 			request = request.config(RestAssured.config().encoderConfig(io.restassured.config.EncoderConfig.encoderConfig().encodeContentTypeAs("multipart/form-data", ContentType.TEXT)));
 			
-			String[] formData = apiObject.RequestBody.split(",");
+			String[] formData = apiObject.getRequestBody().split(",");
 			for(String data : formData) {
 				String[] keyValue = data.split(":");
 				request = request.formParam(keyValue[0], keyValue[1]);
@@ -166,7 +166,7 @@ public class RestApiInterface {
 		}
 		
 		// if json data type
-		return request.body(apiObject.RequestBody);
+		return request.body(apiObject.getRequestBody());
 	}
 	
 	
@@ -177,18 +177,18 @@ public class RestApiInterface {
 	 * @param apiObject
 	 * @return
 	 */
-	public static RequestSpecification evaluateOption(ApiObject apiObject, RequestSpecification request) {
+	public static RequestSpecification evaluateOption(ServiceObject apiObject, RequestSpecification request) {
 
 		// if no option specified
-		if (apiObject.Option.isEmpty()) {
+		if (apiObject.getOption().isEmpty()) {
 			return request;
 		}
 
 		// replace parameters for request body
-		apiObject.Option = DataHelper.replaceParameters(apiObject.Option);
+		apiObject.withOption(DataHelper.replaceParameters(apiObject.getOption()));
 
 		// if additional options
-		switch (apiObject.Option) {
+		switch (apiObject.getOption()) {
 		default:
 			break;
 		}
@@ -196,7 +196,7 @@ public class RestApiInterface {
 		return request;
 	}
 
-	public static Response evaluateRequest(ApiObject apiObject) {
+	public static Response evaluateRequest(ServiceObject apiObject) {
 		Response response = null;
 		
 		// set request header
@@ -208,31 +208,31 @@ public class RestApiInterface {
 		// set options
 	    request = evaluateOption(apiObject, request);
 
-		TestLog.logPass("request body: " + Helper.stringRemoveLines(apiObject.RequestBody));
-		TestLog.logPass("request type: " + apiObject.Method);
+		TestLog.logPass("request body: " + Helper.stringRemoveLines(apiObject.getRequestBody()));
+		TestLog.logPass("request type: " + apiObject.getMethod());
 
 
-		switch (apiObject.Method) {
+		switch (apiObject.getMethod()) {
 		case "POST":
-			response = request.when().post(apiObject.UriPath);
+			response = request.when().post(apiObject.getUriPath());
 			break;
 		case "PUT":
-			response = request.when().put(apiObject.UriPath);
+			response = request.when().put(apiObject.getUriPath());
 			break;
 		case "PATCH":
-			response = request.when().patch(apiObject.UriPath);
+			response = request.when().patch(apiObject.getUriPath());
 			break;
 		case "DELETE":
-			response = request.when().delete(apiObject.UriPath);
+			response = request.when().delete(apiObject.getUriPath());
 			break;
 		case "GET":
-			response = request.when().get(apiObject.UriPath);
+			response = request.when().get(apiObject.getUriPath());
 			break;
 		case "OPTIONS":
-			response = request.when().options(apiObject.UriPath);
+			response = request.when().options(apiObject.getUriPath());
 			break;
 		case "HEAD":
-			response = request.when().head(apiObject.UriPath);
+			response = request.when().head(apiObject.getUriPath());
 			break;
 		default:
 			Helper.assertTrue("request type not found", false);
