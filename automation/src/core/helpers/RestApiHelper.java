@@ -15,7 +15,7 @@ public class RestApiHelper {
 	/**
 	 * runApiContaining("name", "zzz_","getCompanies",
 	 * "id","companyId","deleteCompany") get all companies with name containing
-	 * zzz_, then gets id of these companies, stores them in companyId variable and
+	 * zzz_, Then gets id of these companies, stores them in companyId variable And
 	 * calls deleteCompany
 	 * 
 	 * @param getApi:
@@ -57,7 +57,7 @@ public class RestApiHelper {
 	/**
 	 * runApiEquals("name", "test123","getCompanies",
 	 * "id","companyId","deleteCompany") get all companies with name equals test123,
-	 * then gets id of these companies and calls delete with id
+	 * Then gets id of these companies And calls delete with id
 	 * 
 	 * @param getApi:
 	 *            api to search for identifier. eg. name equals "test123"

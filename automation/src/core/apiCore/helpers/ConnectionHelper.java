@@ -21,7 +21,7 @@ public class ConnectionHelper {
 	/**
 	 * ssh connection
 	 * supports port forwarding as well
-	 * if host is empty, then return
+	 * if host is empty, Then return
 	 * if rhost is empty, return for port forwarding
 	 */
 	public static void sshConnect() {

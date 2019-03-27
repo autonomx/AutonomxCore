@@ -142,7 +142,7 @@ public class AbstractDriverTestNG {
 	}
 
 	/**
-	 * generates new testId from classname and test name if already generated, then
+	 * generates new testId from classname And test name if already generated, Then
 	 * return existing
 	 * 
 	 * @return
@@ -232,12 +232,12 @@ public class AbstractDriverTestNG {
 				"                1. In properties set:\r\n" + 
 				"                    1. useExternalAppiumServer = true\r\n" + 
 				"                    2. appiumExternalPort = 4723\r\n" + 
-				"                2. run test and see if it passes\r\n" + 
+				"                2. run test And see if it passes\r\n" + 
 				"    5. is simulator working correctly: Run\r\n" + 
 				"        1. adb uninstall io.appium.uiautomator2.server\r\n" + 
 				"        2. adb uninstall io.appium.uiautomator2.server.test \r\n" + 
 				"    6. Try running against appium desktop server\r\n" + 
-				"        1. Download and run appium desktop\r\n" + 
+				"        1. Download And run appium desktop\r\n" + 
 				"        2. Start the server\r\n" + 
 				"        3. In properties at resource folder, set values\r\n" + 
 				"            1. useExternalAppiumServer = true\r\n" + 

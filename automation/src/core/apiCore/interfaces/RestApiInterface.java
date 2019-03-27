@@ -40,7 +40,7 @@ public class RestApiInterface {
 		// set base uri
 		setURI(apiObject);
 
-		// send request and receive a response
+		// send request And receive a response
 		Response response = evaluateRequest(apiObject);
 
 		// validate the response
@@ -57,8 +57,8 @@ public class RestApiInterface {
 		// replace place holder values for uri
 		apiObject.withUriPath(DataHelper.replaceParameters(apiObject.getUriPath()));
 		apiObject.withUriPath(Helper.stringRemoveLines(apiObject.getUriPath()));
-		// if uri is full path, then set base uri as whats provided in csv file
-		// else use baseURI from properties as base uri and extend it with csv file uri
+		// if uri is full path, Then set base uri as whats provided in csv file
+		// else use baseURI from properties as base uri And extend it with csv file uri
 		// path
 		if (apiObject.getUriPath().startsWith("http")) {
 			RestAssured.baseURI = apiObject.getUriPath();
@@ -77,10 +77,10 @@ public class RestApiInterface {
 			Helper.assertTrue("no response returned", false);
 
 		// validate status code
-		if (!apiObject.getOutputParams().isEmpty()) {
-			TestLog.logPass("expected status code: " + apiObject.getOutputParams() + " response status code: "
+		if (!apiObject.getRespCodeExp().isEmpty()) {
+			TestLog.logPass("expected status code: " + apiObject.getRespCodeExp() + " response status code: "
 					+ response.getStatusCode());
-			response.then().statusCode(Integer.valueOf(apiObject.getOutputParams()));
+			response.then().statusCode(Integer.valueOf(apiObject.getRespCodeExp()));
 		}
 
 		// saves response values to config object
@@ -109,7 +109,7 @@ public class RestApiInterface {
 	}
 	
 	/**
-	 * sets the header, content type and body based on specifications
+	 * sets the header, content type And body based on specifications
 	 * 
 	 * @param apiObject
 	 * @return
@@ -172,7 +172,7 @@ public class RestApiInterface {
 	
 
 	/**
-	 * sets the header, content type and body based on specifications
+	 * sets the header, content type And body based on specifications
 	 * 
 	 * @param apiObject
 	 * @return

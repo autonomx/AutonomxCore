@@ -219,8 +219,8 @@ public class TestObject{
 
 	/**
 	 * testInfo is a static list containing hashmap of test objects with test name
-	 * as key if testObject is empty for testId, then default test is initialized
-	 * and used
+	 * as key if testObject is empty for testId, Then default test is initialized
+	 * And used
 	 * 
 	 * @return
 	 */
@@ -341,10 +341,10 @@ public class TestObject{
 
 	/**
 	 * resets test object after a test is complete with csv files, test is complete
-	 * when all tests in csv files have finished for api csv tests, we're reseting
+	 * When all tests in csv files have finished for api csv tests, we're reseting
 	 * the test count per csv file.
 	 * 
-	 * called on test failure and test success
+	 * called on test failure And test success
 	 * @return
 	 */
 	public void resetTestObject() {
@@ -462,7 +462,7 @@ public class TestObject{
 
 	/**
 	 * * testname is grabbed from test id test id is in format of "class - testname"
-	 * if is before class and no testname exists, empty string is returned
+	 * if is before class And no testname exists, empty string is returned
 	 * 
 	 * @return
 	 */

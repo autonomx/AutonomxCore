@@ -33,7 +33,7 @@ public class ModuleManager {
 		Date currentDate = new Date();
 		bw.append("/**Auto generated code,don't modify it.\n");
 		bw.append("* Author             ---- > Auto Generated.\n");
-		bw.append("* Date  and Time     ---- > " + currentDate.toString() + "\n");
+		bw.append("* Date  And Time     ---- > " + currentDate.toString() + "\n");
 		bw.append("* Source             -----> " + fileObject.getName() + "\n");
 		bw.append("*");
 		bw.append("**/\n\n\n\n");

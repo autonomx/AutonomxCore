@@ -37,7 +37,7 @@ public class FormHelper {
 			Helper.wait.waitForElementToLoad(field);
 			// fieldElement.click(index);
 
-			// clear field is slow on android and ios
+			// clear field is slow on android And ios
 			fieldElement.clear(index);
 			Helper.wait.waitForSeconds(0.5);
 			fieldElement.sendKeys(index, value);
@@ -74,7 +74,7 @@ public class FormHelper {
 		if (value != null && value.length != 0) {
 			EnhancedWebElement parentElement = Element.findElements(parent);
 			EnhancedWebElement childElement = Element.findElements(child, parentElement.get(parentIndex));
-			// clear field is slow on android and ios
+			// clear field is slow on android And ios
 			childElement.clear(childIndex);
 			childElement.sendKeys(childIndex, value);
 
@@ -84,7 +84,7 @@ public class FormHelper {
 	}
 
 	/**
-	 * sets field and presses the enter key
+	 * sets field And presses the enter key
 	 * 
 	 * @param field
 	 * @param value
@@ -115,7 +115,7 @@ public class FormHelper {
 	}
 
 	/**
-	 * select submit button and wait for expected element to load
+	 * select submit button And wait for expected element to load
 	 * 
 	 * @param button
 	 * @param expected
@@ -128,7 +128,7 @@ public class FormHelper {
 	}
 
 	/**
-	 * clicks submit button, wait for element to appear and loading spinner to be
+	 * clicks submit button, wait for element to appear And loading spinner to be
 	 * removed
 	 * 
 	 * @param button

@@ -115,7 +115,7 @@ public class SqlInterface {
 		PreparedStatement sqlStmt = conn.prepareStatement(sql,ResultSet.TYPE_SCROLL_INSENSITIVE, 
                 ResultSet.CONCUR_UPDATABLE);
 
-		// execute and wait for response if expected values are set
+		// execute And wait for response if expected values are set
 		ResultSet resSet = executeAndWaitForDbResponse(sqlStmt, apiObject);
 
 		return resSet;
@@ -153,7 +153,7 @@ public class SqlInterface {
 	}
 
 	/**
-	 * executes and waits for response calls the query in each loop does not wait if
+	 * executes And waits for response calls the query in each loop does not wait if
 	 * expected or partial expected response are empty
 	 * 
 	 * @param sqlStmt

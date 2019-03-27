@@ -20,7 +20,10 @@ public class ServiceRunner {
 
 		// setup api driver
 		new AbstractDriverTestNG().setupApiDriver(apiObject);
-
+		runInterface(apiObject);
+	}
+	
+	public static void runInterface(ServiceObject apiObject) throws Exception {
 		switch (apiObject.getInterfaceType()) {
 		case RESTFULL_API_INTERFACE:
 			RestApiInterface.RestfullApiInterface(apiObject);

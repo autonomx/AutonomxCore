@@ -30,7 +30,7 @@ public class CsvReader {
 		List<Object[]> testCases = new ArrayList<>();
 		int index = getCurrentTestInvocation();
 
-		// if single test case is specified, then only load that file
+		// if single test case is specified, Then only load that file
 		String testCaseFile = Config.getValue(TestDataProvider.TEST_CASE_FILE);
 		if (!testCaseFile.isEmpty())
 			index = getCsvFileIndex(testCaseFile);
@@ -39,11 +39,11 @@ public class CsvReader {
 
 		List<String[]> csvList = getCsvTestListForTestRunner(csvFileName);
 		for (int i = 0; i < csvList.size(); i++) {
-			// add testname and test index
+			// add testname And test index
 			String[] obj = { csvFileName, String.valueOf(i) };
 			String[] csvRow = (String[]) ArrayUtils.addAll(csvList.get(i), obj);
 
-			// for single test case selection. Both test case file and test case have to be
+			// for single test case selection. Both test case file And test case have to be
 			// set
 			String testCase = Config.getValue(TestDataProvider.TEST_CASE);
 			if (testCaseFile.isEmpty() || testCase.isEmpty())
@@ -89,7 +89,7 @@ public class CsvReader {
 	}
 
 	/**
-	 * gets all keywords and stores them in apiMap in testObject
+	 * gets all keywords And stores them in apiMap in testObject
 	 */
 	public synchronized static void getAllKeywords() {
 		String testFolderPath = Config.getValue(TestDataProvider.API_KEYWORD_PATH);
@@ -98,7 +98,7 @@ public class CsvReader {
 	}
 
 	/**
-	 * gets csv file index does not increment when retry
+	 * gets csv file index does not increment When retry
 	 * 
 	 * @return
 	 */
@@ -181,7 +181,7 @@ public class CsvReader {
 			int runFlag = getColumnIndexByName("RunFlag", header);
 			int testCaseID = getColumnIndexByName("TestCaseID", header);
 
-			// only add tests that have runFlag set to Y and testCaseID is set
+			// only add tests that have runFlag set to Y And testCaseID is set
 			String[] line;
 			while ((line = reader.readNext()) != null) {
 				if (line[runFlag].equals("Y") && !line[testCaseID].isEmpty()) {

@@ -217,7 +217,7 @@ public class JsonHelper {
 		expectedJson = Helper.stringNormalize(expectedJson);
 		if (!JsonHelper.isJSONValid(expectedJson)) {
 			if (expectedJson.startsWith("_VERIFY_JSON_PART_")) {
-				// get hashmap of json path and verification
+				// get hashmap of json path And verification
 				List<KeyValue> keywords = DataHelper.getValidationMap(expectedJson);
 				// validate based on keywords
 				JsonHelper.validateJsonKeywords(keywords, response);

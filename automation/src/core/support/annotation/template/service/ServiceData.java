@@ -123,7 +123,7 @@ public class GetToken {
 		Date currentDate = new Date();
 		bw.append("/**Auto generated code,don't modify it.\n");
 		bw.append("* Author             ---- > Auto Generated.\n");
-		bw.append("* Date  and Time     ---- > " + currentDate.toString() + "\n");
+		bw.append("* Date  And Time     ---- > " + currentDate.toString() + "\n");
 		bw.append("*");
 		bw.append("**/\n\n\n\n");
 		bw.append("package " + SERVICE_ROOT + ";\n");
@@ -173,7 +173,7 @@ public class GetToken {
 		bw.append("{"+ "\n");
 		bw.append("    ServiceObject serviceObject = getServiceObject();" + "\n");
 		bw.append("    try {" + "\n");
-		bw.append("    		ServiceRunner.TestRunner(serviceObject);" + "\n");
+		bw.append("    		ServiceRunner.runInterface(serviceObject);" + "\n");
 		bw.append("    	   } catch (Exception e) {" + "\n");
 		bw.append("    		e.printStackTrace();" + "\n");
 		bw.append("	   }"+ "\n");

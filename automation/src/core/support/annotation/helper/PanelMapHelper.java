@@ -27,7 +27,7 @@ public class PanelMapHelper {
 	}
 
 	/**
-	 * get initialized map, and fill in elements list with panel elements
+	 * get initialized map, And fill in elements list with panel elements
 	 * 
 	 * @param roundEnv
 	 * @return
@@ -59,7 +59,7 @@ public class PanelMapHelper {
 	}
 
 	/**
-	 * creates a map of modules, but does not add the elements
+	 * creates a map of modules, But does not add the elements
 	 * 
 	 * @param roundEnv
 	 * @return

@@ -140,7 +140,7 @@ public class PageHelper {
 	}
 
 	/**
-	 * close the window and return to the defaultWindow
+	 * close the window And return to the defaultWindow
 	 * 
 	 * @param defaultWindow
 	 */

@@ -8,8 +8,8 @@ import core.uiCore.drivers.AbstractDriver;
 public class LoginHelper {
 
 	/**
-	 * if single signin enabled, and new test user is different form previous,
-	 * shutdown webdriver and restart
+	 * if single signin enabled, And new test user is different form previous,
+	 * shutdown webdriver And restart
 	 * 
 	 * @param newUserName
 	 * @throws Exception

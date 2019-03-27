@@ -19,7 +19,7 @@ public class MavenReader {
 	}
 
 	/**
-	 * gets the value of the properties file based on key value, and sets default
+	 * gets the value of the properties file based on key value, And sets default
 	 * value if value is missing
 	 * 
 	 * @param key

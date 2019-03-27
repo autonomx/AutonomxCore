@@ -152,7 +152,7 @@ public class SqlHelper {
 				expectedValue = "";
 			}
 			
-			// if no position specified, then set row to 1, else row = position
+			// if no position specified, Then set row to 1, else row = position
 			if(position.isEmpty()) {
 				responseString = getAllValuesInColumn(resSet, keyword.key);
 			}
@@ -188,7 +188,7 @@ public class SqlHelper {
 	}
 
 	/**
-	 * is valid json based on key:value string splits the string by ":" then
+	 * is valid json based on key:value string splits the string by ":" Then
 	 * validates if "value" is valid json
 	 * 
 	 * @param expected

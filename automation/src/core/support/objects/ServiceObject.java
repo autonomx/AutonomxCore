@@ -2,25 +2,25 @@ package core.support.objects;
 
 public class ServiceObject {
 
-	private String TestSuite;
-	private String TestCaseID;
-	private String RunFlag;
-	private String Description;
-	private String InterfaceType;
-	private String UriPath;
-	private String ContentType;
-	private String Method;
-	private String Option;
-	private String RequestHeaders;
-	private String TemplateFile;
-	private String RequestBody;
-	private String OutputParams;
-	private String RespCodeExp;
-	private String ExpectedResponse;
-	private String TcComments;
-	private String tcName;
-	private String tcIndex;
-	private String tcClass;
+	private String TestSuite = "";
+	private String TestCaseID = "";
+	private String RunFlag = "";
+	private String Description = "";
+	private String InterfaceType = "";
+	private String UriPath = "";
+	private String ContentType = "";
+	private String Method = "";
+	private String Option = "";
+	private String RequestHeaders = "";
+	private String TemplateFile = "";
+	private String RequestBody = "";
+	private String OutputParams = "";
+	private String RespCodeExp = "";
+	private String ExpectedResponse = "";
+	private String TcComments = "";
+	private String tcName = "";
+	private String tcIndex = "";
+	private String tcClass = "";
 
 	public ServiceObject setApiObject(String TestSuite, String TestCaseID, String RunFlag, String Description,
 			String InterfaceType, String UriPath, String ContentType, String Method, String Option,
@@ -49,6 +49,8 @@ public class ServiceObject {
 		return this;
 	}
 	
+// getters setters
+//-----------------------------------------------------------------------------------------------------------------------	
 	public ServiceObject withTestSuite(String testSuite){
 		this.TestSuite = testSuite;
 		return this;
@@ -219,7 +221,7 @@ public class ServiceObject {
 	public String getTcClass(){
 		return this.tcClass;
 	}
-	
+//-----------------------------------------------------------------------------------------------------------------------	
 	public static String replaceQuotes(String value) {
 		return value.replaceAll("[\\u2018\\u2019]", "'").replaceAll("[\\u201C\\u201D]", "\"");
 	}

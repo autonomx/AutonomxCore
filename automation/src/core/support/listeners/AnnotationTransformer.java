@@ -28,7 +28,7 @@ public class AnnotationTransformer implements IAnnotationTransformer {
 			annotation.setRetryAnalyzer(RetryTest.class);
 		}
 
-		// sets thread count and invocation count for api test runner
+		// sets thread count And invocation count for api test runner
 		setupApiRunner(annotation, testClass, testConstructor, testMethod);
 
 		// fail test if invocation count is 0, meaning the test will not run
@@ -38,7 +38,7 @@ public class AnnotationTransformer implements IAnnotationTransformer {
 	}
 
 	/**
-	 * sets thread count and invocation count for api test runner
+	 * sets thread count And invocation count for api test runner
 	 * 
 	 * @param annotation
 	 * @param testClass

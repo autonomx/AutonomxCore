@@ -106,7 +106,7 @@ public class WebDriverSetup {
 
 		BrowserType browserType = driverObject.browserType;
 
-		// set browser version to empty when latest to download the latest version
+		// set browser version to empty When latest to download the latest version
 		if (driverObject.driverVersion != null && driverObject.driverVersion.equals(LATEST_BROWSER_VERSION))
 			driverObject.driverVersion = null;
 

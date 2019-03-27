@@ -91,7 +91,7 @@ public class RetryTest implements IRetryAnalyzer {
 
 	/**
 	 * 
-	 * if the max retry has not been reached, log the failure and quite the browser
+	 * if the max retry has not been reached, log the failure And quite the browser
 	 */
 	public void processTestResult() {
 		logReport(ReportType.info, "run " + (TestObject.getTestInfo().runCount) + " failed ", null);
@@ -161,8 +161,8 @@ public class RetryTest implements IRetryAnalyzer {
 	}
 
 	/**
-	 * error handling when test fails if any of the defined errors specified by
-	 * PageErrors exists, then the test will be retried
+	 * error handling When test fails if any of the defined errors specified by
+	 * PageErrors exists, Then the test will be retried
 	 * 
 	 * @param t
 	 */
