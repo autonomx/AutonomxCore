@@ -69,6 +69,15 @@ public class Helper {
 	public static List<String[]> csv_getAllCsvData(String filePath) throws Exception {
 		return CsvHelper.getAllCsvData(filePath);
 	}
+	
+	/**
+	 * gets all csv data files skipping first row as header
+	 * @param filePath
+	 * @return
+	 */
+	public static List<String[]> csv_getAllCsvDataFirstRowAsHeader(String filePath) {
+		return CsvHelper.getAllCsvDataFirstRowAsHeader(filePath);
+	}
 
 	/**
 	 * 
