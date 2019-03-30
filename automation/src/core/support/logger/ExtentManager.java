@@ -137,7 +137,8 @@ public class ExtentManager {
 	public static void reportSetup() {
 
 		// Only setup report for test method. Ignores before suite, after suite, before class, after class
-		testState state = TestObject.getTestState(TestObject.getTestInfo().testId);
+		String testId = TestObject.getTestInfo().testId;
+		testState state = TestObject.getTestState(testId);
 		if (!state.equals(testState.testMethod))
 			return;
 

@@ -15,6 +15,7 @@ import core.helpers.Helper;
 import core.support.annotation.helper.DataObjectHelper;
 import core.support.annotation.helper.FileCreatorHelper;
 import core.support.annotation.helper.PackageHelper;
+import core.support.objects.TestObject;
 
 public class CsvDataObject {
 	
@@ -106,9 +107,9 @@ public class User {
 		bw.append("package " + DATA_ROOT +"." + module + ";\n");
 		bw.newLine();
 		bw.newLine();
-		bw.append("import org.apache.commons.lang3.StringUtils;");
-		bw.append("import java.util.Iterator;");
-		bw.append("import org.testng.annotations.DataProvider;");
+		bw.append("import org.apache.commons.lang3.StringUtils;"+ "\n");
+		bw.append("import core.support.objects.TestObject;" + "\n");
+		bw.append("import org.testng.annotations.DataProvider;"+ "\n");
 		bw.newLine();
 		bw.newLine();
 		
@@ -196,6 +197,8 @@ public class User {
 //		}
 		bw.append("@DataProvider(name = \"DataRunner\")" +"\n");
 		bw.append("public synchronized Object[][] dataProvider() {"+"\n");
+		bw.append("TestObject.setTestId(\"sample\");");
+		
 		bw.append("    return new Object[][] {	" +"\n");
 		for(int rowIndex = 1; rowIndex < csvDataOnly.size(); rowIndex++) {
 		    List<String> rowList = Arrays.asList(csvDataOnly.get(rowIndex)); 
