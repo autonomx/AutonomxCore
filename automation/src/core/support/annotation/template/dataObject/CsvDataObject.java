@@ -15,7 +15,6 @@ import core.helpers.Helper;
 import core.support.annotation.helper.DataObjectHelper;
 import core.support.annotation.helper.FileCreatorHelper;
 import core.support.annotation.helper.PackageHelper;
-import core.support.objects.TestObject;
 
 public class CsvDataObject {
 	

@@ -2,17 +2,20 @@ package core.support.annotation.template.dataObject;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.lang.model.element.Element;
 import javax.tools.JavaFileObject;
 
+import core.support.annotation.helper.DataMapHelper;
 import core.support.annotation.helper.DataObjectHelper;
 import core.support.annotation.helper.FileCreatorHelper;
 import core.support.annotation.helper.PackageHelper;
-import core.support.annotation.helper.PanelMapHelper;
 
 public class ModuleClass {
 	
@@ -21,13 +24,13 @@ public class ModuleClass {
 	public static String DATA_ROOT = "data";
 
 	
-	  public static void writeModuleClass() throws Exception {
+	  public static void writeModuleClass(Map<String, List<Element>> dataObjectMap) throws Exception {
 		  List<File> files = DataObjectHelper.getAllCsvDataFiles(); 
 
 		  // return if no data files
 		  if(files.isEmpty()) return;
 		  
-		 writeModuleClasses(files);
+		 writeModuleClasses(files, dataObjectMap);
 	  }
 	
 	/**
@@ -35,14 +38,30 @@ public class ModuleClass {
 	 * @param files
 	 * @throws Exception
 	 */
-	public static void writeModuleClasses(List<File> files) throws Exception {
+	public static void writeModuleClasses(List<File> files, Map<String, List<Element>> dataObjectMap) throws Exception {
 		
-		Map<String, List<File>> moduleMap = PanelMapHelper.getDataModuleMap(files);
+		Map<String, List<File>> moduleMap = DataMapHelper.getDataModuleMap(files);
 		
-		for (Entry<String, List<File>> entry : moduleMap.entrySet()) {
+		// convert both maps (csv, data object) to common map type for processing
+		Map<String, List<String>> simpleModuleMap = convertCsvModuleMap(moduleMap);
+		Map<String, List<String>> simpleDataObjectMap = convertDataObjectModuleMap(dataObjectMap);
+		
+		// combine both maps
+		Map<String, List<String>> combinedMap = DataMapHelper.mergeMaps(simpleModuleMap, simpleDataObjectMap);
+		
+		for (Entry<String, List<String>> entry : combinedMap.entrySet()) {
 			writeModuleClass(entry);
 		}
 	}
+	
+	
+	/**
+	 * 	// import data module package
+		for (Entry<String, List<Element>> entry : dataObjectMap.entrySet()) {
+			Element firstElement = entry.getValue().get(0);
+			bw.append("import "+ PackageHelper.getPackagePath(firstElement) + ";" + "\n");
+		}
+	 */
 
 	/**
 	 * 
@@ -60,7 +79,7 @@ public class ModuleClass {
 	 * @param file
 	 * @throws Exception
 	 */
-	public static void writeModuleClass(Entry<String, List<File>> entry) throws Exception {
+	public static void writeModuleClass(Entry<String, List<String>> entry) throws Exception {
 		
 		String module = entry.getKey();
 
@@ -80,18 +99,29 @@ public class ModuleClass {
 		bw.newLine();
 		bw.newLine();
 		
+		// import data object classes. csv files do not need imports
+		for(String filename : entry.getValue()) {
+			if(PackageHelper.hasPackagePath(filename)) {
+				bw.append("import " + filename + ";" + "\n" );	
+			}
+		}
+		bw.newLine();
+		bw.newLine();
+		
 		bw.append("public class " + module + " {" + "\n");
 		bw.newLine();
 		bw.newLine();
 		
+		
+		
 //		public User user() {
 //			return new User();
 //		}
-		for(File file : entry.getValue()) {
-			String csvName =  file.getName().replaceFirst("[.][^.]+$", "");
-
-			bw.append("public " + csvName + " " +  csvName.toLowerCase() +"() {" + "\n" );
-			bw.append("    return new " + csvName + "();" + "\n");
+		for(String filename : entry.getValue()) {
+			filename = PackageHelper.getClassName(filename);
+			
+			bw.append("public " + filename + " " +  filename.toLowerCase() +"() {" + "\n" );
+			bw.append("    return new " + filename + "();" + "\n");
 			bw.append("}");
 			bw.newLine();
 			bw.newLine();
@@ -105,5 +135,49 @@ public class ModuleClass {
 		bw.flush();
 		bw.close();	
 		
+	}
+	
+	
+	
+	/**
+	 * converts csv module map from key:String value: files to key:String ,  value: file names
+	 * @param moduleMap
+	 * @return
+	 */
+	private static Map<String, List<String>> convertCsvModuleMap(Map<String, List<File>> moduleMap) {
+		Map<String, List<String>> map = new HashMap<String, List<String>>();
+		List<String> classes = new ArrayList<String>();
+		
+		for (Entry<String, List<File>> entry : moduleMap.entrySet()) {
+			classes = new ArrayList<String>();
+			
+			for(File file : entry.getValue()) {
+				String csvName =  file.getName().replaceFirst("[.][^.]+$", "");
+				classes.add(csvName);
+			}
+			map.put(entry.getKey(), classes);
+		}	
+		return map;
+	}
+	
+	/**
+	 * converts data object module map from key:String, value: element to key:String , value: file names
+	 * @param moduleMap
+	 * @return
+	 */
+	private static Map<String, List<String>> convertDataObjectModuleMap(Map<String, List<Element>> moduleMap) {
+		Map<String, List<String>> map = new HashMap<String, List<String>>();
+		List<String> classes = new ArrayList<String>();
+		
+		for (Entry<String, List<Element>> entry : moduleMap.entrySet()) {
+			classes = new ArrayList<String>();
+			
+			for(Element element : entry.getValue()) {
+				String classname = element.asType().toString();
+				classes.add(classname);
+			}
+			map.put(entry.getKey(), classes);
+		}	
+		return map;
 	}
 }
