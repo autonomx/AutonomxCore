@@ -107,7 +107,6 @@ public class User {
 		bw.newLine();
 		bw.newLine();
 		bw.append("import org.apache.commons.lang3.StringUtils;"+ "\n");
-		bw.append("import core.support.objects.TestObject;" + "\n");
 		bw.append("import org.testng.annotations.DataProvider;"+ "\n");
 		bw.newLine();
 		bw.newLine();

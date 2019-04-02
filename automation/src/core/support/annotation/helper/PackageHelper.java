@@ -88,6 +88,8 @@ public class PackageHelper {
 	/**
 	 * returns the module name from the file path
 	 * module is directory after "module" directory
+	 * eg. module.webapp.data.user.csv will return webapp
+	 * outside module: data.user.csv will return data
 	 * @return
 	 */
 	public static String getModuleFromFullPath(File file) {
@@ -96,8 +98,9 @@ public class PackageHelper {
 			if(directories[i].equals("module"))
 				return directories[i+1];
 		}
-		Helper.assertFalse("module directory not found from: " + file.getAbsolutePath());
-		return "";
+		
+		// by default return data. this is applicable for data files outside modules
+		return "data";
 	}
 	
 	/**

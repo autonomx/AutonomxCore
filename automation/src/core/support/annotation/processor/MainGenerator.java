@@ -38,7 +38,7 @@ public class MainGenerator extends AbstractProcessor {
 
 	private static boolean isAnnotationRun = false;
 	public static ProcessingEnvironment PROCESS_ENV;
-	public static boolean IS_DEBUG = false;
+	public static boolean IS_DEBUG = true;
 	
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
