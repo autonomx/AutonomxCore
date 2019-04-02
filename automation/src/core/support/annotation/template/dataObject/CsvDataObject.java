@@ -116,11 +116,15 @@ public class User {
 		bw.newLine();
 		bw.newLine();
 
-		
+		// if id column exists, start with index 1, else start with index 0
+		int firstIndex = 0;
+		if(hasIdColumn) 
+			firstIndex = 1;
+
 		// first row are columns names
 		// private String username;
 		// first column is id
-		for(int i = 1; i<csvDataWithHeader.get(0).length; i++) {
+		for(int i = firstIndex; i<csvDataWithHeader.get(0).length; i++) {
 			String column = csvDataWithHeader.get(0)[i];
 			bw.append("private String " + column + " = StringUtils.EMPTY;\n" );
 		}
@@ -134,7 +138,7 @@ public class User {
 //			return this;
 //		}
 		// first column is id
-		for(int i = 1; i<csvDataWithHeader.get(0).length; i++) {
+		for(int i = firstIndex; i<csvDataWithHeader.get(0).length; i++) {
 			String column = csvDataWithHeader.get(0)[i];
 			bw.append("public " + csvName + " with" + StringUtils.capitalize(column) + "(String " +column + ") {\n" );
 			bw.append("    this." + column + " = " + column + ";" + "\n");
@@ -149,7 +153,7 @@ public class User {
 //			return username;
 //		}
 		// first column is id
-		for(int i = 1; i<csvDataWithHeader.get(0).length; i++) {
+		for(int i = firstIndex; i<csvDataWithHeader.get(0).length; i++) {
 			String column = csvDataWithHeader.get(0)[i];
 			bw.append("public String get" + StringUtils.capitalize(column) + "() {" + "\n");
 			bw.append("    return " + column + ";" + "\n");
@@ -169,7 +173,7 @@ public class User {
 			String key = csvDataWithHeader.get(rowIndex)[0];
 			bw.append("public " + csvName + " " + key +  "() {" + "\n");
 			bw.append("    " + csvName + " " + csvName.toLowerCase() + " = new " + csvName + "()" + "\n");
-			for(int columnIndex = 1; columnIndex < csvDataWithHeader.get(0).length; columnIndex++ ) {
+			for(int columnIndex = firstIndex; columnIndex < csvDataWithHeader.get(0).length; columnIndex++ ) {
 				String column = StringUtils.capitalize(csvDataWithHeader.get(0)[columnIndex]);
 				String value = csvDataWithHeader.get(rowIndex)[columnIndex];
 				// replace keyword values . <_@Rand4>. same as service level tests
@@ -196,10 +200,9 @@ public class User {
 //		}
 		bw.append("@DataProvider(name = \"DataRunner\")" +"\n");
 		bw.append("public synchronized Object[][] dataProvider() {"+"\n");
-		bw.append("TestObject.setTestId(\"sample\");");
 		
 		bw.append("    return new Object[][] {	" +"\n");
-		for(int rowIndex = 1; rowIndex < csvDataOnly.size(); rowIndex++) {
+		for(int rowIndex = 0; rowIndex < csvDataOnly.size(); rowIndex++) {
 		    List<String> rowList = Arrays.asList(csvDataOnly.get(rowIndex)); 
 		    
 			String step1 = StringUtils.join(rowList, "\", \"");// Join with ", "
@@ -209,6 +212,9 @@ public class User {
 		    if(hasIdColumn) 
 		    	rowString = removeFirstColumn(rowString);
 		    
+		    // replace parameters
+		    rowString = DataHelper.replaceParameters(rowString); 
+
 			bw.append(" 	{ " + rowString + " }" );
 			
 			// add comma at the end of each row

@@ -38,7 +38,8 @@ public class MainGenerator extends AbstractProcessor {
 
 	private static boolean isAnnotationRun = false;
 	public static ProcessingEnvironment PROCESS_ENV;
-
+	public static boolean IS_DEBUG = false;
+	
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 
@@ -56,8 +57,8 @@ public class MainGenerator extends AbstractProcessor {
 			Map<String, List<Element>> dataObjectMap = DataMapHelper.getDataObjectMap(roundEnv);
 			
 			for (Entry<String, List<Element>> entry : dataObjectMap.entrySet()) {
-				System.out.println("data object map: key " + entry.getKey());
-				System.out.println("data object map: value " + entry.getValue().get(0));
+				debug("data object map: key " + entry.getKey());
+				debug("data object map: value " + entry.getValue().get(0));
 
 			}
 
@@ -82,5 +83,11 @@ public class MainGenerator extends AbstractProcessor {
 		}
 
 		return true;
+	}
+	
+	// enable debug
+	public static void debug(String value) {
+		if(IS_DEBUG)
+			System.out.println(value);
 	}
 }

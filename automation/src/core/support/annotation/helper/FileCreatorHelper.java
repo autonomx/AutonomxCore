@@ -75,7 +75,7 @@ public class FileCreatorHelper {
 	 * @throws IOException
 	 */
 	public static synchronized JavaFileObject createFile(Element element) throws IOException {
-		System.out.println("createFile: " + PackageHelper.getPackagePath(element) + "." + PackageHelper.PANEL_MANAGER_CLASS);
+		MainGenerator.debug("createFile: " + PackageHelper.getPackagePath(element) + "." + PackageHelper.PANEL_MANAGER_CLASS);
 		JavaFileObject fileObject = MainGenerator.PROCESS_ENV.getFiler()
 				.createSourceFile(PackageHelper.getPackagePath(element) + "." + PackageHelper.PANEL_MANAGER_CLASS);
 
