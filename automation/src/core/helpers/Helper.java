@@ -13,6 +13,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.html5.Location;
 
+import core.helpers.click.ClickHelper;
 import core.helpers.csvHelper.CsvHelper;
 import core.helpers.csvHelper.CsvObject;
 import core.helpers.emailHelper.EmailObject;
