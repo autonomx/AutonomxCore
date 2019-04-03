@@ -133,7 +133,7 @@ public class TestObject{
 			// inherits test object values from parent. eg.beforeClass from test suite. test method from before class
 			test = inheritParent(driver, testId);		
 			
-			test.withTestId(testId).withTestName(test.getTestName()).withTestStartTime(getTimeMiliseconds())
+			test.withTestId(testId).withTestName(test.getTestName()).withTestStartTime(Helper.date.getTimestampMiliseconds())
 					.withApp(driver.app).withRandomStringIdentifier();
 			TestObject.testInfo.put(testId, test);
 			// loads all property values into config map
@@ -345,10 +345,6 @@ public class TestObject{
 	public static boolean isBeforeTest(String testId) {
 		TestObject test = testInfo.get(testId);
 		return (test == null);
-	}
-
-	public static String getTimeMiliseconds() {
-		return new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date());
 	}
 
 	/**

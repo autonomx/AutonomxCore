@@ -1,5 +1,7 @@
 package core.helpers;
 
+import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
 import java.util.ArrayList;
 
 import org.openqa.selenium.Alert;
@@ -318,4 +320,18 @@ public class PageHelper {
 		AbstractDriver.getWebDriver().get(url);
 		Helper.waitForPageToLoad();
 	}
+	
+	 /**
+     * retrieves the clip board data
+     * @return
+     */
+    public String getClipboardData(){
+        String myText = "";
+        try {
+            myText = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return myText;
+    } 
 }

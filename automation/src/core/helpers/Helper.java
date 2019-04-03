@@ -33,6 +33,7 @@ public class Helper {
 	public static PageHelper page = new PageHelper();
 	public static FormHelper form = new FormHelper();
 	public static ImageProcessingHelper image = new ImageProcessingHelper();
+	public static DateHelper date = new DateHelper();
 
 
 	// CsvHelper
@@ -1570,6 +1571,14 @@ public class Helper {
 	public static void swtichUrl(String url) {
 		page.swtichUrl(url);
 	}
+	
+	 /**
+     * retrieves the clip board data
+     * @return
+     */
+    public String getClipboardData(){
+    	return page.getClipboardData();
+    }
 
 	/**
 	 * gets specified attribute of the element
