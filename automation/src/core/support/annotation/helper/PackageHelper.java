@@ -11,8 +11,6 @@ import java.util.TreeSet;
 
 import javax.lang.model.element.Element;
 
-import core.helpers.Helper;
-
 public class PackageHelper {
 	
 	public static String MODULE_MANAGER_CLASS = "ModuleManager";

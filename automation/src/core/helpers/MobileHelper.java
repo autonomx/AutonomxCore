@@ -456,16 +456,17 @@ public class MobileHelper {
 
 		switch (inOut) {
 		case "out":
-			touchAction0.press(PointOption.point(screenWidth / 2 - 100, screenHeight / 2 + 100))
-					.moveTo(PointOption.point(50, -50)).release();
-			touchAction1.press(PointOption.point(screenWidth / 2 + 100, (screenHeight / 2) - 100))
-					.moveTo(PointOption.point(-50, 50)).release();
+			touchAction0.press(PointOption.point(screenWidth / 2 + 100, screenHeight / 2 + 100))
+					.moveTo(PointOption.point(screenWidth / 2 + 95, screenWidth / 2 + 95)).release();
+			touchAction1.press(PointOption.point(screenWidth / 2 - 100, (screenHeight / 2) - 100))
+					.moveTo(PointOption.point(screenWidth / 2 - 95, screenWidth / 2 - 95)).release();
 			break;
 		case "in":
-			touchAction0.press(PointOption.point(screenWidth / 2, screenHeight / 2)).moveTo(PointOption.point(50, -50))
+			touchAction0.press(PointOption.point(screenWidth / 2 -5, screenHeight / 2 -5))
+			.moveTo(PointOption.point(screenWidth / 2 - 10, screenWidth / 2 - 10))
 					.release();
-			touchAction1.press(PointOption.point(screenWidth / 2, (screenHeight / 2) + 100))
-					.moveTo(PointOption.point(-50, 50)).release();
+			touchAction1.press(PointOption.point(screenWidth / 2 + 5, (screenHeight / 2) + 5))
+					.moveTo(PointOption.point(screenWidth / 2 + 10, screenWidth / 2 + 10)).release();
 			break;
 		default:
 			break;
