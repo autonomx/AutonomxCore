@@ -4,8 +4,12 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeSet;
 
+import javax.lang.model.element.Element;
 import javax.tools.JavaFileObject;
 
 import org.apache.commons.lang3.StringUtils;
@@ -20,15 +24,20 @@ public class DataClass {
 	public static String MODULE_ROOT = "module";
 	public static String DATA_ROOT = "data";	
 	
-	  public static void writeDataClass() throws Exception {
+	  public static void writeDataClass(Map<String, List<Element>> dataObjectMap) throws Exception {
 		  List<File> files = DataObjectHelper.getAllCsvDataFiles(); 
-		  Set<String> modules = PackageHelper.getModuleList(files); 
-
-		  // return if no data files
-		  if(files.isEmpty()) return;
+		 
+		  // get the list of modules
+		  Set<String> csvModules = PackageHelper.getModuleList(files); 
+		  Set<String> dataObjectModules = convertDataObjectToSet(dataObjectMap);
 		  
-		  writeDataClass(modules);
+		  // combine module lists
+		  csvModules.addAll(dataObjectModules);
+		  
+		  writeDataClass(csvModules);
 	  }
+	  
+	  
 		
 //	package data;
 //
@@ -46,7 +55,7 @@ public class DataClass {
 		Date currentDate = new Date();
 		bw.append("/**Auto generated code,don't modify it.\n");
 		bw.append("* Author             ---- > Auto Generated.\n");
-		bw.append("* Date  and Time     ---- > " + currentDate.toString() + "\n");
+		bw.append("* Date  And Time     ---- > " + currentDate.toString() + "\n");
 		bw.append("*");
 		bw.append("**/\n\n\n\n");
 		bw.append("package " +  DATA_ROOT + ";\n");
@@ -75,4 +84,17 @@ public class DataClass {
 		bw.flush();
 		bw.close();	
 	}
+	
+	  /**
+	   * gets a list of modules from data object map
+	   * @param dataObjectMap
+	   * @return
+	   */
+	  private static Set<String> convertDataObjectToSet(Map<String, List<Element>> dataObjectMap) {
+		  Set<String> modules = new TreeSet<>();
+		  for (Entry<String, List<Element>> entry : dataObjectMap.entrySet()) {
+			  modules.add(entry.getKey());
+		  }
+		  return modules;
+	  }
 }

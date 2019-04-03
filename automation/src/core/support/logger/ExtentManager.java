@@ -128,9 +128,17 @@ public class ExtentManager {
 		}
 	}
 
+	/**
+	 * setup report only for test methods, including before and after test
+	 * not including: before suite, after suite, before class, after class
+	 * this means only logs for test methods will show up in the reports
+	 * reason: test report treats before/after suite, before/after class as tests and increases test count
+	 */
 	public static void reportSetup() {
 
-		testState state = TestObject.getTestState(TestObject.getTestInfo().testId);
+		// Only setup report for test method. Ignores before suite, after suite, before class, after class
+		String testId = TestObject.getTestInfo().testId;
+		testState state = TestObject.getTestState(testId);
 		if (!state.equals(testState.testMethod))
 			return;
 
@@ -178,7 +186,7 @@ public class ExtentManager {
 		
 		klovReporter.setAnalysisStrategy(AnalysisStrategy.BDD);
 
-		// set project name. if suite name is set (from suite file) then use, else get
+		// set project name. if suite name is set (from suite file) Then use, else get
 		// test project name
 		if (TestObject.SUITE_NAME.contains("Default"))
 			klovReporter.setProjectName(TestObject.APP_IDENTIFIER);
@@ -235,8 +243,8 @@ public class ExtentManager {
 	/**
 	 * Note: currently disabled as we're only adding test nodes to report
 	 * removes empty logs from the test report these are logs that are initialized,
-	 * but no test steps have been added to them note: test suite is removed, cause
-	 * the feature when empty cannot be removed. feature in code is not associated
+	 * But no test steps have been added to them note: test suite is removed, cause
+	 * the feature When empty cannot be removed. feature in code is not associated
 	 * with test steps TODO: find a way to preserve suite logs
 	 */
 	public static void removeEmptyTestNodesFromReport() {
@@ -290,8 +298,8 @@ public class ExtentManager {
 
 	/**
 	 * returns the test report name the report name is stored in default test object
-	 * if test suit runs, then suit name is the report name if test is run without
-	 * suit, then app name is used for report name
+	 * if test suit runs, Then suit name is the report name if test is run without
+	 * suit, Then app name is used for report name
 	 * 
 	 * @return
 	 */
@@ -322,7 +330,7 @@ public class ExtentManager {
 	}
 
 	/**
-	 * zips up and emails test report with screenshot to specified email address
+	 * zips up And emails test report with screenshot to specified email address
 	 * 
 	 * @throws Exception
 	 */

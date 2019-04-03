@@ -6,7 +6,7 @@ import core.support.configReader.Config;
 
 public class ApiKeyword {
 	
-	public static ApiObject getApiDef(String key) {
+	public static ServiceObject getApiDef(String key) {
 		CsvReader.getAllKeywords();
 		return TestObject.getTestInfo().apiMap.get(key);
 	}
@@ -15,9 +15,9 @@ public class ApiKeyword {
 		Config.putValue("username", "name");
 		Config.putValue("password", "pasword");
 
-		ApiObject login = TestObject.getApiDef("getToken");
+		ServiceObject login = TestObject.getApiDef("getToken");
 		/*
-		ApiObject login = Backend.getToken()
+		ServiceObject login = Backend.getToken()
 		.withUserName(user.username().get())
 		.withPassword(user.password().get());
 		*/

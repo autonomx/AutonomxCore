@@ -12,7 +12,7 @@ import core.apiCore.helpers.DataHelper;
 import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.logger.TestLog;
-import core.support.objects.ApiObject;
+import core.support.objects.ServiceObject;
 
 public class AzureInterface {
 	private static final String AZURE_ACCOUNT_KEY = "azure.key";
@@ -35,9 +35,9 @@ public class AzureInterface {
 	 * @return
 	 * @throws Exception
 	 */
-	public static void AzureClientInterface(ApiObject apiObject) throws Exception {
+	public static void AzureClientInterface(ServiceObject apiObject) throws Exception {
 		connectAzure();
-		switch (apiObject.Method) {
+		switch (apiObject.getMethod()) {
 		case UPLOAD_TO_FILE_SHARE:
 			azureUploadToFileShare(apiObject);
 			break;
@@ -61,17 +61,17 @@ public class AzureInterface {
 		}
 	}
 
-	public static void azureUploadToFileShare(ApiObject apiObject) throws Exception {
-		TestLog.logPass("calling method: " + apiObject.Method);
+	public static void azureUploadToFileShare(ServiceObject apiObject) throws Exception {
+		TestLog.logPass("calling method: " + apiObject.getMethod());
 
 		CloudFileDirectory cloudFileDirectory = getCloudfileDirectory(apiObject);
 
 
-		String filePath = DataHelper.getTemplateFile(apiObject.TemplateFile);
+		String filePath = DataHelper.getTemplateFile(apiObject.getTemplateFile());
 	
 		// Define the path to a local file.
-		TestLog.logPass("uploading file: " + apiObject.TemplateFile);
-		CloudFile cloudFile = cloudFileDirectory.getFileReference(apiObject.TemplateFile);
+		TestLog.logPass("uploading file: " + apiObject.getTemplateFile());
+		CloudFile cloudFile = cloudFileDirectory.getFileReference(apiObject.getTemplateFile());
 		cloudFile.uploadFromFile(filePath);
 	}
 
@@ -82,9 +82,9 @@ public class AzureInterface {
 	 * @return
 	 * @throws Exception
 	 */
-	public static CloudFileDirectory getCloudfileDirectory(ApiObject apiObject) throws Exception {
+	public static CloudFileDirectory getCloudfileDirectory(ServiceObject apiObject) throws Exception {
 
-		String destination = apiObject.Option.split(":")[1];
+		String destination = apiObject.getOption().split(":")[1];
 		TestLog.logPass("uploading to dir: " + destination);
 
 		String[] dirs = destination.split("/");

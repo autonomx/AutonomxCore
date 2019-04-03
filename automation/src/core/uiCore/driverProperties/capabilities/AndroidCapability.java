@@ -119,7 +119,7 @@ public class AndroidCapability {
 		// set port for appium 
 		setPort(TestObject.getTestInfo().deviceName);	
 		
-		// if single signin is set, then do not reset the app after each test
+		// if single signin is set, Then do not reset the app after each test
 		setSingleSignIn();
 		
         return this;
@@ -128,7 +128,7 @@ public class AndroidCapability {
 	/**
 	 * set capabilties with prefix android.capabilties.
 	 * eg. android.capabilties.fullReset="false
-	 * iterates through all property values with such prefix and adds them to android desired capabilities
+	 * iterates through all property values with such prefix And adds them to android desired capabilities
 	 * @return 
 	 */
 	public DesiredCapabilities setAndroidCapabilties() {
@@ -152,7 +152,7 @@ public class AndroidCapability {
 
 	/**
 	 * set chrome version if value set in properties file to use: set
-	 * appiumChromeVersion, then appiumChromeAutoManage if appiumChromeAutoManage =
+	 * appiumChromeVersion, Then appiumChromeAutoManage if appiumChromeAutoManage =
 	 * true : version will automatically download if appiumChromeAutoManage = false
 	 * : set the path to the location
 	 */
@@ -185,7 +185,7 @@ public class AndroidCapability {
 	}
 
 	/**
-	 * if adb device contains emulator, then its an emulator otherwise, its a
+	 * if adb device contains emulator, Then its an emulator otherwise, its a
 	 * connected real device
 	 * 
 	 * @param devices

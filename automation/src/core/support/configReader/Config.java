@@ -19,7 +19,7 @@ public class Config {
 
 	/**
 	 * gets property value based on key from maven or properties file order: maven
-	 * then properties
+	 * Then properties
 	 * 
 	 * @param key
 	 * @return
@@ -77,7 +77,7 @@ public class Config {
 	}
 
 	/**
-	 * loads config and properties files to TestObject config map
+	 * loads config And properties files to TestObject config map
 	 */
 	public static void loadConfig(String testId) {
 

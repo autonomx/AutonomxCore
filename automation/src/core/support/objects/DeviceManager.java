@@ -39,7 +39,7 @@ public class DeviceManager {
 	}
 
 	/**
-	 * load all devices and set availablility to true
+	 * load all devices And set availablility to true
 	 * 
 	 * @param deviceList
 	 */

@@ -1,6 +1,8 @@
 package core.support.annotation.helper;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -18,6 +20,7 @@ public class PackageHelper {
 	public static String ROOT_PATH = "moduleManager";
 	public static String MODULE_CLASS = "ModuleBase";
 	public static String DATA_PATH = "data";
+	public static String SERVICE_PATH = "serviceManager";
 
 
 	/**
@@ -36,6 +39,17 @@ public class PackageHelper {
 		String sourceClass = element.asType().toString();
 		String packagePath = ROOT_PATH + "." + sourceClass.split("\\.")[0] + "." + sourceClass.split("\\.")[1];
 		return packagePath;
+	}
+	
+	/**
+	 * returns package name from file path
+	 * eg. module.common.data.user will return module.common.data
+	 * @param sourceClass
+	 * @return
+	 */
+	public static String getPackagePath(String sourceClass) {
+		int lastIndxDot = sourceClass.lastIndexOf('.');
+		return sourceClass.substring(0, lastIndxDot);
 	}
 
 	/**
@@ -74,6 +88,8 @@ public class PackageHelper {
 	/**
 	 * returns the module name from the file path
 	 * module is directory after "module" directory
+	 * eg. module.webapp.data.user.csv will return webapp
+	 * outside module: data.user.csv will return data
 	 * @return
 	 */
 	public static String getModuleFromFullPath(File file) {
@@ -82,8 +98,9 @@ public class PackageHelper {
 			if(directories[i].equals("module"))
 				return directories[i+1];
 		}
-		Helper.assertFalse("module directory not found from: " + file.getAbsolutePath());
-		return "";
+		
+		// by default return data. this is applicable for data files outside modules
+		return "data";
 	}
 	
 	/**
@@ -101,6 +118,27 @@ public class PackageHelper {
 		}
 		
 		return modules;
+	}
+	
+	/**
+	 * returns true if package path is contained in the name
+	 * eg. module.common.data.user
+	 * @param value
+	 * @return
+	 */
+	public static boolean hasPackagePath(String value) {
+		List<String> list = new ArrayList<String>(Arrays.asList(value.split("\\.")));
+		return list.size() > 1;
+	}
+	
+	/**
+	 * gets class name from path
+	 * eg. module.common.data.user returns user
+	 * @param classPath
+	 * @return
+	 */
+	public static String getClassName(String classPath) {
+		return classPath.substring(classPath.lastIndexOf('.') + 1).trim();
 	}
 
 }

@@ -16,7 +16,7 @@ public class ExcelHelper {
 	public static final String Path_TestData = "testData/";
 
 	/**
-	 * gets the excel file and the work sheet
+	 * gets the excel file And the work sheet
 	 * 
 	 * @param Path
 	 * @param SheetName
@@ -58,7 +58,7 @@ public class ExcelHelper {
 
 	/**
 	 * This method is to read the test data from the Excel cell, in this we are
-	 * passing parameters as Row num and Col num
+	 * passing parameters as Row num And Col num
 	 * 
 	 * @param RowNum
 	 * @param ColNum
@@ -76,7 +76,7 @@ public class ExcelHelper {
 	}
 
 	/**
-	 * This method is to write in the Excel cell, Row num and Col num are the
+	 * This method is to write in the Excel cell, Row num And Col num are the
 	 * parameters
 	 * 
 	 * @param excel
@@ -99,7 +99,7 @@ public class ExcelHelper {
 			Cell.setCellValue(excel.value);
 		}
 
-		// Constant variables Test Data path and Test Data file name
+		// Constant variables Test Data path And Test Data file name
 		FileOutputStream fileOut = new FileOutputStream(Path_TestData + excel.file);
 		excel.ExcelWBook.write(fileOut);
 		fileOut.flush();
@@ -129,7 +129,7 @@ public class ExcelHelper {
 				Cell.setCellValue(excel.value);
 			}
 		}
-		// Constant variables Test Data path and Test Data file name
+		// Constant variables Test Data path And Test Data file name
 		FileOutputStream fileOut = new FileOutputStream(Path_TestData + excelObjects.get(0).file);
 		excelObjects.get(0).ExcelWBook.write(fileOut);
 		fileOut.flush();

@@ -12,18 +12,19 @@ import javax.tools.JavaFileObject;
 
 import core.support.annotation.helper.FileCreatorHelper;
 import core.support.annotation.helper.PackageHelper;
+import core.support.annotation.processor.MainGenerator;
 
 public class PanelManager {
 
 	public static void writePanelManagerClass(Map<String, List<Element>> panelMap) throws IOException {
 
-		System.out.println("writePanelManagerClass: panelManagers: " + panelMap.size());
+		MainGenerator.debug("writePanelManagerClass: panelManagers: " + panelMap.size());
 		for (Entry<String, List<Element>> entry : panelMap.entrySet()) {
 
 			Element firstElement = entry.getValue().get(0);
 
-			System.out.println("panel name: " + entry.getKey());
-			System.out.println("panel value: " + entry.getValue().get(0).asType().toString());
+			MainGenerator.debug("panel name: " + entry.getKey());
+			MainGenerator.debug("panel value: " + entry.getValue().get(0).asType().toString());
 
 			JavaFileObject fileObject = FileCreatorHelper.createFile(firstElement);
 
@@ -31,7 +32,7 @@ public class PanelManager {
 			Date currentDate = new Date();
 			bw.append("/**Auto generated code,don't modify it.\n");
 			bw.append("* Author             ---- > Auto Generated.\n");
-			bw.append("* Date  and Time     ---- > " + currentDate.toString() + "\n");
+			bw.append("* Date  And Time     ---- > " + currentDate.toString() + "\n");
 			bw.append("* Source             -----> " + fileObject.getName() + "\n");
 			bw.append("*");
 			bw.append("**/\n\n\n\n");
@@ -67,7 +68,7 @@ public class PanelManager {
 
 			bw.flush();
 			bw.close();
-			System.out.println("completed: " + entry.getKey());
+			MainGenerator.debug("completed: " + entry.getKey());
 		}
 	}
 	

@@ -224,8 +224,8 @@ public class RetryTest implements TestRule {
 	}
 
 	/**
-	 * error handling when test fails if any of the defined errors specified by
-	 * PageErrors exists, then the test will be retried
+	 * error handling When test fails if any of the defined errors specified by
+	 * PageErrors exists, Then the test will be retried
 	 *
 	 * @param t
 	 */

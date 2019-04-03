@@ -45,7 +45,8 @@ public class TestObject{
 	public static String AFTER_SUITE_PREFIX = "-Aftersuite";
 	public static String BEFORE_CLASS_PREFIX = "-Beforeclass";
 	public static String AFTER_CLASS_PREFIX = "-Afterclass";
-
+	public static String DATAPROVIDER_TEST_SUFFIX = "-test";
+	
 	public static final String DEFAULT_TEST = "core";
 	public static final String DEFAULT_APP = "auto";
 	public static String SUITE_NAME = ""; // suite name is global to all tests in the run
@@ -95,7 +96,7 @@ public class TestObject{
 
 	public List<LogObject> testLog = new ArrayList<LogObject>();
 	public Map<String, String> languageMap = new ConcurrentHashMap<String, String>();
-	public Map<String, ApiObject> apiMap = new ConcurrentHashMap<String, ApiObject>();// api keywords
+	public Map<String, ServiceObject> apiMap = new ConcurrentHashMap<String, ServiceObject>();// api keywords
 	public Map<String, String> config = new ConcurrentHashMap<String, String>();
 
 	public static ThreadLocal<String> currentTestName = new ThreadLocal<String>();
@@ -219,8 +220,8 @@ public class TestObject{
 
 	/**
 	 * testInfo is a static list containing hashmap of test objects with test name
-	 * as key if testObject is empty for testId, then default test is initialized
-	 * and used
+	 * as key if testObject is empty for testId, Then default test is initialized
+	 * And used
 	 * 
 	 * @return
 	 */
@@ -287,6 +288,17 @@ public class TestObject{
 
 		return testId;
 	}
+	
+	/**
+	 * return true if testId is registered
+	 * @param testId
+	 * @return
+	 */
+	public static boolean isTestObjectSet(String testId) {
+		if(testInfo.get(testId) == null)
+			return false;
+		return true;
+	}
 
 	public static boolean isTestObjectSet() {
 		String testId = TestObject.currentTestId.get();
@@ -341,10 +353,10 @@ public class TestObject{
 
 	/**
 	 * resets test object after a test is complete with csv files, test is complete
-	 * when all tests in csv files have finished for api csv tests, we're reseting
+	 * When all tests in csv files have finished for api csv tests, we're reseting
 	 * the test count per csv file.
 	 * 
-	 * called on test failure and test success
+	 * called on test failure And test success
 	 * @return
 	 */
 	public void resetTestObject() {
@@ -373,6 +385,27 @@ public class TestObject{
 			// populate the config with default values
 			TestObject.getTestInfo(testId).config.putAll(TestObject.getTestInfo(TestObject.DEFAULT_TEST).config);
 		}
+	}
+	
+	/**
+	 * returns the invocation count for the data provider test
+	 * format class-testname-test1
+	 * @param testname
+	 * @return
+	 */
+	public static int getTestInvocationCount(String testname) {
+		String tempTestname = testname;
+		int invocationCount = 0;
+		
+		// check next invocation count
+		do {
+			invocationCount++;
+			tempTestname = testname + DATAPROVIDER_TEST_SUFFIX + invocationCount;
+		}while(isTestObjectSet(tempTestname));
+				
+		// set invocation count to the previous value where it is set
+		invocationCount--; 
+		return invocationCount;
 	}
 
 	/**
@@ -403,7 +436,7 @@ public class TestObject{
 	 * @param key
 	 * @return
 	 */
-	public static ApiObject getApiDef(String key) {
+	public static ServiceObject getApiDef(String key) {
 		CsvReader.getAllKeywords();
 		return TestObject.getTestInfo().apiMap.get(key);
 	}
@@ -462,12 +495,13 @@ public class TestObject{
 
 	/**
 	 * * testname is grabbed from test id test id is in format of "class - testname"
-	 * if is before class and no testname exists, empty string is returned
+	 * if is before class And no testname exists, empty string is returned
 	 * 
 	 * @return
 	 */
 	public String getTestName() {
-		String testName = testId.contains("-") ? testId.split("-")[1].trim() : testId;
+		String testName = testId.substring(testId.indexOf("-") +1);
+		//String testName = testId.contains("-") ? testId.split("-")[1].trim() : testId;
 
 		return testName;
 	}

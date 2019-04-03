@@ -85,7 +85,7 @@ public class MobileHelper {
 	}
 
 	/**
-	 * places the app in background and then relaunches it
+	 * places the app in background And Then relaunches it
 	 */
 	public void refreshMobileApp() {
 		if (isMobile()) {
@@ -229,7 +229,7 @@ public class MobileHelper {
 				scrollObject.put("direction", "right");
 			}
 			scrollObject.put("element", ((RemoteWebElement) targetElement.get(0)).getId());
-			scrollObject.put("toVisible", "true"); // optional but needed sometimes
+			scrollObject.put("toVisible", "true"); // optional But needed sometimes
 			js.executeScript("mobile:scroll", scrollObject);
 			return true;
 		} catch (Exception e) {
@@ -312,7 +312,7 @@ public class MobileHelper {
 	}
 
 	/**
-	 * set context for android and ios apps
+	 * set context for android And ios apps
 	 * 
 	 * @param context
 	 */
@@ -346,7 +346,7 @@ public class MobileHelper {
 	}
 
 	/**
-	 * long press and expect element
+	 * long press And expect element
 	 * 
 	 * @param target
 	 * @param miliSeconds
@@ -373,7 +373,7 @@ public class MobileHelper {
 	}
 
 	/**
-	 * TODO: enhance to become longpress and expect presses the target element
+	 * TODO: enhance to become longpress And expect presses the target element
 	 * 
 	 * @param target
 	 * @param index
@@ -401,7 +401,7 @@ public class MobileHelper {
 	}
 
 	/**
-	 * zooms out and checks if target level indicator has been reached
+	 * zooms out And checks if target level indicator has been reached
 	 * 
 	 * @param zoomLevel
 	 * @param indicator
@@ -418,7 +418,7 @@ public class MobileHelper {
 	}
 
 	/**
-	 * zooms in and checks if target level indicator has been reached
+	 * zooms in And checks if target level indicator has been reached
 	 * 
 	 * @param zoomLevel
 	 * @param indicator
@@ -496,7 +496,7 @@ public class MobileHelper {
 
 	/*
 	 * don't forget that it's "natural scroll" where fromY is the point where you
-	 * press the and toY where you release it
+	 * press the And toY where you release it
 	 */
 	public void scroll(int fromX, int fromY, int toX, int toY) {
 		TouchAction touchAction = new TouchAction((AppiumDriver) AbstractDriver.getWebDriver());

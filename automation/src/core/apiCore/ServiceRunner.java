@@ -5,7 +5,7 @@ import core.apiCore.interfaces.RestApiInterface;
 import core.apiCore.interfaces.SqlInterface;
 import core.apiCore.interfaces.TestPrepare;
 import core.helpers.Helper;
-import core.support.objects.ApiObject;
+import core.support.objects.ServiceObject;
 import core.uiCore.drivers.AbstractDriverTestNG;
 
 public class ServiceRunner {
@@ -16,12 +16,15 @@ public class ServiceRunner {
 	private static final String AZURE_INTERFACE = "AZURE";
 	private static final String TEST_PREPARE_INTERFACE = "TestPrepare";
 
-	public static void TestRunner(ApiObject apiObject) throws Exception {
+	public static void TestRunner(ServiceObject apiObject) throws Exception {
 
 		// setup api driver
 		new AbstractDriverTestNG().setupApiDriver(apiObject);
-
-		switch (apiObject.InterfaceType) {
+		runInterface(apiObject);
+	}
+	
+	public static void runInterface(ServiceObject apiObject) throws Exception {
+		switch (apiObject.getInterfaceType()) {
 		case RESTFULL_API_INTERFACE:
 			RestApiInterface.RestfullApiInterface(apiObject);
 			break;
@@ -35,7 +38,7 @@ public class ServiceRunner {
 			TestPrepare.TestPrepareInterface(apiObject);
 			break;
 		default:
-			Helper.assertFalse("no interface found: " + apiObject.InterfaceType);
+			Helper.assertFalse("no interface found: " + apiObject.getInterfaceType());
 			break;
 		}
 	}

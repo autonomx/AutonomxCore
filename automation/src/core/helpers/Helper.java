@@ -69,6 +69,15 @@ public class Helper {
 	public static List<String[]> csv_getAllCsvData(String filePath) throws Exception {
 		return CsvHelper.getAllCsvData(filePath);
 	}
+	
+	/**
+	 * gets all csv data files skipping first row as header
+	 * @param filePath
+	 * @return
+	 */
+	public static List<String[]> csv_getAllCsvDataFirstRowAsHeader(String filePath) {
+		return CsvHelper.getAllCsvDataFirstRowAsHeader(filePath);
+	}
 
 	/**
 	 * 
@@ -94,7 +103,7 @@ public class Helper {
 
 	// ExcelHelper
 	/**
-	 * gets the excel file and the work sheet
+	 * gets the excel file And the work sheet
 	 * 
 	 * @param Path
 	 * @param SheetName
@@ -117,7 +126,7 @@ public class Helper {
 
 	/**
 	 * This method is to read the test data from the Excel cell, in this we are
-	 * passing parameters as Row num and Col num
+	 * passing parameters as Row num And Col num
 	 * 
 	 * @param RowNum
 	 * @param ColNum
@@ -130,7 +139,7 @@ public class Helper {
 	}
 
 	/**
-	 * This method is to write in the Excel cell, Row num and Col num are the
+	 * This method is to write in the Excel cell, Row num And Col num are the
 	 * parameters
 	 * 
 	 * @param excel
@@ -277,7 +286,7 @@ public class Helper {
 
 	// ClickHelper
 	/**
-	 * clicks target and waits for expected element to display retries 10 times
+	 * clicks target And waits for expected element to display retries 10 times
 	 * 
 	 * @param target
 	 * @param expected
@@ -287,7 +296,7 @@ public class Helper {
 	}
 
 	/**
-	 * click and expect based on the text value on the element. eg. button with "OK"
+	 * click And expect based on the text value on the element. eg. button with "OK"
 	 * text
 	 * 
 	 * @param target
@@ -299,7 +308,7 @@ public class Helper {
 	}
 
 	/**
-	 * clicks target and waits for expected element to display retries 10 times
+	 * clicks target And waits for expected element to display retries 10 times
 	 * 
 	 * @param target
 	 * @param expected
@@ -309,7 +318,7 @@ public class Helper {
 	}
 
 	/**
-	 * clicks target and wait for one the 2 expected elements to appear
+	 * clicks target And wait for one the 2 expected elements to appear
 	 * 
 	 * @param target
 	 * @param index
@@ -321,7 +330,7 @@ public class Helper {
 	}
 
 	/**
-	 * clicks element based on index and waits for expected element to be displayed
+	 * clicks element based on index And waits for expected element to be displayed
 	 * 
 	 * @param target
 	 * @param index
@@ -332,7 +341,7 @@ public class Helper {
 	}
 
 	/**
-	 * clicks target and waits for expected element to show up also waits for
+	 * clicks target And waits for expected element to show up also waits for
 	 * spinner element to be removed from display
 	 * 
 	 * @param target
@@ -344,7 +353,7 @@ public class Helper {
 	}
 
 	/**
-	 * clicks target and waits for expected to not be displayed retries 10 times
+	 * clicks target And waits for expected to not be displayed retries 10 times
 	 * 
 	 * @param target
 	 * @param expected
@@ -354,7 +363,7 @@ public class Helper {
 	}
 
 	/**
-	 * clicks target and waits for seconds
+	 * clicks target And waits for seconds
 	 * 
 	 * @param target
 	 * @param expected
@@ -364,7 +373,7 @@ public class Helper {
 	}
 
 	/**
-	 * clicks target and waits for seconds
+	 * clicks target And waits for seconds
 	 * 
 	 * @param target
 	 * @param expected
@@ -419,7 +428,7 @@ public class Helper {
 	}
 	
 	/**
-	 * click and hold element
+	 * click And hold element
 	 * @param target
 	 * @param seconds
 	 */
@@ -428,7 +437,7 @@ public class Helper {
 	}
 	
 	/**
-	 * click and hold based on element index
+	 * click And hold based on element index
 	 * @param target
 	 * @param index
 	 * @param seconds
@@ -438,7 +447,7 @@ public class Helper {
 	}
 	
 	/**
-	 * drag and drop from src element to target element
+	 * drag And drop from src element to target element
 	 * @param src
 	 * @param target
 	 */
@@ -447,7 +456,7 @@ public class Helper {
 	}
 	
 	/**
-	 * drag and drop from src element to target element
+	 * drag And drop from src element to target element
 	 * @param src
 	 * @param target
 	 */
@@ -600,7 +609,7 @@ public class Helper {
 	}
 
 	/**
-	 * sets field and presses the enter key
+	 * sets field And presses the enter key
 	 * 
 	 * @param field
 	 * @param value
@@ -620,7 +629,7 @@ public class Helper {
 	}
 
 	/**
-	 * select submit button and wait for expected element to load
+	 * select submit button And wait for expected element to load
 	 * 
 	 * @param button
 	 * @param expected
@@ -631,7 +640,7 @@ public class Helper {
 	}
 
 	/**
-	 * clicks submit button, wait for element to appear and loading spinner to be
+	 * clicks submit button, wait for element to appear And loading spinner to be
 	 * removed
 	 * 
 	 * @param button
@@ -859,7 +868,7 @@ public class Helper {
 	}
 
 	/**
-	 * selects an element in list by its index value and waits for expected element
+	 * selects an element in list by its index value And waits for expected element
 	 * 
 	 * @param list
 	 * @param index
@@ -870,7 +879,7 @@ public class Helper {
 	}
 
 	/**
-	 * enters value into the search field and selects enter waits for the loading
+	 * enters value into the search field And selects enter waits for the loading
 	 * spinner to be removed
 	 * 
 	 * @param searchQuery
@@ -892,9 +901,9 @@ public class Helper {
 	}
 
 	/**
-	 * finds target element which is in the same container and has the same index as
+	 * finds target element which is in the same container And has the same index as
 	 * the parent eg. delete button in the list of customers, both having index 2.
-	 * we find the index by name, and use that to find the target element
+	 * we find the index by name, And use that to find the target element
 	 * 
 	 * @param list
 	 * @param option
@@ -918,7 +927,7 @@ public class Helper {
 
 	/**
 	 * Selects list item from a parent container eg. delete button in a list defined
-	 * by name find the container containing the name and then finds the delete
+	 * by name find the container containing the name And Then finds the delete
 	 * button in that container as target
 	 * 
 	 * @param list
@@ -933,7 +942,7 @@ public class Helper {
 
 	/**
 	 * Selects list item from a parent container eg. delete button in a list defined
-	 * by name find the container containing the name and then finds the delete
+	 * by name find the container containing the name And Then finds the delete
 	 * button in that container as target
 	 * 
 	 * @param list
@@ -945,9 +954,9 @@ public class Helper {
 	}
 
 	/**
-	 * finds target element which is in the same container and has the same index as
+	 * finds target element which is in the same container And has the same index as
 	 * the parent eg. delete button in the list of customers, both having index 2.
-	 * we find the index containing name, and use that to find the target element
+	 * we find the index containing name, And use that to find the target element
 	 * 
 	 * @param list
 	 * @param option
@@ -1136,7 +1145,7 @@ public class Helper {
 	}
 
 	/**
-	 * places the app in background and then relaunches it
+	 * places the app in background And Then relaunches it
 	 */
 	public static void refreshMobileApp() {
 		mobile.refreshMobileApp();
@@ -1245,7 +1254,7 @@ public class Helper {
 	}
 
 	/**
-	 * sets native context for android and ios apps
+	 * sets native context for android And ios apps
 	 * 
 	 * @param context
 	 */
@@ -1254,7 +1263,7 @@ public class Helper {
 	}
 
 	/**
-	 * sets web context for android and ios apps
+	 * sets web context for android And ios apps
 	 * 
 	 * @param context
 	 */
@@ -1264,7 +1273,7 @@ public class Helper {
 	}
 
 	/**
-	 * TODO: enhance to become longpress and expect with increasing duration of
+	 * TODO: enhance to become longpress And expect with increasing duration of
 	 * press per retry presses the target element
 	 * 
 	 * @param target
@@ -1277,7 +1286,7 @@ public class Helper {
 	}
 
 	/**
-	 * long press and expect element
+	 * long press And expect element
 	 * 
 	 * @param target
 	 * @param miliSeconds
@@ -1297,7 +1306,7 @@ public class Helper {
 	}
 
 	/**
-	 * zooms out and checks if target level indicator has been reached
+	 * zooms out And checks if target level indicator has been reached
 	 * 
 	 * @param zoomLevel
 	 * @param indicator
@@ -1307,7 +1316,7 @@ public class Helper {
 	}
 
 	/**
-	 * zooms in and checks if target level indicator has been reached
+	 * zooms in And checks if target level indicator has been reached
 	 * 
 	 * @param zoomLevel
 	 * @param indicator
@@ -1429,7 +1438,7 @@ public class Helper {
 	}
 
 	/**
-	 * close the window and return to the defaultWindow
+	 * close the window And return to the defaultWindow
 	 * 
 	 * @param defaultWindow
 	 */
@@ -1649,7 +1658,7 @@ public class Helper {
 	}
 
 	/**
-	 * waits for element to load count() checks if the element is displayed then
+	 * waits for element to load count() checks if the element is displayed Then
 	 * gets the count number
 	 * 
 	 * @param target
@@ -1660,7 +1669,7 @@ public class Helper {
 	}
 
 	/**
-	 * waits for either element to load returns true when first item loads
+	 * waits for either element to load returns true When first item loads
 	 * 
 	 * @param element1
 	 * @param element2
@@ -1673,7 +1682,7 @@ public class Helper {
 	}
 
 	/**
-	 * waits for either element to load returns true when first item loads
+	 * waits for either element to load returns true When first item loads
 	 * 
 	 * @param element1
 	 * @param element2
@@ -1686,7 +1695,7 @@ public class Helper {
 	}
 
 	/**
-	 * waits for either element to load returns true when first item loads
+	 * waits for either element to load returns true When first item loads
 	 * 
 	 * @param element1
 	 * @param element2
@@ -1698,7 +1707,7 @@ public class Helper {
 	}
 
 	/**
-	 * waits for either element to load returns true when first item loads
+	 * waits for either element to load returns true When first item loads
 	 * 
 	 * @param element1
 	 * @param element2
@@ -1710,7 +1719,7 @@ public class Helper {
 	}
 
 	/**
-	 * waits for element to load and refreshes the app each time to renew the dom
+	 * waits for element to load And refreshes the app each time to renew the dom
 	 * 
 	 * @param target
 	 * @return
@@ -1736,7 +1745,7 @@ public class Helper {
 	}
 
 	/**
-	 * waits for element count to increase from the originalCount Usefull when
+	 * waits for element count to increase from the originalCount Usefull When
 	 * waiting for a list to expand with additional items
 	 * 
 	 * @param target
@@ -1803,7 +1812,7 @@ public class Helper {
 	}
 
 	/**
-	 * make sure only one element and caller needs to take responsibility to have
+	 * make sure only one element And caller needs to take responsibility to have
 	 * text in the element
 	 * 
 	 * @param target
@@ -1903,7 +1912,7 @@ public class Helper {
 	}
 
 	/**
-	 * runs shell command and returns results as an array list
+	 * runs shell command And returns results as an array list
 	 * 
 	 * @param cmd
 	 * @return
@@ -1913,7 +1922,7 @@ public class Helper {
 	}
 
 	/**
-	 * Copies directory and all content from dirFrom to dirTo overwrites the content
+	 * Copies directory And all content from dirFrom to dirTo overwrites the content
 	 * 
 	 * @param dirFrom
 	 * @param dirTo
@@ -2021,7 +2030,7 @@ public class Helper {
 	}
 
 	/**
-	 * captures screenshot and attaches to extent test report
+	 * captures screenshot And attaches to extent test report
 	 * 
 	 * @param description
 	 */
@@ -2076,8 +2085,8 @@ public class Helper {
 
 	// login helper
 	/**
-	 * if single signin enabled, and new test user is different form previous,
-	 * shutdown webdriver and restart
+	 * if single signin enabled, And new test user is different form previous,
+	 * shutdown webdriver And restart
 	 * 
 	 * @param newUserName
 	 * @throws Exception
@@ -2119,7 +2128,7 @@ public class Helper {
 	/**
 	 * runApiContaining("name", "zzz_","getCompanies",
 	 * "id","companyId","deleteCompany") get all companies with name containing
-	 * zzz_, then gets id of these companies, stores them in companyId variable and
+	 * zzz_, Then gets id of these companies, stores them in companyId variable And
 	 * calls deleteCompany
 	 * 
 	 * @param getApi:
@@ -2144,7 +2153,7 @@ public class Helper {
 	/**
 	 * runApiEquals("name", "test123","getCompanies",
 	 * "id","companyId","deleteCompany") get all companies with name equals test123,
-	 * then gets id of these companies and calls delete with id
+	 * Then gets id of these companies And calls delete with id
 	 * 
 	 * @param getApi:
 	 *            api to search for identifier. eg. name equals "test123"

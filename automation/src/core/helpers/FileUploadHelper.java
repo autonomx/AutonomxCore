@@ -28,7 +28,7 @@ public class FileUploadHelper {
 	 * @param location
 	 *            eg. "/jenkins.png" in the seleniumCl folder
 	 * @param fileButton
-	 *            the button to press when selection the file explorer to find the
+	 *            the button to press When selection the file explorer to find the
 	 *            image
 	 * @param accept
 	 *            the accept button.

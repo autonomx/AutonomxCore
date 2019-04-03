@@ -16,7 +16,7 @@ import core.apiCore.TestDataProvider;
 import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.configReader.PropertiesReader;
-import core.support.objects.ApiObject;
+import core.support.objects.ServiceObject;
 import core.support.objects.TestObject;
 
 public class CsvReader {
@@ -30,7 +30,7 @@ public class CsvReader {
 		List<Object[]> testCases = new ArrayList<>();
 		int index = getCurrentTestInvocation();
 
-		// if single test case is specified, then only load that file
+		// if single test case is specified, Then only load that file
 		String testCaseFile = Config.getValue(TestDataProvider.TEST_CASE_FILE);
 		if (!testCaseFile.isEmpty())
 			index = getCsvFileIndex(testCaseFile);
@@ -39,11 +39,11 @@ public class CsvReader {
 
 		List<String[]> csvList = getCsvTestListForTestRunner(csvFileName);
 		for (int i = 0; i < csvList.size(); i++) {
-			// add testname and test index
+			// add testname And test index
 			String[] obj = { csvFileName, String.valueOf(i) };
 			String[] csvRow = (String[]) ArrayUtils.addAll(csvList.get(i), obj);
 
-			// for single test case selection. Both test case file and test case have to be
+			// for single test case selection. Both test case file And test case have to be
 			// set
 			String testCase = Config.getValue(TestDataProvider.TEST_CASE);
 			if (testCaseFile.isEmpty() || testCase.isEmpty())
@@ -63,15 +63,15 @@ public class CsvReader {
 	 * @param testCases
 	 * @return
 	 */
-	public static Map<String, ApiObject> mapToApiObject(List<String[]> testCases) {
-		Map<String, ApiObject> apiMap = new ConcurrentHashMap<String, ApiObject>();
+	public static Map<String, ServiceObject> mapToApiObject(List<String[]> testCases) {
+		Map<String, ServiceObject> apiMap = new ConcurrentHashMap<String, ServiceObject>();
 		for (String[] testCase : testCases) {
-			// add parameters to ApiObject
-			ApiObject apiObject = new ApiObject().setApiObject(testCase[0], testCase[1], testCase[2], testCase[3],
+			// add parameters to ServiceObject
+			ServiceObject apiObject = new ServiceObject().setApiObject(testCase[0], testCase[1], testCase[2], testCase[3],
 					testCase[4], testCase[5], testCase[6], testCase[7], testCase[8], testCase[9], testCase[10],
 					testCase[11], testCase[12], testCase[13], testCase[14], testCase[15],
 					"", "");
-			apiMap.put(apiObject.TestCaseID, apiObject);
+			apiMap.put(apiObject.getTestCaseID(), apiObject);
 		}
 		return apiMap;
 	}
@@ -83,13 +83,13 @@ public class CsvReader {
 		ArrayList<File> csvFiles = Helper.getFileList(testPath, prefix);
 		for (int i = 0; i < csvFiles.size(); i++) {
 			List<String[]> testCases = getCsvTestList(csvFiles.get(i));
-			Map<String, ApiObject> apiMap = mapToApiObject(testCases);
+			Map<String, ServiceObject> apiMap = mapToApiObject(testCases);
 			TestObject.getTestInfo().apiMap.putAll(apiMap);
 		}
 	}
 
 	/**
-	 * gets all keywords and stores them in apiMap in testObject
+	 * gets all keywords And stores them in apiMap in testObject
 	 */
 	public synchronized static void getAllKeywords() {
 		String testFolderPath = Config.getValue(TestDataProvider.API_KEYWORD_PATH);
@@ -98,7 +98,7 @@ public class CsvReader {
 	}
 
 	/**
-	 * gets csv file index does not increment when retry
+	 * gets csv file index does not increment When retry
 	 * 
 	 * @return
 	 */
@@ -181,7 +181,7 @@ public class CsvReader {
 			int runFlag = getColumnIndexByName("RunFlag", header);
 			int testCaseID = getColumnIndexByName("TestCaseID", header);
 
-			// only add tests that have runFlag set to Y and testCaseID is set
+			// only add tests that have runFlag set to Y And testCaseID is set
 			String[] line;
 			while ((line = reader.readNext()) != null) {
 				if (line[runFlag].equals("Y") && !line[testCaseID].isEmpty()) {

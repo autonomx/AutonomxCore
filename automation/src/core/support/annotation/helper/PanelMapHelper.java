@@ -1,6 +1,5 @@
 package core.support.annotation.helper;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +11,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 
 import core.support.annotation.Panel;
+import core.support.annotation.processor.MainGenerator;
 
 public class PanelMapHelper {
 	
@@ -27,7 +27,7 @@ public class PanelMapHelper {
 	}
 
 	/**
-	 * get initialized map, and fill in elements list with panel elements
+	 * get initialized map, And fill in elements list with panel elements
 	 * 
 	 * @param roundEnv
 	 * @return
@@ -44,14 +44,14 @@ public class PanelMapHelper {
 					String currentModuleName = PackageHelper.getModuleName(element);
 
 					if (currentModuleName.equals(entry.getKey())) {
-						System.out.println("addElementsToPanelMap: module: " + currentModuleName + " adding panel: "
+						MainGenerator.debug("addElementsToPanelMap: module: " + currentModuleName + " adding panel: "
 								+ element.asType().toString());
 						elements.add(element);
 					}
 
 				}
 			}
-			System.out.println("addElementsToPanelMap: moduleName: " + moduleName + " panel count: " + elements.size());
+			MainGenerator.debug("addElementsToPanelMap: moduleName: " + moduleName + " panel count: " + elements.size());
 			panelMap.put(moduleName, elements);
 
 		}
@@ -59,8 +59,9 @@ public class PanelMapHelper {
 	}
 
 	/**
-	 * creates a map of modules, but does not add the elements
-	 * 
+	 * creates a map of modules, But does not add the elements
+	 * key: module
+	 * value: classes with Panel annotation
 	 * @param roundEnv
 	 * @return
 	 */
@@ -77,29 +78,4 @@ public class PanelMapHelper {
 		}
 		return map;
 	}
-	
-	/**
-	 * creates a map of modules with list of csv data files
-	 * @param files
-	 * @return
-	 */
-	public static Map<String, List<File>> getDataModuleMap(List<File> files){
-		
-		Map<String, List<File>> moduleMap = new HashMap<String, List<File>>();
-		
-		for(File file : files) {
-			List<File> dataFiles = new ArrayList<File>();
-			String module = PackageHelper.getModuleFromFullPath(file);	
-			
-			if( moduleMap.get(module) != null) {
-				dataFiles = moduleMap.get(module);
-				dataFiles.add(file);
-			}else {
-				dataFiles.add(file);
-			}
-			moduleMap.put(module, dataFiles);		
-		}
-		return moduleMap;
-	}
-
 }
