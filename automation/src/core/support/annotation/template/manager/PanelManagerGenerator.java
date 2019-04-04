@@ -11,20 +11,32 @@ import javax.lang.model.element.Element;
 import javax.tools.JavaFileObject;
 
 import core.support.annotation.helper.FileCreatorHelper;
+import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PackageHelper;
-import core.support.annotation.processor.MainGenerator;
 
-public class PanelManager {
+public class PanelManagerGenerator {
+	
+	public static void writePanelManagerClass(Map<String, List<Element>> panelMap) {
+		try {
+			writePanelManagerClassImplementation(panelMap);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
-	public static void writePanelManagerClass(Map<String, List<Element>> panelMap) throws IOException {
+		
 
-		MainGenerator.debug("writePanelManagerClass: panelManagers: " + panelMap.size());
+	public static void writePanelManagerClassImplementation(Map<String, List<Element>> panelMap) throws IOException {
+
+		Logger.debug("<<<<start generating panel manager class>>>>");
+
+		Logger.debug("writePanelManagerClass: panelManagers: " + panelMap.size());
 		for (Entry<String, List<Element>> entry : panelMap.entrySet()) {
 
 			Element firstElement = entry.getValue().get(0);
 
-			MainGenerator.debug("panel name: " + entry.getKey());
-			MainGenerator.debug("panel value: " + entry.getValue().get(0).asType().toString());
+			Logger.debug("panel name: " + entry.getKey());
+			Logger.debug("panel value: " + entry.getValue().get(0).asType().toString());
 
 			JavaFileObject fileObject = FileCreatorHelper.createFile(firstElement);
 
@@ -68,8 +80,9 @@ public class PanelManager {
 
 			bw.flush();
 			bw.close();
-			MainGenerator.debug("completed: " + entry.getKey());
+			Logger.debug("completed writing panel manager: " + entry.getKey());
 		}
+		Logger.debug("<<<<complete generating panel manager class>>>>>");
 	}
 	
 	/**
@@ -103,7 +116,7 @@ public class PanelManager {
 	 * @throws IOException
 	 */
 
-	public static void writeDrivers(String moduleName, BufferedWriter bw) throws IOException {
+	private static void writeDrivers(String moduleName, BufferedWriter bw) throws IOException {
 
 		// web driver
 		bw.append("public DriverObject getWebDriver() {\n");

@@ -11,6 +11,6 @@ public class DateHelper {
 	}
 	
 	public String getTimestampSeconds() {
-		return new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+		return new SimpleDateFormat("yyyy.MM.dd HH.mm.ss").format(new Date());
 	}
 }

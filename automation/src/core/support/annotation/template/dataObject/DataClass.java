@@ -16,27 +16,40 @@ import org.apache.commons.lang3.StringUtils;
 
 import core.support.annotation.helper.DataObjectHelper;
 import core.support.annotation.helper.FileCreatorHelper;
+import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PackageHelper;
 
 public class DataClass {
 	
 	public static JavaFileObject CSV_File_Object = null;
 	public static String MODULE_ROOT = "module";
-	public static String DATA_ROOT = "data";	
+	public static String DATA_ROOT = "data";
 	
-	  public static void writeDataClass(Map<String, List<Element>> dataObjectMap) throws Exception {
-		  List<File> files = DataObjectHelper.getAllCsvDataFiles(); 
-		 
-		  // get the list of modules
-		  Set<String> csvModules = PackageHelper.getModuleList(files); 
-		  Set<String> dataObjectModules = convertDataObjectToSet(dataObjectMap);
-		  
-		  // combine module lists
-		  csvModules.addAll(dataObjectModules);
-		  
-		  writeDataClass(csvModules);
-	  }
-	  
+	public static void writeDataClass(Map<String, List<Element>> panelMap) {
+		try {
+			writeDataClassImplementation(panelMap);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void writeDataClassImplementation(Map<String, List<Element>> dataObjectMap) throws Exception {
+
+		Logger.debug("<<<< start generating data class >>>>");
+
+		List<File> files = DataObjectHelper.getAllCsvDataFiles();
+
+		// get the list of modules
+		Set<String> csvModules = PackageHelper.getModuleList(files);
+		Set<String> dataObjectModules = convertDataObjectToSet(dataObjectMap);
+
+		// combine module lists
+		csvModules.addAll(dataObjectModules);
+
+		writeDataClass(csvModules);
+
+		Logger.debug("<<<< completed generating data class >>>>>");
+	}
 	  
 		
 //	package data;
@@ -45,7 +58,7 @@ public class DataClass {
 //		public static webApp webApp = new webApp();
 //		public static androidApp androidApp = new androidApp();
 //	}
-	public static void writeDataClass(Set<String> modules) throws Exception {
+	private static void writeDataClass(Set<String> modules) throws Exception {
 		
 		String filePath = PackageHelper.DATA_PATH + "." + StringUtils.capitalize(DATA_ROOT);
 		JavaFileObject fileObject = FileCreatorHelper.createFileAbsolutePath(filePath);

@@ -21,7 +21,6 @@ import com.microsoft.appcenter.appium.Factory;
 
 import core.helpers.Helper;
 import core.support.configReader.Config;
-import core.support.exceptions.loginException;
 import core.support.logger.ExtentManager;
 import core.support.logger.TestLog;
 import core.support.objects.DriverObject;
@@ -29,6 +28,7 @@ import core.support.objects.TestObject;
 import core.support.rules.RetryTest;
 import core.uiCore.WebDriverSetup;
 import core.uiCore.driverProperties.driverType.DriverType;
+import core.uiCore.driverProperties.capabilities.AndroidCapability;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import io.appium.java_client.MobileElement;
 import junit.framework.Assert;
@@ -242,14 +242,12 @@ public class AbstractDriverJunit {
 
 				driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 			} catch (Exception e) {
-				// AbstractDriverJunit.log.get().error("Driver create error: " +
-				// e.getMessage());
-				TestLog.ConsoleLogError("Driver create error: " + e.getMessage());
-				Helper.wait.waitForSeconds(3);
 				if (retry == 0) {
-					throw new loginException("driver creation failed");
+					// print out android help
+					if (driverObject.driverType.equals(DriverType.ANDROID_DRIVER))
+						AndroidCapability.printAndroidHelp(e);
+					throw e;
 				}
-
 			}
 
 		} while (driver == null && retry > 0);

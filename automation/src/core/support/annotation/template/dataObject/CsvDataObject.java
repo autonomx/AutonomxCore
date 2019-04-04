@@ -14,6 +14,7 @@ import core.apiCore.helpers.DataHelper;
 import core.helpers.Helper;
 import core.support.annotation.helper.DataObjectHelper;
 import core.support.annotation.helper.FileCreatorHelper;
+import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PackageHelper;
 
 public class CsvDataObject {
@@ -23,18 +24,35 @@ public class CsvDataObject {
 	public static String DATA_ROOT = "data";
 	public static String ID_COLUMN = "@id";
 	
-	  public static void writeCsvDataClass() throws Exception {
-		  List<File> files = DataObjectHelper.getAllCsvDataFiles(); 
+	public static void writeCsvDataClass() {
+		try {
+			writeCsvDataClassImplementation();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static void writeCsvDataClassImplementation() throws Exception {
+		Logger.debug("<<<< start generating data object classes >>>>");
 
-		  // return if no data files
-		  if(files.isEmpty()) return;
-		  
-		  writeCsvObjectClasses(files);  
-	  }
+		List<File> files = DataObjectHelper.getAllCsvDataFiles();
 
-	public static void writeCsvObjectClasses(List<File> files) throws Exception {
+		Logger.debug("csv data class count:  " + files.size());
+
+		// return if no data files
+		if (files.isEmpty())
+			return;
+
+		writeCsvObjectClasses(files);
+		
+		Logger.debug("<<<< completed generating data object classes >>>>");
+
+	}
+
+	private static void writeCsvObjectClasses(List<File> files) throws Exception {
 		
 		for( File file : files) {
+			Logger.debug("writing csv data object:  " + file.getName());
 			writeCsvObjectClass(file);	
 		}
 	}
@@ -82,7 +100,7 @@ public class User {
 	 * @throws Exception 
 	 */
 	
-	public static void writeCsvObjectClass(File file) throws Exception {
+	private static void writeCsvObjectClass(File file) throws Exception {
 		String module = PackageHelper.getModuleFromFullPath(file);
 
 		// create file: data.webApp.user.java

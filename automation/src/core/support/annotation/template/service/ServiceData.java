@@ -18,6 +18,7 @@ import core.apiCore.TestDataProvider;
 import core.apiCore.helpers.CsvReader;
 import core.helpers.Helper;
 import core.support.annotation.helper.FileCreatorHelper;
+import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PackageHelper;
 import core.support.configReader.Config;
 import core.support.configReader.PropertiesReader;
@@ -28,8 +29,18 @@ public class ServiceData {
 	public static JavaFileObject CSV_File_Object = null;
 	public static String SERVICE_ROOT = "serviceManager";
 
+	public static void writeServiceDataClass()  {
+		try {
+			writeServiceDataClassImplementation();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	
-	  public static void writeServiceDataClass() throws Exception {
+	  private static void writeServiceDataClassImplementation() throws Exception {
+		  
+		  	Logger.debug("<<<<start generating service data>>>>>>");
+		  
 			String testFolderPath = Config.getValue(TestDataProvider.API_KEYWORD_PATH);
 			String csvTestPath = PropertiesReader.getLocalRootPath() + testFolderPath;
 			ArrayList<File> csvFiles = Helper.getFileList(csvTestPath, ".csv");
@@ -41,18 +52,23 @@ public class ServiceData {
 				List<String[]> testCases = CsvReader.getCsvTestList(csvFiles.get(i));
 				completeServices.putAll(CsvReader.mapToApiObject(testCases));
 			}
+			
+		  	Logger.debug("csv keyword file count: " + csvFiles.size());
+		  	Logger.debug("csv data generated class count: " + completeServices.size());
+
 		  
 			// create separate class for each keyword
 			for (Entry<String, ServiceObject> entry : completeServices.entrySet()) {			
 				writeServiceData(entry);
 			}
+			
+		  	Logger.debug("<<<<scompleted generating service data>>>>>");
 	  }
 	
 	/**
 package module.serviceUiIntegration.panel;
 
 import core.apiCore.ServiceRunner;
-import core.support.configReader.Config;
 import core.support.objects.ServiceObject;
 
 public class GetToken {
@@ -111,14 +127,16 @@ public class GetToken {
 	 * @throws Exception 
 	 */
 	
-	public static void writeServiceData(Entry<String, ServiceObject> serviceEntry) throws Exception {
-	
+	private static void writeServiceData(Entry<String, ServiceObject> serviceEntry) throws Exception {
+		
 		String serviceClassName = StringUtils.capitalize(serviceEntry.getKey());
 		
 		String filePath = PackageHelper.SERVICE_PATH + "." + serviceClassName;
 		JavaFileObject fileObject = FileCreatorHelper.createFileAbsolutePath(filePath);
 		
 		BufferedWriter bw = new BufferedWriter(fileObject.openWriter());
+		List<String> parameters =  getParameters(serviceEntry.getValue().getRequestBody());
+
 
 		Date currentDate = new Date();
 		bw.append("/**Auto generated code,don't modify it.\n");
@@ -131,7 +149,10 @@ public class GetToken {
 		bw.newLine();
 		
 		bw.append("import core.apiCore.ServiceRunner;"+ "\n");
-		bw.append("import core.support.configReader.Config;"+ "\n");
+		
+		// if there are parameters, then config reader is required
+		if(parameters.size()>0)
+			bw.append("import core.support.configReader.Config;"+ "\n");
 		bw.append("import core.support.objects.ServiceObject;"+ "\n");
 		bw.newLine();
 		bw.newLine();
@@ -148,7 +169,6 @@ public class GetToken {
 				return this;
 			}
 		 */
-		List<String> parameters =  getParameters(serviceEntry.getValue().getRequestBody());
 		for(String parameter : parameters) {
 			bw.append("public " + serviceClassName + " with" + StringUtils.capitalize(parameter) + "(String " + parameter + ") {\n" );
 			bw.append("    Config.putValue(\"" + parameter + "\" , " + parameter + ");" + "\n");

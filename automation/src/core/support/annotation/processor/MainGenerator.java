@@ -22,12 +22,13 @@ import javax.lang.model.element.TypeElement;
 import com.google.auto.service.AutoService;
 
 import core.support.annotation.helper.DataMapHelper;
+import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PanelMapHelper;
 import core.support.annotation.template.dataObject.CsvDataObject;
 import core.support.annotation.template.dataObject.DataClass;
 import core.support.annotation.template.dataObject.ModuleClass;
 import core.support.annotation.template.manager.ModuleManager;
-import core.support.annotation.template.manager.PanelManager;
+import core.support.annotation.template.manager.PanelManagerGenerator;
 import core.support.annotation.template.service.Service;
 import core.support.annotation.template.service.ServiceData;
 
@@ -38,7 +39,6 @@ public class MainGenerator extends AbstractProcessor {
 
 	private static boolean isAnnotationRun = false;
 	public static ProcessingEnvironment PROCESS_ENV;
-	public static boolean IS_DEBUG = false;
 	
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
@@ -57,37 +57,25 @@ public class MainGenerator extends AbstractProcessor {
 			Map<String, List<Element>> dataObjectMap = DataMapHelper.getDataObjectMap(roundEnv);
 			
 			for (Entry<String, List<Element>> entry : dataObjectMap.entrySet()) {
-				debug("data object map: key " + entry.getKey());
-				debug("data object map: value " + entry.getValue().get(0));
+				Logger.debug("data object map: key " + entry.getKey());
+				Logger.debug("data object map: value " + entry.getValue().get(0));
 
 			}
 
-			try {
-				
-				// generate managers
-				PanelManager.writePanelManagerClass(appMap);
-				ModuleManager.writeModuleManagerClass(appMap);
-
-				// generate data objects
-				CsvDataObject.writeCsvDataClass();
-				ModuleClass.writeModuleClass(dataObjectMap);
-				DataClass.writeDataClass(dataObjectMap);
-				
-				// generate service keywords
-				ServiceData.writeServiceDataClass();
-				Service.writeServiceClass();
-				
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			// generate managers
+			PanelManagerGenerator.writePanelManagerClass(appMap);
+			ModuleManager.writeModuleManagerClass(appMap);
+			
+			// generate data objects
+			CsvDataObject.writeCsvDataClass();
+			ModuleClass.writeModuleClass(dataObjectMap);
+			DataClass.writeDataClass(dataObjectMap);
+			
+			// generate service objects
+			Service.writeServiceClass();
+			ServiceData.writeServiceDataClass();
 		}
 
 		return true;
-	}
-	
-	// enable debug
-	public static void debug(String value) {
-		if(IS_DEBUG)
-			System.out.println(value);
 	}
 }

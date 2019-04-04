@@ -12,7 +12,6 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 
 import core.support.annotation.Data;
-import core.support.annotation.processor.MainGenerator;
 
 public class DataMapHelper {
 	
@@ -71,14 +70,14 @@ public class DataMapHelper {
 					String currentModuleName = PackageHelper.getModuleName(element);
 
 					if (currentModuleName.equals(entry.getKey())) {
-						MainGenerator.debug("addElementsToDataMap: module: " + currentModuleName + " adding panel: "
+						Logger.debug("addElementsToDataMap: module: " + currentModuleName + " adding panel: "
 								+ element.asType().toString());
 						elements.add(element);
 					}
 
 				}
 			}
-			MainGenerator.debug("addElementsToDataMap: moduleName: " + moduleName + " panel count: " + elements.size());
+			Logger.debug("addElementsToDataMap: moduleName: " + moduleName + " panel count: " + elements.size());
 			dataMap.put(moduleName, elements);
 
 		}

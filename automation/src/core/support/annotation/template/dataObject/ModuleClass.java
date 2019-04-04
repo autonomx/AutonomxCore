@@ -15,6 +15,7 @@ import javax.tools.JavaFileObject;
 import core.support.annotation.helper.DataMapHelper;
 import core.support.annotation.helper.DataObjectHelper;
 import core.support.annotation.helper.FileCreatorHelper;
+import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PackageHelper;
 
 public class ModuleClass {
@@ -24,30 +25,52 @@ public class ModuleClass {
 	public static String DATA_ROOT = "data";
 
 	
-	  public static void writeModuleClass(Map<String, List<Element>> dataObjectMap) throws Exception {
-		  List<File> files = DataObjectHelper.getAllCsvDataFiles(); 
+	public static void writeModuleClass(Map<String, List<Element>> panelMap) {
+		try {
+			writeModuleClassImplementation(panelMap);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static void writeModuleClassImplementation(Map<String, List<Element>> dataObjectMap) throws Exception {
 
-		  // return if no data files
-		  if(files.isEmpty()) return;
-		  
-		 writeModuleClasses(files, dataObjectMap);
-	  }
+		Logger.debug("<<<< start generating data objects module classes >>>>");
+
+		List<File> files = DataObjectHelper.getAllCsvDataFiles();
+
+		writeModuleClasses(files, dataObjectMap);
+
+		Logger.debug("<<<< completed generating data objects module classes >>>>");
+
+	}
 	
 	/**
 	 * write module class, initiating all csv data files
 	 * @param files
 	 * @throws Exception
 	 */
-	public static void writeModuleClasses(List<File> files, Map<String, List<Element>> dataObjectMap) throws Exception {
+	private static void writeModuleClasses(List<File> files, Map<String, List<Element>> dataObjectMap) throws Exception {
 		
 		Map<String, List<File>> moduleMap = DataMapHelper.getDataModuleMap(files);
 		
 		// convert both maps (csv, data object) to common map type for processing
 		Map<String, List<String>> simpleModuleMap = convertCsvModuleMap(moduleMap);
+
 		Map<String, List<String>> simpleDataObjectMap = convertDataObjectModuleMap(dataObjectMap);
-		
+
 		// combine both maps
 		Map<String, List<String>> combinedMap = DataMapHelper.mergeMaps(simpleModuleMap, simpleDataObjectMap);
+	
+		
+		// log data object count
+		Logger.debug("writeModuleClasses: data objects: " + simpleDataObjectMap.size());
+		
+		// log csv data object count
+		Logger.debug("writeModuleClasses: csv objects: " + simpleModuleMap.size());
+		
+		// log combined data object count
+		Logger.debug("writeModuleClasses: combined data objects: " + combinedMap.size());
 		
 		for (Entry<String, List<String>> entry : combinedMap.entrySet()) {
 			writeModuleClass(entry);
@@ -79,9 +102,11 @@ public class ModuleClass {
 	 * @param file
 	 * @throws Exception
 	 */
-	public static void writeModuleClass(Entry<String, List<String>> entry) throws Exception {
+	private static void writeModuleClass(Entry<String, List<String>> entry) throws Exception {
 		
 		String module = entry.getKey();
+		
+		Logger.debug("writing module class: " + module);
 
 		// create file: data.webApp.webApp.java
 		String filePath = PackageHelper.DATA_PATH + "." + module + "." + module;

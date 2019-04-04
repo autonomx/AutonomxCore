@@ -11,7 +11,6 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 
 import core.support.annotation.Panel;
-import core.support.annotation.processor.MainGenerator;
 
 public class PanelMapHelper {
 	
@@ -44,14 +43,14 @@ public class PanelMapHelper {
 					String currentModuleName = PackageHelper.getModuleName(element);
 
 					if (currentModuleName.equals(entry.getKey())) {
-						MainGenerator.debug("addElementsToPanelMap: module: " + currentModuleName + " adding panel: "
+						Logger.debug("addElementsToPanelMap: module: " + currentModuleName + " adding panel: "
 								+ element.asType().toString());
 						elements.add(element);
 					}
 
 				}
 			}
-			MainGenerator.debug("addElementsToPanelMap: moduleName: " + moduleName + " panel count: " + elements.size());
+			Logger.debug("addElementsToPanelMap: moduleName: " + moduleName + " panel count: " + elements.size());
 			panelMap.put(moduleName, elements);
 
 		}

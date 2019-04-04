@@ -11,11 +11,22 @@ import javax.lang.model.element.Element;
 import javax.tools.JavaFileObject;
 
 import core.support.annotation.helper.FileCreatorHelper;
+import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PackageHelper;
 
 public class ModuleManager {
 	
-	public static void writeModuleManagerClass(Map<String, List<Element>> panelMap) throws IOException {
+	public static void writeModuleManagerClass(Map<String, List<Element>> panelMap)  {
+		try {
+			writeModuleManagerClassImplementation(panelMap);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static void writeModuleManagerClassImplementation(Map<String, List<Element>> panelMap) throws IOException {
+		Logger.debug("start generating module manager class");
+
 		// returns module.android.panel
 		String modulePath = PackageHelper.getFirstModuleFullPath(panelMap);
 
@@ -61,6 +72,9 @@ public class ModuleManager {
 
 		bw.flush();
 		bw.close();
+		
+		Logger.debug("complete generating module manager class");
+
 	}
 
 }

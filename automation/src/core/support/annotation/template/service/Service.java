@@ -18,6 +18,7 @@ import core.apiCore.TestDataProvider;
 import core.apiCore.helpers.CsvReader;
 import core.helpers.Helper;
 import core.support.annotation.helper.FileCreatorHelper;
+import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PackageHelper;
 import core.support.configReader.Config;
 import core.support.configReader.PropertiesReader;
@@ -29,8 +30,15 @@ public class Service {
 	public static String SERVICE_ROOT = "serviceManager";
 	public static String SERVICE_CLASS = "Service";
 
+	public static void writeServiceClass()  {
+		try {
+			writeServiceClassImplementation();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	
-	  public static void writeServiceClass() throws Exception {
+	private static void writeServiceClassImplementation() throws Exception {
 			String testFolderPath = Config.getValue(TestDataProvider.API_KEYWORD_PATH);
 			String csvTestPath = PropertiesReader.getLocalRootPath() + testFolderPath;
 			ArrayList<File> csvFiles = Helper.getFileList(csvTestPath, ".csv");
@@ -65,9 +73,12 @@ public class Service {
 	 * @throws Exception 
 	 */
 	
-	public static void writeServiceData(Map<String, ServiceObject> completeServices) throws Exception {
-	
+	private static void writeServiceData(Map<String, ServiceObject> completeServices) throws Exception {
+	   		
 		String serviceClassName = StringUtils.capitalize(SERVICE_CLASS);
+		
+		Logger.debug("<<<<< start generating service class " + serviceClassName + " >>>>");
+
 		
 		String filePath = PackageHelper.SERVICE_PATH + "." + serviceClassName;
 		JavaFileObject fileObject = FileCreatorHelper.createFileAbsolutePath(filePath);
@@ -121,5 +132,8 @@ public class Service {
 
 		bw.flush();
 		bw.close();		
+		
+		Logger.debug("<<<< completed generating service class: " + serviceClassName + ">>>>");
+
 	}
 }
