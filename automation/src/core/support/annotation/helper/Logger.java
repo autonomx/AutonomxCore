@@ -1,12 +1,13 @@
 package core.support.annotation.helper;
 
+import core.support.configReader.Config;
+
 public class Logger {
 	
-	public static boolean IS_DEBUG = true;
 
-	// enable debug
+	// enable to debug
 	public static void debug(String value) {
-		if(IS_DEBUG)
+		if(Config.getBooleanValue("console.annotation.debug"))
 			System.out.println(value);
 	}
 }

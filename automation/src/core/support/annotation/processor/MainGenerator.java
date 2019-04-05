@@ -74,8 +74,10 @@ public class MainGenerator extends AbstractProcessor {
 			// generate service objects
 			Service.writeServiceClass();
 			ServiceData.writeServiceDataClass();
+			
+			System.out.println("Annotation generation complete");
 		}
-
 		return true;
 	}
+
 }
