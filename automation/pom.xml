@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.core</groupId>
 	<artifactId>automationCore</artifactId>
-	<version>1.0.36</version>
+	<version>1.0.37</version>
 	<packaging>jar</packaging>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
