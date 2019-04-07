@@ -5,6 +5,7 @@
 
 package core.support.annotation.processor;
 
+import java.io.BufferedWriter;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -18,10 +19,12 @@ import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
+import javax.tools.JavaFileObject;
 
 import com.google.auto.service.AutoService;
 
 import core.support.annotation.helper.DataMapHelper;
+import core.support.annotation.helper.FileCreatorHelper;
 import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PanelMapHelper;
 import core.support.annotation.template.dataObject.CsvDataObject;
@@ -49,6 +52,7 @@ public class MainGenerator extends AbstractProcessor {
 			PROCESS_ENV = processingEnv;
 
 			System.out.println("Annotation called");
+		
 			
 			// map of modules and class with @Panel annotation
 			Map<String, List<Element>> appMap = PanelMapHelper.getPanelMap(roundEnv);
@@ -75,9 +79,26 @@ public class MainGenerator extends AbstractProcessor {
 			Service.writeServiceClass();
 			ServiceData.writeServiceDataClass();
 			
+		    crateMarkerClass();
+			
 			System.out.println("Annotation generation complete");
 		}
 		return true;
+	}
+	
+	public static void crateMarkerClass() {
+		try {
+				JavaFileObject fileObject = FileCreatorHelper.createMarkerFile();
+
+				BufferedWriter bw = new BufferedWriter(fileObject.openWriter());
+				bw.append("/**Auto generated code,don't modify it. */ \n");
+				bw.append("package marker;");
+				bw.append("public class marker {}");
+				bw.flush();
+				bw.close();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }

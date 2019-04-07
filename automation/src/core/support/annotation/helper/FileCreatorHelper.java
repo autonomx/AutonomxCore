@@ -115,4 +115,9 @@ public class FileCreatorHelper {
 		CSVDATA_DATA_File_Object = MainGenerator.PROCESS_ENV.getFiler().createSourceFile(PackageHelper.DATA_PATH + "." + StringUtils.capitalize(DATA_ROOT) );
 		return CSVDATA_DATA_File_Object;
 	}
+	
+	public static JavaFileObject createMarkerFile() throws IOException {
+		moduleManagerFileObject = MainGenerator.PROCESS_ENV.getFiler().createSourceFile("marker.marker");
+		return moduleManagerFileObject;
+	}
 }
