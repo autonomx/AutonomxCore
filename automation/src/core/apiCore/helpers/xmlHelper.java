@@ -81,7 +81,7 @@ public class XmlHelper {
     }
     
     /**
-	 * Read a XML file and get a Document retrying and catching interruptions from
+	 * Read a XML file And get a Document retrying And catching interruptions from
 	 * other threads.
 	 * 
 	 * @param inputFilePath
@@ -144,7 +144,7 @@ public class XmlHelper {
     
     /**
      * In outputParams get the params with syntax <$>
-     * in responseBody and then add them to ConfigurationParams
+     * in responseBody And Then add them to ConfigurationParams
      *
      * @param outputParams
      * @param responseBody
@@ -159,11 +159,9 @@ public class XmlHelper {
      * @param xmlString
      * @return ArrayList
      */
-    public ArrayList getXPaths(String xmlString) {
+    public ArrayList<String> getXPaths(String xmlString) {
         
         ArrayList<String> xPathList = null;
-        
-      
         return xPathList;
     }
 	

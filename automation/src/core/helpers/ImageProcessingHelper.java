@@ -13,7 +13,7 @@ import net.sourceforge.tess4j.Tesseract;
 
 // sikuli ide: https://launchpad.net/sikuli  
 public class ImageProcessingHelper {
-	// sikuli is desktop level and does not handle parallel run
+	// sikuli is desktop level And does not handle parallel run
 	static final Object ai = new Object();
 
 	public static final String IMAGE_PATH = "testImages/";
@@ -120,7 +120,7 @@ public class ImageProcessingHelper {
 	}
 
 	/**
-	 * drag and drop based on image using Sikuli path base is resource folder sikuli
+	 * drag And drop based on image using Sikuli path base is resource folder sikuli
 	 * ide: https://launchpad.net/sikuli
 	 * 
 	 * @param path
@@ -133,7 +133,7 @@ public class ImageProcessingHelper {
 	}
 
 	/**
-	 * drag and drop based on image, using similarity proximity path base is
+	 * drag And drop based on image, using similarity proximity path base is
 	 * resource folder sikuli ide: https://launchpad.net/sikuli
 	 * 
 	 * @param path
@@ -216,7 +216,7 @@ public class ImageProcessingHelper {
 	}
 
 	/**
-	 * get text from image element screenshot take of the element, then Tesseract is
+	 * get text from image element screenshot take of the element, Then Tesseract is
 	 * used to grab the string from the image image path base from resource folder
 	 * using Tesseract library
 	 * 
@@ -226,7 +226,7 @@ public class ImageProcessingHelper {
 	public String getTextFromElementImage(EnhancedBy element) {
 		synchronized (ai) {
 			Helper.page.bringPageToFront();
-			// get and capture the picture of the img element used to display the barcode
+			// get And capture the picture of the img element used to display the barcode
 			// image
 			File image = UtilityHelper.captureElementPicture(element);
 

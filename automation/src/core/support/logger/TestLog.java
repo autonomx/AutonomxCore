@@ -28,8 +28,10 @@ import com.ibm.watson.developer_cloud.text_to_speech.v1.TextToSpeech;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.model.SynthesizeOptions;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.util.WaveUtils;
 
+import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.objects.TestObject;
+import core.support.objects.TestObject.testState;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import core.uiCore.drivers.AbstractDriver;
 import marytts.LocalMaryInterface;
@@ -42,6 +44,8 @@ public class TestLog {
 	public static int MAX_LENGTH = 400; // in chars. currently disabled
 	public static String WATSON = "WATSON";
 	public static String MARY = "MARY";
+	
+	enum gherkins { Given, When, Then, And, But, Background }
 
 	static marytts.util.data.audio.AudioPlayer player;
 	public static final String LOG4JPATH = Config.RESOURCE_PATH + "/log4j.xml";
@@ -66,38 +70,38 @@ public class TestLog {
 	}
 
 	public static void Background(String value, Object... args) {
-		setTestStep(getTestScenario().createNode(Background.class, formatMessage(value, args)).pass(""));
+		setTestStep(gherkins.Background, value, args);
 	}
 
 	public static void But(String value, Object... args) {
 		logConsoleMessage(Priority.INFO, "But " + formatMessage(value, args));
-		setTestStep(getTestScenario().createNode(But.class, "But " +formatMessage(value, args)).pass(""));
+		setTestStep(gherkins.But, value, args);
 	}
 
 	public static void Given(String value, Object... args) {
 		logConsoleMessage(Priority.INFO, "Given " + formatMessage(value, args));
-		setTestStep(getTestScenario().createNode(Given.class, "Given " + formatMessage(value, args)).pass(""));
+		setTestStep(gherkins.Given, value, args);
 	}
 
 	public static void When(String value, Object... args) {
 		logConsoleMessage(Priority.INFO, "When " + formatMessage(value, args));
 
-		setTestStep(getTestScenario().createNode(When.class,"When " + formatMessage(value, args)).pass(""));
-		playAudio("When " + formatMessage(value, args));
+		setTestStep(gherkins.When, value, args);
+		playAudio(gherkins.When.name() + " "+ formatMessage(value, args));
 	}
 
 	public static void And(String value, Object... args) {
 		logConsoleMessage(Priority.INFO, "And " + formatMessage(value, args));
 
-		setTestStep(getTestScenario().createNode(And.class, "And " + formatMessage(value, args)).pass(""));
-		playAudio("And " + formatMessage(value, args));
+		setTestStep(gherkins.And, value, args);
+		playAudio(gherkins.And.name() + " "+ formatMessage(value, args));
 	}
 
 	public static void Then(String value, Object... args) {
 		logConsoleMessage(Priority.INFO, "Then " + formatMessage(value, args));
 
-		setTestStep(getTestScenario().createNode(Then.class,"Then " + formatMessage(value, args)).pass(""));
-		playAudio("Then " + formatMessage(value, args));
+		setTestStep(gherkins.Then, value, args);
+		playAudio(gherkins.Then.name() + " "+ formatMessage(value, args));
 	}
 
 	/**
@@ -105,7 +109,43 @@ public class TestLog {
 	 * 
 	 * @param testStep
 	 */
-	public static void setTestStep(ExtentTest testStep) {
+	public static void setTestStep1(ExtentTest testStep) {
+		// if test step is not set, do not log. Test will be set in test method state only.
+		if(TestObject.getTestInfo().testSteps == null) return;
+		
+		TestObject.getTestInfo().testSteps.add(testStep);
+		AbstractDriver.getStep().set(testStep);
+	}
+	
+	public static void setTestStep(gherkins gherkinState, String value, Object... args ) {
+		ExtentTest testStep = null;
+		
+		testState state = TestObject.getTestState(TestObject.getTestInfo().testId);
+		if (!state.equals(testState.testMethod))
+			return;
+		
+		switch(gherkinState) {
+		  case Given:
+			  testStep = getTestScenario().createNode(Given.class, "Given " + formatMessage(value, args)).pass("");
+		    break;
+		  case When:
+			  testStep = getTestScenario().createNode(When.class,"When " + formatMessage(value, args)).pass("");
+			  break;
+		  case Then:
+			  testStep = getTestScenario().createNode(Then.class,"Then " + formatMessage(value, args)).pass("");
+		    break;   
+		  case And:
+			  testStep = getTestScenario().createNode(And.class, "And " + formatMessage(value, args)).pass("");
+			  break;
+		  case But:
+			  testStep =  getTestScenario().createNode(But.class, "But " +formatMessage(value, args)).pass("");
+			  break;
+		  case Background:
+			  testStep =  getTestScenario().createNode(Background.class, formatMessage(value, args)).pass("");
+			  break;
+		  default:
+		   	  Helper.assertFalse("incorrect state " + gherkinState.name());
+		}
 		// if test step is not set, do not log. Test will be set in test method state only.
 		if(TestObject.getTestInfo().testSteps == null) return;
 		
@@ -119,6 +159,10 @@ public class TestLog {
 	 * @param subStep
 	 */
 	public static void setPassSubTestStep(String subStep) {
+		testState state = TestObject.getTestState(TestObject.getTestInfo().testId);
+		if (!state.equals(testState.testMethod))
+			return;
+		
 		TestObject.getTestInfo().testSubSteps.add(subStep);
 		Markup m = MarkupHelper.createCodeBlock(subStep);
 		AbstractDriver.getStep().get().pass(m);
@@ -264,7 +308,7 @@ public class TestLog {
 	}
 
 	/**
-	 * logs to console if batch logging is enabled, then logs are stored and printed
+	 * logs to console if batch logging is enabled, Then logs are stored And printed
 	 * to console once the test is complete
 	 * 
 	 * @param priority
@@ -274,7 +318,7 @@ public class TestLog {
 
 		// if batch logging is disabled, log to console
 		Boolean enableBatchLogging = CrossPlatformProperties.getEnableBatchLogging();
-		value = getTestLogPrefix() + value;
+		value = Helper.date.getTimestampSeconds() + ":" +getTestLogPrefix() + value;
 		if (!enableBatchLogging)
 			TestObject.getTestInfo().log.log(priority, value);
 
@@ -290,7 +334,7 @@ public class TestLog {
 	}
 
 	/**
-	 * prints out the entire test log for csv file at once Occurs when number of csv
+	 * prints out the entire test log for csv file at once Occurs When number of csv
 	 * files are greater than 1
 	 */
 	public synchronized static void printLogsToConsole() {

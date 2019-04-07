@@ -34,7 +34,7 @@ public class WaitHelper {
 	}
 
 	/**
-	 * waits for element to load count() checks if the element is displayed then
+	 * waits for element to load count() checks if the element is displayed Then
 	 * gets the count number
 	 * 
 	 * @param target
@@ -79,7 +79,7 @@ public class WaitHelper {
 	}
 
 	/**
-	 * waits for element to load and refreshes the app each time to renew the dom
+	 * waits for element to load And refreshes the app each time to renew the dom
 	 * 
 	 * @param target
 	 * @return
@@ -108,7 +108,7 @@ public class WaitHelper {
 	}
 
 	/**
-	 * waits for either element to load returns true when first item loads
+	 * waits for either element to load returns true When first item loads
 	 * 
 	 * @param element1
 	 * @param element2
@@ -120,7 +120,7 @@ public class WaitHelper {
 	}
 
 	/**
-	 * waits for either element to load returns true when first item loads
+	 * waits for either element to load returns true When first item loads
 	 * 
 	 * @param element1
 	 * @param element2
@@ -153,7 +153,7 @@ public class WaitHelper {
 	}
 
 	/**
-	 * waits for either element to load returns true when first item loads
+	 * waits for either element to load returns true When first item loads
 	 * 
 	 * @param element1
 	 * @param element2
@@ -166,7 +166,7 @@ public class WaitHelper {
 	}
 
 	/**
-	 * waits for either element to load returns true when first item loads
+	 * waits for either element to load returns true When first item loads
 	 * 
 	 * @param element1
 	 * @param element2
@@ -201,7 +201,7 @@ public class WaitHelper {
 	}
 
 	/**
-	 * waits for element count to increase from the originalCount Usefull when
+	 * waits for element count to increase from the originalCount Usefull When
 	 * waiting for a list to expand with additional items
 	 * 
 	 * @param target
@@ -330,7 +330,7 @@ public class WaitHelper {
 	}
 
 	/**
-	 * make sure only one element and caller needs to take responsibility to have
+	 * make sure only one element And caller needs to take responsibility to have
 	 * text in the element
 	 * 
 	 * @param target

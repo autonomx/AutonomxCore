@@ -19,11 +19,12 @@ import core.support.configReader.Config;
 import core.support.listeners.RetryTest;
 import core.support.logger.ExtentManager;
 import core.support.logger.TestLog;
-import core.support.objects.ApiObject;
 import core.support.objects.DriverObject;
+import core.support.objects.ServiceObject;
 import core.support.objects.TestObject;
 import core.uiCore.WebDriverSetup;
 import core.uiCore.driverProperties.driverType.DriverType;
+import core.uiCore.driverProperties.capabilities.AndroidCapability;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 
 @Listeners(core.support.listeners.TestListener.class)
@@ -43,7 +44,7 @@ public class AbstractDriverTestNG {
 
 	}
 
-	public synchronized void setupApiDriver(ApiObject apiObject) throws Exception {
+	public synchronized void setupApiDriver(ServiceObject apiObject) throws Exception {
 		new ApiTestDriver().initTest(apiObject);
 
 		// initiallize logging
@@ -109,7 +110,7 @@ public class AbstractDriverTestNG {
 	/**
 	 * maximized web page if maximize_browser option is set to true
 	 */
-	public static void setFullScreen() {
+	private static void setFullScreen() {
 		if (!Helper.mobile.isMobile() && Config.getValue("web.maximizeBrowser").equals("true")) {
 			Helper.page.maximizePage();
 		}
@@ -142,7 +143,7 @@ public class AbstractDriverTestNG {
 	}
 
 	/**
-	 * generates new testId from classname and test name if already generated, then
+	 * generates new testId from classname And test name if already generated, Then
 	 * return existing
 	 * 
 	 * @return
@@ -152,49 +153,85 @@ public class AbstractDriverTestNG {
 		TestObject.setTestName(method.getName());
 		TestObject.setTestId(getClassName(), TestObject.currentTestName.get());
 
+		setAndIncremenetDataProviderTestExtention(method);
+	
+
 		// setup before class driver
 		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
-		new AbstractDriverTestNG().setupWebDriver(getClassName() + "-" + method.getName(), driver);
-		// TestLog.removeLogUtilHandler();
+
+		new AbstractDriverTestNG().setupWebDriver(TestObject.getTestId(), driver);
 	}
 	
 	/**
+	 * append test invocation count to test name if data provider is running
+	 * increments the invocation count
+	 * @param method
+	 */
+	private void setAndIncremenetDataProviderTestExtention(Method method) {
+		if (isDataProviderRunning(method)) {
+			int invocationCount = TestObject.getTestInvocationCount(TestObject.getTestId());
+			invocationCount++;
+			TestObject.setTestName(method.getName() + TestObject.DATAPROVIDER_TEST_SUFFIX + invocationCount);
+			TestObject.setTestId(getClassName(), TestObject.currentTestName.get());
+		}
+	}
+	
+	/**
+	 * append test invocation count to test name if data provider is running
+	 * @param method
+	 */
+	private void setDataProviderTestExtention(Method method) {
+		if (isDataProviderRunning(method)) {
+			int invocationCount = TestObject.getTestInvocationCount(TestObject.getTestId());
+			TestObject.setTestName(method.getName() + TestObject.DATAPROVIDER_TEST_SUFFIX + invocationCount);
+			TestObject.setTestId(getClassName(), TestObject.currentTestName.get());
+		}
+	}
+	
+	private boolean isDataProviderRunning(Method method) {
+		return method.getParameterCount() > 0;
+	}
+
+	/**
 	 * initialize after method
+	 * 
 	 * @param method
 	 */
 	@AfterMethod(alwaysRun = true)
 	public void afterMethod(Method method) {
 		TestObject.setTestName(method.getName());
 		TestObject.setTestId(getClassName(), TestObject.currentTestName.get());
+		
+		setDataProviderTestExtention(method);
 
 		// setup before class driver
 		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
-		new AbstractDriverTestNG().setupWebDriver(getClassName() + "-" + method.getName(), driver);
+		new AbstractDriverTestNG().setupWebDriver(TestObject.getTestId(), driver);
 	}
 
-	public String getClassName() {
+	private String getClassName() {
 		String className = getClass().toString().substring(getClass().toString().lastIndexOf(".") + 1);
 		return className;
 	}
 
-	public static WebDriver createDriver(DriverObject driverObject) throws Exception {
+	private static WebDriver createDriver(DriverObject driverObject) throws Exception {
 		int retry = 3;
 		WebDriver driver = null;
 		do {
 			try {
 				retry--;
-				//Helper.killWindowsProcess("node.exe");
+				// Helper.killWindowsProcess("node.exe");
 				driver = new WebDriverSetup().getWebDriverByType(driverObject);
 
 			} catch (Exception e) {
-				if(retry > 0)
+				if (retry > 0)
 					TestLog.ConsoleLog("driver failed to start. retrying " + retry + " more time(s) ...");
-				
+
 				Helper.wait.waitForSeconds(3);
 				if (retry == 0) {
 					// print out android help
-					if(driverObject.driverType.equals(DriverType.ANDROID_DRIVER))
-						printAndroidHelp(e);				
+					if (driverObject.driverType.equals(DriverType.ANDROID_DRIVER))
+						AndroidCapability.printAndroidHelp(e);
 					throw e;
 				}
 
@@ -206,54 +243,8 @@ public class AbstractDriverTestNG {
 		Helper.assertTrue("driver was not created", driver != null);
 		return driver;
 	}
-	
-	public static void printAndroidHelp(Exception e) {
-		String androidError = "It is impossible to create a new session";
-		String androidSolution = "*******************************************************************\r\n" + 
-				"\r\n" + 
-				"\r\n" + 
-				"\r\n" + 
-				"*******************************************************************\r\n" + 
-				"\r\n" + 
-				"1. this could be an environment issue. Try the following solutions:\r\n" + 
-				"    1. Turn on debugging in properties at resource folder for more info:\r\n" + 
-				"        1. appiumLogging = true\r\n" + 
-				"    2. set android home environment in properties\r\n" + 
-				"        1. androidHome = \"/Users/username/Library/Android/sdk\"\r\n" + 
-				"    3. please download appium doctor https://github.com/appium/appium-doctor\r\n" + 
-				"        1. download with command: npm install appium-doctor -g\r\n" + 
-				"        2. Run: appium-doctor -android\r\n" + 
-				"        3. Ensure the environment is setup properly\r\n" + 
-				"        4. Restart eclipse\r\n" + 
-				"    4. is appium terminal installation correct?\r\n" + 
-				"        1. command line: appium\r\n" + 
-				"            1. Does it start. If not install: “npm install -g appium”  or “sudo npm install -g appium --unsafe-perm=true --allow-root”\r\n" + 
-				"            2. Run against appium terminal\r\n" + 
-				"                1. In properties set:\r\n" + 
-				"                    1. useExternalAppiumServer = true\r\n" + 
-				"                    2. appiumExternalPort = 4723\r\n" + 
-				"                2. run test and see if it passes\r\n" + 
-				"    5. is simulator working correctly: Run\r\n" + 
-				"        1. adb uninstall io.appium.uiautomator2.server\r\n" + 
-				"        2. adb uninstall io.appium.uiautomator2.server.test \r\n" + 
-				"    6. Try running against appium desktop server\r\n" + 
-				"        1. Download and run appium desktop\r\n" + 
-				"        2. Start the server\r\n" + 
-				"        3. In properties at resource folder, set values\r\n" + 
-				"            1. useExternalAppiumServer = true\r\n" + 
-				"            2. appiumExternalPort = 4723\r\n" + 
-				"            3. \r\n" + 
-				"*******************************************************************\r\n" + 
-				"\r\n" + 
-				"\r\n" + 
-				"\r\n" + 
-				"*******************************************************************";
-		if(e.getMessage().contains(androidError)) {
-			System.out.println(androidSolution);
-		}
-	}
 
-	public static void getURL(String url) {
+	private static void getURL(String url) {
 		if (!url.isEmpty()) {
 			TestLog.logPass("I am the site '" + url + "'");
 			getWebDriver().get(url);

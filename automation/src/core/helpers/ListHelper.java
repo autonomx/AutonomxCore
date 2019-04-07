@@ -23,7 +23,7 @@ public class ListHelper {
 	}
 
 	/**
-	 * selects an element in list by its index value and waits for expected element
+	 * selects an element in list by its index value And waits for expected element
 	 * 
 	 * @param list
 	 * @param index
@@ -35,7 +35,7 @@ public class ListHelper {
 	}
 
 	/**
-	 * enters value into the search field and selects enter waits for the loading
+	 * enters value into the search field And selects enter waits for the loading
 	 * spinner to be removed
 	 * 
 	 * @param searchQuery
@@ -64,9 +64,9 @@ public class ListHelper {
 	}
 
 	/**
-	 * finds target element which is in the same container and has the same index as
+	 * finds target element which is in the same container And has the same index as
 	 * the parent eg. delete button in the list of customers, both having index 2.
-	 * we find the index by name, and use that to find the target element
+	 * we find the index by name, And use that to find the target element
 	 * 
 	 * @param list
 	 * @param option
@@ -100,7 +100,7 @@ public class ListHelper {
 
 	/**
 	 * Selects list item from a parent container eg. delete button in a list defined
-	 * by name find the container containing the name and then finds the delete
+	 * by name find the container containing the name And Then finds the delete
 	 * button in that container as target
 	 * 
 	 * @param list
@@ -120,9 +120,9 @@ public class ListHelper {
 	}
 
 	/**
-	 * finds target element which is in the same container and has the same index as
+	 * finds target element which is in the same container And has the same index as
 	 * the parent eg. delete button in the list of customers, both having index 2.
-	 * we find the index containing name, and use that to find the target element
+	 * we find the index containing name, And use that to find the target element
 	 * 
 	 * @param list
 	 * @param option
@@ -161,7 +161,7 @@ public class ListHelper {
 	}
 
 	/**
-	 * returns the index of text value in a list normalizes the list option when
+	 * returns the index of text value in a list normalizes the list option When
 	 * comparing using Helper.stringNormalize() returns first visible element index
 	 * 
 	 * @param list

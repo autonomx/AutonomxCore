@@ -7,7 +7,7 @@ import core.support.configReader.Config;
 /**
     1. enable windows development mode https://docs.microsoft.com/en-us/windows/uwp/get-started/enable-your-device-for-development
     2. Download Windows Application Driver installer from https://github.com/Microsoft/WinAppDriver/releases
-	3. Run the installer on a Windows 10 machine where your application under test is installed and will be tested
+	3. Run the installer on a Windows 10 machine where your application under test is installed And will be tested
 	4. Run WinAppDriver.exe from the installation directory (E.g. C:\Program Files (x86)\Windows Application Driver)
 	
 	https://github.com/Microsoft/WinAppDriver

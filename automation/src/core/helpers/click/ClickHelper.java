@@ -1,18 +1,22 @@
-package core.helpers;
+package core.helpers.click;
 
 import java.time.Duration;
 
 import org.openqa.selenium.interactions.Actions;
 
+import core.helpers.Element;
+import core.helpers.Helper;
 import core.support.logger.TestLog;
 import core.uiCore.drivers.AbstractDriver;
 import core.uiCore.webElement.EnhancedBy;
 import core.uiCore.webElement.EnhancedWebElement;
 
-public class ClickHelper {
+public class ClickHelper extends Element {
 
+	public static ClickHelperJs clickJs = new ClickHelperJs();
+	public static ClickHelperAction clickAction = new ClickHelperAction();
 	/**
-	 * clicks target and waits for expected element to display retries 10 times
+	 * clicks target And waits for expected element to display retries 10 times
 	 * 
 	 * @param target
 	 * @param expected
@@ -26,7 +30,7 @@ public class ClickHelper {
 	}
 
 	/**
-	 * click and expect based on the text value on the element. eg. button with "OK"
+	 * click And expect based on the text value on the element. eg. button with "OK"
 	 * text
 	 * 
 	 * @param target
@@ -48,11 +52,11 @@ public class ClickHelper {
 			isExpectedFound = Helper.wait.waitForElementToLoad(expected, targetWaitTimeInSeconds);
 		} while (!isExpectedFound && retry > 0);
 
-		AssertHelper.assertTrue("expected element not found: " + expected.name, isExpectedFound);
+		Helper.assertTrue("expected element not found: " + expected.name, isExpectedFound);
 	}
 
 	/**
-	 * clicks element based on index and waits for expected element to be displayed
+	 * clicks element based on index And waits for expected element to be displayed
 	 * 
 	 * @param target
 	 * @param index
@@ -80,12 +84,12 @@ public class ClickHelper {
 			TestLog.ConsoleLog("clickAndExpect: expected: " + expected.name + " : " + isExpectedFound);
 		} while (!isExpectedFound && retry > 0);
 
-		AssertHelper.assertTrue("expected element not found: " + expected.name, isExpectedFound);
+		Helper.assertTrue("expected element not found: " + expected.name, isExpectedFound);
 	}
 	
 	
 	/**
-	 * click and expect using action click
+	 * click And expect using action click
 	 * @param target
 	 * @param expected
 	 */
@@ -94,7 +98,7 @@ public class ClickHelper {
 	}
 	
 	/**
-	 * click and expect using action click
+	 * click And expect using action click
 	 * @param target
 	 * @param index
 	 * @param expected
@@ -119,11 +123,11 @@ public class ClickHelper {
 			TestLog.ConsoleLog("clickAndExpect: expected: " + expected.name + " : " + isExpectedFound);
 		} while (!isExpectedFound && retry > 0);
 
-		AssertHelper.assertTrue("expected element not found: " + expected.name, isExpectedFound);
+		Helper.assertTrue("expected element not found: " + expected.name, isExpectedFound);
 	}
 	
 	/**
-	 * clicks element based on index and waits for expected element to be displayed
+	 * clicks element based on index And waits for expected element to be displayed
 	 * 
 	 * @param target
 	 * @param index
@@ -134,7 +138,7 @@ public class ClickHelper {
 	}
     
 	/**
-	 * click and expect for either element
+	 * click And expect for either element
 	 * @param target
 	 * @param index
 	 * @param expected1
@@ -161,11 +165,11 @@ public class ClickHelper {
 					+ isExpectedFound);
 		} while (!isExpectedFound && retry > 0);
 
-		AssertHelper.assertTrue("expected element not found: " + expected1.name, isExpectedFound);
+		Helper.assertTrue("expected element not found: " + expected1.name, isExpectedFound);
 	}
 
 	/**
-	 * clicks target and waits for expected element to show up also waits for
+	 * clicks target And waits for expected element to show up also waits for
 	 * spinner element to be removed from display
 	 * 
 	 * @param target
@@ -191,7 +195,7 @@ public class ClickHelper {
 			isExpectedFound = Helper.wait.waitForElementToLoad(expected, targetWaitTimeInSeconds);
 		} while (!isExpectedFound && retry > 0);
 
-		AssertHelper.assertTrue("expected element not found: " + expected.name, isExpectedFound);
+		Helper.assertTrue("expected element not found: " + expected.name, isExpectedFound);
 
 	}
 
@@ -200,7 +204,7 @@ public class ClickHelper {
 	}
 
 	/**
-	 * clicks target and waits for expected to not be displayed retries 10 times
+	 * clicks target And waits for expected to not be displayed retries 10 times
 	 * 
 	 * @param target
 	 * @param expected
@@ -224,12 +228,12 @@ public class ClickHelper {
 			expectedElement = Element.findElements(expected);
 		} while (expectedElement.isExist() && retry > 0);
 
-		AssertHelper.assertTrue("expected element found", !expectedElement.isExist());
+		Helper.assertTrue("expected element found", !expectedElement.isExist());
 
 	}
 
 	/**
-	 * clicks target and waits for seconds
+	 * clicks target And waits for seconds
 	 * 
 	 * @param target
 	 * @param expected
@@ -239,7 +243,7 @@ public class ClickHelper {
 	}
 
 	/**
-	 * clicks target and waits for seconds
+	 * clicks target And waits for seconds
 	 * 
 	 * @param target
 	 * @param expected
@@ -302,7 +306,7 @@ public class ClickHelper {
 	}
 	
 	/**
-	 * click and hold element
+	 * click And hold element
 	 * @param target
 	 * @param seconds
 	 */
@@ -311,7 +315,7 @@ public class ClickHelper {
 	}
 	
 	/**
-	 * click and hold based on element index
+	 * click And hold based on element index
 	 * @param target
 	 * @param index
 	 * @param seconds
@@ -328,7 +332,7 @@ public class ClickHelper {
 	}
 	
 	/**
-	 * drag and drop from src element to target element
+	 * drag And drop from src element to target element
 	 * @param src
 	 * @param target
 	 */
@@ -344,7 +348,7 @@ public class ClickHelper {
 	}
 	
 	/**
-	 * drag and drop from src element to target element
+	 * drag And drop from src element to target element
 	 * @param src
 	 * @param target
 	 */

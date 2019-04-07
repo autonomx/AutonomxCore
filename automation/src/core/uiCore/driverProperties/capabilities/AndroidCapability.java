@@ -119,7 +119,7 @@ public class AndroidCapability {
 		// set port for appium 
 		setPort(TestObject.getTestInfo().deviceName);	
 		
-		// if single signin is set, then do not reset the app after each test
+		// if single signin is set, Then do not reset the app after each test
 		setSingleSignIn();
 		
         return this;
@@ -128,7 +128,7 @@ public class AndroidCapability {
 	/**
 	 * set capabilties with prefix android.capabilties.
 	 * eg. android.capabilties.fullReset="false
-	 * iterates through all property values with such prefix and adds them to android desired capabilities
+	 * iterates through all property values with such prefix And adds them to android desired capabilities
 	 * @return 
 	 */
 	public DesiredCapabilities setAndroidCapabilties() {
@@ -152,7 +152,7 @@ public class AndroidCapability {
 
 	/**
 	 * set chrome version if value set in properties file to use: set
-	 * appiumChromeVersion, then appiumChromeAutoManage if appiumChromeAutoManage =
+	 * appiumChromeVersion, Then appiumChromeAutoManage if appiumChromeAutoManage =
 	 * true : version will automatically download if appiumChromeAutoManage = false
 	 * : set the path to the location
 	 */
@@ -185,7 +185,7 @@ public class AndroidCapability {
 	}
 
 	/**
-	 * if adb device contains emulator, then its an emulator otherwise, its a
+	 * if adb device contains emulator, Then its an emulator otherwise, its a
 	 * connected real device
 	 * 
 	 * @param devices
@@ -324,6 +324,38 @@ public class AndroidCapability {
 			} else {
 				setSimulator();
 			}
+		}
+	}
+	
+	public static void printAndroidHelp(Exception e) {
+		String androidError = "It is impossible to create a new session";
+		String androidSolution = "*******************************************************************\r\n" + "\r\n"
+				+ "\r\n" + "\r\n" + "*******************************************************************\r\n" + "\r\n"
+				+ "1. this could be an environment issue. Try the following solutions:\r\n"
+				+ "    1. Turn on debugging in properties at resource folder for more info:\r\n"
+				+ "        1. appiumLogging = true\r\n" + "    2. set android home environment in properties\r\n"
+				+ "        1. androidHome = \"/Users/username/Library/Android/sdk\"\r\n"
+				+ "    3. please download appium doctor https://github.com/appium/appium-doctor\r\n"
+				+ "        1. download with command: npm install appium-doctor -g\r\n"
+				+ "        2. Run: appium-doctor -android\r\n"
+				+ "        3. Ensure the environment is setup properly\r\n" + "        4. Restart eclipse\r\n"
+				+ "    4. is appium terminal installation correct?\r\n" + "        1. command line: appium\r\n"
+				+ "            1. Does it start. If not install: “npm install -g appium”  or “sudo npm install -g appium --unsafe-perm=true --allow-root”\r\n"
+				+ "            2. Run against appium terminal\r\n" + "                1. In properties set:\r\n"
+				+ "                    1. useExternalAppiumServer = true\r\n"
+				+ "                    2. appiumExternalPort = 4723\r\n"
+				+ "                2. run test And see if it passes\r\n"
+				+ "    5. is simulator working correctly: Run\r\n"
+				+ "        1. adb uninstall io.appium.uiautomator2.server\r\n"
+				+ "        2. adb uninstall io.appium.uiautomator2.server.test \r\n"
+				+ "    6. Try running against appium desktop server\r\n"
+				+ "        1. Download And run appium desktop\r\n" + "        2. Start the server\r\n"
+				+ "        3. In properties at resource folder, set values\r\n"
+				+ "            1. useExternalAppiumServer = true\r\n" + "            2. appiumExternalPort = 4723\r\n"
+				+ "            3. run test\r\n" + "*******************************************************************\r\n"
+				+ "\r\n" + "\r\n" + "\r\n" + "*******************************************************************";
+		if (e.getMessage().contains(androidError)) {
+			System.out.println(androidSolution);
 		}
 	}
 }

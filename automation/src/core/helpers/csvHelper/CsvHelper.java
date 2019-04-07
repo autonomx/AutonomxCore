@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import au.com.bytecode.opencsv.CSVParser;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
@@ -44,6 +45,47 @@ public class CsvHelper {
 		CSVReader readcsv;
 		try {
 			readcsv = new CSVReader(new FileReader(filePath + csv.csvFile));
+			csvList = readcsv.readAll();
+			readcsv.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return csvList;
+	}
+	
+	/**
+	 * gets all csv data in list of string arrays
+	 * 
+	 * @param csv
+	 *            - requires. csv.csvFile
+	 * @return
+	 * @throws Exception
+	 */
+	public static List<String[]> getAllCsvData(String filePath) {
+		List<String[]> csvList = new ArrayList<String[]>();
+		CSVReader readcsv;
+		try {
+			readcsv = new CSVReader(new FileReader(filePath));
+			csvList = readcsv.readAll();
+			readcsv.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return csvList;
+	}
+	
+	/**
+	 * gets all csv data files skipping first row as header
+	 * @param filePath
+	 * @return
+	 */
+	public static List<String[]> getAllCsvDataFirstRowAsHeader(String filePath) {
+		//filePath = "/Users/Shared/Jenkins/Documents/Selenium/automation-client/automation/resources/testData/webApp/User.csv";
+		List<String[]> csvList = new ArrayList<String[]>();
+		CSVReader readcsv;
+		try {
+			readcsv = new CSVReader( new FileReader(filePath), CSVParser.DEFAULT_SEPARATOR,
+		               CSVParser.DEFAULT_QUOTE_CHARACTER, 1);
 			csvList = readcsv.readAll();
 			readcsv.close();
 		} catch (Exception e) {

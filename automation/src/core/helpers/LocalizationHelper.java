@@ -143,7 +143,7 @@ public class LocalizationHelper {
 				// TestObject.getTestInfo().languageMap.put(COLUMNS_KEY,
 				// getColumnHeaders(parser));
 
-				// add english as key and target local as value to the localList
+				// add english as key And target local as value to the localList
 				for (CSVRecord csvRecord : parser) {
 
 					String key = csvRecord.get(DEFAULT_LOCAL);

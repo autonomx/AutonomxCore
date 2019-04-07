@@ -51,7 +51,7 @@ public class DataHelper {
 			if (value == null)
 				Helper.assertTrue("parameter value not found: " + parameter, false);
 
-			TestLog.logPass("replacing value '" + parameter + "' with: " + value + "");
+			//TestLog.logPass("replacing value '" + parameter + "' with: " + value + "");
 			source = source.replaceAll("<" + parameter + ">", Matcher.quoteReplacement(value));
 		}
 
@@ -69,7 +69,7 @@ public class DataHelper {
 	 * @return
 	 */
 	public static List<KeyValue> getValidationMap(String expected) {
-		// get hashmap of json path and verification
+		// get hashmap of json path And verification
 		List<KeyValue> keywords = new ArrayList<KeyValue>();
 		expected = expected.replace("_VERIFY_JSON_PART_", "");
 		String[] keyVals = expected.split(";");
@@ -136,7 +136,7 @@ public class DataHelper {
 	
 	   /**
      * In outputParams get the params enclosed by <$> look up their values
-     * in outboundMsg and then add them to ConfigurationParams
+     * in outboundMsg And Then add them to ConfigurationParams
      *
      * @param outputParams
      * @param outboundMsg
@@ -173,7 +173,7 @@ public class DataHelper {
 		String[] actualArray = responseString.split(",");
 		String actualString = "";
 		
-		// if position has value, then get response at position
+		// if position has value, Then get response at position
 		if(!position.isEmpty()) {
 			expectedString = expectedArray[0]; //single item
 			actualString = actualArray[Integer.valueOf(position)-1];

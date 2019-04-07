@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.core</groupId>
 	<artifactId>automationCore</artifactId>
-	<version>1.0.34</version>
+	<version>1.0.37</version>
 	<packaging>jar</packaging>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
@@ -225,13 +225,6 @@
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
 			<version>20180813</version>
-		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/org.inferred/freebuilder -->
-		<dependency>
-			<groupId>org.inferred</groupId>
-			<artifactId>freebuilder</artifactId>
-			<version>2.1.0</version>
 		</dependency>
 
 		<dependency>

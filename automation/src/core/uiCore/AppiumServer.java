@@ -72,7 +72,7 @@ public class AppiumServer {
 	
 	public static Map<String, String> setEnvVariables() {
 		Map<String, String> env = new HashMap<>(System.getenv());
-		// Note: android home and java home may need to be set on osx environment
+		// Note: android home And java home may need to be set on osx environment
 
 		// set android home
 		if (!Config.getValue(ANDROID_HOME).isEmpty())

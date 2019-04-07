@@ -153,7 +153,7 @@ public class UtilityHelper {
 	}
 
 	/**
-	 * runs shell command and returns results as an array list
+	 * runs shell command And returns results as an array list
 	 * 
 	 * @param cmd
 	 * @return
@@ -186,7 +186,7 @@ public class UtilityHelper {
 	}
 
 	/**
-	 * Copies directory and all content from dirFrom to dirTo overwrites the content
+	 * Copies directory And all content from dirFrom to dirTo overwrites the content
 	 * 
 	 * @param dirFrom
 	 * @param dirTo
@@ -325,7 +325,7 @@ public class UtilityHelper {
 	/**
 	 * sends slack notification token: generate at:
 	 * https://api.slack.com/custom-integrations/legacy-tokens for channel id: right
-	 * click and channel and copy link. the id is attached to the link see
+	 * click And channel And copy link. the id is attached to the link see
 	 * properties file for values to use
 	 */
 	public static void slackNotificationWithFile(String title, String comment, String filePath) {
@@ -372,7 +372,7 @@ public class UtilityHelper {
 		if (listOfFiles == null)
 			Helper.assertTrue("test files not found at: " + directoryPath, false);
 
-		// filter files by suffix and add to testFiles list
+		// filter files by suffix And add to testFiles list
 		for (int i = 0; i < listOfFiles.length; i++) {
 			if (listOfFiles[i].isFile() && listOfFiles[i].getName().endsWith(type)) {
 				testFiles.add(listOfFiles[i]);
@@ -381,9 +381,29 @@ public class UtilityHelper {
 		}
 		return testFiles;
 	}
+	
+	/**
+	 * gets list of files including from sub folder based on type. eg. ".csv"
+	 * @return 
+	 */
+	protected static List<File> getFileListWithSubfolders(String directoryName, String type, List<File> files) {
+	    File directory = new File(directoryName);
+
+	    // Get all files from a directory.
+	    File[] fList = directory.listFiles();
+	    if(fList != null)
+	        for (File file : fList) {      
+	            if (file.isFile() && file.getName().endsWith(type)) {
+	                files.add(file);
+	            } else if (file.isDirectory()) {
+	            	getFileListWithSubfolders(file.getAbsolutePath(), type, files);
+	            }
+	        }
+	    return files;
+	 }
 
 	/**
-	 * captures screenshot and attaches to extent test report
+	 * captures screenshot And attaches to extent test report
 	 * 
 	 * @param description
 	 */
@@ -463,18 +483,18 @@ public class UtilityHelper {
 			double widthRatio = (double) originalImageWidth / actualTestWidth;
 			double heightRatio = (double) originalImageHeight / actualTestHeight;
 
-			// get the width and height of the WebElement using getSize()
+			// get the width And height of the WebElement using getSize()
 			int elementWidth = targetElement.get(index).getSize().getWidth();
 			int elementHeight = targetElement.get(index).getSize().getHeight();
 
-			// create a rectangle using width and height
+			// create a rectangle using width And height
 			Rectangle rect = new Rectangle(elementWidth, elementHeight);
 
 			// get the location of WebElement in a Point.
 			// this will provide X & Y co-ordinates of the WebElement
 			Point p = targetElement.get(index).getLocation();
 
-			// create image for element using its location and size.
+			// create image for element using its location And size.
 			// this will give image data specific to the WebElement
 			int xValue = (int) (p.getX() * widthRatio);
 			int yValue = (int) (p.getY() * heightRatio);

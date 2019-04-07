@@ -108,7 +108,7 @@ public class VerifyHelper {
 
 	/**
 	 * verifies element count element must be > 0 correct value: if more elements
-	 * than needed are identified. eg. 4 ids, but 3 only are download ids.
+	 * than needed are identified. eg. 4 ids, But 3 only are download ids.
 	 * correction applicable to mobile
 	 *
 	 * @param by

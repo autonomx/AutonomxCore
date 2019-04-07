@@ -120,7 +120,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		TestLog.Then("Test is finished successfully");
 		TestLog.printLogsToConsole();
 
-		// if single signin is set, then set isFirstRun to false so new driver is not
+		// if single signin is set, Then set isFirstRun to false so new driver is not
 		// created for next test
 		if (CrossPlatformProperties.isSingleSignIn()) {
 			// driver is now available
@@ -177,7 +177,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 	@Override
 	public void onTestFailedButWithinSuccessPercentage(ITestResult iTestResult) {
-		TestLog.ConsoleLog("Test failed but it is in defined success ratio " + TestObject.getTestInfo().testName);
+		TestLog.ConsoleLog("Test failed But it is in defined success ratio " + TestObject.getTestInfo().testName);
 	}
 
 	/**
@@ -268,7 +268,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		String suitename = suite.getName();
 		suitename = suitename.replaceAll("\\s", "");
 
-		// global identified for the app. if suite is default, then app_indentifier is
+		// global identified for the app. if suite is default, Then app_indentifier is
 		// used for test run id
 		TestObject.APP_IDENTIFIER = getTestPackage(suite);
 		TestObject.SUITE_NAME = suitename;
@@ -279,7 +279,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 	}
 
 	/**
-	 * gets package name excluding the first item before and after . eg.
+	 * gets package name excluding the first item before And after . eg.
 	 * Module.web.test.LoginTest becomes web.tests
 	 * 
 	 * @param suite

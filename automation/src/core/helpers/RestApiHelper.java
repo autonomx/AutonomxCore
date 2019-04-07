@@ -6,7 +6,7 @@ import org.json.JSONException;
 import core.apiCore.interfaces.RestApiInterface;
 import core.support.configReader.Config;
 import core.support.logger.TestLog;
-import core.support.objects.ApiObject;
+import core.support.objects.ServiceObject;
 import core.support.objects.TestObject;
 import io.restassured.response.Response;
 
@@ -15,7 +15,7 @@ public class RestApiHelper {
 	/**
 	 * runApiContaining("name", "zzz_","getCompanies",
 	 * "id","companyId","deleteCompany") get all companies with name containing
-	 * zzz_, then gets id of these companies, stores them in companyId variable and
+	 * zzz_, Then gets id of these companies, stores them in companyId variable And
 	 * calls deleteCompany
 	 * 
 	 * @param getApi:
@@ -35,7 +35,7 @@ public class RestApiHelper {
 	protected static void runApiContaining(String identifier, String prefix, String getApi, String targetApiId,
 			String variable, String targerApi) throws JSONException {
 		// gets all api values
-		ApiObject api = TestObject.getApiDef(getApi);
+		ServiceObject api = TestObject.getApiDef(getApi);
 		Response response = RestApiInterface.RestfullApiInterface(api);
 		JSONArray valueArray = new JSONArray(response.body().asString());
 
@@ -57,7 +57,7 @@ public class RestApiHelper {
 	/**
 	 * runApiEquals("name", "test123","getCompanies",
 	 * "id","companyId","deleteCompany") get all companies with name equals test123,
-	 * then gets id of these companies and calls delete with id
+	 * Then gets id of these companies And calls delete with id
 	 * 
 	 * @param getApi:
 	 *            api to search for identifier. eg. name equals "test123"
@@ -76,7 +76,7 @@ public class RestApiHelper {
 	protected static void runApiEquals(String identifier, String value, String getApi, String targetApiId,
 			String variable, String targerApi) throws JSONException {
 		// gets all api values
-		ApiObject api = TestObject.getApiDef(getApi);
+		ServiceObject api = TestObject.getApiDef(getApi);
 		Response response = RestApiInterface.RestfullApiInterface(api);
 		JSONArray valueArray = new JSONArray(response.body().asString());
 

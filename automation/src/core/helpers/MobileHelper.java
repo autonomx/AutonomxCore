@@ -85,7 +85,7 @@ public class MobileHelper {
 	}
 
 	/**
-	 * places the app in background and then relaunches it
+	 * places the app in background And Then relaunches it
 	 */
 	public void refreshMobileApp() {
 		if (isMobile()) {
@@ -158,6 +158,7 @@ public class MobileHelper {
 	 * 
 	 * @param element
 	 */
+	@SuppressWarnings("unused")
 	@Deprecated
 	private void scrollToiOS(EnhancedBy element) {
 		if (isIOS()) {
@@ -177,6 +178,7 @@ public class MobileHelper {
 
 	// iOS scroll by object
 	@Deprecated
+	@SuppressWarnings("unused")
 	private boolean swipeToDirection_iOS_XCTest(EnhancedBy element, String direction) {
 		try {
 			EnhancedWebElement targetElement = Element.findElements(element);
@@ -206,6 +208,7 @@ public class MobileHelper {
 	 * @return
 	 */
 	@Deprecated 
+	@SuppressWarnings("unused")
 	private boolean scrollToDirection_iOS_XCTest(EnhancedBy element, String direction) {
 		// The main difference from swipe call with the same argument is that scroll
 		// will try to move
@@ -226,7 +229,7 @@ public class MobileHelper {
 				scrollObject.put("direction", "right");
 			}
 			scrollObject.put("element", ((RemoteWebElement) targetElement.get(0)).getId());
-			scrollObject.put("toVisible", "true"); // optional but needed sometimes
+			scrollObject.put("toVisible", "true"); // optional But needed sometimes
 			js.executeScript("mobile:scroll", scrollObject);
 			return true;
 		} catch (Exception e) {
@@ -309,10 +312,11 @@ public class MobileHelper {
 	}
 
 	/**
-	 * set context for android and ios apps
+	 * set context for android And ios apps
 	 * 
 	 * @param context
 	 */
+	@SuppressWarnings("unchecked")
 	public void setAppiumContexts(String context) {
 		TestLog.logPass("I set context to '" + context + "'");
 		Set<String> contextNames = getAppiumDriver().getContextHandles();
@@ -342,7 +346,7 @@ public class MobileHelper {
 	}
 
 	/**
-	 * long press and expect element
+	 * long press And expect element
 	 * 
 	 * @param target
 	 * @param miliSeconds
@@ -369,7 +373,7 @@ public class MobileHelper {
 	}
 
 	/**
-	 * TODO: enhance to become longpress and expect presses the target element
+	 * TODO: enhance to become longpress And expect presses the target element
 	 * 
 	 * @param target
 	 * @param index
@@ -397,7 +401,7 @@ public class MobileHelper {
 	}
 
 	/**
-	 * zooms out and checks if target level indicator has been reached
+	 * zooms out And checks if target level indicator has been reached
 	 * 
 	 * @param zoomLevel
 	 * @param indicator
@@ -414,7 +418,7 @@ public class MobileHelper {
 	}
 
 	/**
-	 * zooms in and checks if target level indicator has been reached
+	 * zooms in And checks if target level indicator has been reached
 	 * 
 	 * @param zoomLevel
 	 * @param indicator
@@ -452,16 +456,17 @@ public class MobileHelper {
 
 		switch (inOut) {
 		case "out":
-			touchAction0.press(PointOption.point(screenWidth / 2 - 100, screenHeight / 2 + 100))
-					.moveTo(PointOption.point(50, -50)).release();
-			touchAction1.press(PointOption.point(screenWidth / 2 + 100, (screenHeight / 2) - 100))
-					.moveTo(PointOption.point(-50, 50)).release();
+			touchAction0.press(PointOption.point(screenWidth / 2 + 100, screenHeight / 2 + 100))
+					.moveTo(PointOption.point(screenWidth / 2 + 95, screenWidth / 2 + 95)).release();
+			touchAction1.press(PointOption.point(screenWidth / 2 - 100, (screenHeight / 2) - 100))
+					.moveTo(PointOption.point(screenWidth / 2 - 95, screenWidth / 2 - 95)).release();
 			break;
 		case "in":
-			touchAction0.press(PointOption.point(screenWidth / 2, screenHeight / 2)).moveTo(PointOption.point(50, -50))
+			touchAction0.press(PointOption.point(screenWidth / 2 -5, screenHeight / 2 -5))
+			.moveTo(PointOption.point(screenWidth / 2 - 10, screenWidth / 2 - 10))
 					.release();
-			touchAction1.press(PointOption.point(screenWidth / 2, (screenHeight / 2) + 100))
-					.moveTo(PointOption.point(-50, 50)).release();
+			touchAction1.press(PointOption.point(screenWidth / 2 + 5, (screenHeight / 2) + 5))
+					.moveTo(PointOption.point(screenWidth / 2 + 10, screenWidth / 2 + 10)).release();
 			break;
 		default:
 			break;
@@ -492,7 +497,7 @@ public class MobileHelper {
 
 	/*
 	 * don't forget that it's "natural scroll" where fromY is the point where you
-	 * press the and toY where you release it
+	 * press the And toY where you release it
 	 */
 	public void scroll(int fromX, int fromY, int toX, int toY) {
 		TouchAction touchAction = new TouchAction((AppiumDriver) AbstractDriver.getWebDriver());

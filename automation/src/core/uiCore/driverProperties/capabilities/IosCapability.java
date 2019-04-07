@@ -119,7 +119,7 @@ public class IosCapability {
 	/**
 	 * set capabilties with prefix ios.capabilties.
 	 * eg. ios.capabilties.fullReset="false
-	 * iterates through all property values with such prefix and adds them to android desired capabilities
+	 * iterates through all property values with such prefix And adds them to android desired capabilities
 	 * @return 
 	 */
 	public DesiredCapabilities setiOSCapabilties() {
@@ -156,7 +156,7 @@ public class IosCapability {
 	}
 
 	/**
-	 * if adb device contains emulator, then its an emulator otherwise, its a
+	 * if adb device contains emulator, Then its an emulator otherwise, its a
 	 * connected real device
 	 * 
 	 * @param devices

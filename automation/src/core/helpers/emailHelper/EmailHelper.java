@@ -74,7 +74,7 @@ public class EmailHelper {
 		if (!isMailFound) {
 			throw new Exception("Could not find new mail");
 
-			// Read the content of mail and launch registration URL
+			// Read the content of mail And launch registration URL
 		} else {
 			String line;
 			StringBuffer buffer = new StringBuffer();
@@ -83,7 +83,7 @@ public class EmailHelper {
 				buffer.append(line);
 			}
 
-			// Your logic to split the message and get the Registration URL goes
+			// Your logic to split the message And get the Registration URL goes
 			// here
 			String registrationURL = buffer.toString().split("&amp;gt;http://www.god.de/members/?")[0]
 					.split("href=")[1];
