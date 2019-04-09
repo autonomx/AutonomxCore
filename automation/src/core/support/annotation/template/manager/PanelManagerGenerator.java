@@ -45,7 +45,6 @@ public class PanelManagerGenerator {
 			bw.append("/**Auto generated code,don't modify it.\n");
 			bw.append("* Author             ---- > Auto Generated.\n");
 			bw.append("* Date  And Time     ---- > " + currentDate.toString() + "\n");
-			bw.append("* Source             -----> " + fileObject.getName() + "\n");
 			bw.append("*");
 			bw.append("**/\n\n\n\n");
 			bw.append("package " + PackageHelper.getPackagePath(firstElement) + ";\n");
