@@ -314,7 +314,11 @@ public class UtilityHelper {
 	 */
 	protected static String getCurrentDir() {
 		String current = "";
-		current = System.getProperty("user.dir") + File.separator;
+		try {
+			current = new File(".").getCanonicalPath() + File.separator;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		return current;
 	}
 
