@@ -314,14 +314,7 @@ public class UtilityHelper {
 	 */
 	protected static String getCurrentDir() {
 		String current = "";
-		try {
-			current = new File(".").getCanonicalPath() + File.separator ;
-			//Path workingDirectory=Paths.get("").toAbsolutePath();
-			current = System.getProperty("user.dir") + File.separator;
-			System.out.println(current);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		current = System.getProperty("user.dir") + File.separator;
 		return current;
 	}
 
