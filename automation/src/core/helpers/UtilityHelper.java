@@ -239,7 +239,7 @@ public class UtilityHelper {
 			byte[] buf = new byte[1024];
 			int len;
 			FileInputStream in = new FileInputStream(srcFile);
-			zip.putNextEntry(new ZipEntry(path + "/" + folder.getName()));
+			zip.putNextEntry(new ZipEntry(path + File.separator + folder.getName()));
 			while ((len = in.read(buf)) > 0) {
 				zip.write(buf, 0, len);
 			}
@@ -253,9 +253,9 @@ public class UtilityHelper {
 
 		for (String fileName : folder.list()) {
 			if (path.equals("")) {
-				addFileToZip(folder.getName(), srcFolder + "/" + fileName, zip);
+				addFileToZip(folder.getName(), srcFolder + File.separator + fileName, zip);
 			} else {
-				addFileToZip(path + "/" + folder.getName(), srcFolder + "/" + fileName, zip);
+				addFileToZip(path + File.separator + folder.getName(), srcFolder + File.separator + fileName, zip);
 			}
 		}
 	}
@@ -315,7 +315,10 @@ public class UtilityHelper {
 	protected static String getCurrentDir() {
 		String current = "";
 		try {
-			current = new java.io.File(".").getCanonicalPath() + "/";
+			current = new File(".").getCanonicalPath() + File.separator ;
+			//Path workingDirectory=Paths.get("").toAbsolutePath();
+			current = System.getProperty("user.dir") + File.separator;
+			System.out.println(current);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -344,9 +347,9 @@ public class UtilityHelper {
 	/**
 	 * zips directory path starts from root pom directory
 	 * 
-	 * @param dir:
+	 * @param sourceDir:
 	 *            root path + dir
-	 * @param outputFilePath:
+	 * @param destFilePath:
 	 *            usage: root + dir + outputFilePath
 	 * @return
 	 */
@@ -370,7 +373,7 @@ public class UtilityHelper {
 
 		// fail test if no csv files found
 		if (listOfFiles == null)
-			Helper.assertTrue("test files not found at: " + directoryPath, false);
+			Helper.assertTrue("test files not found at: <" + directoryPath + "> type: " + type, false);
 
 		// filter files by suffix And add to testFiles list
 		for (int i = 0; i < listOfFiles.length; i++) {
@@ -405,7 +408,6 @@ public class UtilityHelper {
 	/**
 	 * captures screenshot And attaches to extent test report
 	 * 
-	 * @param description
 	 */
 	protected static void captureExtentReportScreenshot() {
 		Date now = new Date(); 
