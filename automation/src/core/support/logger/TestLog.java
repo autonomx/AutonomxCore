@@ -318,7 +318,7 @@ public class TestLog {
 
 		// if batch logging is disabled, log to console
 		Boolean enableBatchLogging = CrossPlatformProperties.getEnableBatchLogging();
-		value = Helper.date.getTimestampSeconds() + ":" +getTestLogPrefix() + value;
+		value = Helper.date.getTimestampSeconds() + " : " + getTestLogPrefix() + value;
 		if (!enableBatchLogging)
 			TestObject.getTestInfo().log.log(priority, value);
 

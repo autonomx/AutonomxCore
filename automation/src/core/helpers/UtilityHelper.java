@@ -9,6 +9,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -313,13 +315,8 @@ public class UtilityHelper {
 	 * @return
 	 */
 	protected static String getCurrentDir() {
-		String current = "";
-		try {
-			current = new File(".").getCanonicalPath() + File.separator;
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return current;
+		Path currentWorkingDir = Paths.get("").toAbsolutePath();
+		return currentWorkingDir.normalize().toString() + File.separator;
 	}
 
 	/**
@@ -370,7 +367,7 @@ public class UtilityHelper {
 
 		// fail test if no csv files found
 		if (listOfFiles == null)
-			Helper.assertTrue("test files not found at: <" + directoryPath + "> type: " + type, false);
+			Helper.assertTrue("test files not found at: " + directoryPath + " type: " + type, false);
 
 		// filter files by suffix And add to testFiles list
 		for (int i = 0; i < listOfFiles.length; i++) {
