@@ -42,9 +42,10 @@ public class WebCapability {
 		System.setProperty("webdriver.chrome.args", "--disable-logging");
 		System.setProperty("webdriver.chrome.silentOutput", "true");
 
-		capabilities.setCapability("recordVideo", false);
+		capabilities.setCapability("recordVideo", true);
 		capabilities.setCapability("takesScreenshot", true);
-
+		capabilities.setBrowserName(getBrowserName());
+		
 		LoggingPreferences logs = new LoggingPreferences();
 		logs.enable(LogType.DRIVER, Level.SEVERE);
 
@@ -86,6 +87,12 @@ public class WebCapability {
 	public BrowserType getBrowser() {
 		String value = Config.getValue("web.browserType");
 		return Enum.valueOf(BrowserType.class, value);
+	}
+	
+	public String getBrowserName() {
+		String browsername = getBrowser().toString().toLowerCase();
+		browsername =  browsername.replace("_", "");
+		return browsername;
 	}
 
 	public String getDriverVersion() {
