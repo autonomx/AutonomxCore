@@ -2,11 +2,14 @@ package core.apiCore.interfaces;
 
 import static io.restassured.RestAssured.given;
 
+import java.util.List;
+
 import core.apiCore.helpers.DataHelper;
 import core.apiCore.helpers.JsonHelper;
 import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.logger.TestLog;
+import core.support.objects.KeyValue;
 import core.support.objects.ServiceObject;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -126,11 +129,16 @@ public class RestApiInterface {
 		// replace parameters for request body
 		apiObject.withRequestHeaders( DataHelper.replaceParameters(apiObject.getRequestHeaders()));
 
-		// if Authorization is set
-		if (apiObject.getRequestHeaders().contains("Authorization:")) {
-			String token = apiObject.getRequestHeaders().replace("Authorization:", "");
-			request = given().header("Authorization", token);
+		List<KeyValue> keywords = DataHelper.getValidationMap(apiObject.getRequestHeaders());
+		for (KeyValue keyword : keywords) {
+			request = given().header(keyword.key, keyword.value);
 		}
+		
+//		// if Authorization is set
+//		if (apiObject.getRequestHeaders().contains("Authorization:")) {
+//			String token = apiObject.getRequestHeaders().replace("Authorization:", "");
+//			request = given().header("Authorization", token);
+//		}
 
 		// if additional request headers
 		switch (apiObject.getRequestHeaders()) {

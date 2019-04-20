@@ -87,9 +87,12 @@ public class DataHelper {
 				 position = Helper.stringRemoveLines(parts[1]);
 				 value = Helper.stringRemoveLines(parts[2]);
 			}
-
-			KeyValue keyword = new KeyValue(key, position, value);
-			keywords.add(keyword);
+			
+			// if there is a value
+			if(!key.isEmpty()) {
+				KeyValue keyword = new KeyValue(key, position, value);
+				keywords.add(keyword);
+			}
 		}
 		return keywords;
 	}
