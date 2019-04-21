@@ -18,6 +18,7 @@ import org.testng.xml.XmlSuite.ParallelMode;
 import com.google.common.base.Joiner;
 
 import core.helpers.Helper;
+import core.support.configReader.Config;
 import core.support.logger.ExtentManager;
 import core.support.logger.TestLog;
 import core.support.objects.DeviceManager;
@@ -100,9 +101,35 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		DriverObject.quitAllDrivers();
 		ExtentManager.launchReportAfterTest();
 		ExtentManager.printReportLink();
+		sendReport(iTestContext);
+	}
+	
+	/**
+	 * send slack or email report
+	 * depend on slack.notifyOnFailureOnly or email.notifyOnFailureOnly
+	 * email.enableEmailReport and slack.enableSlackNotification have to be set true for send to occur
+	 * @param iTestContext
+	 */
+	private void sendReport(ITestContext iTestContext) {
 		String message = generateTestMessage(iTestContext); // generate report message
-		ExtentManager.slackNotification(message); // send slack notification
-		ExtentManager.emailTestReport(message); // send test report
+		
+		boolean hasErrors = iTestContext.getFailedTests().size() > 0;
+		boolean slackNotifyOnFailOnly = Config.getBooleanValue(ExtentManager.NOTIFY_SLACK_ON_FAIL_ONLY);
+		boolean emailNotifyOnFailOnly = Config.getBooleanValue(ExtentManager.NOTIFY_EMAIL_ON_FAIL_ONLY);
+
+		// send slack notification if error only is set and test fails exist, else if error only is false, send slack
+		if(slackNotifyOnFailOnly && hasErrors) {
+			ExtentManager.slackNotification(message); // send slack notification
+		}else if(!slackNotifyOnFailOnly) {
+			ExtentManager.slackNotification(message); // send slack notification
+		}
+		
+		// send email notification if error only is set and test fails exist, else if error only is false, send slack	
+		if(emailNotifyOnFailOnly && hasErrors) {
+			ExtentManager.emailTestReport(message); // send slack notification
+		}else if(!emailNotifyOnFailOnly) {
+			ExtentManager.emailTestReport(message); // send slack notification
+		}
 	}
 
 	public void onTestStart(ITestResult iTestResult) {

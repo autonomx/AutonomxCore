@@ -38,6 +38,9 @@ import core.support.objects.TestObject.testState;
 public class ExtentManager {
 
 	public static final String LAUNCH_AFTER_REPORT = "report.launchReportAfterTest";
+	public static final String NOTIFY_SLACK_ON_FAIL_ONLY = "slack.notifyOnFailureOnly";
+	public static final String NOTIFY_EMAIL_ON_FAIL_ONLY = "email.notifyOnFailureOnly";
+
 	public static final String ENABLE_SLACK_NOTIFICATION = "slack.enableSlackNotification";
 	public static final String ENABLE_EMAIL_REPORT = "email.enableEmailReport";
 	public static final String REPORT_EXPIRE_DAYS = "report.reportExpireDays";
