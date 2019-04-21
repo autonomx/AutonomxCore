@@ -17,6 +17,8 @@ import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
 public class RestApiInterface {
+	
+	private static final String AUTHORIZATION_HEADER = "Authorization";
 
 	/*
 	 * (String TestSuite, String TestCaseID, String RunFlag, String Description,
@@ -113,6 +115,8 @@ public class RestApiInterface {
 	
 	/**
 	 * sets the header, content type And body based on specifications
+	 * Headers are based on key value, separated by ";"
+	 * Invalid token: if authorization token exists, replace last values with "invalid", else set to "invalid"
 	 * 
 	 * @param apiObject
 	 * @return
@@ -129,24 +133,31 @@ public class RestApiInterface {
 		// replace parameters for request body
 		apiObject.withRequestHeaders( DataHelper.replaceParameters(apiObject.getRequestHeaders()));
 
+		// iterate through key value pairs for headers, separated by ";"
 		List<KeyValue> keywords = DataHelper.getValidationMap(apiObject.getRequestHeaders());
 		for (KeyValue keyword : keywords) {
 			request = given().header(keyword.key, keyword.value);
+			
+			// keep track of Authorization token
+			if(keyword.key.equals(AUTHORIZATION_HEADER)){
+				Config.putValue(AUTHORIZATION_HEADER, keyword.value);
+			}
 		}
-		
-//		// if Authorization is set
-//		if (apiObject.getRequestHeaders().contains("Authorization:")) {
-//			String token = apiObject.getRequestHeaders().replace("Authorization:", "");
-//			request = given().header("Authorization", token);
-//		}
 
 		// if additional request headers
 		switch (apiObject.getRequestHeaders()) {
 		case "INVALID_TOKEN":
-			request = given().header("Authorization", "invalid");
+			String authValue = Config.getValue(AUTHORIZATION_HEADER);
+			
+			// replace authorization token with invalid if token already exists
+			if(!authValue.isEmpty() && authValue.length() > 4) {
+				authValue = authValue.substring(0, authValue.length() - 4) + "invalid";
+				request = given().header(AUTHORIZATION_HEADER, "invalid");
+			}else
+				request = given().header(AUTHORIZATION_HEADER, "invalid");
 			break;
 		case "NO_TOKEN":
-			request = given().header("Authorization", "");
+			request = given().header(AUTHORIZATION_HEADER, "");
 			break;
 		default:
 			break;
