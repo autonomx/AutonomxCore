@@ -35,7 +35,9 @@ public class AndroidCapability {
 	public static String CHROME_VERSION = "appium.chromeVersion";
 	public static String iS_CHROME_AUTO_MANAGE = "appium.chromeAutoManage";
 	public static String CHROME_DRIVER_PATH = "appium.chromeDriverPath";
-
+	public static String ANDROID_ENGINE = "android.capabilties.automationName";
+	public static String UIAUTOMATOR2 = "UiAutomator2";
+	public static boolean ANDROID_INIT = false; // first time android is setup
 	
 	private static final String CAPABILITIES_PREFIX = "android.capabilties.";
 
@@ -133,6 +135,9 @@ public class AndroidCapability {
 	 */
 	public DesiredCapabilities setAndroidCapabilties() {
 
+		// run only once per test run
+		uninstallUiAutomator2();
+		
 		// get all keys from config 
 		Map<String, String> propertiesMap = TestObject.getTestInfo().config;
 
@@ -264,7 +269,7 @@ public class AndroidCapability {
 		int threads = CrossPlatformProperties.getParallelTests();
 		if (threads > devices.size())
 			Helper.assertFalse(
-					"there are more threads than devices. thread count: " + threads + " devices: " + devices.size());
+					"there are more threads than devices. global.parallelTestCount: " + threads + " devices: " + devices.size());
 
 		// adds all devices
 		DeviceManager.loadDevices(devices, DeviceType.Android);
@@ -293,6 +298,24 @@ public class AndroidCapability {
 	public static void restartAdb() {
 	    Helper.runShellCommand("adb kill-server");
 	    Helper.runShellCommand("adb start-server");
+	}
+
+	/**
+	 * uninstalls the uiautomator2 server
+	 * only runs the first time android test is run
+	 */
+	public static void uninstallUiAutomator2() {
+		// runs the first time android test is run
+		if(!ANDROID_INIT) {
+			ANDROID_INIT = true;
+			if(Config.getValue(ANDROID_ENGINE).equals(UIAUTOMATOR2)) {
+				TestLog.ConsoleLog("Uninstalling uiautomator2.server");
+				TestLog.ConsoleLog("Uninstalling uiautomator2.server.test");
+				
+				Helper.runShellCommand("adb uninstall io.appium.uiautomator2.server");
+				Helper.runShellCommand("adb uninstall io.appium.uiautomator2.server.test");
+			}
+		}
 	}
 
 	/**
