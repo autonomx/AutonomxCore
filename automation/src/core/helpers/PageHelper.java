@@ -9,6 +9,7 @@ import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 
 import core.support.logger.TestLog;
+import core.support.objects.DriverObject;
 import core.support.objects.TestObject;
 import core.uiCore.drivers.AbstractDriver;
 import core.uiCore.drivers.AbstractDriverJunit;
@@ -334,4 +335,19 @@ public class PageHelper {
         }
         return myText;
     } 
+    
+
+    /**
+     * quits the current web driver
+     */
+    public void quitCurrentDriver(){
+    	DriverObject.quitWebDriver(AbstractDriver.getWebDriver());
+    }
+    
+    /**
+     * quits all drivers in the current test
+     */
+    public void quitAllCurrentTestDrivers() {
+    	DriverObject.quitTestDrivers();
+    }
 }

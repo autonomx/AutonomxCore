@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.zip.ZipOutputStream;
 
 import org.json.JSONException;
@@ -1260,8 +1261,8 @@ public class Helper {
 	 * 
 	 * @param context
 	 */
-	public static void Appium_setNativeContext() {
-		mobile.Appium_setNativeContext();
+	public static void mobile_switchToNativeView() {
+		mobile.mobile_switchToNativeView();
 	}
 
 	/**
@@ -1269,9 +1270,25 @@ public class Helper {
 	 * 
 	 * @param context
 	 */
-	public static void Appium_setWebContext() {
-		mobile.Appium_setWebContext();
+	public static void mobile_switchToWebView() {
+		mobile.mobile_switchToWebView();
 
+	}
+	
+	/**
+	 * switch to view
+	 * @param view
+	 */
+	public void mobile_switchToView(String view) {
+		mobile.mobile_switchToView(view);
+	}
+	
+	/**
+	 * returns the list of mobile context. eg. webview, native view
+	 * @return
+	 */
+	public Set<String> mobile_getContextList(){
+		return mobile.mobile_getContextList();
 	}
 
 	/**
@@ -1577,8 +1594,22 @@ public class Helper {
      * retrieves the clip board data
      * @return
      */
-    public String getClipboardData(){
+    public static String getClipboardData(){
     	return page.getClipboardData();
+    }
+    
+    /**
+     * quits the current web driver
+     */
+    public static void quitCurrentDriver(){
+    	page.quitCurrentDriver();
+    }
+    
+    /**
+     * quits all drivers in the current test
+     */
+    public static void quitAllCurrentTestDrivers() {
+    	page.quitAllCurrentTestDrivers();
     }
 
 	/**

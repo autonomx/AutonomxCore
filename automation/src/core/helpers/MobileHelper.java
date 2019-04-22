@@ -4,6 +4,7 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +33,7 @@ import io.appium.java_client.touch.LongPressOptions;
 import io.appium.java_client.touch.WaitOptions;
 import io.appium.java_client.touch.offset.PointOption;
 
-@SuppressWarnings({ "rawtypes", "deprecation" })
+@SuppressWarnings({ "rawtypes", "deprecation" , "unchecked"})
 public class MobileHelper {
 	
 	public enum DIRECTION {
@@ -316,7 +317,6 @@ public class MobileHelper {
 	 * 
 	 * @param context
 	 */
-	@SuppressWarnings("unchecked")
 	public void setAppiumContexts(String context) {
 		TestLog.logPass("I set context to '" + context + "'");
 		Set<String> contextNames = getAppiumDriver().getContextHandles();
@@ -327,13 +327,26 @@ public class MobileHelper {
 			}
 		}
 	}
+	
+	/**
+	 * returns the list of mobile context. eg. webview, native view
+	 * @return
+	 */
+	public Set<String> mobile_getContextList(){
+		Set<String> contextNames = getAppiumDriver().getContextHandles();
+		return contextNames;
+	}
 
-	public void Appium_setNativeContext() {
+	public void mobile_switchToNativeView() {
 		setAppiumContexts("NATIVE");
 	}
 
-	public void Appium_setWebContext() {
+	public void mobile_switchToWebView() {
 		setAppiumContexts("WEBVIEW");
+	}
+	
+	public void mobile_switchToView(String view) {
+		setAppiumContexts(view);
 	}
 
 	public void mobile_longPress(EnhancedBy target, long miliSeconds) {
