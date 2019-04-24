@@ -279,8 +279,15 @@ public class ClickHelper extends Element {
 	 * @param y
 	 */
     public void clickPoints(int x ,int y) {
-        
         Actions action = new Actions(AbstractDriver.getWebDriver());
+
+        // web: set initial 0,0 point
+        if(!Helper.mobile.isMobile()) {
+	    	EnhancedBy body = Element.byCss("body", "body");
+			EnhancedWebElement bodyElement = Element.findElements(body);
+			action.moveToElement(bodyElement.get(0), 0, 0);
+        }
+        
         action.moveByOffset(x, y).click().build().perform();
     }
 

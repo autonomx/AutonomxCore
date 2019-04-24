@@ -1292,7 +1292,6 @@ public class Helper {
 	}
 
 	/**
-	 * TODO: enhance to become longpress And expect with increasing duration of
 	 * press per retry presses the target element
 	 * 
 	 * @param target
