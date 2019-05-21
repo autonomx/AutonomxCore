@@ -51,7 +51,7 @@ public class DataHelper {
 			if (value == null)
 				Helper.assertTrue("parameter value not found: " + parameter, false);
 
-			//TestLog.logPass("replacing value '" + parameter + "' with: " + value + "");
+			TestLog.logPass("replacing value '" + parameter + "' with: " + value + "");
 			source = source.replaceAll("<" + parameter + ">", Matcher.quoteReplacement(value));
 		}
 

@@ -179,7 +179,7 @@ public class RestApiInterface {
 			String[] formData = apiObject.getRequestBody().split(",");
 			for(String data : formData) {
 				String[] keyValue = data.split(":");
-				request = request.formParam(keyValue[0], keyValue[1]);
+				request = request.formParam(keyValue[0].trim(), keyValue[1].trim());
 			}
 			return request;
 		}

@@ -98,6 +98,9 @@ public class JsonHelper {
 		} catch (Exception e) {
 			e.getMessage();
 		}	
+		
+		if(values == null || values.isEmpty())
+			TestLog.logWarning("path: <" + path + "> returned empty results");
 		return values;
 	}
 	
