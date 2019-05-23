@@ -99,8 +99,10 @@ public class JsonHelper {
 			e.getMessage();
 		}	
 		
-		if(values == null || values.isEmpty())
-			TestLog.logWarning("path: <" + path + "> returned empty results");
+		if(values == null || values.isEmpty()) {
+			// logWarn causes warning in the report
+			TestLog.ConsoleLog("path: <" + path + "> returned empty results");
+		}
 		return values;
 	}
 	

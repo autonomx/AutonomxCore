@@ -51,7 +51,8 @@ public class DataHelper {
 			if (value == null)
 				Helper.assertTrue("parameter value not found: " + parameter, false);
 
-			TestLog.logPass("replacing value '" + parameter + "' with: " + value + "");
+			// disabled due to this running before anything and causing null point exception
+			//TestLog.logPass("replacing value '" + parameter + "' with: " + value + "");
 			source = source.replaceAll("<" + parameter + ">", Matcher.quoteReplacement(value));
 		}
 
