@@ -127,6 +127,9 @@ public class ServiceManager {
 				UriPath, ContentType, Method, Option, RequestHeaders, TemplateFile, RequestBody, OutputParams, 
 				RespCodeExp, ExpectedResponse, TcComments, tcName, 
 				tcIndex); 
+				
+			// setup api driver 
+			new AbstractDriverTestNG().setupApiDriver(apiObject);
 		
 			runInterface(apiObject);
 		}
@@ -144,16 +147,16 @@ public class ServiceManager {
 		bw.append("		RespCodeExp, ExpectedResponse, TcComments, tcName," + " \n" );
 		bw.append("		tcIndex);"+ " \n" );
 		bw.newLine();
+		bw.append("		// setup api driver" + " \n");
+		bw.append("		new AbstractDriverTestNG().setupApiDriver(apiObject);" + " \n");
 		bw.append("		runInterface(apiObject);" + " \n");
 		bw.append("}" + " \n");
 		bw.newLine();
 		bw.newLine();
 		
 		/**
-		 public static void runInterface(ServiceObject apiObject) throws Exception {
 		 
-		 // setup api driver 
-		new AbstractDriverTestNG().setupApiDriver(apiObject);
+		 public static void runInterface(ServiceObject apiObject) throws Exception {
 		 
 		switch (apiObject.getInterfaceType()) {
 		case TEST_INTERFACE:
@@ -166,8 +169,6 @@ public class ServiceManager {
 		 */
 		
 		bw.append("public static void runInterface(ServiceObject apiObject) throws Exception {" + " \n");
-		bw.append("		// setup api driver" + " \n");
-		bw.append("		new AbstractDriverTestNG().setupApiDriver(apiObject);" + " \n");
 		bw.newLine();
 		bw.newLine();
 		bw.append("		switch (apiObject.getInterfaceType()) {");
@@ -184,7 +185,7 @@ public class ServiceManager {
 		}
 		
 		bw.append("		default:" + " \n");
-		bw.append("				ServiceManager.TestRunner(apiObject);" + " \n");
+		bw.append("				ServiceManager.runInterface(apiObject);" + " \n");
 		bw.append("				break;" + " \n");
 		bw.append("		}" + " \n");
 		
