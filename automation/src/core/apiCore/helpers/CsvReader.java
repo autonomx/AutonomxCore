@@ -105,12 +105,16 @@ public class CsvReader {
 	public static int getCurrentTestInvocation() {
 
 		// if test class (based on csv file) has initiated, get the current csv file
-		if(TestObject.getTestInfo().testCsvFileName != null) 
+		if(isRunningServiceTest()) 
 		{
 			String activeTest = TestObject.getTestInfo().testCsvFileName;
 			return getCsvFileIndex(activeTest);
 		}
 		return TestDataProvider.csvFileIndex.getAndIncrement();
+	}
+	
+	public static boolean isRunningServiceTest() {
+		return TestObject.getTestInfo().testCsvFileName != null;
 	}
 
 	/**

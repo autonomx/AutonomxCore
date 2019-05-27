@@ -1,4 +1,4 @@
-package core.support.annotation.helper;
+package core.support.annotation.helper.annotationMap;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -11,9 +11,11 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 
-import core.support.annotation.Data;
+import core.support.annotation.Service;
+import core.support.annotation.helper.Logger;
+import core.support.annotation.helper.PackageHelper;
 
-public class DataMapHelper {
+public class ServiceMapHelper {
 	
 	
 	/**
@@ -21,24 +23,24 @@ public class DataMapHelper {
 	 * @param files
 	 * @return
 	 */
-	public static Map<String, List<File>> getDataModuleMap(List<File> files){
+	public static Map<String, List<File>> getServiceModuleMap(List<File> files){
 		
-		Map<String, List<File>> moduleMap = new HashMap<String, List<File>>();
+		Map<String, List<File>> serviceMap = new HashMap<String, List<File>>();
 		
 		for(File file : files) {
 			List<File> dataFiles = new ArrayList<File>();
 			String module = PackageHelper.getModuleFromFullPath(file);	
 			
-			if( moduleMap.get(module) != null) {
-				dataFiles = moduleMap.get(module);
+			if( serviceMap.get(module) != null) {
+				dataFiles = serviceMap.get(module);
 				dataFiles.add(file);
 			}else {
 				dataFiles.add(file);
 			}
-			moduleMap.put(module, dataFiles);	
+			serviceMap.put(module, dataFiles);	
 			
 		}
-		return moduleMap;
+		return serviceMap;
 	}
 	
 	/**
@@ -47,9 +49,9 @@ public class DataMapHelper {
 	 * @param roundEnv
 	 * @return
 	 */
-	public static Map<String, List<Element>> getDataObjectMap(RoundEnvironment roundEnv) {
+	public static Map<String, List<Element>> getServiceObjectMap(RoundEnvironment roundEnv) {
 
-		return addElementsToDataMap(roundEnv);
+		return addElementsToServiceMap(roundEnv);
 	}
 
 	/**
@@ -58,47 +60,47 @@ public class DataMapHelper {
 	 * @param roundEnv
 	 * @return
 	 */
-	public static Map<String, List<Element>> addElementsToDataMap(RoundEnvironment roundEnv) {
-		Map<String, List<Element>> dataMap = initializePanelMap(roundEnv);
-		String moduleName = "";
-		for (Entry<String, List<Element>> entry : dataMap.entrySet()) {
+	public static Map<String, List<Element>> addElementsToServiceMap(RoundEnvironment roundEnv) {
+		Map<String, List<Element>> serviceMap = initializeServiceMap(roundEnv);
+		String serviceName = "";
+		for (Entry<String, List<Element>> entry : serviceMap.entrySet()) {
 			List<Element> elements = new ArrayList<Element>();
-			moduleName = entry.getKey();
-			// This loop will process all the classes annotated with @Data
-			for (Element element : roundEnv.getElementsAnnotatedWith(Data.class)) {
+			serviceName = entry.getKey();
+			// This loop will process all the classes annotated with @Serivce
+			for (Element element : roundEnv.getElementsAnnotatedWith(Service.class)) {
 				if (element.getKind() == ElementKind.CLASS) {
-					String currentModuleName = PackageHelper.getModuleName(element);
+					String currentServiceName = PackageHelper.getModuleName(element);
 
-					if (currentModuleName.equals(entry.getKey())) {
-						Logger.debug("addElementsToDataMap: module: " + currentModuleName + " adding panel: "
+					if (currentServiceName.equals(entry.getKey())) {
+						Logger.debug("addElementsToServiceMap: module: " + currentServiceName + " adding interface: "
 								+ element.asType().toString());
 						elements.add(element);
 					}
 
 				}
 			}
-			Logger.debug("addElementsToDataMap: moduleName: " + moduleName + " panel count: " + elements.size());
-			dataMap.put(moduleName, elements);
+			Logger.debug("addElementsToServiceMap: serviceName: " + serviceName + " service count: " + elements.size());
+			serviceMap.put(serviceName, elements);
 
 		}
-		return dataMap;
+		return serviceMap;
 	}
 
 	/**
-	 * creates a map of modules, But does not add the elements
+	 * creates a map of services, But does not add the elements
 	 * key: module
 	 * value: classes with Panel annotation
 	 * @param roundEnv
 	 * @return
 	 */
-	public static Map<String, List<Element>> initializePanelMap(RoundEnvironment roundEnv) {
+	public static Map<String, List<Element>> initializeServiceMap(RoundEnvironment roundEnv) {
 		Map<String, List<Element>> map = new HashMap<String, List<Element>>();
 		List<Element> elements = new ArrayList<Element>();
-		// This loop will process all the classes annotated with @Data
-		for (Element element : roundEnv.getElementsAnnotatedWith(Data.class)) {
+		// This loop will process all the classes annotated with @Service
+		for (Element element : roundEnv.getElementsAnnotatedWith(Service.class)) {
 			if (element.getKind() == ElementKind.CLASS) {
-				String moduleName = PackageHelper.getModuleName(element);
-				map.put(moduleName, elements);
+				String serviceName = PackageHelper.getModuleName(element);
+				map.put(serviceName, elements);
 
 			}
 		}

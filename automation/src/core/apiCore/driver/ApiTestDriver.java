@@ -39,7 +39,7 @@ public class ApiTestDriver {
 	 * @param driverObject
 	 */
 	public void initTest(ServiceObject apiObject) {
-		String APP = "ServiceRunner";
+		String APP = "ServiceManager";
 
 		setTestId(apiObject);
 		String testId = TestObject.currentTestId.get();

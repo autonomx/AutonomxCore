@@ -25,7 +25,7 @@ import com.aventstack.extentreports.reporter.ExtentKlovReporter;
 import com.aventstack.extentreports.reporter.configuration.Protocol;
 import com.aventstack.extentreports.reporter.configuration.Theme;
 
-import core.apiCore.ServiceRunner;
+import core.apiCore.ServiceManager;
 import core.helpers.Helper;
 import core.helpers.UtilityHelper;
 import core.helpers.emailHelper.EmailObject;
@@ -154,7 +154,7 @@ public class ExtentManager {
 		String className = TestObject.getTestInfo().getClassName();
 		
 		// if service test runner, return. Service tests have different test names once the test starts, based on csv data
-		if(className.equals(ServiceRunner.SERVICE_TEST_RUNNER_ID))
+		if(className.equals(ServiceManager.SERVICE_TEST_RUNNER_ID))
 			return;
 		
 		if (!classList.containsKey(className)) {

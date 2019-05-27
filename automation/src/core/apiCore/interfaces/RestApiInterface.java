@@ -80,6 +80,9 @@ public class RestApiInterface {
 		// fail test if no response is returned
 		if (response == null)
 			Helper.assertTrue("no response returned", false);
+		
+		// saves response values to config object
+		JsonHelper.saveOutboundJsonParameters(response, apiObject.getOutputParams());
 
 		// validate status code
 		if (!apiObject.getRespCodeExp().isEmpty()) {
@@ -87,9 +90,6 @@ public class RestApiInterface {
 					+ response.getStatusCode());
 			response.then().statusCode(Integer.valueOf(apiObject.getRespCodeExp()));
 		}
-
-		// saves response values to config object
-		JsonHelper.saveOutboundJsonParameters(response, apiObject.getOutputParams());
 
 		validateExpectedValues(response, apiObject);
 	}

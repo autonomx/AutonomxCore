@@ -8,7 +8,7 @@ import core.helpers.Helper;
 import core.support.objects.ServiceObject;
 import core.uiCore.drivers.AbstractDriverTestNG;
 
-public class ServiceRunner {
+public class ServiceManager {
 	public static final String SERVICE_TEST_RUNNER_ID = "ServiceTestRunner"; // matches the name of the service test runner class
 	private static final String RESTFULL_API_INTERFACE = "RESTfulAPI";
 	private static final String SQL_DB_INTERFACE = "SQLDB";
