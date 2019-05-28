@@ -176,10 +176,13 @@ public class ServiceManager {
 		for (Entry<String, List<Element>> entry : serviceMap.entrySet()) {
 			for (Element element : entry.getValue()) {
 				String serviceName = element.getSimpleName().toString();
+				// first letter is lower cased
+				String lowerCaseServiceName = Character.toLowerCase(serviceName.charAt(0)) + serviceName.substring(1);
+
 
 				bw.newLine();
 				bw.append("		case \"" + serviceName + "\":" + " \n");
-				bw.append("				new " + serviceName + "(apiObject);" + " \n");
+				bw.append("  		   " + serviceName + "." + lowerCaseServiceName + "(apiObject);" + " \n");
 				bw.append("				break;" + " \n");
 			}
 		}
