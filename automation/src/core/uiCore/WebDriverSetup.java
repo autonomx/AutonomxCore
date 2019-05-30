@@ -58,7 +58,7 @@ public class WebDriverSetup {
 		case IOS_DRIVER:
 			// if external server is used
 			AppiumDriverLocalService service;			
-			if(Config.getBooleanValue("useExternalAppiumServer"))
+			if(Config.getBooleanValue("appium.useExternalAppiumServer"))
 			{
 				int port = Config.getIntValue("appiumExternalPort");
 				TestLog.ConsoleLog("Connecting to external appium server at port " + port);

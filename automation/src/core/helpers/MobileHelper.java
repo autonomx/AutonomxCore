@@ -730,5 +730,4 @@ public class MobileHelper {
 			getAppiumDriver().hideKeyboard();
 		}
 	}
-
 }
