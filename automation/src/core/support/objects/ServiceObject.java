@@ -1,5 +1,7 @@
 package core.support.objects;
 
+import core.helpers.Helper;
+
 public class ServiceObject {
 
 	private String TestSuite = "";
@@ -120,7 +122,7 @@ public class ServiceObject {
 	}
 	
 	public String getMethod(){
-		return this.Method;
+		return Helper.stringNormalize(this.Method);
 	}
 	
 	public ServiceObject withOption(String Option){

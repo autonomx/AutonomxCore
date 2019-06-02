@@ -170,4 +170,9 @@ public class Config {
 		TestLog.logPass("storing in key: " + key + " value: " + value);
 		TestObject.getTestInfo().config.put(key, value);
 	}
+	
+//	public static void putValue(String key, Object value) {
+//		TestLog.logPass("storing in key: " + key + " value: " + value);
+//		TestObject.getTestInfo().config.put(key, value);
+//	}
 }
