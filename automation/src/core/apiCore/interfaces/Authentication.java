@@ -14,11 +14,13 @@ import core.support.logger.TestLog;
 import core.support.objects.KeyValue;
 import core.support.objects.ServiceObject;
 import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
-public class TokenGenerator {
+public class Authentication {
+	
+	public static final String AUTHENTICATION_SCHEME = "auth";
+
 	
 	/**
 	 * interface for restful api calls
@@ -68,6 +70,15 @@ public class TokenGenerator {
 
 	private static void validateResponse(Response response, ServiceObject apiObject) {
 
+		// store authentication scheme value 
+		List<KeyValue> keyword = DataHelper.getValidationMap(apiObject.getOutputParams());
+		if(keyword.get(0).key.equals(AUTHENTICATION_SCHEME)) {
+			String key = (String) keyword.get(0).value;
+		    key = key.replace("$", "").replace("<", "").replace(">", "").trim();
+			Config.putValue(key, RestAssured.authentication, "<authentication scheme>");
+			return;
+		}
+		
 		// fail test if no response is returned
 		if (response == null)
 			Helper.assertTrue("no response returned", false);
@@ -120,16 +131,29 @@ public class TokenGenerator {
 		
 		Map<String, String> parameterMap = getParameters(apiObject);
 		
-		
+		TestLog.logPass("authentication type: " + Helper.stringRemoveLines(apiObject.getOption()));
+
 		switch (apiObject.getOption()) {
 		case "BASIC":
 			String username = parameterMap.get("username");
 			String password = parameterMap.get("password");
-			request = RestAssured.given().auth().basic(username, password);
-			
 	        RestAssured.authentication =  RestAssured.basic(username, password);
-
 			break;
+		case "OAUTH2":			
+			username = parameterMap.get("username");
+			password = parameterMap.get("password");
+			String clientId = parameterMap.get("cliendId");
+			String clientSecret = parameterMap.get("clientSecret");
+			String grantType = parameterMap.get("grantType");
+			String scope = parameterMap.get("scope");
+			String redirectUri = parameterMap.get("redirectUri");
+			
+			request =  given().auth().preemptive().basic(clientId, clientSecret)   
+                    .formParam("grant_type", grantType)
+                    .formParam("username", username)
+                    .formParam("password", password)
+                    .formParam("redirect_uri", redirectUri)
+                    .formParam("scope", scope);
 		default:
 			Helper.assertFalse("Correct authentication type not set. selected: <" + apiObject.getMethod() + "> Available options: BASIC");
 			break;
@@ -189,9 +213,9 @@ public class TokenGenerator {
 		TestLog.logPass("request body: " + Helper.stringRemoveLines(apiObject.getRequestBody()));
 		TestLog.logPass("request type: " + apiObject.getMethod());
 		
-	//	RestAssured.authentication =  RestAssured.basic("hylink", "t56FduU21");
-		
-
+		// in case of basic authentication where AuthenticationScheme is returned and token is not generated
+        if(request == null) return response;
+        
 		switch (apiObject.getMethod()) {
 		case "POST":
 			response = request.when().post(apiObject.getUriPath());
@@ -206,7 +230,7 @@ public class TokenGenerator {
 			response = request.when().delete(apiObject.getUriPath());
 			break;
 		case "GET":
-			response = RestAssured.when().get(apiObject.getUriPath());
+			response = request.when().get(apiObject.getUriPath());
 			break;
 		case "OPTIONS":
 			response = request.when().options(apiObject.getUriPath());
@@ -219,7 +243,6 @@ public class TokenGenerator {
 			break;
 		}
 		TestLog.logPass("response: " + response.getBody().asString());
-
 		return response.then().extract().response();
 	}
 }

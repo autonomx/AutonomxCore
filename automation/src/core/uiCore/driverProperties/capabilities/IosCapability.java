@@ -125,10 +125,10 @@ public class IosCapability {
 	public DesiredCapabilities setiOSCapabilties() {
 
 		// get all keys from config 
-		Map<String, String> propertiesMap = TestObject.getTestInfo().config;
+		Map<String, Object> propertiesMap = TestObject.getTestInfo().config;
 
 		// load config/properties values from entries with "ios.capabilities." prefix
-		for (Entry<String, String> entry : propertiesMap.entrySet()) {
+		for (Entry<String, Object> entry : propertiesMap.entrySet()) {
 			boolean isAndroidCapability = entry.getKey().toString().startsWith(CAPABILITIES_PREFIX);
 			if (isAndroidCapability) {
 				String fullKey = entry.getKey().toString();

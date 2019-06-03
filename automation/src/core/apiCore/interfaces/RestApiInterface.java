@@ -2,6 +2,7 @@ package core.apiCore.interfaces;
 
 import static io.restassured.RestAssured.given;
 
+import java.io.File;
 import java.util.List;
 
 import core.apiCore.helpers.DataHelper;
@@ -12,6 +13,7 @@ import core.support.logger.TestLog;
 import core.support.objects.KeyValue;
 import core.support.objects.ServiceObject;
 import io.restassured.RestAssured;
+import io.restassured.authentication.AuthenticationScheme;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
@@ -20,17 +22,8 @@ public class RestApiInterface {
 	
 	private static final String AUTHORIZATION_HEADER = "Authorization";
 
-	/*
-	 * (String TestSuite, String TestCaseID, String RunFlag, String Description,
-	 * String InterfaceType, String UriPath, String ContentType, String Method,
-	 * String Option, String RequestHeaders, String TemplateFile, String
-	 * RequestBody, String OutputParams, String RespCodeExp, String
-	 * ExpectedResponse, String ExpectedResponse, String NotExpectedResponse,
-	 * String TcComments, String tcName, String tcIndex)
-	 */
-
 	/**
-	 * interface for restfull api calls
+	 * interface for restful API calls
 	 * 
 	 * @param apiObject
 	 * @return
@@ -109,6 +102,7 @@ public class RestApiInterface {
 				Helper.assertTrue("expected is not valid format: " + criterion, JsonHelper.isValidExpectation(criterion));
 				JsonHelper.validateByJsonBody(criterion, response);
 				JsonHelper.validateByKeywords(criterion, response);
+				JsonHelper.validateResponseBody(criterion, response);
 			}
 		}
 	}
@@ -123,49 +117,56 @@ public class RestApiInterface {
 	 */
 	public static RequestSpecification evaluateRequestHeaders(ServiceObject apiObject) {
 		// set request
-		RequestSpecification request = null;
+		RequestSpecification request = given();
 
 		// if no RequestHeaders specified
 		if (apiObject.getRequestHeaders().isEmpty()) {
-			return given();
+			return request;
 		}
 
 		// replace parameters for request body
-		apiObject.withRequestHeaders( DataHelper.replaceParameters(apiObject.getRequestHeaders()));
+		apiObject.withRequestHeaders(DataHelper.replaceParameters(apiObject.getRequestHeaders()));
+
+		// get key value mapping of header parameters
+		List<KeyValue> keywords = DataHelper.getValidationMap(apiObject.getRequestHeaders());
 
 		// iterate through key value pairs for headers, separated by ";"
-		List<KeyValue> keywords = DataHelper.getValidationMap(apiObject.getRequestHeaders());
 		for (KeyValue keyword : keywords) {
-			request = given().header(keyword.key, keyword.value);
 			
-			// keep track of Authorization token
-			if(keyword.key.equals(AUTHORIZATION_HEADER)){
-				Config.putValue(AUTHORIZATION_HEADER, keyword.value);
+			// if additional request headers
+			switch (keyword.key) {
+			case Authentication.AUTHENTICATION_SCHEME:
+				String value = (String) keyword.value;
+				value = value.replace("$", "").replace("<", "").replace(">", "").trim();
+				RestAssured.authentication = (AuthenticationScheme) Config.getObjectValue(value.replace("@", ""));
+				break;
+				
+			case "INVALID_TOKEN":
+				String authValue = Config.getValue(AUTHORIZATION_HEADER);
+
+				// replace authorization token with invalid if token already exists
+				if (!authValue.isEmpty() && authValue.length() > 4) {
+					authValue = authValue.substring(0, authValue.length() - 4) + "invalid";
+					request = given().header(AUTHORIZATION_HEADER, "invalid");
+				} else
+					request = given().header(AUTHORIZATION_HEADER, "invalid");
+				break;
+				
+			case "NO_TOKEN":
+				request = given().header(AUTHORIZATION_HEADER, "");
+				break;
+			default:
+				request = given().header(keyword.key, keyword.value);
+				
+				// keep track of Authorization token
+				if (keyword.key.equals(AUTHORIZATION_HEADER)) {
+					Config.putValue(AUTHORIZATION_HEADER, (String) keyword.value);
+				}
+				break;
 			}
 		}
-
-		// if additional request headers
-		switch (apiObject.getRequestHeaders()) {
-		case "INVALID_TOKEN":
-			String authValue = Config.getValue(AUTHORIZATION_HEADER);
-			
-			// replace authorization token with invalid if token already exists
-			if(!authValue.isEmpty() && authValue.length() > 4) {
-				authValue = authValue.substring(0, authValue.length() - 4) + "invalid";
-				request = given().header(AUTHORIZATION_HEADER, "invalid");
-			}else
-				request = given().header(AUTHORIZATION_HEADER, "invalid");
-			break;
-		case "NO_TOKEN":
-			request = given().header(AUTHORIZATION_HEADER, "");
-			break;
-		default:
-			break;
-		}
-
 		return request;
 	}
-	
 	public static RequestSpecification evaluateRequestBody(ServiceObject apiObject, RequestSpecification request) {
 		if(apiObject.getRequestBody().isEmpty()) return request;
 		
@@ -179,7 +180,17 @@ public class RestApiInterface {
 			String[] formData = apiObject.getRequestBody().split(",");
 			for(String data : formData) {
 				String[] keyValue = data.split(":");
-				request = request.formParam(keyValue[0].trim(), keyValue[1].trim());
+				if(keyValue.length == 3) {
+					switch(keyValue[1]) { // data type
+					case "FILE":
+						File file = DataHelper.getFile(keyValue[2]);
+						request.multiPart(file);
+						break;
+					default:
+						break;
+					}
+				}else
+					request = request.formParam(keyValue[0].trim(), keyValue[1].trim());
 			}
 			return request;
 		}

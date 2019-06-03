@@ -183,12 +183,12 @@ public class ServiceBusInterface {
 	 */
 	private void setupServiceBusInstance() {
 		serviceBus instance = null;
-		for (Entry<String, String> entry : TestObject.getTestInfo().config.entrySet()) {
+		for (Entry<String, Object> entry : TestObject.getTestInfo().config.entrySet()) {
 			if(entry.getKey().contains(SERVICE_BUS_PREFIX)) {
 				String[] values = entry.getKey().split("_");
 				String type = values[1];
 				String key = values[2];
-				String value = entry.getValue();
+				String value = (String) entry.getValue();
 				
 				instance = sbInstance.get(type) == null ? new ServiceBusInterface().new serviceBus() : sbInstance.get(type);
 				switch (key) {

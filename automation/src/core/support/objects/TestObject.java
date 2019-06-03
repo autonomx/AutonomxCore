@@ -95,7 +95,7 @@ public class TestObject{
 	public List<LogObject> testLog = new ArrayList<LogObject>();
 	public Map<String, String> languageMap = new ConcurrentHashMap<String, String>();
 	public Map<String, ServiceObject> apiMap = new ConcurrentHashMap<String, ServiceObject>();// api keywords
-	public Map<String, String> config = new ConcurrentHashMap<String, String>();
+	public Map<String, Object> config = new ConcurrentHashMap<String, Object>();
 
 	public static ThreadLocal<String> currentTestName = new ThreadLocal<String>();
 	public static ThreadLocal<String> currentTestId = new ThreadLocal<String>(); // key for testObject

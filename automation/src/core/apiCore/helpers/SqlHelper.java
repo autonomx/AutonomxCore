@@ -63,7 +63,8 @@ public class SqlHelper {
 		
 		List<KeyValue> keywords = DataHelper.getValidationMap(keyValue);
 		for (KeyValue keyword : keywords) {
-			String key = keyword.value.replace("$", "").replace("<", "").replace(">", "").trim();
+			String key = (String) keyword.value;
+			key = key.replace("$", "").replace("<", "").replace(">", "").trim();
 			String value ="";
 			
 			// eg. NAME:1:<$name> : if row available, get value of column at row
@@ -138,7 +139,7 @@ public class SqlHelper {
 		for (KeyValue keyword : keywords) {
 			String key = Helper.stringNormalize(keyword.key);
 			String position = Helper.stringNormalize(keyword.position);
-			String expectedValue = Helper.stringNormalize(keyword.value);
+			String expectedValue = Helper.stringNormalize((String) keyword.value);
 			String responseString = "";
 			String command = "";
 

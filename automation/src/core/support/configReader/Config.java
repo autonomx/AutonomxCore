@@ -103,7 +103,7 @@ public class Config {
 	 */
 	public static String getValue(String key) {
 
-		String value = TestObject.getTestInfo().config.get(key);
+		String value = (String) TestObject.getTestInfo().config.get(key);
 		if (value == null) {
 			// TODO: can cause stack over flow on startup
 			System.out.println("value not found, default empty: " + key);
@@ -129,6 +129,16 @@ public class Config {
 		}
 		return Boolean.parseBoolean(value);
 	}
+	
+	/**
+	 * gets the object value from property key
+	 * @param key
+	 * @return
+	 */
+	public static Object getObjectValue(String key) {
+		Object value = TestObject.getTestInfo().config.get(key);
+		return value;
+	}
 
 	/**
 	 * gets int value from properties key
@@ -153,7 +163,7 @@ public class Config {
 	 * @return
 	 */
 	public static List<String> getValueList(String key) {
-		String value = TestObject.getTestInfo().config.get(key);
+		String value = (String) TestObject.getTestInfo().config.get(key);
 		if (value == null)
 			Helper.assertTrue("value not found in config files: " + key, false);
 		List<String> items = Arrays.asList(value.split("\\s*,\\s*"));
@@ -171,8 +181,8 @@ public class Config {
 		TestObject.getTestInfo().config.put(key, value);
 	}
 	
-//	public static void putValue(String key, Object value) {
-//		TestLog.logPass("storing in key: " + key + " value: " + value);
-//		TestObject.getTestInfo().config.put(key, value);
-//	}
+	public static void putValue(String key, Object value, String info) {
+		TestLog.logPass("storing in key: " + key + " value: " + info);
+		TestObject.getTestInfo().config.put(key, value);
+	}
 }
