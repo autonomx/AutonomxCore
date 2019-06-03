@@ -55,7 +55,7 @@ public class DataHelper {
 				if(val instanceof String)
 					valueStr = (String) val;
 			}
-			if (val == null)
+			if (val == null && StringUtil.isNullOrEmpty(valueStr))
 				Helper.assertTrue("parameter value not found: " + parameter, false);
 
 			// disabled due to this running before anything and causing null point exception
