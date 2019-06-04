@@ -14,6 +14,12 @@ import core.support.configReader.Config;
 import core.support.objects.DriverObject;
 import core.support.objects.TestObject;
 
+/**
+ * Only runs through suite xml file
+ * Running service runner directly will not go through AnnotationTransformer and only single csv file will run
+ * @author ehsan.matean
+ *
+ */
 @SuppressWarnings("rawtypes")
 public class AnnotationTransformer implements IAnnotationTransformer {
 	public static final String THREAD_COUNT = "global.parallel_test_count";
