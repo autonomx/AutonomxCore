@@ -35,6 +35,7 @@ public class CsvReader {
 		if (!testCaseFile.isEmpty())
 			index = getCsvFileIndex(testCaseFile);
 
+		// get current csv file
 		String csvFileName = CsvReader.getCsvFileFromIndex(index);
 
 		List<String[]> csvList = getCsvTestListForTestRunner(csvFileName);
@@ -137,7 +138,7 @@ public class CsvReader {
 	 * @return
 	 */
 	public static ArrayList<File> getCsvFileList() {
-		String csvTestPath = PropertiesReader.getLocalRootPath() + TestDataProvider.TEST_DATA_PATH;
+		String csvTestPath = PropertiesReader.getLocalRootPath() + Config.getValue(TestDataProvider.TEST_DATA_PARALLEL_PATH);
 		ArrayList<File> csvFiles = Helper.getFileList(csvTestPath, ".csv");
 		return csvFiles;
 	}

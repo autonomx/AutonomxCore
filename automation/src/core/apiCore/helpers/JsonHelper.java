@@ -246,7 +246,7 @@ public class JsonHelper {
 			return;
 		}
 		// remove the indicator
-		expected = expected.replaceAll("_[^_]*_", "");
+		expected = expected.replaceFirst("_[^_]*_", "");
 		
 		String actual = JsonHelper.getResponseValue(response);
 		String[] expectedArr = expected.split("[\\(\\)]");

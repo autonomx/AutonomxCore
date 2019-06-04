@@ -15,8 +15,6 @@ public class TestDataProvider {
 	public static final String TEST_DATA_TEMPLATE_PATH = "api.templatePath";
 
 	public static final String TEST_DATA_PARALLEL_PATH = "api.parallelTestcasePath";
-	public static final String TEST_DATA_SEQUENTIAL_PATH = "api.sequentialTestcasePath";
-	public static final String TEST_DATA_NONE_OPTIMISED_PATH = "api.nonOptimisedTecasePath";
 	public static final String TEST_CASE_FILE = "api.testCaseFile";
 	public static final String TEST_CASE = "api.testCase";
 	public static final String API_KEYWORD_PATH = "api.keywordPath"; // directory to keyword csv files
@@ -26,12 +24,6 @@ public class TestDataProvider {
 
 	@DataProvider(name = "parallelRun")
 	public synchronized Iterator<Object[]> providerParallel() {
-		TestDataProvider.TEST_DATA_PATH = Config.getValue(TestDataProvider.TEST_DATA_PARALLEL_PATH);
-		return CsvReader.getTestCasesFromCsvFile().iterator();
-	}
-
-	@DataProvider(name = "sequentialRun")
-	public synchronized Iterator<Object[]> providerSequential() {
 		TestDataProvider.TEST_DATA_PATH = Config.getValue(TestDataProvider.TEST_DATA_PARALLEL_PATH);
 		return CsvReader.getTestCasesFromCsvFile().iterator();
 	}

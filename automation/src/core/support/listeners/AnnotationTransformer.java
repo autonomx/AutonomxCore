@@ -17,7 +17,7 @@ import core.support.objects.TestObject;
 @SuppressWarnings("rawtypes")
 public class AnnotationTransformer implements IAnnotationTransformer {
 	public static final String THREAD_COUNT = "global.parallel_test_count";
-	public static final String API_TEST_RUNNER_PREFIX = "ApiRunner";
+	public static final String API_TEST_RUNNER_PREFIX = "serviceRunner";
 
 	@Override
 	public void transform(ITestAnnotation annotation, Class testClass, Constructor testConstructor, Method testMethod) {
@@ -85,13 +85,6 @@ public class AnnotationTransformer implements IAnnotationTransformer {
 		if (testName.equals("parallelApiRunner")) {
 			annotation.setThreadPoolSize(Integer.valueOf(Config.getValue(THREAD_COUNT)));
 			TestDataProvider.TEST_DATA_PATH = Config.getValue(TestDataProvider.TEST_DATA_PARALLEL_PATH);
-		} else if (testName.equals("NonOptimizedApiRunner")) {
-			annotation.setThreadPoolSize(1);
-			TestDataProvider.TEST_DATA_PATH = Config.getValue(TestDataProvider.TEST_DATA_NONE_OPTIMISED_PATH);
-
-		} else if (testName.equals("SequentialApiRunner")) {
-			annotation.setThreadPoolSize(1);
-			TestDataProvider.TEST_DATA_PATH = Config.getValue(TestDataProvider.TEST_DATA_SEQUENTIAL_PATH);
 		}
 	}
 }

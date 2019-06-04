@@ -80,7 +80,7 @@ public class DataHelper {
 	public static List<KeyValue> getValidationMap(String expected) {
 		// get hashmap of json path And verification
 		List<KeyValue> keywords = new ArrayList<KeyValue>();
-		expected = expected.replaceAll("_[^_]*_", "");
+		expected = expected.replaceFirst("_[^_]*_", "");
 		//expected = expected.replace("_VERIFY_JSON_PART_", "");
 		String[] keyVals = expected.split(";");
 		String key = "";
@@ -198,8 +198,14 @@ public class DataHelper {
 		
 		// if position has value, Then get response at position
 		if(!position.isEmpty()) {
+			int positionInt = Integer.valueOf(position);
 			expectedString = expectedArray[0]; //single item
-			actualString = actualArray[Integer.valueOf(position)-1];
+			boolean inBounds = (positionInt > 0) && (positionInt <= actualArray.length);
+			if(!inBounds) {
+				Helper.assertFalse("items returned are less than specified. returned: " + actualArray.length + " specified: " + positionInt );
+			}
+				
+			actualString = actualArray[positionInt-1];
 		}
 		
 		switch (command) {
