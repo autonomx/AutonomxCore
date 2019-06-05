@@ -154,6 +154,7 @@ public class Authentication {
                     .formParam("password", password)
                     .formParam("redirect_uri", redirectUri)
                     .formParam("scope", scope);
+			break;
 		default:
 			Helper.assertFalse("Correct authentication type not set. selected: <" + apiObject.getMethod() + "> Available options: BASIC");
 			break;
