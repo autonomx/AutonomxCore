@@ -1919,6 +1919,16 @@ public class Helper {
 	public static int generateRandomNumber(int min, int max) {
 		return UtilityHelper.generateRandomNumber(min, max);
 	}
+	
+	/**
+	 * highlights the web element 
+	 * use on clicks and send key elements
+	 * @param by
+	 * @param index
+	 */
+	public static void highLightWebElement(EnhancedBy by, int index) {
+		UtilityHelper.highLightWebElement(by, index);
+	}
 
 	/**
 	 * normalizes string removes space, new line chars

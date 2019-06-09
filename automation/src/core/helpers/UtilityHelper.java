@@ -527,4 +527,28 @@ public class UtilityHelper {
 		// return the File object containing image data
 		return screen;
 	}
+	
+	/**
+	 * highlights the web element 
+	 * use on clicks and send key elements
+	 * applicable to web driver
+	 * @param by
+	 * @param index
+	 */
+	protected static void highLightWebElement(EnhancedBy by, int index)
+	{	
+		// return if not web
+		if(!Helper.isWebDriver()) return;
+		
+		// return if not enabled
+		if(!Config.getBooleanValue("web.element.highlight.enable")) return;
+		
+		double duration = Config.getDoubleValue("web.element.highlight.waitDurationInSeconds");
+       
+		JavascriptExecutor jsEx = (JavascriptExecutor) AbstractDriver.getWebDriver();
+        EnhancedWebElement targetElement = Element.findElements(by);
+        jsEx.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", targetElement.get(index));
+        Helper.waitForSeconds(duration);
+        jsEx.executeScript("arguments[0].setAttribute('style','border: solid 2px white');", targetElement.get(index));
+    }
 }

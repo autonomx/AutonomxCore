@@ -155,6 +155,22 @@ public class Config {
 		}
 		return Integer.valueOf(value);
 	}
+	
+	/**
+	 * gets double value from properties key
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public static double getDoubleValue(String key) {
+		String value = getValue(key);
+		if (value.isEmpty()) {
+			// TODO: can cause null point exception on start. need investigation
+			// TestLog.ConsoleLogWarn("value not found, default -1: " + key);
+			return -1;
+		}
+		return Double.valueOf(value);
+	}
 
 	/**
 	 * returns a list from config value values separated by ","

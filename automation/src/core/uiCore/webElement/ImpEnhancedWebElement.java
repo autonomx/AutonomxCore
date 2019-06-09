@@ -182,6 +182,8 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 			try {
 				scrollToView(index);
 				if (isExist()) {
+					// highlight the element
+					Helper.highLightWebElement(enhanceBy, index);
 					if (retry == 1) {
 						actionClick(index);
 						success = true;
@@ -366,6 +368,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				scrollToView(index);
 				isDisplayed(index);
 				if (isExist()) {
+					Helper.highLightWebElement(enhanceBy, index);
 					if (retry == 1) {
 						sendKeyByAction(index, keysToSend);
 						success = true;
