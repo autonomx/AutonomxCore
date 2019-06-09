@@ -20,7 +20,7 @@ public class CrossPlatformProperties {
 	public static String LOCALIZATION_FILE = "localize.file";
 
 	public static int getRetryCount() {
-		return Config.getIntValue(RETRY_COUNT);
+		return Config.getIntValue(RETRY_COUNT) + 1;
 	}
 
 	public static int getParallelTests() {

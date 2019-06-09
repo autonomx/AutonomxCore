@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.SecureRandom;
@@ -398,6 +399,22 @@ public class UtilityHelper {
 	        }
 	    return files;
 	 }
+	
+	/**
+	 * create directories and files based on absolute path
+	 * @param path
+	 */
+	protected static void createFileFromPath(String absolutePath) {
+		File media = new File(absolutePath);
+		Path pathToFile = Paths.get(absolutePath);
+		
+		try {
+			Files.createDirectories(pathToFile.getParent());
+			media.createNewFile(); // if file already exists will do nothing
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * captures screenshot And attaches to extent test report
@@ -423,7 +440,7 @@ public class UtilityHelper {
 				AbstractDriver.getStep().get().info("").addScreenCaptureFromPath(extentReportImageRelativePath);
 			else
 				AbstractDriver.getStep().get().info("").addScreenCaptureFromPath(extentReportImageFullPath);
-
+			
 		} catch (Exception e) {
 			e.getMessage();
 		}

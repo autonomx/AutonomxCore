@@ -167,6 +167,34 @@ public class TestLog {
 		Markup m = MarkupHelper.createCodeBlock(subStep);
 		AbstractDriver.getStep().get().pass(m);
 	}
+	
+	/**
+	 * adds video and video link to the sub step
+	 * path : relative path to the video file
+	 * @param subStep
+	 */
+	public static void attachVideoLog(String path, boolean isVideo) {
+		testState state = TestObject.getTestState(TestObject.getTestInfo().testId);
+		if (!state.equals(testState.testMethod))
+			return;
+		
+		// for hmtl report, use relative path (we need to be able to email the report)
+		// for klov we need absolute path
+		if(!Config.getValue(ExtentManager.REPORT_TYPE).equals(ExtentManager.HTML_REPORT_TYPE))
+			path = ExtentManager.getReportRootFullPath() + path;
+		
+		String videoLog = "<video width=\"320\" height=\"240\" controls>\r\n" + 
+				"  <source src="+ path +" type=\"video/mp4\">\r\n" + 
+				"  Your browser does not support the video tag.\r\n" + 
+				"</video>" ;
+		
+		if(isVideo)
+			AbstractDriver.getStep().get().pass(videoLog);
+		
+		AbstractDriver.getStep().get().pass("<a href='"+path+"'>screen recording Link</a>");		
+		TestObject.getTestInfo().testSubSteps.add("screen recording relative path: " + path);
+			
+	}
 
 	/**
 	 * logpass is used for test steps for extend report, enable if properties option

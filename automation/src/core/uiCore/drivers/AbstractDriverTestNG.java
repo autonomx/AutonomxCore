@@ -264,8 +264,6 @@ public class AbstractDriverTestNG {
 
 	@AfterMethod
 	public void shutdown() {
-		if (!CrossPlatformProperties.isSingleSignIn())
-			DriverObject.quitTestDrivers();
 		letRetryKnowAboutReports();
 	}
 
