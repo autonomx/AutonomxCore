@@ -20,8 +20,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.codec.binary.Base64;
 import org.monte.media.Format;
@@ -29,7 +32,10 @@ import org.monte.media.FormatKeys;
 import org.monte.media.math.Rational;
 import org.monte.screenrecorder.ScreenRecorder;
 
+import core.support.configReader.Config;
+import core.support.logger.ExtentManager;
 import core.support.logger.TestLog;
+import core.support.objects.TestObject;
 import io.appium.java_client.android.AndroidStartScreenRecordingOptions;
 import io.appium.java_client.ios.IOSStartScreenRecordingOptions;
 import io.appium.java_client.ios.IOSStartScreenRecordingOptions.VideoQuality;
@@ -37,25 +43,40 @@ import io.appium.java_client.ios.IOSStartScreenRecordingOptions.VideoType;
 
 public class ScreenRecorderHelper {
 	
-	// should not be static. for prototyping only
-	static ScreenRecorder screenRecorder = null;
-	
+	public static final String RECORDER_ENABLE_RECORDING = "recorder.enableRecording";
+	public static final String RECORDER_ON_FAIL_TEST_ONLY = "recorder.onFailedTestsOnly";
+
+	public static final String RECORDER_MAX_TIME_SECONDS = "recorder.maxTimeInSeconds";
+	public static final String RECORDER_ANDROID_VIDEO_SIZE = "recorder.android.videoSize";
+	public static final String RECORDER_IOS_QUALITY = "recorder.ios.quality";
+	public static final String RECORDER_IOS_TYPE = "recorder.ios.type";
+
 	
 	/**
 	 * start screen recording
 	 * works for ios, android and web
 	 */
-	public void startRecording() {
-		TestLog.ConsoleLog("starting android screen recording");
+	public static void startRecording() {
+		
+		// return if enableRecording is false
+		if(!Config.getBooleanValue(RECORDER_ENABLE_RECORDING))
+			return;
+		
+		TestLog.ConsoleLog("starting screen recording");
+		
+		int maxTime = Config.getIntValue(RECORDER_MAX_TIME_SECONDS);
+		String androidVideoSize = Config.getValue(RECORDER_ANDROID_VIDEO_SIZE);
+		VideoQuality iosQuality = VideoQuality.valueOf(Config.getValue(RECORDER_IOS_QUALITY));
+
 		if(Helper.mobile.isAndroid()) {
 			AndroidStartScreenRecordingOptions record = new AndroidStartScreenRecordingOptions();
-			record.withTimeLimit(Duration.ofSeconds(180));
-			record.withVideoSize("1024x768");
+			record.withTimeLimit(Duration.ofSeconds(maxTime)); 
+			record.withVideoSize(androidVideoSize);
 			Helper.mobile.getAndroidDriver().startRecordingScreen(record);
 		}else if(Helper.mobile.isIOS()) {
 			IOSStartScreenRecordingOptions record = new IOSStartScreenRecordingOptions();
-			record.withTimeLimit(Duration.ofSeconds(180));
-			record.withVideoQuality(VideoQuality.MEDIUM);
+			record.withTimeLimit(Duration.ofSeconds(maxTime));
+			record.withVideoQuality(iosQuality);
 			record.withVideoType(VideoType.H264);
 			Helper.mobile.getiOSDriver().startRecordingScreen(record);
 		}else if(Helper.mobile.isWebDriver()) {
@@ -63,7 +84,26 @@ public class ScreenRecorderHelper {
 		}
 	}
 	
-	public static void startWebScreenRecording() {
+	/**
+	 * stops screen recording
+	 * works for ios, android and web
+	 */
+	public static void stopRecording() {
+
+		// return if enableRecording is false or record on fail test only is true
+		if (!Config.getBooleanValue(RECORDER_ENABLE_RECORDING) || Config.getBooleanValue(RECORDER_ON_FAIL_TEST_ONLY))
+			return;
+
+		TestLog.ConsoleLog("stopping screen recording");
+
+		if (Helper.mobile.isMobile()) {
+			stopMobileScreenRecorder();
+		} else if (Helper.mobile.isWebDriver()) {
+			stopWebScreenRecorder();
+		}
+	}
+	
+	private static void startWebScreenRecording() {
 		
 
 		GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
@@ -71,7 +111,7 @@ public class ScreenRecorderHelper {
 
 		// Create a instance of ScreenRecorder with the required configurations
 		try {
-            screenRecorder = new ScreenRecorder(gc,
+            TestObject.getTestInfo().screenRecorder = new ScreenRecorder(gc,
                     new Format(MediaTypeKey, FormatKeys.MediaType.FILE,
                             MimeTypeKey, MIME_AVI),
                     new Format(MediaTypeKey, FormatKeys.MediaType.VIDEO,
@@ -86,84 +126,99 @@ public class ScreenRecorderHelper {
                             FrameRateKey, Rational.valueOf(30)),
                     null);
             
-    		screenRecorder.start();
+            TestObject.getTestInfo().screenRecorder.start();
 
         } catch (Exception e) {
-            System.out.println("Recorder Object cannot be intialized");
+            TestLog.ConsoleLog("Recorder Object cannot be intialized " + e);
         }
 
 	}
+	
+	private static void stopMobileScreenRecorder() {
+		String recording = null;
+		if (Helper.mobile.isAndroid())
+			recording = Helper.mobile.getAndroidDriver().stopRecordingScreen();
+		else if (Helper.mobile.isIOS()) 
+			recording = Helper.mobile.getiOSDriver().stopRecordingScreen();
+		
+			// Decode String To Video With mig Base64.
+			byte[] decodedBytes = Base64.decodeBase64(recording.getBytes());
 
-	public void stopWebScreenRecorder() {
-		if (screenRecorder != null) {
 			try {
-				screenRecorder.stop();
-			} catch (IOException e) {
+				String mediaName = getMediaName() + ".mp4";
+				
+				// relative path for extent report attachment
+				String extentMediaRelativePathFromReport = ExtentManager.getMediaFolderRelativePathFromHtmlReport()
+						+ mediaName;
+				
+				// full path for file creation
+				String extentReportImageFullPath = ExtentManager.getMediaFolderFullPath()
+						+ mediaName;
+				
+				File media = new File(extentReportImageFullPath);
+
+				// create directories and files in path
+				Helper.createFileFromPath(media.getAbsolutePath());
+				
+				// save to file
+				FileOutputStream out = new FileOutputStream(media, false);
+				out.write(decodedBytes);
+				out.close();
+				TestLog.ConsoleLog("Test Recording is saved at: " + extentReportImageFullPath);
+				
+				// attach video to extent report
+				TestLog.attachVideoLog(extentMediaRelativePathFromReport, true);
+
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-
-			List<File> createdMovieFiles = screenRecorder.getCreatedMovieFiles();
-
-			for (File movie : createdMovieFiles) {
-
-				File dir = new File(Helper.getCurrentDir());
-				Path path;
-				try {
-					path = Files.move(movie.toPath(), dir.toPath().resolve("webVideo" + ".avi"),
-							StandardCopyOption.REPLACE_EXISTING);
-					System.out.println("Test Recording is saved in " + path);
-				} catch (IOException e) {
-
-				}
-			}
-		}
 	}
 
 	/**
-	 * stops screen recording
-	 * works for ios, android and web
+	 * if screen recorder is active, stop recording
 	 */
-	public void stopRecording() {
-		TestLog.ConsoleLog("stopping screen recording");
-		if(Helper.mobile.isAndroid()) {
-			String recording = Helper.mobile.getAndroidDriver().stopRecordingScreen();
-			
-			//Decode String To Video With mig Base64.
-	        byte[] decodedBytes = Base64.decodeBase64(recording.getBytes());
+	private static void stopWebScreenRecorder() {
+		if (TestObject.getTestInfo().screenRecorder != null) {
+			try {
+				TestObject.getTestInfo().screenRecorder.stop();
 
-	        try {
-	        	
-	        	File yourFile = new File(Helper.getCurrentDir() + "/Convert.mp4");
-	        	yourFile.createNewFile(); // if file already exists will do nothing 
-	        	FileOutputStream out = new FileOutputStream(yourFile, false); 
-	            out.write(decodedBytes);
-	            out.close();
-	        } catch (Exception e) {
-	            // TODO: handle exception
-	            e.printStackTrace();
+				List<File> createdMovieFiles = TestObject.getTestInfo().screenRecorder.getCreatedMovieFiles();
+				
 
-	        }
-			
-		}else if(Helper.mobile.isIOS()) {
-			 String recording = Helper.mobile.getiOSDriver().stopRecordingScreen();
-			
-			//Decode String To Video With mig Base64.
-	        byte[] decodedBytes = Base64.decodeBase64(recording.getBytes());
+				for (File movie : createdMovieFiles) {
+	
+					File dir = new File(ExtentManager.getMediaFolderFullPath()) ;
+					dir.mkdirs(); // if dir already exists will do nothing
+					
+					String mediaName = getMediaName() + ".avi";
+					try {
+						Path path = Files.move(movie.toPath(), dir.toPath().resolve(mediaName),
+								StandardCopyOption.REPLACE_EXISTING);
+						TestLog.ConsoleLog("Test Recording is saved at: " + path);
+						
+						String extentReportImageRelativePath = ExtentManager.getMediaFolderRelativePathFromHtmlReport()
+								+ mediaName;
+						
+						// attach video to extent report
+						TestLog.attachVideoLog(extentReportImageRelativePath, false);
 
-	        try {
-	        	
-	        	File yourFile = new File(Helper.getCurrentDir() + "/Convert.mp4");
-	        	yourFile.createNewFile(); // if file already exists will do nothing 
-	        	FileOutputStream out = new FileOutputStream(yourFile, false); 
-	            out.write(decodedBytes);
-	            out.close();
-	        } catch (Exception e) {
-	            // TODO: handle exception
-	            e.printStackTrace();
+					}catch(Exception e) {
+						e.printStackTrace();
+					}
+				}
+			} catch (IOException e) {
 
-	        }	
-		}else if(Helper.mobile.isWebDriver()) {
-			stopWebScreenRecorder();
+			}
 		}
 	}
-
+	
+	/**
+	 * gets the video name
+	 * @return
+	 */
+	private static String getMediaName() {
+		String format = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss", Locale.ENGLISH).format(new Date());
+		String fileName = TestObject.getTestInfo().testName + "-" + format;
+		return fileName;
+	}
 }

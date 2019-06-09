@@ -1950,6 +1950,14 @@ public class Helper {
 	public static void killWindowsProcess(String serviceName) {
 		UtilityHelper.killWindowsProcess(serviceName);
 	}
+	
+	/**
+	 * create directories and files based on absolute path
+	 * @param path
+	 */
+	protected static void createFileFromPath(String absolutePath) {
+		UtilityHelper.createFileFromPath(absolutePath);
+	}
 
 	/**
 	 * runs shell command And returns results as an array list

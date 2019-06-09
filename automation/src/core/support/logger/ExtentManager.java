@@ -58,8 +58,8 @@ public class ExtentManager {
 	public static String REPORT_DEFAULT_NAME = "extent";
 	public static ExtentKlovReporter klovReporter;
 
-	public static String TEST_OUTPUT_PATH = "/test-output/";
-	public static String TEST_OUTPUT_FULL_PATH = Helper.getCurrentDir() + "/test-output/";
+	public static String TEST_OUTPUT_PATH = File.separator + "test-output" + File.separator;
+	public static String TEST_OUTPUT_FULL_PATH = Helper.getCurrentDir() + TEST_OUTPUT_PATH;
 
 	public synchronized static ExtentReports getReporter() {
 		if (extent == null)
@@ -67,13 +67,25 @@ public class ExtentManager {
 
 		return extent;
 	}
-
+	
 	public static String getScreenshotsFolderFullPath() {
 		return getReportRootFullPath() + "screenshots/";
 	}
 
 	public static String getScreenshotsFolderRelativePath() {
 		return "screenshots/";
+	}
+
+	public static String getMediaFolderFullPath() {
+		return getReportRootFullPath() + "media/";
+	}
+
+	public static String getMediaFolderRelativePathFromHtmlReport() {
+		return "media/";
+	}
+	
+	public static String getMediaFolderRelativePathFromRoot() {
+		return getReportRootRelativePath() +  getMediaFolderRelativePathFromHtmlReport();
 	}
 
 	public static String getReportHTMLFullPath() {
@@ -93,8 +105,8 @@ public class ExtentManager {
 		DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
 		Date date = new Date();
 		String folderName = dateFormat.format(date);
-		return TEST_OUTPUT_PATH + "testReports/" + folderName + "/"
-				+ TestObject.getTestInfo(TestObject.DEFAULT_TEST).app + "/";
+		return TEST_OUTPUT_PATH + "testReports"+ File.separator + folderName + File.separator
+				+ TestObject.getTestInfo(TestObject.DEFAULT_TEST).app + File.separator;
 	}
 
 	public static ExtentReports createInstance(String fileName) {

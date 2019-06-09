@@ -14,7 +14,6 @@ import com.aventstack.extentreports.markuputils.MarkupHelper;
 import core.helpers.Helper;
 import core.helpers.excelHelper.ExcelObject;
 import core.support.logger.TestLog;
-import core.support.objects.DriverObject;
 import core.support.objects.TestObject;
 import core.uiCore.drivers.AbstractDriverTestNG;
 
@@ -98,19 +97,15 @@ public class RetryTest implements IRetryAnalyzer {
 		
 		logReport(ReportType.code, TestObject.getTestInfo().caughtThrowable.toString(), null);
 
-		//logReport(ReportType.debug, null, TestObject.getTestInfo().caughtThrowable);
-		
 		// capture error screenshot
 		Helper.captureExtentReportScreenshot();
-		
-		
+				
 		logError("run " + (TestObject.getTestInfo().runCount) + " failed");
 		
 		if (TestObject.getTestInfo().runCount == maxRetryCount) {
 			logReport(ReportType.fail, "giving up after " + maxRetryCount + " failures", null);
 			logError("giving up after " + maxRetryCount + " failures");
 		}
-		DriverObject.quitTestDrivers();
 	}
 
 	public void logReport(ReportType type, String value, Throwable t) {

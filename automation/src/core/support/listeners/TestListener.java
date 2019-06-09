@@ -18,6 +18,7 @@ import org.testng.xml.XmlSuite.ParallelMode;
 import com.google.common.base.Joiner;
 
 import core.helpers.Helper;
+import core.helpers.ScreenRecorderHelper;
 import core.support.configReader.Config;
 import core.support.logger.ExtentManager;
 import core.support.logger.TestLog;
@@ -135,6 +136,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 	public void onTestStart(ITestResult iTestResult) {
 
 		setTestClassName(iTestResult);
+		ScreenRecorderHelper.startRecording();
 	}
 
 	@Override
@@ -146,6 +148,9 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		TestLog.Then("Test is finished successfully");
 		TestLog.printLogsToConsole();
+		
+		// stop screen recording if enabled
+		ScreenRecorderHelper.stopRecording();
 
 		// if single signin is set, Then set isFirstRun to false so new driver is not
 		// created for next test
@@ -158,7 +163,11 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		// mobile device is now available again
 		DeviceManager.setDeviceAvailability(true);
-
+		
+		// shutdown drivers if single sign in is false
+		if (!CrossPlatformProperties.isSingleSignIn())
+			DriverObject.quitTestDrivers();
+		
 		// reset test object
 		TestObject.getTestInfo().resetTestObject();
 	}
@@ -178,6 +187,9 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		// mobile device is now available again
 		DeviceManager.setDeviceAvailability(true);
+		
+		// stop screen recording if enabled
+		ScreenRecorderHelper.stopRecording();
 
 		// quits web driver no matter the situation, as new browser will be launched
 		DriverObject.quitTestDrivers();
@@ -196,6 +208,9 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		// mobile device is now available again
 		DeviceManager.setDeviceAvailability(true);
+		
+		// stop screen recording if enabled
+		ScreenRecorderHelper.stopRecording();
 
 		DriverObject.quitTestDrivers();
 		// Extentreports log operation for skipped tests.
