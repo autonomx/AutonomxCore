@@ -28,6 +28,7 @@ public class DataHelper {
 
 	/**
 	 * replaces placeholder values with values from config properties
+	 * replaces only string values
 	 * 
 	 * @param source
 	 * @return
@@ -55,15 +56,14 @@ public class DataHelper {
 				if(val instanceof String)
 					valueStr = (String) val;
 			}
-			if (val == null && StringUtil.isNullOrEmpty(valueStr))
+			if (StringUtil.isNullOrEmpty(valueStr))
 				Helper.assertTrue("parameter value not found: " + parameter, false);
 
 			// disabled due to this running before anything and causing null point exception
 			//TestLog.logPass("replacing value '" + parameter + "' with: " + value + "");
-			if(val instanceof String)
+			if(valueStr instanceof String)
 				source = source.replaceAll("<" + parameter + ">", Matcher.quoteReplacement(valueStr));
 		}
-
 		return source;
 	}
 
