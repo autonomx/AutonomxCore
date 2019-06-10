@@ -476,6 +476,10 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 			try {
 				WebElement element = getElement(index);
 				value = element.getText();
+				if(value.isEmpty()) value = getAttribute("textContent", index);
+				if(value.isEmpty()) value = getAttribute("value", index);
+				if(value.isEmpty()) value = getAttribute("innerText", index);
+
 				isSuccess = true;
 			} catch (Exception e) {
 				e.getMessage();

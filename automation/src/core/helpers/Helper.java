@@ -583,7 +583,7 @@ public class Helper {
 	 * @param value
 	 */
 	public static void clearAndSetField(EnhancedBy field, CharSequence... value) {
-		form.setField(field, value);
+		form.clearAndSetField(field, value);
 	}
 
 	/**
@@ -594,7 +594,7 @@ public class Helper {
 	 * @param value
 	 */
 	public static void clearAndSetField(EnhancedBy field, int index, CharSequence... value) {
-		form.setField(field, index, value);
+		form.clearAndSetField(field, index, value);
 	}
 
 	/**

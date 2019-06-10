@@ -13,6 +13,26 @@ import core.uiCore.webElement.EnhancedWebElement;
 public class FormHelper {
 
 	/**
+	 * clears and set field
+	 * @param field
+	 * @param value
+	 */
+	public void clearAndSetField(EnhancedBy field, CharSequence... value) {
+		clearField(field, 0);
+		setField(field, 0, value);
+	}
+	
+	/**
+	 * clear and sets field
+	 * @param field
+	 * @param index
+	 * @param value
+	 */
+	public void clearAndSetField(EnhancedBy field, int index, CharSequence... value) {
+		clearField(field, index);
+		setField(field, index, value);
+	}
+	/**
 	 * sets field clears field before setting the value
 	 * 
 	 * @param field
@@ -35,16 +55,41 @@ public class FormHelper {
 		if (value != null && value.length != 0) {
 			EnhancedWebElement fieldElement = Element.findElements(field);
 			Helper.wait.waitForElementToLoad(field);
-			// fieldElement.click(index);
-
+			
 			// clear field is slow on android And ios
-			fieldElement.clear(index);
+			clearField(field, index);
 			Helper.wait.waitForSeconds(0.5);
 			fieldElement.sendKeys(index, value);
 
 			// hides keyboard if on mobile device (ios/android)
 			Helper.mobile.hideKeyboard();
 		}
+	}
+	
+	/**
+	 * use multiple strategies to clear the filed
+	 * 1. element.clear()
+	 * 2. send escape key
+	 * 3. press backspace to delete the value
+	 * @param field
+	 * @param index
+	 */
+	private void clearField(EnhancedBy field, int index) {
+		EnhancedWebElement fieldElement = Element.findElements(field);
+	
+		String value = fieldElement.getText(index);
+		if(value.isEmpty()) return;
+		
+		Helper.clickAndWait(field, 0);
+		fieldElement.clear(index);
+		fieldElement.get(index).sendKeys(Keys.ESCAPE);
+		
+		 value = fieldElement.getText(index);
+		if(!value.isEmpty())
+		{
+			for(int i = 0; i< value.length(); i++)
+				fieldElement.sendKeys(Keys.BACK_SPACE);
+		}	
 	}
 	
 	/**
