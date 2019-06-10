@@ -551,4 +551,31 @@ public class UtilityHelper {
         Helper.waitForSeconds(duration);
         jsEx.executeScript("arguments[0].setAttribute('style','border: solid 2px white');", targetElement.get(index));
     }
+	
+	/**
+	 * returns true if OS is mac
+	 * @return
+	 */
+	public static boolean isMac() {
+		String osName = System.getProperty("os.name").toLowerCase();
+		return osName.contains("mac");
+	}
+	
+	/**
+	 * returns true if OS is windows
+	 * @return
+	 */
+	public static boolean isWindows() {
+		String osName = System.getProperty("os.name").toLowerCase();
+		return osName.contains("win");
+	}
+	
+	/**
+	 * returns true if OS is unix or linux
+	 * @return
+	 */
+	public static boolean isUnix() {
+		String osName = System.getProperty("os.name");
+		return (osName.indexOf("nix") >= 0 || osName.indexOf("nux") >= 0 || osName.indexOf("aix") > 0 );
+	}
 }

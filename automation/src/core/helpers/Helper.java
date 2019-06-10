@@ -1929,6 +1929,30 @@ public class Helper {
 	public static void highLightWebElement(EnhancedBy by, int index) {
 		UtilityHelper.highLightWebElement(by, index);
 	}
+	
+	/**
+	 * returns true if OS is mac
+	 * @return
+	 */
+	public static boolean isMac() {
+		return UtilityHelper.isMac();
+	}
+	
+	/**
+	 * returns true if OS is windows
+	 * @return
+	 */
+	public static boolean isWindows() {
+		return UtilityHelper.isWindows();
+	}
+	
+	/**
+	 * returns true if OS is unix or linux
+	 * @return
+	 */
+	public static boolean isUnix() {
+		return UtilityHelper.isUnix();
+	}
 
 	/**
 	 * normalizes string removes space, new line chars

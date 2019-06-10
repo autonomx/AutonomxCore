@@ -1,5 +1,6 @@
 package core.uiCore;
 
+import java.io.File;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
@@ -7,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.logger.TestLog;
 import core.support.objects.DriverObject;
@@ -39,7 +41,9 @@ public class AppiumServer {
 		
 		Map<String, String> env = setEnvVariables();
 
-		AppiumServiceBuilder builder = new AppiumServiceBuilder().usingAnyFreePort().withEnvironment(env)
+		AppiumServiceBuilder builder = new AppiumServiceBuilder()
+				.usingAnyFreePort()
+				.withEnvironment(env)
 				.withIPAddress("127.0.0.1")
 				.withArgument(GeneralServerFlag.SESSION_OVERRIDE);
 
@@ -48,8 +52,6 @@ public class AppiumServer {
 			builder.withArgument(GeneralServerFlag.LOG_LEVEL, Config.getValue(APPIUM_LOGGING_LEVEL));
 		else
 			builder.withArgument(GeneralServerFlag.LOG_LEVEL, "error");
-
-
 		
 	    try {
 	        service = AppiumDriverLocalService.buildService(builder);
@@ -73,7 +75,6 @@ public class AppiumServer {
 	public static Map<String, String> setEnvVariables() {
 		Map<String, String> env = new HashMap<>(System.getenv());
 		// Note: android home And java home may need to be set on osx environment
-
 		// set android home
 		if (!Config.getValue(ANDROID_HOME).isEmpty())
 			env.put("ANDROID_HOME", Config.getValue(ANDROID_HOME));

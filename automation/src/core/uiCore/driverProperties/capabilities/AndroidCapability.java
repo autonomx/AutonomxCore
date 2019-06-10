@@ -38,7 +38,8 @@ public class AndroidCapability {
 	public static String ANDROID_ENGINE = "android.capabilties.automationName";
 	public static String UIAUTOMATOR2 = "UiAutomator2";
 	public static boolean ANDROID_INIT = false; // first time android is setup
-	
+	public static String ANDROID_HOME = "android.home";
+
 	private static final String CAPABILITIES_PREFIX = "android.capabilties.";
 
 	public List<String> simulatorList = new ArrayList<String>();
@@ -114,6 +115,9 @@ public class AndroidCapability {
 			String chromePath = WebDriverManager.chromedriver().getBinaryPath();
 			capabilities.setCapability("chromedriverExecutable", chromePath);
 		}
+		
+		// sets android home value if not already set in properties
+		setAndroidHome();
 
 		// set device using device manager. device manager handles multiple devices in parallel
 		setAndroidDevice();
@@ -230,10 +234,12 @@ public class AndroidCapability {
 	 */
 	public List<String> getAndroidDeviceList() {
 		String cmd;
+	
 		if (!Config.getValue(AppiumServer.ANDROID_HOME).isEmpty())
 			cmd = Config.getValue(AppiumServer.ANDROID_HOME) + "/platform-tools/adb devices";
 		else 
 			cmd = "adb devices";
+		
 		ArrayList<String> results = Helper.runShellCommand(cmd);
 		TestLog.ConsoleLogDebug("Android device list: " + Arrays.toString(results.toArray()));
 		if (!results.isEmpty())
@@ -374,11 +380,31 @@ public class AndroidCapability {
 				+ "    6. Try running against appium desktop server\r\n"
 				+ "        1. Download And run appium desktop\r\n" + "        2. Start the server\r\n"
 				+ "        3. In properties at resource folder, set values\r\n"
-				+ "            1. useExternalAppiumServer = true\r\n" + "            2. appiumExternalPort = 4723\r\n"
+				+ "            1. useExternalAppiumServer = true\r\n" 
+				+ "            2. appiumExternalPort = 4723\r\n"
 				+ "            3. run test\r\n" + "*******************************************************************\r\n"
 				+ "\r\n" + "\r\n" + "\r\n" + "*******************************************************************";
 		if (e.getMessage().contains(androidError)) {
 			System.out.println(androidSolution);
+		}
+	}
+	
+	/**
+	 * sets the value for android home based on its default location
+	 */
+	public static void setAndroidHome() {
+		String userHome = System.getProperty("user.home");
+		String androidHome = Config.getValue(ANDROID_HOME);
+		String javaHomePath = "";
+		if (androidHome.isEmpty()) {
+			if (Helper.isMac()) {
+				 javaHomePath = userHome + File.separator + "Library" + File.separator + "Android"
+						+ File.separator + "sdk/";
+			}
+				boolean isAndroidHome = new File(javaHomePath).exists();
+				if (isAndroidHome) { 
+					Config.putValue(ANDROID_HOME, javaHomePath);	
+				}
 		}
 	}
 }
