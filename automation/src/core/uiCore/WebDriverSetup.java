@@ -5,8 +5,10 @@ import java.net.URL;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.opera.OperaDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -115,6 +117,13 @@ public class WebDriverSetup {
 			WebDriverManager.firefoxdriver().version(driverObject.driverVersion).setup();
 			driver = new FirefoxDriver(driverObject.capabilities);
 			break;
+		case FIREFOX_HEADLESS:
+			WebDriverManager.firefoxdriver().version(driverObject.driverVersion).setup();
+			FirefoxOptions firefoxOptions = new FirefoxOptions();
+			firefoxOptions.setHeadless(true);
+			driverObject.capabilities.setCapability(FirefoxOptions.FIREFOX_OPTIONS, firefoxOptions);
+			driver = new FirefoxDriver(driverObject.capabilities);
+			break;
 		case INTERNET_EXPLORER:
 			WebDriverManager.iedriver().version(driverObject.driverVersion).setup();
 			driver = new InternetExplorerDriver(driverObject.capabilities);
@@ -125,6 +134,13 @@ public class WebDriverSetup {
 			break;
 		case CHROME:
 			WebDriverManager.chromedriver().version(driverObject.driverVersion).setup();
+			driver = new ChromeDriver(driverObject.capabilities);
+			break;
+		case CHROME_HEADLESS:
+			WebDriverManager.chromedriver().version(driverObject.driverVersion).setup();
+			ChromeOptions chromeOptions = new ChromeOptions();
+			chromeOptions.setHeadless(true);
+			driverObject.capabilities.setCapability(ChromeOptions.CAPABILITY, chromeOptions);
 			driver = new ChromeDriver(driverObject.capabilities);
 			break;
 		case OPERA:

@@ -12,7 +12,6 @@ import org.openqa.selenium.WebDriver;
 
 import core.support.logger.TestLog;
 import core.support.objects.DriverObject;
-import core.support.objects.TestObject;
 import core.uiCore.drivers.AbstractDriver;
 import core.uiCore.drivers.AbstractDriverJunit;
 import core.uiCore.drivers.AbstractDriverTestNG;

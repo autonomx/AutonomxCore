@@ -191,13 +191,15 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				}
 			} catch (Exception e) {
 				resetElement();
-				exception.add(e.getMessage());
-				TestLog.ConsoleLog("click failed for element: " + elementName + ": "  + e.getMessage());
+				String message = e.getLocalizedMessage();
+				String rootCause = message.substring(0, message.indexOf("\n"));
+				exception.add(rootCause);
+				TestLog.ConsoleLog("click failed for element: " + elementName + ": "  + rootCause);
 			}
 		} while (!success && retry > 0);
 		
-		if(!success)
-			TestLog.ConsoleLog("click was not successful. cause: " + StringUtils.join(exception), success);
+//		if(!success)
+//			TestLog.ConsoleLog("click was not successful. cause: " + StringUtils.join(exception), success);
 	}
 
 	@Override
@@ -366,12 +368,13 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				}
 			} catch (Exception e) {
 				resetElement();
-				TestLog.ConsoleLog("send keys failed for element: " + elementName + ": "  + e.getMessage());
-				exception.add(e.getMessage());
+				String message = e.getLocalizedMessage();
+				String rootCause = message.substring(0, message.indexOf("\n"));
+				exception.add(rootCause);
+				TestLog.ConsoleLog("send keys failed for element: " + elementName + ": "  + rootCause);
+
 			}
 		} while (!success && retry > 0);
-		if(!success)
-			TestLog.ConsoleLog("send key was not successful. cause: " + StringUtils.join(exception), success);
 	}
 	
     @Override
@@ -390,7 +393,9 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
                 }
             } catch (Exception e) {
                 resetElement();
-				TestLog.ConsoleLog("sendkey failed: " + e.getMessage());
+    			String message = e.getLocalizedMessage();
+				String rootCause = message.substring(0, message.indexOf("\n"));
+				TestLog.ConsoleLog("sendkey failed: " + rootCause);
             }
         } while (!success && retry > 0);
 

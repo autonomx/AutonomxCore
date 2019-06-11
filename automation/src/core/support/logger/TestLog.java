@@ -234,7 +234,11 @@ public class TestLog {
 		if (args == null || args.length == 0) {
 			return value;
 		} else {
+			try {
 			return new MessageFormat(value).format(args);
+			}catch(Exception e) {
+				return value;
+			}
 		}
 	}
 
