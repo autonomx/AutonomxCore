@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.Keys;
 
 import core.support.logger.TestLog;
@@ -43,7 +44,7 @@ public class FormHelper {
 	}
 
 	/**
-	 * sets field clears field before setting the value
+	 * sets and clears field before setting the value
 	 * 
 	 * @param field
 	 * @param index
@@ -52,7 +53,7 @@ public class FormHelper {
 	public void setField(EnhancedBy field, int index, CharSequence... value) {
 		TestLog.logPass("I set field '" + field.name + "' with value '" + Arrays.toString(value) + "'");
 
-		if (value != null && value.length != 0) {
+		if (!StringUtils.isBlank(value.toString())) {
 			EnhancedWebElement fieldElement = Element.findElements(field);
 			Helper.wait.waitForElementToLoad(field);
 			
@@ -60,6 +61,30 @@ public class FormHelper {
 			clearField(field, index);
 			Helper.wait.waitForSeconds(0.5);
 			fieldElement.sendKeys(index, value);
+
+			// hides keyboard if on mobile device (ios/android)
+			Helper.mobile.hideKeyboard();
+		}
+	}
+	
+	/**
+	 * sets and clears field before setting the value by actions
+	 *
+	 * @param field
+	 * @param index
+	 * @param value
+	 */
+	public void setFieldByAction(EnhancedBy field, int index, CharSequence... value) {
+		TestLog.logPass("I set field '" + field.name + "' with value '" + Arrays.toString(value) + "'");
+
+		if (!StringUtils.isBlank(value.toString())) {
+			EnhancedWebElement fieldElement = Element.findElements(field);
+			Helper.wait.waitForElementToLoad(field);
+			
+			// clear field is slow on android And ios
+			clearField(field, index);
+			Helper.wait.waitForSeconds(0.5);
+			fieldElement.sendKeysByAction(index, value);
 
 			// hides keyboard if on mobile device (ios/android)
 			Helper.mobile.hideKeyboard();
@@ -160,7 +185,7 @@ public class FormHelper {
 	}
 
 	/**
-	 * select submit button And wait for expected element to load
+	 * select submit button and wait for expected element to load
 	 * 
 	 * @param button
 	 * @param expected
@@ -168,8 +193,25 @@ public class FormHelper {
 	 */
 	public void formSubmit(EnhancedBy button, EnhancedBy expected) {
 		Helper.click.clickAndExpect(button, expected, false);
-		// TestLog.logPass("Then I select button '" + button.name + "'");
-
+	}
+	
+	/**
+	 * submit form with retrying selecting the element
+	 * @param button
+	 * @param expected
+	 */
+	public void formSubmitNoRetry(EnhancedBy button,  EnhancedBy expected) {
+		Helper.click.clickAndExpectNoRetry(button, 0, expected);
+	}
+	
+	/**
+	 * submit form with retrying selecting the element
+	 * @param button
+	 * @param index
+	 * @param expected
+	 */
+	public void formSubmitNoRetry(EnhancedBy button, int index, EnhancedBy expected) {
+		Helper.click.clickAndExpectNoRetry(button, index, expected);
 	}
 
 	/**

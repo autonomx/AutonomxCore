@@ -89,6 +89,27 @@ public class ClickHelper extends Element {
 	
 	
 	/**
+	 * click and expect with retrying to click the elmeent on failure
+	 * @param target
+	 * @param index
+	 * @param expected
+	 */
+	public void clickAndExpectNoRetry(EnhancedBy target, int index, EnhancedBy expected) {
+
+		TestLog.logPass("I click " + target.name);
+		EnhancedWebElement targetElement = Element.findElements(target);
+		Helper.wait.waitForElementToBeClickable(target);
+
+		boolean isExpectedFound = false;
+
+		targetElement.click(index);
+		Helper.wait.waitForElementToLoad(expected);
+		TestLog.ConsoleLog("clickAndExpect: expected: " + expected.name + " : " + isExpectedFound);
+
+		Helper.assertTrue("expected element not found: " + expected.name, isExpectedFound);
+	}
+	
+	/**
 	 * click And expect using action click
 	 * @param target
 	 * @param expected

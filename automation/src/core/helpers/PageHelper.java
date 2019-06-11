@@ -3,6 +3,8 @@ package core.helpers;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.Dimension;
@@ -67,6 +69,17 @@ public class PageHelper {
 	 */
 	public void switchToDefaultFrame() {
 		AbstractDriver.getWebDriver().switchTo().defaultContent();
+	}
+	
+	/**
+	 * switch windows handle based on index
+	 * @param index
+	 */
+	public static void switchWindowHandle(int index) {
+
+		Set<String> handles = Helper.mobile.getAppiumDriver().getWindowHandles();
+		List<String> handleList = new ArrayList<>(handles);
+		Helper.mobile.getAppiumDriver().switchTo().window(handleList.get(index));
 	}
 
 	/**
@@ -177,8 +190,6 @@ public class PageHelper {
 
 		if (driver.getTitle() != null || !driver.getTitle().isEmpty())
 			TestLog.logPass("swtiching to " + driver.getTitle());
-		else
-			TestLog.logPass("swtiching to " + TestObject.getTestInfo().app);
 
 		if (AbstractDriver.isJunit()) {
 			AbstractDriverJunit.setWebDriver(driver);

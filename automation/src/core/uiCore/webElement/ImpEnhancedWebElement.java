@@ -175,6 +175,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	@Override
 	public void click(int index) {
 		int retry = 3;
+		List<String> exception = new ArrayList<String>();
 
 		boolean success = false;
 		do {
@@ -182,31 +183,21 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 			try {
 				scrollToView(index);
 				if (isExist()) {
-					// highlight the element
+					// highlight the element if enabled
 					Helper.highLightWebElement(enhanceBy, index);
-					if (retry == 1) {
-						actionClick(index);
-						success = true;
-						break;
-					}
 					WebElement toClick = getElement(index);
 					toClick.click();
 					success = true;
 				}
 			} catch (Exception e) {
 				resetElement();
-				e.getMessage();
+				exception.add(e.getMessage());
+				TestLog.ConsoleLog("click failed for element: " + elementName + ": "  + e.getMessage());
 			}
 		} while (!success && retry > 0);
-	}
-
-	/*
-	 * action click an element
-	 */
-	public void actionClick(int index) {
-		WebElement element = getElement(index);
-		Actions action = new Actions(webDriver);
-		action.click(element).perform();
+		
+		if(!success)
+			TestLog.ConsoleLog("click was not successful. cause: " + StringUtils.join(exception), success);
 	}
 
 	@Override
@@ -369,21 +360,18 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				isDisplayed(index);
 				if (isExist()) {
 					Helper.highLightWebElement(enhanceBy, index);
-					if (retry == 1) {
-						sendKeyByAction(index, keysToSend);
-						success = true;
-						break;
-					}
 					WebElement element = getElement(index);
 					element.sendKeys(keysToSend);
 					success = true;
 				}
 			} catch (Exception e) {
 				resetElement();
+				TestLog.ConsoleLog("send keys failed for element: " + elementName + ": "  + e.getMessage());
 				exception.add(e.getMessage());
 			}
 		} while (!success && retry > 0);
-		Helper.assertTrue("send key was not successful: " + StringUtils.join(exception), success);
+		if(!success)
+			TestLog.ConsoleLog("send key was not successful. cause: " + StringUtils.join(exception), success);
 	}
 	
     @Override
@@ -402,7 +390,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
                 }
             } catch (Exception e) {
                 resetElement();
-                e.printStackTrace();
+				TestLog.ConsoleLog("sendkey failed: " + e.getMessage());
             }
         } while (!success && retry > 0);
 
