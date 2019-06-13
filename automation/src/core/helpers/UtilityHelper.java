@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -556,7 +557,7 @@ public class UtilityHelper {
 	 * returns true if OS is mac
 	 * @return
 	 */
-	public static boolean isMac() {
+	protected static boolean isMac() {
 		String osName = System.getProperty("os.name").toLowerCase();
 		return osName.contains("mac");
 	}
@@ -565,7 +566,7 @@ public class UtilityHelper {
 	 * returns true if OS is windows
 	 * @return
 	 */
-	public static boolean isWindows() {
+	protected static boolean isWindows() {
 		String osName = System.getProperty("os.name").toLowerCase();
 		return osName.contains("win");
 	}
@@ -574,8 +575,22 @@ public class UtilityHelper {
 	 * returns true if OS is unix or linux
 	 * @return
 	 */
-	public static boolean isUnix() {
+	protected static boolean isUnix() {
 		String osName = System.getProperty("os.name");
 		return (osName.indexOf("nix") >= 0 || osName.indexOf("nux") >= 0 || osName.indexOf("aix") > 0 );
+	}
+	
+	/**
+	 * is the string value UDID
+	 * @param value
+	 * @return
+	 */
+	protected static boolean isUUID(String value) {
+		try {
+			UUID.fromString(value);
+		}catch(Exception e) {
+			return false;
+		}
+		return true;
 	}
 }

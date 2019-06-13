@@ -163,8 +163,8 @@ public class IosCapability {
 	 * @return
 	 */
 	public boolean isRealDeviceConnected() {
-		ArrayList<String> devices = getIosDeviceList();
-		if (!devices.isEmpty())
+		List<String> devices = getIosDeviceList();
+		if (devices.size() == 0)
 			return true;
 		return false;
 	}
@@ -175,16 +175,22 @@ public class IosCapability {
 	 * 
 	 * @return
 	 */
-	public static ArrayList<String> getIosDeviceList() {
+	public static List<String> getIosDeviceList() {
 		String cmd = "idevice_id -l";
 		// TODO: test out
 		// "xcrun simctl list | grep Booted"
 		// system_profiler SPUSBDataType | sed -n -E -e '/(iPhone|iPad)/,/Serial/s/
 		// *Serial Number: *(.+)/\1/p'
 
-		ArrayList<String> results = Helper.runShellCommand(cmd);
-		if (!results.isEmpty() && results.get(0).contains("command not found"))
-			Helper.assertFalse("idevice not installed. install: brew install ideviceinstaller");
+		List<String> results = new ArrayList<String>();
+		results = Config.getValueList("ios.UDID");
+		
+		// if no device is set in properties, attempt to auto detect
+		if(results.size() == 0) {
+			results = Helper.runShellCommand(cmd);
+			if (!results.isEmpty() && results.get(0).contains("command not found"))
+				Helper.assertFalse("idevice not installed. install: brew install ideviceinstaller");
+		}
 		TestLog.ConsoleLog("ios device list: " + Arrays.toString(results.toArray()));
 		return results;
 	}
@@ -196,7 +202,7 @@ public class IosCapability {
 	public void setSimulator() {
 		List<String> devices = this.simulatorList;
 
-		if (devices == null || devices.isEmpty())
+		if (devices == null || devices.size() == 0)
 			Helper.assertFalse("set device first");
 
 		int threads = CrossPlatformProperties.getParallelTests();
@@ -223,7 +229,10 @@ public class IosCapability {
 
 		// adds all devices
 		DeviceManager.loadDevices(devices, DeviceType.iOS);
-		capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, DeviceManager.getFirstAvailableDevice(DeviceType.iOS));
+		capabilities.setCapability(MobileCapabilityType.UDID, DeviceManager.getFirstAvailableDevice(DeviceType.iOS));
+
+		// TODO: needs to be correct device
+		//capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, "iphone");
 	}
 
 	/**

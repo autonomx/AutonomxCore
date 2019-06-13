@@ -1953,6 +1953,15 @@ public class Helper {
 	public static boolean isUnix() {
 		return UtilityHelper.isUnix();
 	}
+	
+	/**
+	 * is the string value UDID
+	 * @param value
+	 * @return
+	 */
+	public static boolean isUUID(String value) {
+		return UtilityHelper.isUUID(value);
+	}
 
 	/**
 	 * normalizes string removes space, new line chars

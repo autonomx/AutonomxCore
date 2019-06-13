@@ -4,12 +4,14 @@ package core.uiCore.driverProperties.capabilities;
 /**
  */
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.logging.LogType;
 import org.openqa.selenium.logging.LoggingPreferences;
 import org.openqa.selenium.remote.CapabilityType;
@@ -24,6 +26,10 @@ public class WebCapability {
 
 	private static final String CHROME_OPTIONS_PREFIX = "chrome.options";
 	private static final String FIREFOX_OPTIONS_PREFIX = "firefox.options";
+
+	private static final String CHROME_PREF_PREFIX = "chrome.pref";
+	private static final String FIREFOX_PREF_PREFIX = "firefox.pref";
+
 
 	public DesiredCapabilities capabilities;
 
@@ -56,24 +62,69 @@ public class WebCapability {
 		// set chrome or firefox options based on prefix
 		setOptions();
 		
+		// set chrome or firefox preferences based on prefix
+		setPreferences();
+		
+		// set logging for browser to severe only
 		LoggingPreferences logs = new LoggingPreferences();
 		logs.enable(LogType.DRIVER, Level.SEVERE);
 
-		capabilities.setCapability(CapabilityType.LOGGING_PREFS, logs);
-
-		//add experimental
-		/**
-		 * DesiredCapabilities jsCapabilities = DesiredCapabilities.chrome();
-			ChromeOptions options = new ChromeOptions();
-			Map<String, Object> prefs = new HashMap<>();
-			prefs.put("intl.accept_languages", language);
-			options.setExperimentalOption("prefs", prefs);
-			jsCapabilities.setCapability(ChromeOptions.CAPABILITY, options);
-		 */
-		
+		capabilities.setCapability(CapabilityType.LOGGING_PREFS, logs);		
 		
 		return this;
 	}
+	
+	/**
+	 * set preferences with prefix chrome.pref. or firefox.pref.
+	 * @return
+	 */
+	private DesiredCapabilities setPreferences() {
+
+		// get all keys from config
+		Map<String, Object> propertiesMap = TestObject.getTestInfo().config;
+		ChromeOptions chromeOptions = new ChromeOptions();
+		FirefoxOptions firefoxOptions = new FirefoxOptions();
+		Map<String, Object> chromePreferences = new HashMap<>();
+		
+		FirefoxProfile fireFoxProfile = new FirefoxProfile();
+		
+		// load config/properties values from entries with "chrome.pref." or
+		// "firefox.pref." prefix
+		for (Entry<String, Object> entry : propertiesMap.entrySet()) {
+			
+			// if starts with chrome.pref or firefox.pref prefix
+			boolean isPref = entry.getKey().toString().startsWith(CHROME_PREF_PREFIX) 
+					|| entry.getKey().toString().startsWith(FIREFOX_PREF_PREFIX);
+			
+			if (isPref) {
+				String fullKey = entry.getKey().toString();
+				String[] split = fullKey.split("pref.");
+				String key = split[1].trim();
+				String value = entry.getValue().toString().trim();
+				if (isChrome() && fullKey.contains(CHROME_PREF_PREFIX)) {
+					chromePreferences.put(key, value);	
+				}
+				
+				else if (isFirefox() && fullKey.contains(FIREFOX_PREF_PREFIX)) {
+					fireFoxProfile.setPreference(key,value);
+				}
+
+			}
+		}
+		
+		
+		if (isChrome()) {
+			chromeOptions.setExperimentalOption("prefs", chromePreferences);
+			capabilities.setCapability(ChromeOptions.CAPABILITY, chromeOptions);
+		}
+		else if (isFirefox()) {
+			firefoxOptions.setProfile(fireFoxProfile);
+			capabilities.setCapability(FirefoxOptions.FIREFOX_OPTIONS, firefoxOptions);
+		}
+
+		return capabilities;
+	}
+
 	
 	/**
 	 * set chrome options with prefix chrome.options
@@ -83,7 +134,7 @@ public class WebCapability {
 	 * iterates through all property values with such prefix And adds them to android desired capabilities
 	 * @return 
 	 */
-	public DesiredCapabilities setOptions() {
+	private DesiredCapabilities setOptions() {
 
 		// get all keys from config
 		Map<String, Object> propertiesMap = TestObject.getTestInfo().config;
@@ -100,7 +151,8 @@ public class WebCapability {
 			
 			if (isOption) {
 				String fullKey = entry.getKey().toString();
-				String key = "--" + fullKey.substring(fullKey.lastIndexOf(".") + 1).trim();
+				String[] split = fullKey.split("options.");
+				String key = "--" + split[1].trim();
 				boolean isEnable = Boolean.valueOf(entry.getValue().toString().trim());
 				if (isEnable && isChrome() && fullKey.contains(CHROME_OPTIONS_PREFIX))
 					chromeOptions.addArguments(key);
@@ -121,13 +173,6 @@ public class WebCapability {
 
 	public DesiredCapabilities getCapability() {
 		return capabilities;
-	}
-
-	public WebCapability setChromeBrowserLanguage(String lang) {
-		ChromeOptions options = new ChromeOptions();
-		options.addArguments("--lang=" + lang);
-		capabilities.setCapability(ChromeOptions.CAPABILITY, options);
-		return this;
 	}
 
 	/**

@@ -62,7 +62,7 @@ public class WebDriverSetup {
 			AppiumDriverLocalService service;			
 			if(Config.getBooleanValue("appium.useExternalAppiumServer"))
 			{
-				int port = Config.getIntValue("appiumExternalPort");
+				int port = Config.getIntValue("appium.externalPort");
 				TestLog.ConsoleLog("Connecting to external appium server at port " + port);
 				driver = new IOSDriver(new URL("http://localhost:"+ port + "/wd/hub"), driverObject.capabilities);
 			}
@@ -78,7 +78,7 @@ public class WebDriverSetup {
 			// if external server is used
 			if(Config.getBooleanValue("appium.useExternalAppiumServer"))
 			{
-				int port = Config.getIntValue("appiumExternalPort");
+				int port = Config.getIntValue("appium.externalPort");
 				driver = new AndroidDriver(new URL("http://localhost:"+ port + "/wd/hub"), driverObject.capabilities);
 			}
 			// if microsoft app center

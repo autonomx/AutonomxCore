@@ -234,23 +234,32 @@ public class AndroidCapability {
 	 */
 	public List<String> getAndroidDeviceList() {
 		String cmd;
-	
+
 		if (!Config.getValue(AppiumServer.ANDROID_HOME).isEmpty())
 			cmd = Config.getValue(AppiumServer.ANDROID_HOME) + "/platform-tools/adb devices";
-		else 
+		else
 			cmd = "adb devices";
-		
-		ArrayList<String> results = Helper.runShellCommand(cmd);
-		TestLog.ConsoleLogDebug("Android device list: " + Arrays.toString(results.toArray()));
-		if (!results.isEmpty())
-			results.remove(0);
-		ArrayList<String> devices = new ArrayList<String>();
+
+		// get list of device udid
+		List<String> results = new ArrayList<String>();
+		results = Config.getValueList("android.UDID");
+
+		// if no device is set in properties, attempt to auto detect
+		if (results.size() == 0) {
+
+			results = Helper.runShellCommand(cmd);
+			TestLog.ConsoleLogDebug("Android device list: " + Arrays.toString(results.toArray()));
+			if (!results.isEmpty())
+				results.remove(0);
+		}
+		List<String> devices = new ArrayList<String>();
 		for (String list : results) {
 			String arr[] = list.split("\t", 2);
 			String device = arr[0];
 			if (!device.isEmpty())
 				devices.add(device);
 		}
+
 		return devices;
 	}
 	
