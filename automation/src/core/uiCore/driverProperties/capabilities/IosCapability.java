@@ -164,7 +164,7 @@ public class IosCapability {
 	 */
 	public boolean isRealDeviceConnected() {
 		List<String> devices = getIosDeviceList();
-		if (devices.size() == 0)
+		if (devices.size() > 0)
 			return true;
 		return false;
 	}
@@ -221,6 +221,9 @@ public class IosCapability {
 	 */
 	public void setRealDevices() {
 		List<String> devices = getIosDeviceList();
+		List<String> deviceNames = this.simulatorList;
+		if(deviceNames.size() == 0) Helper.assertFalse("device name is empty. set ios.mobile  or ios.tablet");
+
 
 		int threads = CrossPlatformProperties.getParallelTests();
 		if (threads > devices.size())
@@ -231,8 +234,8 @@ public class IosCapability {
 		DeviceManager.loadDevices(devices, DeviceType.iOS);
 		capabilities.setCapability(MobileCapabilityType.UDID, DeviceManager.getFirstAvailableDevice(DeviceType.iOS));
 
-		// TODO: needs to be correct device
-		//capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, "iphone");
+		// TODO: needs to be correct device. adding first device to device name
+		capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, deviceNames.get(0));
 	}
 
 	/**
