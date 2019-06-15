@@ -186,12 +186,13 @@ public class IosCapability {
 		results = Config.getValueList("ios.UDID");
 		
 		// if no device is set in properties, attempt to auto detect
-		if(results.size() == 0) {
+		if(results.isEmpty()) {
 			results = Helper.runShellCommand(cmd);
 			if (!results.isEmpty() && results.get(0).contains("command not found"))
 				Helper.assertFalse("idevice not installed. install: brew install ideviceinstaller");
 		}
-		TestLog.ConsoleLog("ios device list: " + Arrays.toString(results.toArray()));
+		if(!results.isEmpty())
+			TestLog.ConsoleLog("ios device list: " + Arrays.toString(results.toArray()));
 		return results;
 	}
 

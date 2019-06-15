@@ -1,6 +1,7 @@
 package core.support.configReader;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -180,9 +181,11 @@ public class Config {
 	 */
 	public static List<String> getValueList(String key) {
 		String value = (String) TestObject.getTestInfo().config.get(key);
+		List<String> items = new ArrayList<String>();
 		if (value == null)
 			Helper.assertTrue("value not found in config files: " + key, false);
-		List<String> items = Arrays.asList(value.split("\\s*,\\s*"));
+		if(!value.isEmpty()) 
+			items = Arrays.asList(value.split("\\s*,\\s*"));
 		return items;
 	}
 

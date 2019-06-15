@@ -248,7 +248,6 @@ public class AndroidCapability {
 		if (results.size() == 0) {
 
 			results = Helper.runShellCommand(cmd);
-			TestLog.ConsoleLogDebug("Android device list: " + Arrays.toString(results.toArray()));
 			if (!results.isEmpty())
 				results.remove(0);
 		}
@@ -259,6 +258,9 @@ public class AndroidCapability {
 			if (!device.isEmpty())
 				devices.add(device);
 		}
+		
+		if(results.size() > 0)
+			TestLog.ConsoleLogDebug("Android device list: " + Arrays.toString(results.toArray()));
 
 		return devices;
 	}

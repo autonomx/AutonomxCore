@@ -57,9 +57,6 @@ public class FormHelper {
 			EnhancedWebElement fieldElement = Element.findElements(field);
 			Helper.wait.waitForElementToLoad(field);
 			
-			// clear field is slow on android And ios
-			clearField(field, index);
-			Helper.wait.waitForSeconds(0.5);
 			fieldElement.sendKeys(index, value);
 
 			// hides keyboard if on mobile device (ios/android)
@@ -81,9 +78,6 @@ public class FormHelper {
 			EnhancedWebElement fieldElement = Element.findElements(field);
 			Helper.wait.waitForElementToLoad(field);
 			
-			// clear field is slow on android And ios
-			clearField(field, index);
-			Helper.wait.waitForSeconds(0.5);
 			fieldElement.sendKeysByAction(index, value);
 
 			// hides keyboard if on mobile device (ios/android)
@@ -107,14 +101,14 @@ public class FormHelper {
 		
 		Helper.clickAndWait(field, 0);
 		fieldElement.clear(index);
-		fieldElement.get(index).sendKeys(Keys.ESCAPE);
 		
 		 value = fieldElement.getText(index);
 		if(!value.isEmpty())
 		{
 			for(int i = 0; i< value.length(); i++)
 				fieldElement.sendKeys(Keys.BACK_SPACE);
-		}	
+		}
+		Helper.wait.waitForSeconds(0.1);
 	}
 	
 	/**
