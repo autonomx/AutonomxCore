@@ -97,8 +97,12 @@ public class ScreenRecorderHelper {
 	 */
 	public static void stopRecording() {
 
-		// return if enableRecording is false or record on fail test only is true
-		if (!Config.getBooleanValue(RECORDER_ENABLE_RECORDING) || Config.getBooleanValue(RECORDER_ON_FAIL_TEST_ONLY))
+		// return if enableRecording is false 
+		if (!Config.getBooleanValue(RECORDER_ENABLE_RECORDING))
+			return;
+		
+		// if record on fail only is true and test passes, then return
+		if(Config.getBooleanValue(RECORDER_ON_FAIL_TEST_ONLY) && TestObject.getTestInfo().isTestPass)
 			return;
 
 		TestLog.ConsoleLog("stopping screen recording");

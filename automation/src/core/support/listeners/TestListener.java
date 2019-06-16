@@ -145,6 +145,9 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		// sets the class name for logging before class
 		setTestClassName(iTestResult);
+		
+		// set test status to pass
+		TestObject.getTestInfo().withIsTestPass(true);
 
 		TestLog.Then("Test is finished successfully");
 		TestLog.printLogsToConsole();
@@ -184,7 +187,8 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		// set forced restart to true, so new driver is created for next test
 		TestObject.getTestInfo().withIsForcedRestart(true);
 		TestObject.getTestInfo().isFirstRun = true;
-
+		TestObject.getTestInfo().withIsTestPass(false);
+		
 		// mobile device is now available again
 		DeviceManager.setDeviceAvailability(true);
 		
@@ -203,6 +207,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		// set forced restart to true, so new driver is created for next test
 		TestObject.getTestInfo().withIsForcedRestart(true);
 		TestObject.getTestInfo().isFirstRun = true;
+		TestObject.getTestInfo().withIsTestPass(false);
 
 		iTestResult.setStatus(ITestResult.SKIP);
 
