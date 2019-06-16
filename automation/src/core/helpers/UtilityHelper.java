@@ -368,8 +368,10 @@ public class UtilityHelper {
 		ArrayList<File> testFiles = new ArrayList<File>();
 
 		// fail test if no csv files found
-		if (listOfFiles == null)
+		if (listOfFiles == null) {
 			Helper.softAssertTrue("test files not found at: " + directoryPath + " type: " + type, false);
+			return testFiles;
+		}
 
 		// filter files by suffix And add to testFiles list
 		for (int i = 0; i < listOfFiles.length; i++) {

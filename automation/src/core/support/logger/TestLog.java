@@ -347,14 +347,16 @@ public class TestLog {
 	 * @param value
 	 */
 	private static void logConsoleMessage(Priority priority, String value) {
-
+		if(TestObject.getTestInfo().log == null)
+			return;
+		
 		// if batch logging is disabled, log to console
 		Boolean enableBatchLogging = CrossPlatformProperties.getEnableBatchLogging();
 		value = Helper.date.getTimestampSeconds() + " : " + getTestLogPrefix() + value;
 		if (!enableBatchLogging)
 			TestObject.getTestInfo().log.log(priority, value);
 
-		// if bathch logging is enabled, keep track of all logs for bu
+		// if batch logging is enabled, keep track of all logs for bu
 		if (!TestObject.getTestInfo().isTestComplete && enableBatchLogging) {
 			LogObject log = new LogObject(value, priority);
 			TestObject.getTestInfo().testLog.add(log);

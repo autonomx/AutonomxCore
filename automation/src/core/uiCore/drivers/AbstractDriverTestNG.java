@@ -66,7 +66,7 @@ public class AbstractDriverTestNG {
 
 		setWebDriver(DriverObject.getFirstAvailableDriver());
 
-		TestLog.ConsoleLog("isForcedRestart: " + TestObject.getTestInfo().isForcedRestart + " isSingleSignIn(): "
+		TestLog.ConsoleLogDebug("isForcedRestart: " + TestObject.getTestInfo().isForcedRestart + " isSingleSignIn(): "
 				+ CrossPlatformProperties.isSingleSignIn() + " webDriver: " + AbstractDriver.getWebDriver());
 
 		boolean condition1 = TestObject.getTestInfo().isForcedRestart && CrossPlatformProperties.isSingleSignIn();
