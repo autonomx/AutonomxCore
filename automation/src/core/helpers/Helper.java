@@ -209,6 +209,18 @@ public class Helper {
 	public static void assertContains(String actual, String expected) {
 		AssertHelper.assertContains(actual, expected);
 	}
+	
+	public static void softAssertTrue(String message, boolean value) {
+		AssertHelper.softAssertTrue(message, value);
+	}
+	
+	protected static void softAssertEqual(String expected, String actual) {
+		AssertHelper.softAssertEqual(actual, expected);
+	}
+	
+	protected static void softAssertEqual(int expected, int actual) {
+		AssertHelper.softAssertEqual(actual, expected);
+	}
 
 	// Element Helper
 	/**

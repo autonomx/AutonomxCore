@@ -1,6 +1,7 @@
 package core.helpers;
 
 import org.junit.Assert;
+import org.testng.asserts.SoftAssert;
 
 import core.support.logger.TestLog;
 
@@ -29,6 +30,25 @@ public class AssertHelper {
 		TestLog.logPass("validating if expected: " + expected + " equals to actual: " + actual);
 		Assert.assertEquals(expected, actual);
 	}
+	
+	protected static void softAssertTrue(String message, boolean value) {
+		SoftAssert softAssertion= new SoftAssert();
+		softAssertion.assertTrue(value, message);
+		TestLog.ConsoleLogWarn("soft assert failed: " + message);
+	}
+	
+	protected static void softAssertEqual(String expected, String actual) {
+		SoftAssert softAssertion= new SoftAssert();
+		softAssertion.assertEquals(actual, expected);
+		TestLog.ConsoleLogWarn("soft assert failed: expected: " + expected + " but actual was: " + actual);
+	}
+	
+	protected static void softAssertEqual(int expected, int actual) {
+		SoftAssert softAssertion= new SoftAssert();
+		softAssertion.assertEquals(actual, expected);
+		TestLog.ConsoleLogWarn("soft assert failed: expected: " + expected + " but actual was: " + actual);
+	}
+
 
 	/**
 	 * assert actual contains expected
