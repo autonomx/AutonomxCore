@@ -2,68 +2,81 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>io.autonomx</groupId>
-	<artifactId>autonomxCore</artifactId>
-	<version>1.0.13</version>
-	<packaging>jar</packaging>
-	<build>
-		<sourceDirectory>src</sourceDirectory>
-		<plugins>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.0</version>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-				</configuration>
-			</plugin>
 
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>9</version>
+	</parent>
+
+	<groupId>io.autonomx</groupId>
+	<artifactId>autonomx-core</artifactId>
+	<version>1.0.0</version>
+
+	<build>
+		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>3.0.1</version>
+				<version>2.2.1</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
-						<!--skip source code. remove attached-source <configuration> <skipSource>true</skipSource> 
-							</configuration> -->
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9.1</version>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
 						<goals>
 							<goal>jar</goal>
 						</goals>
 					</execution>
 				</executions>
 			</plugin>
-
 			<plugin>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.8</version>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<version>1.5</version>
 				<executions>
 					<execution>
-						<id>export-pom</id>
-						<phase>package</phase>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
 						<goals>
-							<goal>run</goal>
+							<goal>sign</goal>
 						</goals>
-						<configuration>
-							<target name="Exporting POM">
-								<copy file="${basedir}/pom.xml"
-									tofile="${project.build.outputDirectory}/../${project.build.finalName}.pom" />
-								<copy file="${basedir}/pom.xml"
-									tofile="${project.build.outputDirectory}/../${project.build.finalName}-tests.pom" />
-							</target>
-						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.sonatype.plugins</groupId>
+				<artifactId>nexus-staging-maven-plugin</artifactId>
+				<version>1.6.7</version>
+				<extensions>true</extensions>
+				<configuration>
+					<serverId>ossrh</serverId>
+					<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+					<autoReleaseAfterClose>true</autoReleaseAfterClose>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
 
 	<distributionManagement>
-
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
 		<repository>
-			<id>central</id>
-			<name>vultr.guest-releases</name>
-			<url>http://artifact.autonomx.io/artifactory/libs-release-local</url>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
 	</distributionManagement>
 
@@ -348,21 +361,21 @@
 			<artifactId>reflections</artifactId>
 			<version>0.9.10</version>
 		</dependency>
-		
+
 		<!-- https://mvnrepository.com/artifact/com.google.auto.service/auto-service -->
 		<dependency>
-		    <groupId>com.google.auto.service</groupId>
-		    <artifactId>auto-service</artifactId>
-		    <version>1.0-rc4</version>
+			<groupId>com.google.auto.service</groupId>
+			<artifactId>auto-service</artifactId>
+			<version>1.0-rc4</version>
 		</dependency>
-		
-	<!-- screen recorder -->
+
+		<!-- screen recorder -->
 		<dependency>
-		    <groupId>com.pojosontheweb</groupId>
-		    <artifactId>monte-repack</artifactId>
-		    <version>1.0</version>
+			<groupId>com.pojosontheweb</groupId>
+			<artifactId>monte-repack</artifactId>
+			<version>1.0</version>
 		</dependency>
-		
+
 	</dependencies>
 
 	<profiles>
