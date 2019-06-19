@@ -5,7 +5,7 @@ import java.util.Collection;
 
 import org.apache.log4j.xml.DOMConfigurator;
 import org.testng.IClassListener;
-import org.testng.IConfigurationListener2;
+import org.testng.IConfigurationListener;
 import org.testng.ISuite;
 import org.testng.ISuiteListener;
 import org.testng.ITestClass;
@@ -29,7 +29,7 @@ import core.uiCore.driverProperties.driverType.DriverType;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import core.uiCore.drivers.AbstractDriverTestNG;
 
-public class TestListener implements ITestListener, IClassListener, ISuiteListener, IConfigurationListener2 {
+public class TestListener implements ITestListener, IClassListener, ISuiteListener, IConfigurationListener {
 
 	public static boolean isTestNG = false;
 
@@ -294,10 +294,6 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 	@Override
 	public void onConfigurationSkip(ITestResult itr) {
-	}
-
-	@Override
-	public void beforeConfiguration(ITestResult tr) {
 	}
 
 	public void setTestClassName(ITestResult iTestResult) {

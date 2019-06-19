@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -83,7 +84,6 @@ public class ExcelHelper {
 	 *            - required: excel.row, excel.column, excel.value, excel.file
 	 * @throws Exception
 	 */
-	@SuppressWarnings("static-access")
 	public static void setCellData(ExcelObject excel) throws Exception {
 
 		setExcelFile(excel);
@@ -91,7 +91,7 @@ public class ExcelHelper {
 		XSSFRow Row;
 
 		Row = excel.ExcelWSheet.getRow(excel.row);
-		Cell = Row.getCell(excel.column, Row.RETURN_BLANK_AS_NULL);
+		Cell = Row.getCell(excel.column, MissingCellPolicy.RETURN_BLANK_AS_NULL);
 		if (Cell == null) {
 			Cell = Row.createCell(excel.column);
 			Cell.setCellValue(excel.value);
@@ -113,7 +113,6 @@ public class ExcelHelper {
 	 *            - contains data info
 	 * @throws Exception
 	 */
-	@SuppressWarnings("static-access")
 	public static void setCellData(List<ExcelObject> excelObjects) throws Exception {
 		setExcelFile(excelObjects.get(0));
 		XSSFCell Cell;
@@ -121,7 +120,7 @@ public class ExcelHelper {
 
 		for (ExcelObject excel : excelObjects) {
 			Row = excel.ExcelWSheet.getRow(excel.row);
-			Cell = Row.getCell(excel.column, Row.RETURN_BLANK_AS_NULL);
+			Cell = Row.getCell(excel.column, MissingCellPolicy.RETURN_BLANK_AS_NULL);
 			if (Cell == null) {
 				Cell = Row.createCell(excel.column);
 				Cell.setCellValue(excel.value);

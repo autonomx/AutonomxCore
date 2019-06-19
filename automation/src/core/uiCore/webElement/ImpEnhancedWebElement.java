@@ -665,12 +665,6 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	}
 
 	@Override
-	public WebElement findElement(By by) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public By getElementCssSelector(int index) {
 		// TODO Auto-generated method stub
 		return null;
@@ -693,5 +687,11 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public WebElement findElement(By arg0) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

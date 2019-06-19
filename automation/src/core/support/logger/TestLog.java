@@ -173,7 +173,7 @@ public class TestLog {
 	 * path : relative path to the video file
 	 * @param subStep
 	 */
-	public static void attachVideoLog(String path, boolean isVideo) {
+	public static void attachVideoLog(String path, boolean isVideoAttached) {
 		testState state = TestObject.getTestState(TestObject.getTestInfo().testId);
 		if (!state.equals(testState.testMethod))
 			return;
@@ -188,7 +188,7 @@ public class TestLog {
 				"  Your browser does not support the video tag.\r\n" + 
 				"</video>" ;
 		
-		if(isVideo)
+		if(isVideoAttached)
 			AbstractDriver.getStep().get().pass(videoLog);
 		
 		AbstractDriver.getStep().get().pass("<a href='"+path+"'>screen recording Link</a>");		
