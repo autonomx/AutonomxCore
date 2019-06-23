@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
 
 import javax.lang.model.element.Element;
 
@@ -91,7 +92,9 @@ public class PackageHelper {
 	 * @return
 	 */
 	public static String getModuleFromFullPath(File file) {
-		String[] directories = file.getAbsolutePath().split("/");
+		String pattern = Pattern.quote(File.separator); // win, osx, linux have different separators
+		String[] directories = file.getAbsolutePath().split(pattern);
+		Logger.debug("getModuleFromFullPath: " + file.getAbsolutePath());
 		for(int i = 0; i< directories.length; i++) {
 			if(directories[i].equals("module"))
 				return directories[i+1];

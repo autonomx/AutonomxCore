@@ -1,4 +1,4 @@
-package core.support.annotation.helper;
+package core.support.annotation.helper.annotationMap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,6 +11,8 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 
 import core.support.annotation.Panel;
+import core.support.annotation.helper.Logger;
+import core.support.annotation.helper.PackageHelper;
 
 public class PanelMapHelper {
 	

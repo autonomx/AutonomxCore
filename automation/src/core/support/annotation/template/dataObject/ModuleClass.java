@@ -12,11 +12,11 @@ import java.util.Map.Entry;
 import javax.lang.model.element.Element;
 import javax.tools.JavaFileObject;
 
-import core.support.annotation.helper.DataMapHelper;
 import core.support.annotation.helper.DataObjectHelper;
 import core.support.annotation.helper.FileCreatorHelper;
 import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PackageHelper;
+import core.support.annotation.helper.annotationMap.DataMapHelper;
 
 public class ModuleClass {
 	

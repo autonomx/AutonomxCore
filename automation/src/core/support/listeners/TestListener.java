@@ -5,7 +5,7 @@ import java.util.Collection;
 
 import org.apache.log4j.xml.DOMConfigurator;
 import org.testng.IClassListener;
-import org.testng.IConfigurationListener2;
+import org.testng.IConfigurationListener;
 import org.testng.ISuite;
 import org.testng.ISuiteListener;
 import org.testng.ITestClass;
@@ -18,6 +18,8 @@ import org.testng.xml.XmlSuite.ParallelMode;
 import com.google.common.base.Joiner;
 
 import core.helpers.Helper;
+import core.helpers.ScreenRecorderHelper;
+import core.support.configReader.Config;
 import core.support.logger.ExtentManager;
 import core.support.logger.TestLog;
 import core.support.objects.DeviceManager;
@@ -27,7 +29,7 @@ import core.uiCore.driverProperties.driverType.DriverType;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import core.uiCore.drivers.AbstractDriverTestNG;
 
-public class TestListener implements ITestListener, IClassListener, ISuiteListener, IConfigurationListener2 {
+public class TestListener implements ITestListener, IClassListener, ISuiteListener, IConfigurationListener {
 
 	public static boolean isTestNG = false;
 
@@ -100,14 +102,41 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		DriverObject.quitAllDrivers();
 		ExtentManager.launchReportAfterTest();
 		ExtentManager.printReportLink();
+		sendReport(iTestContext);
+	}
+	
+	/**
+	 * send slack or email report
+	 * depend on slack.notifyOnFailureOnly or email.notifyOnFailureOnly
+	 * email.enableEmailReport and slack.enableSlackNotification have to be set true for send to occur
+	 * @param iTestContext
+	 */
+	private void sendReport(ITestContext iTestContext) {
 		String message = generateTestMessage(iTestContext); // generate report message
-		ExtentManager.slackNotification(message); // send slack notification
-		ExtentManager.emailTestReport(message); // send test report
+		
+		boolean hasErrors = iTestContext.getFailedTests().size() > 0;
+		boolean slackNotifyOnFailOnly = Config.getBooleanValue(ExtentManager.NOTIFY_SLACK_ON_FAIL_ONLY);
+		boolean emailNotifyOnFailOnly = Config.getBooleanValue(ExtentManager.NOTIFY_EMAIL_ON_FAIL_ONLY);
+
+		// send slack notification if error only is set and test fails exist, else if error only is false, send slack
+		if(slackNotifyOnFailOnly && hasErrors) {
+			ExtentManager.slackNotification(message); // send slack notification
+		}else if(!slackNotifyOnFailOnly) {
+			ExtentManager.slackNotification(message); // send slack notification
+		}
+		
+		// send email notification if error only is set and test fails exist, else if error only is false, send slack	
+		if(emailNotifyOnFailOnly && hasErrors) {
+			ExtentManager.emailTestReport(message); // send slack notification
+		}else if(!emailNotifyOnFailOnly) {
+			ExtentManager.emailTestReport(message); // send slack notification
+		}
 	}
 
 	public void onTestStart(ITestResult iTestResult) {
 
 		setTestClassName(iTestResult);
+		ScreenRecorderHelper.startRecording();
 	}
 
 	@Override
@@ -116,9 +145,15 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		// sets the class name for logging before class
 		setTestClassName(iTestResult);
+		
+		// set test status to pass
+		TestObject.getTestInfo().withIsTestPass(true);
 
 		TestLog.Then("Test is finished successfully");
 		TestLog.printLogsToConsole();
+		
+		// stop screen recording if enabled
+		ScreenRecorderHelper.stopRecording();
 
 		// if single signin is set, Then set isFirstRun to false so new driver is not
 		// created for next test
@@ -131,7 +166,11 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		// mobile device is now available again
 		DeviceManager.setDeviceAvailability(true);
-
+		
+		// shutdown drivers if single sign in is false
+		if (!CrossPlatformProperties.isSingleSignIn())
+			DriverObject.quitTestDrivers();
+		
 		// reset test object
 		TestObject.getTestInfo().resetTestObject();
 	}
@@ -148,9 +187,13 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		// set forced restart to true, so new driver is created for next test
 		TestObject.getTestInfo().withIsForcedRestart(true);
 		TestObject.getTestInfo().isFirstRun = true;
-
+		TestObject.getTestInfo().withIsTestPass(false);
+		
 		// mobile device is now available again
 		DeviceManager.setDeviceAvailability(true);
+		
+		// stop screen recording if enabled
+		ScreenRecorderHelper.stopRecording();
 
 		// quits web driver no matter the situation, as new browser will be launched
 		DriverObject.quitTestDrivers();
@@ -164,11 +207,15 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		// set forced restart to true, so new driver is created for next test
 		TestObject.getTestInfo().withIsForcedRestart(true);
 		TestObject.getTestInfo().isFirstRun = true;
+		TestObject.getTestInfo().withIsTestPass(false);
 
 		iTestResult.setStatus(ITestResult.SKIP);
 
 		// mobile device is now available again
 		DeviceManager.setDeviceAvailability(true);
+		
+		// stop screen recording if enabled
+		ScreenRecorderHelper.stopRecording();
 
 		DriverObject.quitTestDrivers();
 		// Extentreports log operation for skipped tests.
@@ -247,10 +294,6 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 	@Override
 	public void onConfigurationSkip(ITestResult itr) {
-	}
-
-	@Override
-	public void beforeConfiguration(ITestResult tr) {
 	}
 
 	public void setTestClassName(ITestResult iTestResult) {

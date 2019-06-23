@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
@@ -175,6 +174,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	@Override
 	public void click(int index) {
 		int retry = 3;
+		List<String> exception = new ArrayList<String>();
 
 		boolean success = false;
 		do {
@@ -182,29 +182,23 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 			try {
 				scrollToView(index);
 				if (isExist()) {
-					if (retry == 1) {
-						actionClick(index);
-						success = true;
-						break;
-					}
+					// highlight the element if enabled
+					Helper.highLightWebElement(enhanceBy, index);
 					WebElement toClick = getElement(index);
 					toClick.click();
 					success = true;
 				}
 			} catch (Exception e) {
 				resetElement();
-				e.getMessage();
+				String message = e.getLocalizedMessage();
+				String rootCause = message.substring(0, message.indexOf("\n"));
+				exception.add(rootCause);
+				TestLog.ConsoleLog("click failed for element: " + elementName + ": "  + rootCause);
 			}
 		} while (!success && retry > 0);
-	}
-
-	/*
-	 * action click an element
-	 */
-	public void actionClick(int index) {
-		WebElement element = getElement(index);
-		Actions action = new Actions(webDriver);
-		action.click(element).perform();
+		
+//		if(!success)
+//			TestLog.ConsoleLog("click was not successful. cause: " + StringUtils.join(exception), success);
 	}
 
 	@Override
@@ -366,21 +360,20 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				scrollToView(index);
 				isDisplayed(index);
 				if (isExist()) {
-					if (retry == 1) {
-						sendKeyByAction(index, keysToSend);
-						success = true;
-						break;
-					}
+					Helper.highLightWebElement(enhanceBy, index);
 					WebElement element = getElement(index);
 					element.sendKeys(keysToSend);
 					success = true;
 				}
 			} catch (Exception e) {
 				resetElement();
-				exception.add(e.getMessage());
+				String message = e.getLocalizedMessage();
+				String rootCause = message.substring(0, message.indexOf("\n"));
+				exception.add(rootCause);
+				TestLog.ConsoleLog("send keys failed for element: " + elementName + ": "  + rootCause);
+
 			}
 		} while (!success && retry > 0);
-		Helper.assertTrue("send key was not successful: " + StringUtils.join(exception), success);
 	}
 	
     @Override
@@ -399,7 +392,9 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
                 }
             } catch (Exception e) {
                 resetElement();
-                e.printStackTrace();
+    			String message = e.getLocalizedMessage();
+				String rootCause = message.substring(0, message.indexOf("\n"));
+				TestLog.ConsoleLog("sendkey failed: " + rootCause);
             }
         } while (!success && retry > 0);
 
@@ -473,6 +468,10 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 			try {
 				WebElement element = getElement(index);
 				value = element.getText();
+				if(value.isEmpty()) value = getAttribute("textContent", index);
+				if(value.isEmpty()) value = getAttribute("value", index);
+				if(value.isEmpty()) value = getAttribute("innerText", index);
+
 				isSuccess = true;
 			} catch (Exception e) {
 				e.getMessage();
@@ -666,12 +665,6 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	}
 
 	@Override
-	public WebElement findElement(By by) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public By getElementCssSelector(int index) {
 		// TODO Auto-generated method stub
 		return null;
@@ -694,5 +687,11 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public WebElement findElement(By arg0) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

@@ -2,8 +2,9 @@ package core.apiCore.interfaces;
 
 import static io.restassured.RestAssured.given;
 
-import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import core.apiCore.helpers.DataHelper;
 import core.apiCore.helpers.JsonHelper;
@@ -13,22 +14,21 @@ import core.support.logger.TestLog;
 import core.support.objects.KeyValue;
 import core.support.objects.ServiceObject;
 import io.restassured.RestAssured;
-import io.restassured.authentication.AuthenticationScheme;
-import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
-public class RestApiInterface {
+public class Authentication {
 	
-	private static final String AUTHORIZATION_HEADER = "Authorization";
+	public static final String AUTHENTICATION_SCHEME = "auth";
 
+	
 	/**
-	 * interface for restful API calls
+	 * interface for restful api calls
 	 * 
 	 * @param apiObject
 	 * @return
 	 */
-	public static Response RestfullApiInterface(ServiceObject apiObject) {
+	public static Response tokenGenerator(ServiceObject apiObject) {
 		
 		if(apiObject == null) Helper.assertFalse("apiobject is null");
 		
@@ -50,7 +50,7 @@ public class RestApiInterface {
 	/**
 	 * sets base uri for api call
 	 */
-	public static void setURI(ServiceObject apiObject) {
+	private static void setURI(ServiceObject apiObject) {
 
 		// replace place holder values for uri
 		apiObject.withUriPath(DataHelper.replaceParameters(apiObject.getUriPath()));
@@ -68,14 +68,23 @@ public class RestApiInterface {
 		}
 	}
 
-	public static void validateResponse(Response response, ServiceObject apiObject) {
+	private static void validateResponse(Response response, ServiceObject apiObject) {
 
+		// store authentication scheme value 
+		List<KeyValue> keyword = DataHelper.getValidationMap(apiObject.getOutputParams());
+		if(keyword.get(0).key.equals(AUTHENTICATION_SCHEME)) {
+			String key = (String) keyword.get(0).value;
+		    key = key.replace("$", "").replace("<", "").replace(">", "").trim();
+			Config.putValue(key, RestAssured.authentication, "<authentication scheme>");
+			return;
+		}
+		
 		// fail test if no response is returned
 		if (response == null)
 			Helper.assertTrue("no response returned", false);
 		
 		// saves response values to config object
-		JsonHelper.saveOutboundJsonParameters(response, apiObject.getOutputParams());
+		saveOutboundTokens(response, apiObject.getOutputParams());
 
 		// validate status code
 		if (!apiObject.getRespCodeExp().isEmpty()) {
@@ -86,8 +95,14 @@ public class RestApiInterface {
 
 		validateExpectedValues(response, apiObject);
 	}
+	
+	private static void saveOutboundTokens(Response response, String outputParam) {
+		if (response == null || outputParam.isEmpty())
+			return;
+		JsonHelper.configMapJsonKeyValues(response, outputParam);
+	}
 
-	public static void validateExpectedValues(Response response, ServiceObject apiObject) {
+	private static void validateExpectedValues(Response response, ServiceObject apiObject) {
 		// get response body as string
 		String body = response.getBody().asString();
 		TestLog.logPass("response: " + body);
@@ -102,101 +117,62 @@ public class RestApiInterface {
 				Helper.assertTrue("expected is not valid format: " + criterion, JsonHelper.isValidExpectation(criterion));
 				JsonHelper.validateByJsonBody(criterion, response);
 				JsonHelper.validateByKeywords(criterion, response);
-				JsonHelper.validateResponseBody(criterion, response);
 			}
 		}
 	}
 	
-	/**
-	 * sets the header, content type And body based on specifications
-	 * Headers are based on key value, separated by ";"
-	 * Invalid token: if authorization token exists, replace last values with "invalid", else set to "invalid"
-	 * 
-	 * @param apiObject
-	 * @return
-	 */
-	public static RequestSpecification evaluateRequestHeaders(ServiceObject apiObject) {
-		// set request
-		RequestSpecification request = given();
-
-		// if no RequestHeaders specified
-		if (apiObject.getRequestHeaders().isEmpty()) {
-			return request;
+	private static RequestSpecification evaluateRequestBody(ServiceObject apiObject) {		
+		// set content type
+		RequestSpecification request = null;
+		
+		if(apiObject.getRequestBody().isEmpty()) {
+			Helper.assertFalse("no request set");
 		}
+		
+		Map<String, String> parameterMap = getParameters(apiObject);
+		
+		TestLog.logPass("authentication type: " + Helper.stringRemoveLines(apiObject.getOption()));
 
-		// replace parameters for request body
-		apiObject.withRequestHeaders(DataHelper.replaceParameters(apiObject.getRequestHeaders()));
-
-		// get key value mapping of header parameters
-		List<KeyValue> keywords = DataHelper.getValidationMap(apiObject.getRequestHeaders());
-
-		// iterate through key value pairs for headers, separated by ";"
-		for (KeyValue keyword : keywords) {
+		switch (apiObject.getOption()) {
+		case "BASIC":
+			String username = parameterMap.get("username");
+			String password = parameterMap.get("password");
+	        RestAssured.authentication =  RestAssured.basic(username, password);
+			break;
+		case "OAUTH2":			
+			username = parameterMap.get("username");
+			password = parameterMap.get("password");
+			String clientId = parameterMap.get("cliendId");
+			String clientSecret = parameterMap.get("clientSecret");
+			String grantType = parameterMap.get("grantType");
+			String scope = parameterMap.get("scope");
+			String redirectUri = parameterMap.get("redirectUri");
 			
-			// if additional request headers
-			switch (keyword.key) {
-			case Authentication.AUTHENTICATION_SCHEME:
-				String value = (String) keyword.value;
-				value = value.replace("$", "").replace("<", "").replace(">", "").trim();
-				RestAssured.authentication = (AuthenticationScheme) Config.getObjectValue(value.replace("@", ""));
-				break;
-				
-			case "INVALID_TOKEN":
-				String authValue = Config.getValue(AUTHORIZATION_HEADER);
-
-				// replace authorization token with invalid if token already exists
-				if (!authValue.isEmpty() && authValue.length() > 4) {
-					authValue = authValue.substring(0, authValue.length() - 4) + "invalid";
-					request = given().header(AUTHORIZATION_HEADER, "invalid");
-				} else
-					request = given().header(AUTHORIZATION_HEADER, "invalid");
-				break;
-				
-			case "NO_TOKEN":
-				request = given().header(AUTHORIZATION_HEADER, "");
-				break;
-			default:
-				request = given().header(keyword.key, keyword.value);
-				
-				// keep track of Authorization token
-				if (keyword.key.equals(AUTHORIZATION_HEADER)) {
-					Config.putValue(AUTHORIZATION_HEADER, (String) keyword.value);
-				}
-				break;
-			}
+			request =  given().auth().preemptive().basic(clientId, clientSecret)   
+                    .formParam("grant_type", grantType)
+                    .formParam("username", username)
+                    .formParam("password", password)
+                    .formParam("redirect_uri", redirectUri)
+                    .formParam("scope", scope);
+			break;
+		default:
+			Helper.assertFalse("Correct authentication type not set. selected: <" + apiObject.getMethod() + "> Available options: BASIC");
+			break;
 		}
 		return request;
 	}
-	public static RequestSpecification evaluateRequestBody(ServiceObject apiObject, RequestSpecification request) {
-		if(apiObject.getRequestBody().isEmpty()) return request;
+	
+	
+	private static Map<String, String> getParameters(ServiceObject apiObject){
+		Map<String, String> parameterMap = new HashMap<String, String>();
 		
-		// set content type
-		request = request.contentType(apiObject.getContentType());
-		
-		// set form data
-		if(apiObject.getContentType().contains("form")) {
-			request = request.config(RestAssured.config().encoderConfig(io.restassured.config.EncoderConfig.encoderConfig().encodeContentTypeAs("multipart/form-data", ContentType.TEXT)));
-			
-			String[] formData = apiObject.getRequestBody().split(",");
-			for(String data : formData) {
-				String[] keyValue = data.split(":");
-				if(keyValue.length == 3) {
-					switch(keyValue[1]) { // data type
-					case "FILE":
-						File file = DataHelper.getFile(keyValue[2]);
-						request.multiPart(file);
-						break;
-					default:
-						break;
-					}
-				}else
-					request = request.formParam(keyValue[0].trim(), keyValue[1].trim());
-			}
-			return request;
+		String[] formData = apiObject.getRequestBody().split(",");
+		for(String data : formData) {
+			String[] keyValue = data.split(":");
+			parameterMap.put(keyValue[0].trim(), keyValue[1].trim());
 		}
 		
-		// if json data type
-		return request.body(apiObject.getRequestBody());
+		return parameterMap;
 	}
 	
 	
@@ -207,7 +183,7 @@ public class RestApiInterface {
 	 * @param apiObject
 	 * @return
 	 */
-	public static RequestSpecification evaluateOption(ServiceObject apiObject, RequestSpecification request) {
+	private static RequestSpecification evaluateOption(ServiceObject apiObject, RequestSpecification request) {
 
 		// if no option specified
 		if (apiObject.getOption().isEmpty()) {
@@ -226,22 +202,21 @@ public class RestApiInterface {
 		return request;
 	}
 
-	public static Response evaluateRequest(ServiceObject apiObject) {
+	private static Response evaluateRequest(ServiceObject apiObject) {
 		Response response = null;
 		
-		// set request header
-		RequestSpecification request = evaluateRequestHeaders(apiObject);
-		
 		// set request body
-		request = evaluateRequestBody(apiObject, request);
+		RequestSpecification request = evaluateRequestBody(apiObject);
 
 		// set options
 	    request = evaluateOption(apiObject, request);
 
 		TestLog.logPass("request body: " + Helper.stringRemoveLines(apiObject.getRequestBody()));
 		TestLog.logPass("request type: " + apiObject.getMethod());
-
-
+		
+		// in case of basic authentication where AuthenticationScheme is returned and token is not generated
+        if(request == null) return response;
+        
 		switch (apiObject.getMethod()) {
 		case "POST":
 			response = request.when().post(apiObject.getUriPath());
@@ -269,7 +244,6 @@ public class RestApiInterface {
 			break;
 		}
 		TestLog.logPass("response: " + response.getBody().asString());
-
 		return response.then().extract().response();
 	}
 }

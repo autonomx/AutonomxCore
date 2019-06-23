@@ -4,10 +4,8 @@ public class MavenReader {
 
 	/**
 	 * gets key value from maven properties. format: -Dkey value
-	 * 
-	 * @param key
-	 * @param defaultValue
-	 * @return
+	 * @param key key in properties file
+	 * @return integer value of property key
 	 */
 	public static int getIntegerProperty(String key) {
 		try {
@@ -19,12 +17,10 @@ public class MavenReader {
 	}
 
 	/**
-	 * gets the value of the properties file based on key value, And sets default
+ 	 * gets the value of the properties file based on key value, And sets default
 	 * value if value is missing
-	 * 
-	 * @param key
-	 * @param defaultValue
-	 * @return
+	 * @param key key in properties file
+	 * @return string value of property value
 	 */
 	public static String getStringProperty(String key) {
 		try {
@@ -37,10 +33,8 @@ public class MavenReader {
 
 	/**
 	 * gets key value from maven properties. format: -Dkey value
-	 * 
-	 * @param key
-	 * @param defaultValue
-	 * @return
+	 * @param key key in properties file
+	 * @return boolean value of proeprlty value
 	 */
 	public static Boolean getBooleanProperty(String key) {
 		try {

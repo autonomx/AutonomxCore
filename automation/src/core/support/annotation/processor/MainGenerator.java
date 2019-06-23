@@ -23,10 +23,11 @@ import javax.tools.JavaFileObject;
 
 import com.google.auto.service.AutoService;
 
-import core.support.annotation.helper.DataMapHelper;
 import core.support.annotation.helper.FileCreatorHelper;
 import core.support.annotation.helper.Logger;
-import core.support.annotation.helper.PanelMapHelper;
+import core.support.annotation.helper.annotationMap.DataMapHelper;
+import core.support.annotation.helper.annotationMap.PanelMapHelper;
+import core.support.annotation.helper.annotationMap.ServiceMapHelper;
 import core.support.annotation.template.dataObject.CsvDataObject;
 import core.support.annotation.template.dataObject.DataClass;
 import core.support.annotation.template.dataObject.ModuleClass;
@@ -34,8 +35,9 @@ import core.support.annotation.template.manager.ModuleManager;
 import core.support.annotation.template.manager.PanelManagerGenerator;
 import core.support.annotation.template.service.Service;
 import core.support.annotation.template.service.ServiceData;
+import core.support.annotation.template.service.ServiceRunner;
 
-@SupportedAnnotationTypes(value = { "core.support.annotation.Panel", "core.support.annotation.Data"})
+@SupportedAnnotationTypes(value = { "core.support.annotation.Panel", "core.support.annotation.Data", "core.support.annotation.Service"})
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 @AutoService(javax.annotation.processing.Processor.class)
 public class MainGenerator extends AbstractProcessor {
@@ -60,6 +62,9 @@ public class MainGenerator extends AbstractProcessor {
 			// map of modules and classes with @Data annotation
 			Map<String, List<Element>> dataObjectMap = DataMapHelper.getDataObjectMap(roundEnv);
 			
+			// map of modules and classes with @Data annotation
+			Map<String, List<Element>> serviceObjectMap = ServiceMapHelper.getServiceObjectMap(roundEnv);
+			
 			for (Entry<String, List<Element>> entry : dataObjectMap.entrySet()) {
 				Logger.debug("data object map: key " + entry.getKey());
 				Logger.debug("data object map: value " + entry.getValue().get(0));
@@ -78,6 +83,7 @@ public class MainGenerator extends AbstractProcessor {
 			// generate service objects
 			Service.writeServiceClass();
 			ServiceData.writeServiceDataClass();
+			ServiceRunner.writeServiceClass(serviceObjectMap);
 			
 		    crateMarkerClass();
 			

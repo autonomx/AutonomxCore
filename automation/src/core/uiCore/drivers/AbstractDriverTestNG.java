@@ -14,6 +14,7 @@ import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
 
 import core.apiCore.driver.ApiTestDriver;
+import core.apiCore.helpers.CsvReader;
 import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.listeners.RetryTest;
@@ -65,7 +66,7 @@ public class AbstractDriverTestNG {
 
 		setWebDriver(DriverObject.getFirstAvailableDriver());
 
-		TestLog.ConsoleLog("isForcedRestart: " + TestObject.getTestInfo().isForcedRestart + " isSingleSignIn(): "
+		TestLog.ConsoleLogDebug("isForcedRestart: " + TestObject.getTestInfo().isForcedRestart + " isSingleSignIn(): "
 				+ CrossPlatformProperties.isSingleSignIn() + " webDriver: " + AbstractDriver.getWebDriver());
 
 		boolean condition1 = TestObject.getTestInfo().isForcedRestart && CrossPlatformProperties.isSingleSignIn();
@@ -199,10 +200,16 @@ public class AbstractDriverTestNG {
 	 */
 	@AfterMethod(alwaysRun = true)
 	public void afterMethod(Method method) {
-		TestObject.setTestName(method.getName());
-		TestObject.setTestId(getClassName(), TestObject.currentTestName.get());
 		
-		setDataProviderTestExtention(method);
+		// do not override test name for running service tests
+		if(!CsvReader.isRunningServiceTest())
+		{
+			
+			TestObject.setTestName(method.getName());
+			TestObject.setTestId(getClassName(), TestObject.currentTestName.get());
+			
+			setDataProviderTestExtention(method);
+		}
 
 		// setup before class driver
 		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
@@ -257,8 +264,6 @@ public class AbstractDriverTestNG {
 
 	@AfterMethod
 	public void shutdown() {
-		if (!CrossPlatformProperties.isSingleSignIn())
-			DriverObject.quitTestDrivers();
 		letRetryKnowAboutReports();
 	}
 

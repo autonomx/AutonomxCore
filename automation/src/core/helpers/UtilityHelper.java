@@ -9,12 +9,16 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -239,7 +243,7 @@ public class UtilityHelper {
 			byte[] buf = new byte[1024];
 			int len;
 			FileInputStream in = new FileInputStream(srcFile);
-			zip.putNextEntry(new ZipEntry(path + "/" + folder.getName()));
+			zip.putNextEntry(new ZipEntry(path + File.separator + folder.getName()));
 			while ((len = in.read(buf)) > 0) {
 				zip.write(buf, 0, len);
 			}
@@ -253,9 +257,9 @@ public class UtilityHelper {
 
 		for (String fileName : folder.list()) {
 			if (path.equals("")) {
-				addFileToZip(folder.getName(), srcFolder + "/" + fileName, zip);
+				addFileToZip(folder.getName(), srcFolder + File.separator + fileName, zip);
 			} else {
-				addFileToZip(path + "/" + folder.getName(), srcFolder + "/" + fileName, zip);
+				addFileToZip(path + File.separator + folder.getName(), srcFolder + File.separator + fileName, zip);
 			}
 		}
 	}
@@ -313,13 +317,8 @@ public class UtilityHelper {
 	 * @return
 	 */
 	protected static String getCurrentDir() {
-		String current = "";
-		try {
-			current = new java.io.File(".").getCanonicalPath() + "/";
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return current;
+		Path currentWorkingDir = Paths.get("").toAbsolutePath();
+		return currentWorkingDir.normalize().toString() + File.separator;
 	}
 
 	/**
@@ -344,9 +343,9 @@ public class UtilityHelper {
 	/**
 	 * zips directory path starts from root pom directory
 	 * 
-	 * @param dir:
+	 * @param sourceDir:
 	 *            root path + dir
-	 * @param outputFilePath:
+	 * @param destFilePath:
 	 *            usage: root + dir + outputFilePath
 	 * @return
 	 */
@@ -369,8 +368,10 @@ public class UtilityHelper {
 		ArrayList<File> testFiles = new ArrayList<File>();
 
 		// fail test if no csv files found
-		if (listOfFiles == null)
-			Helper.assertTrue("test files not found at: " + directoryPath, false);
+		if (listOfFiles == null) {
+			Helper.softAssertTrue("test files not found at: " + directoryPath + " type: " + type, false);
+			return testFiles;
+		}
 
 		// filter files by suffix And add to testFiles list
 		for (int i = 0; i < listOfFiles.length; i++) {
@@ -401,11 +402,26 @@ public class UtilityHelper {
 	        }
 	    return files;
 	 }
+	
+	/**
+	 * create directories and files based on absolute path
+	 * @param path
+	 */
+	protected static void createFileFromPath(String absolutePath) {
+		File media = new File(absolutePath);
+		Path pathToFile = Paths.get(absolutePath);
+		
+		try {
+			Files.createDirectories(pathToFile.getParent());
+			media.createNewFile(); // if file already exists will do nothing
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * captures screenshot And attaches to extent test report
 	 * 
-	 * @param description
 	 */
 	protected static void captureExtentReportScreenshot() {
 		Date now = new Date(); 
@@ -427,7 +443,7 @@ public class UtilityHelper {
 				AbstractDriver.getStep().get().info("").addScreenCaptureFromPath(extentReportImageRelativePath);
 			else
 				AbstractDriver.getStep().get().info("").addScreenCaptureFromPath(extentReportImageFullPath);
-
+			
 		} catch (Exception e) {
 			e.getMessage();
 		}
@@ -513,5 +529,70 @@ public class UtilityHelper {
 
 		// return the File object containing image data
 		return screen;
+	}
+	
+	/**
+	 * highlights the web element 
+	 * use on clicks and send key elements
+	 * applicable to web driver
+	 * @param by
+	 * @param index
+	 */
+	protected static void highLightWebElement(EnhancedBy by, int index)
+	{	
+		// return if not web
+		if(!Helper.isWebDriver()) return;
+		
+		// return if not enabled
+		if(!Config.getBooleanValue("web.element.highlight.enable")) return;
+		
+		double duration = Config.getDoubleValue("web.element.highlight.waitDurationInSeconds");
+       
+		JavascriptExecutor jsEx = (JavascriptExecutor) AbstractDriver.getWebDriver();
+        EnhancedWebElement targetElement = Element.findElements(by);
+        jsEx.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", targetElement.get(index));
+        Helper.waitForSeconds(duration);
+        jsEx.executeScript("arguments[0].setAttribute('style','border: solid 2px white');", targetElement.get(index));
+    }
+	
+	/**
+	 * returns true if OS is mac
+	 * @return
+	 */
+	protected static boolean isMac() {
+		String osName = System.getProperty("os.name").toLowerCase();
+		return osName.contains("mac");
+	}
+	
+	/**
+	 * returns true if OS is windows
+	 * @return
+	 */
+	protected static boolean isWindows() {
+		String osName = System.getProperty("os.name").toLowerCase();
+		return osName.contains("win");
+	}
+	
+	/**
+	 * returns true if OS is unix or linux
+	 * @return
+	 */
+	protected static boolean isUnix() {
+		String osName = System.getProperty("os.name");
+		return (osName.indexOf("nix") >= 0 || osName.indexOf("nux") >= 0 || osName.indexOf("aix") > 0 );
+	}
+	
+	/**
+	 * is the string value UDID
+	 * @param value
+	 * @return
+	 */
+	protected static boolean isUUID(String value) {
+		try {
+			UUID.fromString(value);
+		}catch(Exception e) {
+			return false;
+		}
+		return true;
 	}
 }

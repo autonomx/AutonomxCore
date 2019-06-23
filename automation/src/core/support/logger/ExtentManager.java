@@ -25,7 +25,7 @@ import com.aventstack.extentreports.reporter.ExtentKlovReporter;
 import com.aventstack.extentreports.reporter.configuration.Protocol;
 import com.aventstack.extentreports.reporter.configuration.Theme;
 
-import core.apiCore.ServiceRunner;
+import core.apiCore.ServiceManager;
 import core.helpers.Helper;
 import core.helpers.UtilityHelper;
 import core.helpers.emailHelper.EmailObject;
@@ -38,6 +38,9 @@ import core.support.objects.TestObject.testState;
 public class ExtentManager {
 
 	public static final String LAUNCH_AFTER_REPORT = "report.launchReportAfterTest";
+	public static final String NOTIFY_SLACK_ON_FAIL_ONLY = "slack.notifyOnFailureOnly";
+	public static final String NOTIFY_EMAIL_ON_FAIL_ONLY = "email.notifyOnFailureOnly";
+
 	public static final String ENABLE_SLACK_NOTIFICATION = "slack.enableSlackNotification";
 	public static final String ENABLE_EMAIL_REPORT = "email.enableEmailReport";
 	public static final String REPORT_EXPIRE_DAYS = "report.reportExpireDays";
@@ -55,8 +58,8 @@ public class ExtentManager {
 	public static String REPORT_DEFAULT_NAME = "extent";
 	public static ExtentKlovReporter klovReporter;
 
-	public static String TEST_OUTPUT_PATH = "/test-output/";
-	public static String TEST_OUTPUT_FULL_PATH = Helper.getCurrentDir() + "/test-output/";
+	public static String TEST_OUTPUT_PATH = File.separator + "test-output" + File.separator;
+	public static String TEST_OUTPUT_FULL_PATH = Helper.getCurrentDir() + TEST_OUTPUT_PATH;
 
 	public synchronized static ExtentReports getReporter() {
 		if (extent == null)
@@ -64,13 +67,25 @@ public class ExtentManager {
 
 		return extent;
 	}
-
+	
 	public static String getScreenshotsFolderFullPath() {
 		return getReportRootFullPath() + "screenshots/";
 	}
 
 	public static String getScreenshotsFolderRelativePath() {
 		return "screenshots/";
+	}
+
+	public static String getMediaFolderFullPath() {
+		return getReportRootFullPath() + "media/";
+	}
+
+	public static String getMediaFolderRelativePathFromHtmlReport() {
+		return "media/";
+	}
+	
+	public static String getMediaFolderRelativePathFromRoot() {
+		return getReportRootRelativePath() +  getMediaFolderRelativePathFromHtmlReport();
 	}
 
 	public static String getReportHTMLFullPath() {
@@ -90,8 +105,8 @@ public class ExtentManager {
 		DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
 		Date date = new Date();
 		String folderName = dateFormat.format(date);
-		return TEST_OUTPUT_PATH + "testReports/" + folderName + "/"
-				+ TestObject.getTestInfo(TestObject.DEFAULT_TEST).app + "/";
+		return TEST_OUTPUT_PATH + "testReports"+ File.separator + folderName + File.separator
+				+ TestObject.getTestInfo(TestObject.DEFAULT_TEST).app + File.separator;
 	}
 
 	public static ExtentReports createInstance(String fileName) {
@@ -151,7 +166,7 @@ public class ExtentManager {
 		String className = TestObject.getTestInfo().getClassName();
 		
 		// if service test runner, return. Service tests have different test names once the test starts, based on csv data
-		if(className.equals(ServiceRunner.SERVICE_TEST_RUNNER_ID))
+		if(className.equals(ServiceManager.SERVICE_TEST_RUNNER_ID))
 			return;
 		
 		if (!classList.containsKey(className)) {

@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 import org.junit.runner.Description;
+import org.monte.screenrecorder.ScreenRecorder;
 import org.openqa.selenium.WebDriver;
 
 import com.aventstack.extentreports.ExtentTest;
@@ -88,6 +89,9 @@ public class TestObject{
 	public ExtentTest testScenerio; // current test scenario
 	public List<ExtentTest> testSteps = new ArrayList<ExtentTest>(); // current test scenario
 	public List<String> testSubSteps = new ArrayList<String>(); // current test scenario
+	
+	// screen recorder for web
+	public ScreenRecorder screenRecorder = null;
 
 	public String startTime; // start time of test in milliseconds
 	public String randStringIdentifier; // random identifier for the test
@@ -95,7 +99,7 @@ public class TestObject{
 	public List<LogObject> testLog = new ArrayList<LogObject>();
 	public Map<String, String> languageMap = new ConcurrentHashMap<String, String>();
 	public Map<String, ServiceObject> apiMap = new ConcurrentHashMap<String, ServiceObject>();// api keywords
-	public Map<String, String> config = new ConcurrentHashMap<String, String>();
+	public Map<String, Object> config = new ConcurrentHashMap<String, Object>();
 
 	public static ThreadLocal<String> currentTestName = new ThreadLocal<String>();
 	public static ThreadLocal<String> currentTestId = new ThreadLocal<String>(); // key for testObject

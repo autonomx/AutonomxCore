@@ -55,7 +55,7 @@ public class ParallelRunner extends BlockJUnit4ClassRunner {
 							tasks.poll().cancel(true);
 						}
 
-						// set notification to slack if specified
+						// set notification to slack or email if specified
 						sendReport();
 						// if from inside ide, shutdown executor. maven has own runner
 						if (runningFromIde()) {
