@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.autonomx</groupId>
 	<artifactId>autonomxCore</artifactId>
-	<version>1.0.14</version>
+	<version>1.0.2.1</version>
 	<packaging>jar</packaging>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
@@ -66,13 +66,8 @@
 			<url>http://artifact.autonomx.io/artifactory/libs-release-local</url>
 		</repository>
 	</distributionManagement>
-
+	
 	<repositories>
-		<repository>
-			<id>central</id>
-			<name>vultr.guest-releases</name>
-			<url>http://artifact.autonomx.io/artifactory/libs-release-local</url>
-		</repository>
 		<repository>
 			<id>jcenter</id>
 			<url>https://jcenter.bintray.com/</url>
@@ -96,6 +91,7 @@
 		</repository>
 
 	</repositories>
+	
 
 	<dependencies>
 
@@ -206,6 +202,13 @@
 			<artifactId>azure-storage</artifactId>
 			<version>8.3.0</version>
 		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/org.apache.pdfbox/pdfbox -->
+		<dependency>
+		    <groupId>org.apache.pdfbox</groupId>
+		    <artifactId>pdfbox</artifactId>
+		    <version>2.0.15</version>
+		</dependency>
 
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
@@ -244,11 +247,12 @@
 			<artifactId>appium-test-extension</artifactId>
 			<version>1.5</version>
 		</dependency>
-
+		
+		<!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
 		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>fluent-hc</artifactId>
-			<version>4.5.8</version>
+		    <groupId>org.apache.httpcomponents</groupId>
+		    <artifactId>httpclient</artifactId>
+		    <version>4.5.9</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.testng/testng -->
@@ -257,19 +261,6 @@
 			<artifactId>testng</artifactId>
 			<version>6.14.3</version>
 		</dependency>
-
-		<dependency>
-		        <groupId>org.apache.httpcomponents</groupId>
-		        <artifactId>httpclient</artifactId>
-		        <version>4.5.9</version>
-		        <type>jar</type>
-		    </dependency>
-    <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpcore</artifactId>
-        <version>4.4.11</version>
-        <type>jar</type>
-    </dependency>
 
 		<!-- Remote MaryTTS -->
 		<dependency>
@@ -343,10 +334,11 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.microsoft.azure</groupId>
-			<artifactId>azure-servicebus</artifactId>
-			<version>2.0.0-PREVIEW-7</version>
+		    <groupId>com.microsoft.azure</groupId>
+		    <artifactId>azure-servicebus</artifactId>
+		    <version>2.0.0</version>
 		</dependency>
+
 
 		<dependency>
 			<groupId>org.xmlunit</groupId>

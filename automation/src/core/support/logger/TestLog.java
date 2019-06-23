@@ -50,39 +50,79 @@ public class TestLog {
 	static marytts.util.data.audio.AudioPlayer player;
 	public static final String LOG4JPATH = Config.RESOURCE_PATH + "/log4j.xml";
 
+	/**
+	 * logs to console
+	 * @param value value to log
+	 * @param args additional arguments for logging to be formatted
+	 */
 	public static void ConsoleLog(String value, Object... args) {
 		logConsoleMessage(Priority.INFO, formatMessage(value, args));
 	}
 
+	/**
+	 * logs warning to console
+	 * @param value value to log
+	 * @param args additional arguments for logging to be formatted
+	 */
 	public static void ConsoleLogWarn(String value, Object... args) {
 		logConsoleMessage(Priority.WARN, formatMessage(value, args));
 
 	}
 
+	/**
+	 * debug logs to console
+	 * @param value value to log
+	 * @param args additional arguments for logging to be formatted
+	 */
 	public static void ConsoleLogDebug(String value, Object... args) {
 		logConsoleMessage(Priority.DEBUG, formatMessage(value, args));
 
 	}
 
+	/**
+	 * error logs to console
+	 * @param value value to log
+	 * @param args additional arguments for logging to be formatted
+	 */
 	public static void ConsoleLogError(String value, Object... args) {
 		logConsoleMessage(Priority.ERROR, formatMessage(value, args));
 
 	}
 
+	/**
+	 * logs to extent report as background node
+	 * @param value value to log
+	 * @param args additional arguments for logging to be formatted
+	 */
 	public static void Background(String value, Object... args) {
 		setTestStep(gherkins.Background, value, args);
 	}
 
+	/**
+	 * logs to extent report as but node
+	 * @param value value to log
+	 * @param args additional arguments for logging to be formatted
+	 */
 	public static void But(String value, Object... args) {
 		logConsoleMessage(Priority.INFO, "But " + formatMessage(value, args));
 		setTestStep(gherkins.But, value, args);
 	}
 
+	/**
+	 * logs to extent report as given node
+	 * @param value value to log
+	 * @param args additional arguments for logging to be formatted
+	 */
 	public static void Given(String value, Object... args) {
 		logConsoleMessage(Priority.INFO, "Given " + formatMessage(value, args));
 		setTestStep(gherkins.Given, value, args);
 	}
 
+	/**
+	 * logs to extent report as when node
+	 * @param value value to log
+	 * @param args additional arguments for logging to be formatted
+	 */
 	public static void When(String value, Object... args) {
 		logConsoleMessage(Priority.INFO, "When " + formatMessage(value, args));
 
@@ -90,6 +130,11 @@ public class TestLog {
 		playAudio(gherkins.When.name() + " "+ formatMessage(value, args));
 	}
 
+	/**
+	 * logs to extent report as and node
+	 * @param value value to log
+	 * @param args additional arguments for logging to be formatted
+	 */
 	public static void And(String value, Object... args) {
 		logConsoleMessage(Priority.INFO, "And " + formatMessage(value, args));
 
@@ -97,6 +142,11 @@ public class TestLog {
 		playAudio(gherkins.And.name() + " "+ formatMessage(value, args));
 	}
 
+	/**
+	 * logs to extent report as then node
+	 * @param value value to log
+	 * @param args additional arguments for logging to be formatted
+	 */
 	public static void Then(String value, Object... args) {
 		logConsoleMessage(Priority.INFO, "Then " + formatMessage(value, args));
 
@@ -107,7 +157,7 @@ public class TestLog {
 	/**
 	 * sets test step: Given, When, Then, And
 	 * 
-	 * @param testStep
+	 * @param testStep the test step node
 	 */
 	public static void setTestStep1(ExtentTest testStep) {
 		// if test step is not set, do not log. Test will be set in test method state only.
@@ -117,6 +167,12 @@ public class TestLog {
 		AbstractDriver.getStep().set(testStep);
 	}
 	
+	/**
+	 * sets test step based on the gherkins language steps: given, when, then, and, but, background
+	 * @param gherkinState given, when, then, and, but, background
+	 * @param value value to log
+	 * @param args additional arguments for logging to be formatted
+	 */
 	public static void setTestStep(gherkins gherkinState, String value, Object... args ) {
 		ExtentTest testStep = null;
 		
@@ -156,7 +212,7 @@ public class TestLog {
 	/**
 	 * sets substep as pass
 	 * 
-	 * @param subStep
+	 * @param subStep the substep node value
 	 */
 	public static void setPassSubTestStep(String subStep) {
 		testState state = TestObject.getTestState(TestObject.getTestInfo().testId);
@@ -170,8 +226,9 @@ public class TestLog {
 	
 	/**
 	 * adds video and video link to the sub step
+	 * @param path relative path to the video file
+	 * @param isVideoAttached if the video is going to be attached to the extent report
 	 * path : relative path to the video file
-	 * @param subStep
 	 */
 	public static void attachVideoLog(String path, boolean isVideoAttached) {
 		testState state = TestObject.getTestState(TestObject.getTestInfo().testId);
@@ -197,11 +254,11 @@ public class TestLog {
 	}
 
 	/**
-	 * logpass is used for test steps for extend report, enable if properties option
+	 * log pass is used for test steps for extend report, enable if properties option
 	 * enableDetailedReport is true
 	 * 
-	 * @param value
-	 * @param args
+	 * @param value value to log
+	 * @param args additional arguments for logging to be formatted
 	 */
 	public static void logPass(String value, Object... args) {
 		logConsoleMessage(Priority.INFO, formatMessage(value, args));
@@ -211,22 +268,41 @@ public class TestLog {
 		}
 	}
 
+	/**
+	 * sets fail log for extent report and console
+	 * @param value value to log
+	 * @param args additional arguments for logging to be formatted
+	 */
 	public static void logFail(String value, Object... args) {
 		logConsoleMessage(Priority.ERROR, formatMessage(value, args));
 
 		// AbstractDriver.getLog().get().error(formatMessage(value, args));
 	}
 
+	/**
+	 * sets warning log for extent report and console
+	 * @param value value to log
+	 * @param args additional arguments for logging to be formatted
+	 */
 	public static void logWarning(String value, Object... args) {
 		logConsoleMessage(Priority.WARN, formatMessage(value, args));
 		AbstractDriver.getStep().get().warning(formatMessage(value, args));
 	}
 
+	/**
+	 * @return gets the test scenario node
+	 */
 	public static ExtentTest getTestScenario() {
 		return TestObject.getTestInfo().testScenerio;
 
 	}
 
+	/**
+	 * 
+	 * @param value value to log
+	 * @param args additional arguments for logging to be formatted
+	 * @return formatted message based on value and arguments
+	 */
 	public static String formatMessage(String value, Object... args) {
 		// disabled. enable if we ever want to limit the value length
 		//value = setMaxLength(value); 
@@ -245,13 +321,19 @@ public class TestLog {
 	/**
 	 * limites the max value size
 	 * 
-	 * @param value
-	 * @return
+	 * @param value value to log
+	 * @return truncated message to maximum length
 	 */
 	public static String setMaxLength(String value) {
 		return setMaxLength(value,MAX_LENGTH );	
 	}
 	
+	/**
+	 * 
+	 * @param value value to log
+	 * @param length length to truncate message to
+	 * @return truncated message to maximum length
+	 */
 	public static String setMaxLength(String value, int length) {
 		// limit the max size of string
 		int maxLength = (value.length() < length) ? value.length() : length;
@@ -270,10 +352,17 @@ public class TestLog {
 		SLF4JBridgeHandler.install();
 	}
 
+	/**
+	 * sets up log4j loggin
+	 */
 	public static void setupLog4j() {
 		DOMConfigurator.configure(TestLog.LOG4JPATH);
 	}
 
+	/**
+	 * plays audio file based on text value
+	 * @param value text value to play back
+	 */
 	public static void playAudio(String value) {
 		Boolean isAudioCommentaryEnabled = CrossPlatformProperties.getAudioCommentary();
 		String type = CrossPlatformProperties.getAudioCommentaryType();
@@ -290,7 +379,7 @@ public class TestLog {
 	/**
 	 * plays audio using marytts library
 	 * 
-	 * @param value
+	 * @param value text value to play back
 	 */
 	public static void playMaryAudio(String value) {
 
@@ -313,7 +402,7 @@ public class TestLog {
 	/**
 	 * watson audio
 	 * 
-	 * @param value
+	 * @param value text value to play back
 	 */
 	public synchronized static void playWatsonAudio(String value) {
 		TextToSpeech textToSpeech = new TextToSpeech();
@@ -343,8 +432,8 @@ public class TestLog {
 	 * logs to console if batch logging is enabled, Then logs are stored And printed
 	 * to console once the test is complete
 	 * 
-	 * @param priority
-	 * @param value
+	 * @param priority priority of the message. eg. info, error, warn
+	 * @param value string value to log
 	 */
 	private static void logConsoleMessage(Priority priority, String value) {
 		if(TestObject.getTestInfo().log == null)
@@ -363,6 +452,10 @@ public class TestLog {
 		}
 	}
 
+	/**
+	 * sets the logging prefix
+	 * @return the logging prefix
+	 */
 	private static String getTestLogPrefix() {
 		return TestObject.getTestInfo().className + "-" + TestObject.getTestInfo().testName + " - ";
 	}
@@ -385,6 +478,7 @@ public class TestLog {
 
 	/**
 	 * prints class level logs to console prints only once
+	 * @param classType
 	 */
 	public static void printClassLevelLogsToConsole(String classType) {
 		String testId = TestObject.getTestInfo().testFileClassName + "-" + classType;
@@ -400,7 +494,7 @@ public class TestLog {
 	/**
 	 * prints current test logs
 	 * 
-	 * @param logs
+	 * @param logs list of log objects
 	 */
 	public static void printLogs(List<LogObject> logs) {
 		printLogs(logs, "");
@@ -408,8 +502,8 @@ public class TestLog {
 
 	/**
 	 * prints logs to console
-	 * 
-	 * @param logs
+	 * @param testLog list of logs
+	 * @param testId id of the test
 	 */
 	public static void printLogs(List<LogObject> testLog, String testId) {
 		if (testLog.isEmpty())

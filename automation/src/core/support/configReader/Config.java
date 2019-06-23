@@ -21,9 +21,9 @@ public class Config {
 	/**
 	 * gets property value based on key from maven or properties file order: maven
 	 * Then properties
-	 * 
-	 * @param key
-	 * @return
+	 * @param key key in properties file
+	 * @param property
+	 * @return string value of property file
 	 */
 	private static String getStringProperty(String key, Properties property) {
 		if (!MavenReader.getStringProperty(key).isEmpty()) {
@@ -36,6 +36,10 @@ public class Config {
 		return "";
 	}
 
+	/**
+	 * git all files in given directory
+	 * @param curDir target directory
+	 */
 	public static void getAllFiles(File curDir) {
 
 		File[] filesList = curDir.listFiles();
@@ -52,8 +56,8 @@ public class Config {
 	/**
 	 * get all key values from property files in directory at path
 	 * Fails if duplicate key exists. All keys need to be unique
-	 * @param type
-	 * @return
+	 * @param path path to proeprties file
+	 * @return map of all key and values in all property files in given path
 	 */
 	public static Map<String, String> getAllKeys(String path) {
 		Map<String, String> config = new ConcurrentHashMap<String, String>();
@@ -79,6 +83,7 @@ public class Config {
 
 	/**
 	 * loads config And properties files to TestObject config map
+	 * @param testId id of the test
 	 */
 	public static void loadConfig(String testId) {
 
@@ -99,8 +104,8 @@ public class Config {
 	/**
 	 * returns config value
 	 * 
-	 * @param key
-	 * @return
+	 * @param key get string value of key from properties
+	 * @return string value of key
 	 */
 	public static String getValue(String key) {
 
@@ -118,8 +123,8 @@ public class Config {
 	/**
 	 * gets boolean value from properties key
 	 * 
-	 * @param key
-	 * @return
+	 * @param key target key from properties file
+	 * @return the boolean value of key from properties
 	 */
 	public static Boolean getBooleanValue(String key) {
 		String value = getValue(key);
@@ -133,8 +138,8 @@ public class Config {
 	
 	/**
 	 * gets the object value from property key
-	 * @param key
-	 * @return
+	 * @param key key in properties file
+	 * @return returns the object value of key from properties
 	 */
 	public static Object getObjectValue(String key) {
 		Object value = TestObject.getTestInfo().config.get(key);
@@ -144,8 +149,8 @@ public class Config {
 	/**
 	 * gets int value from properties key
 	 * 
-	 * @param key
-	 * @return
+	 * @param key key in properties file
+	 * @return returns the integer value of key from properties
 	 */
 	public static int getIntValue(String key) {
 		String value = getValue(key);
@@ -160,8 +165,8 @@ public class Config {
 	/**
 	 * gets double value from properties key
 	 * 
-	 * @param key
-	 * @return
+	 * @param key key in properties file
+	 * @return the double value of key from properties
 	 */
 	public static double getDoubleValue(String key) {
 		String value = getValue(key);
@@ -176,8 +181,8 @@ public class Config {
 	/**
 	 * returns a list from config value values separated by ","
 	 * 
-	 * @param key
-	 * @return
+	 * @param key key in properties file
+	 * @return the list of values from key separated by ","
 	 */
 	public static List<String> getValueList(String key) {
 		String value = (String) TestObject.getTestInfo().config.get(key);
@@ -192,8 +197,8 @@ public class Config {
 	/**
 	 * puts key value pair in config
 	 * 
-	 * @param key
-	 * @param value
+	 * @param key key in properties file
+	 * @param value value associated with key
 	 */
 	public static void putValue(String key, String value) {
 		TestLog.logPass("storing in key: " + key + " value: " + value);

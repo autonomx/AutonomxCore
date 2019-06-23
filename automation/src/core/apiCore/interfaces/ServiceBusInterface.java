@@ -39,7 +39,7 @@ import core.support.logger.TestLog;
 import core.support.objects.ServiceObject;
 import core.support.objects.TestObject;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused","deprecation"})
 public class ServiceBusInterface {
 
 	public enum SBEnv {
