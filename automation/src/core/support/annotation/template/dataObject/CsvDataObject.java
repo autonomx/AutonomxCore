@@ -2,7 +2,9 @@ package core.support.annotation.template.dataObject;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -187,7 +189,7 @@ public class User {
 //			return user;
 //		}
 		for(int rowIndex = 1; rowIndex < csvDataWithHeader.size(); rowIndex++) {
-			String key = csvDataWithHeader.get(rowIndex)[0];
+			String key = updateForDuplicateIds(csvDataWithHeader).get(rowIndex - 1);
 			bw.append("public " + csvName + " " + key +  "() {" + "\n");
 			bw.append("    " + csvName + " " + csvName.toLowerCase() + " = new " + csvName + "()" + "\n");
 			for(int columnIndex = firstIndex; columnIndex < csvDataWithHeader.get(0).length; columnIndex++ ) {
@@ -252,6 +254,30 @@ public class User {
 
 		bw.flush();
 		bw.close();		
+	}
+	
+	/**
+	 * replaces duplicate ids with id + index
+	 * allows for data with duplicate ids to compile
+	 * user should replace duplicates with unique values
+	 * @param csvDataWithHeader
+	 * @return
+	 */
+	private static List<String> updateForDuplicateIds(List<String[]> csvDataWithHeader) {
+		List<String> idList = new ArrayList<String>();
+		int index = 1;
+		// get list of ids
+		for(int rowIndex = 1; rowIndex < csvDataWithHeader.size(); rowIndex++) {
+			idList.add(csvDataWithHeader.get(rowIndex)[0]);
+		}
+		
+		for (int i = 0; i < idList.size(); i++) {
+		    if (Collections.frequency(idList, idList.get(i)) > 1) {
+		        String updatedVal = idList.get(i) + "_duplidateReplaceWithUniqueID_" +  index++;
+		        idList.set(i, updatedVal);
+		    }
+		}
+		return idList; 
 	}
 	
 	/**

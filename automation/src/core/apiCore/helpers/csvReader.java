@@ -35,6 +35,7 @@ public class CsvReader {
 		if (!testCaseFile.isEmpty())
 			index = getCsvFileIndex(testCaseFile);
 
+		// get current csv file
 		String csvFileName = CsvReader.getCsvFileFromIndex(index);
 
 		List<String[]> csvList = getCsvTestListForTestRunner(csvFileName);
@@ -105,12 +106,16 @@ public class CsvReader {
 	public static int getCurrentTestInvocation() {
 
 		// if test class (based on csv file) has initiated, get the current csv file
-		if(TestObject.getTestInfo().testCsvFileName != null) 
+		if(isRunningServiceTest()) 
 		{
 			String activeTest = TestObject.getTestInfo().testCsvFileName;
 			return getCsvFileIndex(activeTest);
 		}
 		return TestDataProvider.csvFileIndex.getAndIncrement();
+	}
+	
+	public static boolean isRunningServiceTest() {
+		return TestObject.getTestInfo().testCsvFileName != null;
 	}
 
 	/**
@@ -133,7 +138,7 @@ public class CsvReader {
 	 * @return
 	 */
 	public static ArrayList<File> getCsvFileList() {
-		String csvTestPath = PropertiesReader.getLocalRootPath() + TestDataProvider.TEST_DATA_PATH;
+		String csvTestPath = PropertiesReader.getLocalRootPath() + Config.getValue(TestDataProvider.TEST_DATA_PARALLEL_PATH);
 		ArrayList<File> csvFiles = Helper.getFileList(csvTestPath, ".csv");
 		return csvFiles;
 	}

@@ -22,9 +22,13 @@ import core.support.objects.TestObject;
 import io.netty.util.internal.StringUtil;
 
 public class DataHelper {
+	
+	public static final String VERIFY_JSON_PART_INDICATOR = "_VERIFY.JSON.PART_";
+	public static final String VERIFY_RESPONSE_BODY_INDICATOR = "_VERIFY.RESPONSE.BODY_";
 
 	/**
 	 * replaces placeholder values with values from config properties
+	 * replaces only string values
 	 * 
 	 * @param source
 	 * @return
@@ -34,27 +38,32 @@ public class DataHelper {
 		if (source.isEmpty()) return source;
 		
 		List<String> parameters = Helper.getValuesFromPattern(source, "<(.+?)>");
-		String value;
+		String valueStr = null;
+		Object val = null;
 		int length = 0;
 		for (String parameter : parameters) {
+
 			if(parameter.contains("$"))
 				continue;
 			if (parameter.contains("@_TIME")) {
 				length = getIntFromString(parameter);
-				value = TestObject.getTestInfo().startTime.substring(0, length);
+				valueStr = TestObject.getTestInfo().startTime.substring(0, length);
 			} else if (parameter.contains("@_RAND")) {
 				length = getIntFromString(parameter);
-				value = TestObject.getTestInfo().randStringIdentifier.substring(0, length);
+				valueStr = TestObject.getTestInfo().randStringIdentifier.substring(0, length);
 			} else {
-				value = Config.getValue(parameter.replace("@", ""));
+				val = Config.getObjectValue(parameter.replace("@", ""));
+				if(val instanceof String)
+					valueStr = (String) val;
 			}
-			if (value == null)
+			if (StringUtil.isNullOrEmpty(valueStr))
 				Helper.assertTrue("parameter value not found: " + parameter, false);
 
+			// disabled due to this running before anything and causing null point exception
 			//TestLog.logPass("replacing value '" + parameter + "' with: " + value + "");
-			source = source.replaceAll("<" + parameter + ">", Matcher.quoteReplacement(value));
+			if(valueStr instanceof String)
+				source = source.replaceAll("<" + parameter + ">", Matcher.quoteReplacement(valueStr));
 		}
-
 		return source;
 	}
 
@@ -71,13 +80,17 @@ public class DataHelper {
 	public static List<KeyValue> getValidationMap(String expected) {
 		// get hashmap of json path And verification
 		List<KeyValue> keywords = new ArrayList<KeyValue>();
-		expected = expected.replace("_VERIFY_JSON_PART_", "");
+		expected = expected.replaceFirst("_[^_]*_", "");
+		//expected = expected.replace("_VERIFY_JSON_PART_", "");
 		String[] keyVals = expected.split(";");
 		String key = "";
 		String position = "";
 		String value = "";
 		for (String keyVal : keyVals) {
 			String[] parts = keyVal.split(":", 3);
+			if(parts.length == 1) { 
+				 key = Helper.stringRemoveLines(parts[0]);
+			}
 			if(parts.length == 2) { // without position
 				 key = Helper.stringRemoveLines(parts[0]);
 				 position = StringUtil.EMPTY_STRING;
@@ -87,9 +100,12 @@ public class DataHelper {
 				 position = Helper.stringRemoveLines(parts[1]);
 				 value = Helper.stringRemoveLines(parts[2]);
 			}
-
-			KeyValue keyword = new KeyValue(key, position, value);
-			keywords.add(keyword);
+			
+			// if there is a value
+			if(!key.isEmpty()) {
+				KeyValue keyword = new KeyValue(key, position, value);
+				keywords.add(keyword);
+			}
 		}
 		return keywords;
 	}
@@ -119,6 +135,13 @@ public class DataHelper {
 		String templateTestPath = PropertiesReader.getLocalRootPath() + templatePath;
 
 		return templateTestPath + file;	
+	}
+	
+	public static File getFile(String filename) {
+		String templatePath = Config.getValue(TestDataProvider.TEST_DATA_TEMPLATE_PATH);
+		String templateTestPath = PropertiesReader.getLocalRootPath() + templatePath;
+		File file = new File(templateTestPath + filename);
+		return file;	
 	}
 	
 	public static String convertTemplateToString(String templateFilePath) throws IOException {
@@ -175,8 +198,14 @@ public class DataHelper {
 		
 		// if position has value, Then get response at position
 		if(!position.isEmpty()) {
+			int positionInt = Integer.valueOf(position);
 			expectedString = expectedArray[0]; //single item
-			actualString = actualArray[Integer.valueOf(position)-1];
+			boolean inBounds = (positionInt > 0) && (positionInt <= actualArray.length);
+			if(!inBounds) {
+				Helper.assertFalse("items returned are less than specified. returned: " + actualArray.length + " specified: " + positionInt );
+			}
+				
+			actualString = actualArray[positionInt-1];
 		}
 		
 		switch (command) {

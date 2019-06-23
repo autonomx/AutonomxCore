@@ -277,7 +277,6 @@ public class WaitHelper {
 	public void waitForSeconds(double seconds) {
 		long miliseconds = (long) (seconds * 1000);
 		Uninterruptibles.sleepUninterruptibly(miliseconds, TimeUnit.MILLISECONDS);
-		// TestLogger.logPass("Then I wait for '" + seconds + "' seconds");
 	}
 
 	/**

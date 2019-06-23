@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.zip.ZipOutputStream;
 
 import org.json.JSONException;
@@ -207,6 +208,18 @@ public class Helper {
 	 */
 	public static void assertContains(String actual, String expected) {
 		AssertHelper.assertContains(actual, expected);
+	}
+	
+	public static void softAssertTrue(String message, boolean value) {
+		AssertHelper.softAssertTrue(message, value);
+	}
+	
+	protected static void softAssertEqual(String expected, String actual) {
+		AssertHelper.softAssertEqual(actual, expected);
+	}
+	
+	protected static void softAssertEqual(int expected, int actual) {
+		AssertHelper.softAssertEqual(actual, expected);
 	}
 
 	// Element Helper
@@ -582,7 +595,7 @@ public class Helper {
 	 * @param value
 	 */
 	public static void clearAndSetField(EnhancedBy field, CharSequence... value) {
-		form.setField(field, value);
+		form.clearAndSetField(field, value);
 	}
 
 	/**
@@ -593,7 +606,7 @@ public class Helper {
 	 * @param value
 	 */
 	public static void clearAndSetField(EnhancedBy field, int index, CharSequence... value) {
-		form.setField(field, index, value);
+		form.clearAndSetField(field, index, value);
 	}
 
 	/**
@@ -1260,8 +1273,8 @@ public class Helper {
 	 * 
 	 * @param context
 	 */
-	public static void Appium_setNativeContext() {
-		mobile.Appium_setNativeContext();
+	public static void mobile_switchToNativeView() {
+		mobile.mobile_switchToNativeView();
 	}
 
 	/**
@@ -1269,13 +1282,28 @@ public class Helper {
 	 * 
 	 * @param context
 	 */
-	public static void Appium_setWebContext() {
-		mobile.Appium_setWebContext();
+	public static void mobile_switchToWebView() {
+		mobile.mobile_switchToWebView();
 
+	}
+	
+	/**
+	 * switch to view
+	 * @param view
+	 */
+	public void mobile_switchToView(String view) {
+		mobile.mobile_switchToView(view);
+	}
+	
+	/**
+	 * returns the list of mobile context. eg. webview, native view
+	 * @return
+	 */
+	public Set<String> mobile_getContextList(){
+		return mobile.mobile_getContextList();
 	}
 
 	/**
-	 * TODO: enhance to become longpress And expect with increasing duration of
 	 * press per retry presses the target element
 	 * 
 	 * @param target
@@ -1577,8 +1605,22 @@ public class Helper {
      * retrieves the clip board data
      * @return
      */
-    public String getClipboardData(){
+    public static String getClipboardData(){
     	return page.getClipboardData();
+    }
+    
+    /**
+     * quits the current web driver
+     */
+    public static void quitCurrentDriver(){
+    	page.quitCurrentDriver();
+    }
+    
+    /**
+     * quits all drivers in the current test
+     */
+    public static void quitAllCurrentTestDrivers() {
+    	page.quitAllCurrentTestDrivers();
     }
 
 	/**
@@ -1889,6 +1931,49 @@ public class Helper {
 	public static int generateRandomNumber(int min, int max) {
 		return UtilityHelper.generateRandomNumber(min, max);
 	}
+	
+	/**
+	 * highlights the web element 
+	 * use on clicks and send key elements
+	 * @param by
+	 * @param index
+	 */
+	public static void highLightWebElement(EnhancedBy by, int index) {
+		UtilityHelper.highLightWebElement(by, index);
+	}
+	
+	/**
+	 * returns true if OS is mac
+	 * @return
+	 */
+	public static boolean isMac() {
+		return UtilityHelper.isMac();
+	}
+	
+	/**
+	 * returns true if OS is windows
+	 * @return
+	 */
+	public static boolean isWindows() {
+		return UtilityHelper.isWindows();
+	}
+	
+	/**
+	 * returns true if OS is unix or linux
+	 * @return
+	 */
+	public static boolean isUnix() {
+		return UtilityHelper.isUnix();
+	}
+	
+	/**
+	 * is the string value UDID
+	 * @param value
+	 * @return
+	 */
+	public static boolean isUUID(String value) {
+		return UtilityHelper.isUUID(value);
+	}
 
 	/**
 	 * normalizes string removes space, new line chars
@@ -1919,6 +2004,14 @@ public class Helper {
 	 */
 	public static void killWindowsProcess(String serviceName) {
 		UtilityHelper.killWindowsProcess(serviceName);
+	}
+	
+	/**
+	 * create directories and files based on absolute path
+	 * @param path
+	 */
+	protected static void createFileFromPath(String absolutePath) {
+		UtilityHelper.createFileFromPath(absolutePath);
 	}
 
 	/**

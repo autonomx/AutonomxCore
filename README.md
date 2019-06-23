@@ -1,4 +1,4 @@
-Documentation: https://app.gitbook.com/@ehsan-matean/s/autonomx
+Documentation: https://docs.autonomx.io
 
 # Autonomx
 
@@ -82,7 +82,7 @@ or you can use the [Macaca App Inspector](https://macacajs.github.io/app-inspect
 * Use IDE of choice: Eclipse, IntelliJ, NetBeans...
 
 # Web Tests
- * Example project: ⁨autonomx ▸ ⁨automation⁩ ▸ ⁨src⁩ ▸ ⁨main⁩ ▸ ⁨java⁩ ▸ ⁨modules⁩ ▸ ⁨webApp⁩
+ * Example project: Autonomx ▸ ⁨automation⁩ ▸ ⁨src⁩ ▸ ⁨main⁩ ▸ ⁨java⁩ ▸ ⁨modules⁩ ▸ ⁨webApp⁩
 * Setup locators
 	webApp ▸ LoginPanel.java
 		
@@ -132,7 +132,7 @@ or you can use the [Macaca App Inspector](https://macacajs.github.io/app-inspect
 		}
 ```
 * Define objects
-	* autonomx ▸ ⁨automation⁩ ▸ ⁨src⁩ ▸ ⁨main⁩ ▸ ⁨java⁩ ▸ ⁨common⁩ ▸ ⁨objects⁩
+	* ⁨Autonomx ▸ ⁨automation⁩ ▸ ⁨src⁩ ▸ ⁨main⁩ ▸ ⁨java⁩ ▸ ⁨common⁩ ▸ ⁨objects⁩
 ```java
 	/**
 	 * object
@@ -184,7 +184,7 @@ or you can use the [Macaca App Inspector](https://macacajs.github.io/app-inspect
 
 # Api Tests
  * Setup Config
- 	* Set root uri path at apiTestData/apiConfig.property. eg. UriPath = http://45.76.245.149:1337
+ 	* Set root uri path at apiTestData/apiConfig.property. eg. UriPath = http://demo.autonomx.io
 	* Additional properties such as database access can be set there
  * Add Test cases in CSV file at apiTestData/testCases
  * Run tests using the runner at apiTestData/runner/<os>/apiRunner

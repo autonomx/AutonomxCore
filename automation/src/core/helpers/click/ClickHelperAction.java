@@ -84,13 +84,17 @@ public class ClickHelperAction extends Element {
 		Helper.assertTrue("expected element not found: " + expected.name, isExpectedFound);
 	}
 
-	
+	/**
+	 * click using actions
+	 * @param target
+	 * @param index
+	 */
 	public void clickAction(EnhancedBy target, int index) {
 		EnhancedWebElement targetElement = Element.findElements(target);
-		 Actions action = new Actions(AbstractDriver.getWebDriver());   
-		 action.click(targetElement.get(index)).perform(); 
+		Actions action = new Actions(AbstractDriver.getWebDriver());
+		action.click(targetElement.get(index)).perform();
 	}
-	
+
 	/**
 	 * clicks element based on index And waits for expected element to be displayed
 	 * 
@@ -101,9 +105,10 @@ public class ClickHelperAction extends Element {
 	public void clickAndExpect(EnhancedBy target, int index, EnhancedBy expected) {
 		clickAndExpect(target, index, expected, true);
 	}
-    
+
 	/**
 	 * click And expect for either element
+	 * 
 	 * @param target
 	 * @param index
 	 * @param expected1
@@ -216,7 +221,7 @@ public class ClickHelperAction extends Element {
 		clickAction(target, index);
 		Helper.wait.waitForSeconds(timeInSeconds);
 	}
-	
+
 	/**
 	 * Click on an element's specific x,y location
 	 * 
@@ -233,50 +238,55 @@ public class ClickHelperAction extends Element {
 		Helper.wait.waitForElementToBeClickable(by);
 		actions.moveToElement(targetElement.get(0), x, y).click().perform();
 	}
-	
+
 	/**
 	 * click at position x, y
+	 * 
 	 * @param x
 	 * @param y
 	 */
-    public void clickPoints(int x ,int y) {
-        
-        Actions action = new Actions(AbstractDriver.getWebDriver());
-        action.moveByOffset(x, y).click().build().perform();
-    }
+	public void clickPoints(int x, int y) {
 
-    /**
-     * double click at position
-     * @param x
-     * @param y
-     */
-    public void doubleClickPoints(int x, int y) {
-
-        Actions action = new Actions(AbstractDriver.getWebDriver());
-        action.moveByOffset(x, y).click().release().pause(Duration.ofMillis(250)).click().release().build().perform();
-    }
-	
-    /**
-     * click element with text containing
-     * @param by
-     * @param text
-     */
-	public void clickElementContinsByText(EnhancedBy by,String text) {
-		TestLog.ConsoleLog("I click element " + by.name + " with text containing: " +  text);
-		Helper.list.selectListItemContainsByName(by,text);
+		Actions action = new Actions(AbstractDriver.getWebDriver());
+		action.moveByOffset(x, y).click().build().perform();
 	}
-	
+
+	/**
+	 * double click at position
+	 * 
+	 * @param x
+	 * @param y
+	 */
+	public void doubleClickPoints(int x, int y) {
+
+		Actions action = new Actions(AbstractDriver.getWebDriver());
+		action.moveByOffset(x, y).click().release().pause(Duration.ofMillis(250)).click().release().build().perform();
+	}
+
+	/**
+	 * click element with text containing
+	 * 
+	 * @param by
+	 * @param text
+	 */
+	public void clickElementContinsByText(EnhancedBy by, String text) {
+		TestLog.ConsoleLog("I click element " + by.name + " with text containing: " + text);
+		Helper.list.selectListItemContainsByName(by, text);
+	}
+
 	/**
 	 * click And hold element
+	 * 
 	 * @param target
 	 * @param seconds
 	 */
 	public void clickAndHold(EnhancedBy target, double seconds) {
-		clickAndHold(target,0,seconds);
+		clickAndHold(target, 0, seconds);
 	}
-	
+
 	/**
 	 * click And hold based on element index
+	 * 
 	 * @param target
 	 * @param index
 	 * @param seconds
@@ -285,41 +295,43 @@ public class ClickHelperAction extends Element {
 		Helper.wait.waitForElementToBeClickable(target);
 
 		EnhancedWebElement targetElement = Element.findElements(target);
-		
- 		Actions action = new Actions(AbstractDriver.getWebDriver());   
- 		action.clickAndHold(targetElement.get(index)).perform();
- 		Helper.wait.waitForSeconds(seconds);
- 		action.release(targetElement.get(index)).perform();
+
+		Actions action = new Actions(AbstractDriver.getWebDriver());
+		action.clickAndHold(targetElement.get(index)).perform();
+		Helper.wait.waitForSeconds(seconds);
+		action.release(targetElement.get(index)).perform();
 	}
-	
+
 	/**
 	 * drag And drop from src element to target element
+	 * 
 	 * @param src
 	 * @param target
 	 */
 	public void dragAndDrop(EnhancedBy src, EnhancedBy target) {
 		Helper.wait.waitForElementToBeClickable(src);
-		
+
 		EnhancedWebElement srcElement = Element.findElements(src);
 		EnhancedWebElement targetElement = Element.findElements(target);
 
 		Actions actions = new Actions(AbstractDriver.getWebDriver());
-		actions.dragAndDrop(srcElement.get(0), targetElement.get(0)); 
+		actions.dragAndDrop(srcElement.get(0), targetElement.get(0));
 		actions.build().perform();
 	}
-	
+
 	/**
 	 * drag And drop from src element to target element
+	 * 
 	 * @param src
 	 * @param target
 	 */
-	public void dragAndDrop(EnhancedBy src,int xOffset, int yOffset) {
+	public void dragAndDrop(EnhancedBy src, int xOffset, int yOffset) {
 		Helper.wait.waitForElementToBeClickable(src);
 
 		EnhancedWebElement srcElement = Element.findElements(src);
 
 		Actions actions = new Actions(AbstractDriver.getWebDriver());
-		actions.dragAndDropBy(srcElement.get(0), xOffset, yOffset); 
+		actions.dragAndDropBy(srcElement.get(0), xOffset, yOffset);
 		actions.build().perform();
 	}
 }

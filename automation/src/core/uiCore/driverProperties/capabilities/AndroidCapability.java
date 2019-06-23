@@ -35,8 +35,11 @@ public class AndroidCapability {
 	public static String CHROME_VERSION = "appium.chromeVersion";
 	public static String iS_CHROME_AUTO_MANAGE = "appium.chromeAutoManage";
 	public static String CHROME_DRIVER_PATH = "appium.chromeDriverPath";
+	public static String ANDROID_ENGINE = "android.capabilties.automationName";
+	public static String UIAUTOMATOR2 = "UiAutomator2";
+	public static boolean ANDROID_INIT = false; // first time android is setup
+	public static String ANDROID_HOME = "android.home";
 
-	
 	private static final String CAPABILITIES_PREFIX = "android.capabilties.";
 
 	public List<String> simulatorList = new ArrayList<String>();
@@ -112,6 +115,9 @@ public class AndroidCapability {
 			String chromePath = WebDriverManager.chromedriver().getBinaryPath();
 			capabilities.setCapability("chromedriverExecutable", chromePath);
 		}
+		
+		// sets android home value if not already set in properties
+		setAndroidHome();
 
 		// set device using device manager. device manager handles multiple devices in parallel
 		setAndroidDevice();
@@ -133,11 +139,14 @@ public class AndroidCapability {
 	 */
 	public DesiredCapabilities setAndroidCapabilties() {
 
+		// run only once per test run
+		uninstallUiAutomator2();
+		
 		// get all keys from config 
-		Map<String, String> propertiesMap = TestObject.getTestInfo().config;
+		Map<String, Object> propertiesMap = TestObject.getTestInfo().config;
 
 		// load config/properties values from entries with "android.capabilties." prefix
-		for (Entry<String, String> entry : propertiesMap.entrySet()) {
+		for (Entry<String, Object> entry : propertiesMap.entrySet()) {
 			boolean isAndroidCapability = entry.getKey().toString().startsWith(CAPABILITIES_PREFIX);
 			if (isAndroidCapability) {
 				String fullKey = entry.getKey().toString();
@@ -225,21 +234,34 @@ public class AndroidCapability {
 	 */
 	public List<String> getAndroidDeviceList() {
 		String cmd;
+
 		if (!Config.getValue(AppiumServer.ANDROID_HOME).isEmpty())
 			cmd = Config.getValue(AppiumServer.ANDROID_HOME) + "/platform-tools/adb devices";
-		else 
+		else
 			cmd = "adb devices";
-		ArrayList<String> results = Helper.runShellCommand(cmd);
-		TestLog.ConsoleLogDebug("Android device list: " + Arrays.toString(results.toArray()));
-		if (!results.isEmpty())
-			results.remove(0);
-		ArrayList<String> devices = new ArrayList<String>();
+
+		// get list of device udid
+		List<String> results = new ArrayList<String>();
+		results = Config.getValueList("android.UDID");
+
+		// if no device is set in properties, attempt to auto detect
+		if (results.size() == 0) {
+
+			results = Helper.runShellCommand(cmd);
+			if (!results.isEmpty())
+				results.remove(0);
+		}
+		List<String> devices = new ArrayList<String>();
 		for (String list : results) {
 			String arr[] = list.split("\t", 2);
 			String device = arr[0];
 			if (!device.isEmpty())
 				devices.add(device);
 		}
+		
+		if(results.size() > 0)
+			TestLog.ConsoleLogDebug("Android device list: " + Arrays.toString(results.toArray()));
+
 		return devices;
 	}
 	
@@ -264,7 +286,7 @@ public class AndroidCapability {
 		int threads = CrossPlatformProperties.getParallelTests();
 		if (threads > devices.size())
 			Helper.assertFalse(
-					"there are more threads than devices. thread count: " + threads + " devices: " + devices.size());
+					"there are more threads than devices. global.parallelTestCount: " + threads + " devices: " + devices.size());
 
 		// adds all devices
 		DeviceManager.loadDevices(devices, DeviceType.Android);
@@ -293,6 +315,24 @@ public class AndroidCapability {
 	public static void restartAdb() {
 	    Helper.runShellCommand("adb kill-server");
 	    Helper.runShellCommand("adb start-server");
+	}
+
+	/**
+	 * uninstalls the uiautomator2 server
+	 * only runs the first time android test is run
+	 */
+	public static void uninstallUiAutomator2() {
+		// runs the first time android test is run
+		if(!ANDROID_INIT) {
+			ANDROID_INIT = true;
+			if(Config.getValue(ANDROID_ENGINE).equals(UIAUTOMATOR2)) {
+				TestLog.ConsoleLog("Uninstalling uiautomator2.server");
+				TestLog.ConsoleLog("Uninstalling uiautomator2.server.test");
+				
+				Helper.runShellCommand("adb uninstall io.appium.uiautomator2.server");
+				Helper.runShellCommand("adb uninstall io.appium.uiautomator2.server.test");
+			}
+		}
 	}
 
 	/**
@@ -351,11 +391,31 @@ public class AndroidCapability {
 				+ "    6. Try running against appium desktop server\r\n"
 				+ "        1. Download And run appium desktop\r\n" + "        2. Start the server\r\n"
 				+ "        3. In properties at resource folder, set values\r\n"
-				+ "            1. useExternalAppiumServer = true\r\n" + "            2. appiumExternalPort = 4723\r\n"
+				+ "            1. useExternalAppiumServer = true\r\n" 
+				+ "            2. appiumExternalPort = 4723\r\n"
 				+ "            3. run test\r\n" + "*******************************************************************\r\n"
 				+ "\r\n" + "\r\n" + "\r\n" + "*******************************************************************";
 		if (e.getMessage().contains(androidError)) {
 			System.out.println(androidSolution);
+		}
+	}
+	
+	/**
+	 * sets the value for android home based on its default location
+	 */
+	public static void setAndroidHome() {
+		String userHome = System.getProperty("user.home");
+		String androidHome = Config.getValue(ANDROID_HOME);
+		String javaHomePath = "";
+		if (androidHome.isEmpty()) {
+			if (Helper.isMac()) {
+				 javaHomePath = userHome + File.separator + "Library" + File.separator + "Android"
+						+ File.separator + "sdk/";
+			}
+				boolean isAndroidHome = new File(javaHomePath).exists();
+				if (isAndroidHome) { 
+					Config.putValue(ANDROID_HOME, javaHomePath);	
+				}
 		}
 	}
 }

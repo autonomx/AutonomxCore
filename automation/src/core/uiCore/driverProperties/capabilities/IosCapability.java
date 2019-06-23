@@ -125,10 +125,10 @@ public class IosCapability {
 	public DesiredCapabilities setiOSCapabilties() {
 
 		// get all keys from config 
-		Map<String, String> propertiesMap = TestObject.getTestInfo().config;
+		Map<String, Object> propertiesMap = TestObject.getTestInfo().config;
 
 		// load config/properties values from entries with "ios.capabilities." prefix
-		for (Entry<String, String> entry : propertiesMap.entrySet()) {
+		for (Entry<String, Object> entry : propertiesMap.entrySet()) {
 			boolean isAndroidCapability = entry.getKey().toString().startsWith(CAPABILITIES_PREFIX);
 			if (isAndroidCapability) {
 				String fullKey = entry.getKey().toString();
@@ -163,8 +163,8 @@ public class IosCapability {
 	 * @return
 	 */
 	public boolean isRealDeviceConnected() {
-		ArrayList<String> devices = getIosDeviceList();
-		if (!devices.isEmpty())
+		List<String> devices = getIosDeviceList();
+		if (devices.size() > 0)
 			return true;
 		return false;
 	}
@@ -175,17 +175,24 @@ public class IosCapability {
 	 * 
 	 * @return
 	 */
-	public static ArrayList<String> getIosDeviceList() {
+	public static List<String> getIosDeviceList() {
 		String cmd = "idevice_id -l";
 		// TODO: test out
 		// "xcrun simctl list | grep Booted"
 		// system_profiler SPUSBDataType | sed -n -E -e '/(iPhone|iPad)/,/Serial/s/
 		// *Serial Number: *(.+)/\1/p'
 
-		ArrayList<String> results = Helper.runShellCommand(cmd);
-		if (!results.isEmpty() && results.get(0).contains("command not found"))
-			Helper.assertFalse("idevice not installed. install: brew install ideviceinstaller");
-		TestLog.ConsoleLog("ios device list: " + Arrays.toString(results.toArray()));
+		List<String> results = new ArrayList<String>();
+		results = Config.getValueList("ios.UDID");
+		
+		// if no device is set in properties, attempt to auto detect
+		if(results.isEmpty()) {
+			results = Helper.runShellCommand(cmd);
+			if (!results.isEmpty() && results.get(0).contains("command not found"))
+				Helper.assertFalse("idevice not installed. install: brew install ideviceinstaller");
+		}
+		if(!results.isEmpty())
+			TestLog.ConsoleLog("ios device list: " + Arrays.toString(results.toArray()));
 		return results;
 	}
 
@@ -196,7 +203,7 @@ public class IosCapability {
 	public void setSimulator() {
 		List<String> devices = this.simulatorList;
 
-		if (devices == null || devices.isEmpty())
+		if (devices == null || devices.size() == 0)
 			Helper.assertFalse("set device first");
 
 		int threads = CrossPlatformProperties.getParallelTests();
@@ -215,6 +222,9 @@ public class IosCapability {
 	 */
 	public void setRealDevices() {
 		List<String> devices = getIosDeviceList();
+		List<String> deviceNames = this.simulatorList;
+		if(deviceNames.size() == 0) Helper.assertFalse("device name is empty. set ios.mobile  or ios.tablet");
+
 
 		int threads = CrossPlatformProperties.getParallelTests();
 		if (threads > devices.size())
@@ -223,7 +233,10 @@ public class IosCapability {
 
 		// adds all devices
 		DeviceManager.loadDevices(devices, DeviceType.iOS);
-		capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, DeviceManager.getFirstAvailableDevice(DeviceType.iOS));
+		capabilities.setCapability(MobileCapabilityType.UDID, DeviceManager.getFirstAvailableDevice(DeviceType.iOS));
+
+		// TODO: needs to be correct device. adding first device to device name
+		capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, deviceNames.get(0));
 	}
 
 	/**

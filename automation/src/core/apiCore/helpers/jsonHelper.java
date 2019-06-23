@@ -48,7 +48,8 @@ public class JsonHelper {
 		
 		List<KeyValue> keywords = DataHelper.getValidationMap(keyValue);
 		for (KeyValue keyword : keywords) {
-			String key = keyword.value.replace("$", "").replace("<", "").replace(">", "").trim();
+			String key = (String) keyword.value;
+			key = key.replace("$", "").replace("<", "").replace(">", "").trim();
 			// gets json value. if list, returns string separated by comma
 			String value = getJsonValue(response, keyword.key);
 			
@@ -81,6 +82,11 @@ public class JsonHelper {
 		return value;
 	}
 	
+	public static String getResponseValue(Response response) {
+		return response.getBody().asString();
+	}
+			
+	
 	public static String listToString(List<String> values) {
 		String result = "";
 		for(Object val : values) {
@@ -98,6 +104,11 @@ public class JsonHelper {
 		} catch (Exception e) {
 			e.getMessage();
 		}	
+		
+		if(values == null || values.isEmpty()) {
+			// logWarn causes warning in the report
+			TestLog.ConsoleLog("path: <" + path + "> returned empty results");
+		}
 		return values;
 	}
 	
@@ -137,11 +148,11 @@ public class JsonHelper {
 	public static void validateJsonKeywords(List<KeyValue> keywords, Response response) {
 		for (KeyValue keyword : keywords) {
 			String jsonPath = Helper.stringNormalize(keyword.key);
-			String expectedValue = Helper.stringNormalize(keyword.value);
+			String expectedValue =  Helper.stringNormalize((String) keyword.value);
 			String command = "";
 			
 			String[] expected = expectedValue.split("[\\(\\)]");
-			// get value inbetween parenthesis
+			// get value in between parenthesis
 			if (expected.length > 1) {
 				command = expected[0];
 				expectedValue = expected[1];
@@ -201,7 +212,7 @@ public class JsonHelper {
 			return true;
 		}
 		expectedJson = Helper.stringNormalize(expectedJson);
-		if (expectedJson.startsWith("_VERIFY_JSON_PART_") || expectedJson.startsWith("_NOT_EMPTY_")) {
+		if (expectedJson.startsWith(DataHelper.VERIFY_JSON_PART_INDICATOR) || expectedJson.startsWith("_NOT_EMPTY_") || expectedJson.startsWith(DataHelper.VERIFY_RESPONSE_BODY_INDICATOR)) {
 			return true;
 		}
 		return false;
@@ -216,7 +227,7 @@ public class JsonHelper {
 	public static void validateByKeywords(String expectedJson, Response response) {
 		expectedJson = Helper.stringNormalize(expectedJson);
 		if (!JsonHelper.isJSONValid(expectedJson)) {
-			if (expectedJson.startsWith("_VERIFY_JSON_PART_")) {
+			if (expectedJson.startsWith(DataHelper.VERIFY_JSON_PART_INDICATOR)) {
 				// get hashmap of json path And verification
 				List<KeyValue> keywords = DataHelper.getValidationMap(expectedJson);
 				// validate based on keywords
@@ -229,5 +240,21 @@ public class JsonHelper {
 			}
 		}
 	}
-
+	
+	public static void validateResponseBody(String expected, Response response) {
+		if (!expected.startsWith(DataHelper.VERIFY_RESPONSE_BODY_INDICATOR)) {
+			return;
+		}
+		// remove the indicator
+		expected = expected.replaceFirst("_[^_]*_", "");
+		
+		String actual = JsonHelper.getResponseValue(response);
+		String[] expectedArr = expected.split("[\\(\\)]");
+		// get value in between parenthesis
+		String command = expectedArr[0].trim();
+		String expectedValue = expectedArr[1].trim();
+			
+		DataHelper.validateCommand(command, actual, expectedValue, "1");
+		
+	}
 }

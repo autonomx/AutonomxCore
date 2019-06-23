@@ -67,6 +67,7 @@ public class DriverObject {
 	 * quits webdriver if it's running
 	 */
 	public static void quitWebDriver(WebDriver driver) {
+		TestLog.ConsoleLog("quitting test: " + TestObject.getTestInfo().testName);
 
 		if (driver != null && driverList.get(driver) != null) {
 			TestObject.getTestInfo().withIsFirstRun(true);
@@ -80,7 +81,6 @@ public class DriverObject {
 			} catch (Exception e) {
 				e.getMessage();
 			}
-			TestLog.ConsoleLog("quitting test: " + TestObject.getTestInfo().testName);
 		}
 	}
 

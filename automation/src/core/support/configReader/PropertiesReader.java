@@ -2,7 +2,6 @@ package core.support.configReader;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -13,22 +12,16 @@ import core.support.logger.TestLog;
 public class PropertiesReader {
 
 	private static String LOCAL_ROOT_PATH = Helper.getCurrentDir();
-
-	private static String LOCAL_RESOURCE_PATH = LOCAL_ROOT_PATH + "resources/";
-	private static String LOCAL_RESOURCE_CLOUD_PATH = LOCAL_ROOT_PATH + "test-classes/testData/resources/";
-
+	private static String LOCAL_RESOURCE_PATH = LOCAL_ROOT_PATH + "resources" + File.separator;
+	private static String LOCAL_RESOURCE_CLOUD_PATH = LOCAL_ROOT_PATH + "test-classes" + File.separator + "testData" + File.separator + "resources" + File.separator;
 	private static String PROPERTIES_TYPE_PROPERTIES = ".property";
 	private static String PROPERTIES_TYPE_CONF = ".conf";
 
-	public static List<Properties> Property() throws Exception {
-		return Property("");
-	}
-
-	/**
-	 * @param type
-	 * @return
-	 * @throws IOException
-	 */
+   /**
+    * @param path path to properties file
+    * @return properties list of properties from properties file
+    * @throws Exception exception from getting properties file
+    */
 	public static List<Properties> Property(String path) throws Exception {
 
 		List<Properties> properties = new ArrayList<Properties>();
@@ -46,7 +39,7 @@ public class PropertiesReader {
 	 * @param fileType:
 	 *            eg. ".conf"
 	 * @return list of all properties
-	 * @throws Exception
+	 * @throws Exception exception from getting properties file
 	 */
 	public static List<Properties> getPropertiesByFileType(String path, String fileType) throws Exception {
 		List<Properties> properties = new ArrayList<Properties>();
@@ -65,10 +58,16 @@ public class PropertiesReader {
 		return properties;
 	}
 
+	/**
+	 * @return path to the project root directory
+	 */
 	public static String getLocalRootPath() {
 			return LOCAL_ROOT_PATH;
 	}
 
+	/**
+	 * @return root path
+	 */
 	public static String getLocalResourcePath() {
 		if (isUsingCloud()) {
 			return LOCAL_RESOURCE_CLOUD_PATH;
@@ -77,6 +76,9 @@ public class PropertiesReader {
 		}
 	}
 
+	/**
+	 * @return is using app center
+	 */
 	public static boolean isUsingCloud() {
 
 		File f = new File(LOCAL_RESOURCE_CLOUD_PATH);
@@ -89,10 +91,9 @@ public class PropertiesReader {
 	/**
 	 * gets the value of the properties file based on key value, And sets default
 	 * value if value is missing
-	 * 
-	 * @param key
-	 * @param defaultValue
-	 * @return
+	 * @param key key in properties file
+	 * @param Property target properties from property file
+	 * @return string value of the property
 	 */
 	public static String getStringProperty(String key, Properties Property) {
 		try {
@@ -107,8 +108,8 @@ public class PropertiesReader {
 	 * gets all files in a directory to get all files: File curDir = new File(".");
 	 * getAllFiles(curDir);
 	 * 
-	 * @param curDir
-	 * @return
+	 * @param curDir target directory
+	 * @return the list of all files in given directory
 	 */
 	public static ArrayList<String> getAllFiles(File curDir) {
 		ArrayList<String> array = new ArrayList<String>();
@@ -122,6 +123,5 @@ public class PropertiesReader {
 			}
 		}
 		return array;
-
 	}
 }

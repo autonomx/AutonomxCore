@@ -5,8 +5,10 @@ import java.net.URL;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.opera.OperaDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -29,8 +31,8 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 
 public class WebDriverSetup {
 
-	public static String SERVER_URL = "web.server_url";
-	public static String SERVER_PORT = "web.server_port";
+	public static String SERVER_URL = "web.remote.server_url";
+	public static String SERVER_PORT = "web.remote.server_port";
 	public static String LATEST_BROWSER_VERSION = "LATEST";
 
 	/**
@@ -58,9 +60,9 @@ public class WebDriverSetup {
 		case IOS_DRIVER:
 			// if external server is used
 			AppiumDriverLocalService service;			
-			if(Config.getBooleanValue("useExternalAppiumServer"))
+			if(Config.getBooleanValue("appium.useExternalAppiumServer"))
 			{
-				int port = Config.getIntValue("appiumExternalPort");
+				int port = Config.getIntValue("appium.externalPort");
 				TestLog.ConsoleLog("Connecting to external appium server at port " + port);
 				driver = new IOSDriver(new URL("http://localhost:"+ port + "/wd/hub"), driverObject.capabilities);
 			}
@@ -76,7 +78,7 @@ public class WebDriverSetup {
 			// if external server is used
 			if(Config.getBooleanValue("appium.useExternalAppiumServer"))
 			{
-				int port = Config.getIntValue("appiumExternalPort");
+				int port = Config.getIntValue("appium.externalPort");
 				driver = new AndroidDriver(new URL("http://localhost:"+ port + "/wd/hub"), driverObject.capabilities);
 			}
 			// if microsoft app center
@@ -115,6 +117,13 @@ public class WebDriverSetup {
 			WebDriverManager.firefoxdriver().version(driverObject.driverVersion).setup();
 			driver = new FirefoxDriver(driverObject.capabilities);
 			break;
+		case FIREFOX_HEADLESS:
+			WebDriverManager.firefoxdriver().version(driverObject.driverVersion).setup();
+			FirefoxOptions firefoxOptions = new FirefoxOptions();
+			firefoxOptions.setHeadless(true);
+			driverObject.capabilities.setCapability(FirefoxOptions.FIREFOX_OPTIONS, firefoxOptions);
+			driver = new FirefoxDriver(driverObject.capabilities);
+			break;
 		case INTERNET_EXPLORER:
 			WebDriverManager.iedriver().version(driverObject.driverVersion).setup();
 			driver = new InternetExplorerDriver(driverObject.capabilities);
@@ -125,6 +134,13 @@ public class WebDriverSetup {
 			break;
 		case CHROME:
 			WebDriverManager.chromedriver().version(driverObject.driverVersion).setup();
+			driver = new ChromeDriver(driverObject.capabilities);
+			break;
+		case CHROME_HEADLESS:
+			WebDriverManager.chromedriver().version(driverObject.driverVersion).setup();
+			ChromeOptions chromeOptions = new ChromeOptions();
+			chromeOptions.setHeadless(true);
+			driverObject.capabilities.setCapability(ChromeOptions.CAPABILITY, chromeOptions);
 			driver = new ChromeDriver(driverObject.capabilities);
 			break;
 		case OPERA:

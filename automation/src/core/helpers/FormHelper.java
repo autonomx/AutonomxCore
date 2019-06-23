@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.Keys;
 
 import core.support.logger.TestLog;
@@ -12,6 +13,26 @@ import core.uiCore.webElement.EnhancedWebElement;
 
 public class FormHelper {
 
+	/**
+	 * clears and set field
+	 * @param field
+	 * @param value
+	 */
+	public void clearAndSetField(EnhancedBy field, CharSequence... value) {
+		clearField(field, 0);
+		setField(field, 0, value);
+	}
+	
+	/**
+	 * clear and sets field
+	 * @param field
+	 * @param index
+	 * @param value
+	 */
+	public void clearAndSetField(EnhancedBy field, int index, CharSequence... value) {
+		clearField(field, index);
+		setField(field, index, value);
+	}
 	/**
 	 * sets field clears field before setting the value
 	 * 
@@ -23,7 +44,7 @@ public class FormHelper {
 	}
 
 	/**
-	 * sets field clears field before setting the value
+	 * sets and clears field before setting the value
 	 * 
 	 * @param field
 	 * @param index
@@ -32,19 +53,62 @@ public class FormHelper {
 	public void setField(EnhancedBy field, int index, CharSequence... value) {
 		TestLog.logPass("I set field '" + field.name + "' with value '" + Arrays.toString(value) + "'");
 
-		if (value != null && value.length != 0) {
+		if (!StringUtils.isBlank(value.toString())) {
 			EnhancedWebElement fieldElement = Element.findElements(field);
 			Helper.wait.waitForElementToLoad(field);
-			// fieldElement.click(index);
-
-			// clear field is slow on android And ios
-			fieldElement.clear(index);
-			Helper.wait.waitForSeconds(0.5);
+			
 			fieldElement.sendKeys(index, value);
 
 			// hides keyboard if on mobile device (ios/android)
 			Helper.mobile.hideKeyboard();
 		}
+	}
+	
+	/**
+	 * sets and clears field before setting the value by actions
+	 *
+	 * @param field
+	 * @param index
+	 * @param value
+	 */
+	public void setFieldByAction(EnhancedBy field, int index, CharSequence... value) {
+		TestLog.logPass("I set field '" + field.name + "' with value '" + Arrays.toString(value) + "'");
+
+		if (!StringUtils.isBlank(value.toString())) {
+			EnhancedWebElement fieldElement = Element.findElements(field);
+			Helper.wait.waitForElementToLoad(field);
+			
+			fieldElement.sendKeysByAction(index, value);
+
+			// hides keyboard if on mobile device (ios/android)
+			Helper.mobile.hideKeyboard();
+		}
+	}
+	
+	/**
+	 * use multiple strategies to clear the filed
+	 * 1. element.clear()
+	 * 2. send escape key
+	 * 3. press backspace to delete the value
+	 * @param field
+	 * @param index
+	 */
+	private void clearField(EnhancedBy field, int index) {
+		EnhancedWebElement fieldElement = Element.findElements(field);
+	
+		String value = fieldElement.getText(index);
+		if(value.isEmpty()) return;
+		
+		Helper.clickAndWait(field, 0);
+		fieldElement.clear(index);
+		
+		 value = fieldElement.getText(index);
+		if(!value.isEmpty())
+		{
+			for(int i = 0; i< value.length(); i++)
+				fieldElement.sendKeys(Keys.BACK_SPACE);
+		}
+		Helper.wait.waitForSeconds(0.1);
 	}
 	
 	/**
@@ -115,7 +179,7 @@ public class FormHelper {
 	}
 
 	/**
-	 * select submit button And wait for expected element to load
+	 * select submit button and wait for expected element to load
 	 * 
 	 * @param button
 	 * @param expected
@@ -123,8 +187,25 @@ public class FormHelper {
 	 */
 	public void formSubmit(EnhancedBy button, EnhancedBy expected) {
 		Helper.click.clickAndExpect(button, expected, false);
-		// TestLog.logPass("Then I select button '" + button.name + "'");
-
+	}
+	
+	/**
+	 * submit form with retrying selecting the element
+	 * @param button
+	 * @param expected
+	 */
+	public void formSubmitNoRetry(EnhancedBy button,  EnhancedBy expected) {
+		Helper.click.clickAndExpectNoRetry(button, 0, expected);
+	}
+	
+	/**
+	 * submit form with retrying selecting the element
+	 * @param button
+	 * @param index
+	 * @param expected
+	 */
+	public void formSubmitNoRetry(EnhancedBy button, int index, EnhancedBy expected) {
+		Helper.click.clickAndExpectNoRetry(button, index, expected);
 	}
 
 	/**

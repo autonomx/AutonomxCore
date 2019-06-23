@@ -68,7 +68,7 @@ public class ServiceData {
 	/**
 package module.serviceUiIntegration.panel;
 
-import core.apiCore.ServiceRunner;
+import core.apiCore.ServiceManager;
 import core.support.objects.ServiceObject;
 
 public class GetToken {
@@ -88,7 +88,7 @@ public class GetToken {
 		ServiceObject serviceObject = getServiceObject();
 		
 		try {
-			ServiceRunner.TestRunner(serviceObject);
+			ServiceRunner.runInterface(serviceObject);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
@@ -148,8 +148,6 @@ public class GetToken {
 		bw.newLine();
 		bw.newLine();
 		
-		bw.append("import core.apiCore.ServiceRunner;"+ "\n");
-		
 		// if there are parameters, then config reader is required
 		if(parameters.size()>0)
 			bw.append("import core.support.configReader.Config;"+ "\n");
@@ -184,7 +182,7 @@ public class GetToken {
 //			ServiceObject serviceObject = getServiceObject();
 //			
 //			try {
-//				ServiceRunner.TestRunner(serviceObject);
+//				ServiceRunner.runInterface(serviceObject);
 //			} catch (Exception e) {
 //				e.printStackTrace();
 //			}		
