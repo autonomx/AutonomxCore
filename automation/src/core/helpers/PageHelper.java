@@ -325,9 +325,17 @@ public class PageHelper {
 	
 	/**
 	 * navigate to a different url
-	 * @param url
+	 * @param url destination url
 	 */
 	public void swtichUrl(String url) {
+		navigateToUrl(url);
+	}
+	
+	/**
+	 * navigate to a different url
+	 * @param url destination url
+	 */
+	public void navigateToUrl(String url) {
 		AbstractDriver.getWebDriver().get(url);
 		Helper.waitForPageToLoad();
 	}

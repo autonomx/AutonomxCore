@@ -110,10 +110,10 @@ public class User {
 		String filePath = PackageHelper.DATA_PATH + "." + module + "." + csvName;
 		JavaFileObject fileObject = FileCreatorHelper.createFileAbsolutePath(filePath);
 		
-		List<String[]> csvDataWithHeader = Helper.csv_getAllCsvData(file.getAbsolutePath());
+		List<String[]> csvDataWithHeader = Helper.csv.getAllCsvData(file.getAbsolutePath());
 		
 		boolean hasIdColumn = hasIdColumn(csvDataWithHeader);
-		List<String[]> csvDataOnly = Helper.csv_getAllCsvDataFirstRowAsHeader(file.getAbsolutePath());
+		List<String[]> csvDataOnly = Helper.csv.getAllCsvDataFirstRowAsHeader(file.getAbsolutePath());
 		
 		BufferedWriter bw = new BufferedWriter(fileObject.openWriter());
 

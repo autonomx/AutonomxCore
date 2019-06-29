@@ -409,8 +409,7 @@ public class AndroidCapability {
 		String javaHomePath = "";
 		if (androidHome.isEmpty()) {
 			if (Helper.isMac()) {
-				 javaHomePath = userHome + File.separator + "Library" + File.separator + "Android"
-						+ File.separator + "sdk/";
+				 javaHomePath = userHome + File.separator + "Library" + File.separator + "Android" + File.separator + "sdk/";
 			}
 				boolean isAndroidHome = new File(javaHomePath).exists();
 				if (isAndroidHome) { 
