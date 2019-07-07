@@ -16,7 +16,6 @@ import org.openqa.selenium.html5.Location;
 
 import core.helpers.click.ClickHelper;
 import core.helpers.csvHelper.CsvHelper;
-import core.helpers.csvHelper.CsvObject;
 import core.helpers.emailHelper.EmailObject;
 import core.helpers.emailHelper.EmailSendHelper;
 import core.helpers.excelHelper.ExcelHelper;
@@ -36,73 +35,8 @@ public class Helper {
 	public static FormHelper form = new FormHelper();
 	public static ImageProcessingHelper image = new ImageProcessingHelper();
 	public static DateHelper date = new DateHelper();
+	public static CsvHelper csv = new CsvHelper();
 
-
-	// CsvHelper
-	/**
-	 * gets single cell data in csv file
-	 * 
-	 * @param csv
-	 *            - requires. csv.row, csv.column, csv.csvFile
-	 * @return
-	 * @throws Exception
-	 */
-	public static String csv_getCellData(CsvObject csv) throws Exception {
-		return CsvHelper.getCellData(csv);
-	}
-
-	/**
-	 * gets all csv data in list of string arrays
-	 * 
-	 * @param csv
-	 *            - requires. csv.csvFile
-	 * @return
-	 * @throws Exception
-	 */
-	public static List<String[]> csv_getAllCsvData(String filePath, CsvObject csv) throws Exception {
-		return CsvHelper.getAllCsvData(filePath, csv);
-	}
-	
-	/**
-	 * gets all csv data in list of string arrays
-	 * 
-	 * @return
-	 * @throws Exception
-	 */
-	public static List<String[]> csv_getAllCsvData(String filePath) throws Exception {
-		return CsvHelper.getAllCsvData(filePath);
-	}
-	
-	/**
-	 * gets all csv data files skipping first row as header
-	 * @param filePath
-	 * @return
-	 */
-	public static List<String[]> csv_getAllCsvDataFirstRowAsHeader(String filePath) {
-		return CsvHelper.getAllCsvDataFirstRowAsHeader(filePath);
-	}
-
-	/**
-	 * 
-	 * @param csv
-	 *            - required: csv.csvFile, csv.value value: String [] record =
-	 *            "3,David,Feezor,USA,40".split(",");
-	 * @throws Exception
-	 */
-	public static void csv_writeNewCsv(CsvObject csv) throws Exception {
-		CsvHelper.writeNewCsv(csv);
-	}
-
-	/**
-	 * 
-	 * @param csv
-	 *            - required: csv.csvFile, csv.value value: String [] record =
-	 *            "3,David,Feezor,USA,40".split(",");
-	 * @throws Exception
-	 */
-	public static void csv_appendCsv(CsvObject csv) throws Exception {
-		CsvHelper.appendCsv(csv);
-	}
 
 	// ExcelHelper
 	/**
@@ -1599,6 +1533,14 @@ public class Helper {
 	 */
 	public static void swtichUrl(String url) {
 		page.swtichUrl(url);
+	}
+	
+	/**
+	 * navigate to a different url
+	 * @param url
+	 */
+	public static void navigateToUrl(String url) {
+		page.navigateToUrl(url);
 	}
 	
 	 /**
