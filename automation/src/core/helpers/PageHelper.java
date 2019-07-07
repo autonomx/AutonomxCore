@@ -75,10 +75,35 @@ public class PageHelper {
 	 * @param index
 	 */
 	public static void switchWindowHandle(int index) {
-
+		// wait for the window handle to be available
+		waitForWindowHandle(index);
+		
+		// switch window handle
 		Set<String> handles = Helper.mobile.getAppiumDriver().getWindowHandles();
 		List<String> handleList = new ArrayList<>(handles);
 		Helper.mobile.getAppiumDriver().switchTo().window(handleList.get(index));
+	}
+	
+	/**
+	 * waits for the window handle at index to be available
+	 * @param index index of window handle
+	 */
+	private static void waitForWindowHandle(int index){
+		int retryWaitInSeconds = 3;
+		int retry = AbstractDriver.TIMEOUT_SECONDS / retryWaitInSeconds;
+		Set<String> handles = Helper.mobile.getAppiumDriver().getWindowHandles();
+		List<String> handleList = new ArrayList<>(handles);
+
+		while(index >= handleList.size() && retry > 0){	
+			retry --;
+			handles = Helper.mobile.getAppiumDriver().getWindowHandles();
+			handleList = new ArrayList<>(handles);
+			Helper.waitForSeconds(retryWaitInSeconds);
+		}
+
+		if(index >= handleList.size()){
+			Helper.assertFalse("window handle not available. size: " +  handleList.size()  + "index: " +   index);
+		}
 	}
 
 	/**
@@ -368,4 +393,5 @@ public class PageHelper {
     public void quitAllCurrentTestDrivers() {
     	DriverObject.quitTestDrivers();
     }
+
 }
