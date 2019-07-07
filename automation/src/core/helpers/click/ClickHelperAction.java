@@ -217,7 +217,7 @@ public class ClickHelperAction extends Element {
 	 */
 	public void clickAndWait(EnhancedBy target, int index, double timeInSeconds) {
 		TestLog.logPass("I click " + target.name);
-		Helper.wait.waitForElementToBeClickable(target);
+		Helper.wait.waitForElementToLoad(target);
 		clickAction(target, index);
 		Helper.wait.waitForSeconds(timeInSeconds);
 	}
