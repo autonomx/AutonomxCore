@@ -305,7 +305,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 	@Override
 	public void onStart(ISuite suite) {
 
-		// initialize default driver with suit testname
+		// initialize default driver with suit test name
 		initializeDefaultTest(suite);
 
 		String suitename = suite.getName();

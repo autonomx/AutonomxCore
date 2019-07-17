@@ -36,6 +36,7 @@ public class Helper {
 	public static ImageProcessingHelper image = new ImageProcessingHelper();
 	public static DateHelper date = new DateHelper();
 	public static CsvHelper csv = new CsvHelper();
+	public static Loginbuilder loginbuilder = new Loginbuilder();
 
 
 	// ExcelHelper
@@ -2136,8 +2137,8 @@ public class Helper {
 	 * @param newUserName
 	 * @throws Exception
 	 */
-	public static void handleDifferentUser(String newUserName, String password) {
-		LoginHelper.handleDifferentUser(newUserName, password);
+	public static void handleDifferentUser() {
+		LoginHelper.handleDifferentUser();
 	}
 
 	// Localization handler

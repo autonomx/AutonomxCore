@@ -7,10 +7,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.tools.JavaFileObject;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import core.apiCore.helpers.DataHelper;
 import core.helpers.Helper;
@@ -190,11 +192,28 @@ public class User {
 //		}
 		for(int rowIndex = 1; rowIndex < csvDataWithHeader.size(); rowIndex++) {
 			String key = updateForDuplicateIds(csvDataWithHeader).get(rowIndex - 1);
+			// remove "-"
+			key = key.replace("-", "");
+			key = key.replaceAll("\\.", "");
+			
+			if (NumberUtils.isDigits(key)) {
+			    key = "method" + key; 
+			}
+
+			
 			bw.append("public " + csvName + " " + key +  "() {" + "\n");
 			bw.append("    " + csvName + " " + csvName.toLowerCase() + " = new " + csvName + "()" + "\n");
 			for(int columnIndex = firstIndex; columnIndex < csvDataWithHeader.get(0).length; columnIndex++ ) {
 				String column = StringUtils.capitalize(csvDataWithHeader.get(0)[columnIndex]);
-				String value = csvDataWithHeader.get(rowIndex)[columnIndex];
+				////////////TODOD fix if null
+				String value = "";
+				try {
+				value = csvDataWithHeader.get(rowIndex)[columnIndex];
+				}catch(Exception e) {
+					e.getMessage();
+				}
+				
+				
 				// replace keyword values . <_@Rand4>. same as service level tests
 				value = DataHelper.replaceParameters(value); 
 				bw.append("             .with" + column + "(\"" + value + "\")");
@@ -224,12 +243,28 @@ public class User {
 		for(int rowIndex = 0; rowIndex < csvDataOnly.size(); rowIndex++) {
 		    List<String> rowList = Arrays.asList(csvDataOnly.get(rowIndex)); 
 		    
+		    
 			String step1 = StringUtils.join(rowList, "\", \"");// Join with ", "
-			String rowString = StringUtils.wrap(step1, "\"");// Wrap step1 with "
+			
+			
+			String rowString = "";
+			String val1Wrapped = "";
+			//TODO: remove, junk code
+			int numberOfCommas = step1 .replaceAll("[^,]","").length();  
+			if(numberOfCommas == 0) {
+				String val1 = "tempId_" + Helper.generateRandomString(3);
+				 val1Wrapped = StringUtils.wrap(val1, "\"");
+				
+
+			}
+			 if(!val1Wrapped.isEmpty())	
+				 rowString = val1Wrapped +"," + StringUtils.wrap(step1, "\"");// Wrap step1 with "
+			 else
+				 rowString = StringUtils.wrap(step1, "\"");// Wrap step1 with "
 			
 		    // if has id column, remove it
-		    if(hasIdColumn) 
-		    	rowString = removeFirstColumn(rowString);
+		  //  if(hasIdColumn) 
+		    //	rowString = removeFirstColumn(rowString);
 		    
 		    // replace parameters
 		    rowString = DataHelper.replaceParameters(rowString); 

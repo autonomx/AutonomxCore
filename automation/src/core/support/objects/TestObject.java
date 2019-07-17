@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.junit.runner.Description;
 import org.monte.screenrecorder.ScreenRecorder;
@@ -48,18 +49,18 @@ public class TestObject{
 	
 	public static final String DEFAULT_TEST = "core";
 	public static final String DEFAULT_APP = "auto";
-	public static String SUITE_NAME = ""; // suite name is global to all tests in the run
-	public static String APP_IDENTIFIER = ""; // app name associated with test run. If suite is default, use app identifier 
+	public static String SUITE_NAME = StringUtils.EMPTY; // suite name is global to all tests in the run
+	public static String APP_IDENTIFIER = StringUtils.EMPTY; // app name associated with test run. If suite is default, use app identifier 
 
 	public static final String TEST_APP_API = "api";
 
 	public List<WebDriver> webDriverList = new ArrayList<WebDriver>();
-	public String app = "";
+	public String app = StringUtils.EMPTY;
 	public testType type;
-	public String testId = "";
-	public String testName = "";
-	public String className = "";
-	public String deviceName = ""; // device name for mobile devices
+	public String testId = StringUtils.EMPTY;
+	public String testName = StringUtils.EMPTY;
+	public String className = StringUtils.EMPTY;
+	public String deviceName = StringUtils.EMPTY; // device name for mobile devices
 
 	public String testFileClassName; // same as class name except for api tests
 
@@ -67,9 +68,7 @@ public class TestObject{
 	public Boolean isFirstRun = false; // is the test running from beginning
 	public Boolean isForcedRestart = false; // incase of test failed or other situations
 
-	public boolean isLoggedIn = true;
-	public String loggedInUser = "";
-	public String loggedInPassword;
+	public UserObject user = new UserObject();
 	public int runCount = 0;
 	public Boolean isTestPass = false;
 	public Boolean isTestComplete = false;
@@ -78,7 +77,7 @@ public class TestObject{
 	// api test info
 	public int currentTestIndex = 0; // index for tests in csv files
 	public int testCountInCsvFile = 0; // test count in csv file
-	public String testCsvFileName;
+	public String testCsvFileName = StringUtils.EMPTY;
 
 	public Description description;
 	public Throwable caughtThrowable = null;
@@ -233,6 +232,15 @@ public class TestObject{
 		if (testInfo.get(testId) == null) {
 			TestObject.initializeTest(new DriverObject(), TestObject.DEFAULT_TEST);
 			testId = DEFAULT_TEST;
+		}
+		return testInfo.get(testId);
+	}
+	
+	public static TestObject getDefaultTestInfo() {
+		String testId = DEFAULT_TEST;
+
+		if (testInfo.get(testId) == null) {
+			TestObject.initializeTest(new DriverObject(), TestObject.DEFAULT_TEST);
 		}
 		return testInfo.get(testId);
 	}
@@ -507,25 +515,6 @@ public class TestObject{
 	public String getClassName() {
 		String className = testId.split("-")[0];
 		return className;
-	}
-
-	public TestObject withLoggedInUser(String loggedInUser) {
-		this.loggedInUser = loggedInUser;
-		return this;
-	}
-
-	public TestObject withLoggedInPassword(String loggedInPassword) {
-		this.loggedInPassword = loggedInPassword;
-		return this;
-	}
-
-	public TestObject withIsLoggedIn(boolean isLoggedIn) {
-		this.isLoggedIn = isLoggedIn;
-		return this;
-	}
-
-	public boolean isUserLoggedIn() {
-		return isLoggedIn;
 	}
 
 	public TestObject withRunCount(int rerunCount) {
