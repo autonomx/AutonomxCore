@@ -346,7 +346,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		String suitename = suite.getName();
 		suitename = suitename.replaceAll("\\s", "");
 
-		// setup before suite driver
+		// setup after suite driver
 		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
 		new AbstractDriverTestNG().setupWebDriver(suitename + TestObject.AFTER_SUITE_PREFIX, driver);
 	}

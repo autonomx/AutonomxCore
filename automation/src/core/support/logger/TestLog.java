@@ -215,6 +215,7 @@ public class TestLog {
 	 * @param subStep the substep node value
 	 */
 	public static void setPassSubTestStep(String subStep) {
+		if(AbstractDriver.getStep().get() == null) return;
 		testState state = TestObject.getTestState(TestObject.getTestInfo().testId);
 		if (!state.equals(testState.testMethod))
 			return;
