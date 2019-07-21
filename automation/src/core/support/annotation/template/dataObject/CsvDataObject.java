@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import javax.tools.JavaFileObject;
 
@@ -229,7 +228,7 @@ public class User {
 //				 					{ "testuser_2", "Test@124" }
 //								   };	 
 //		}
-		bw.append("@DataProvider(name = \"DataRunner\", parallel = false)" +"\n");
+		bw.append("@DataProvider(name = \"DataRunner\")" +"\n");
 		bw.append("public synchronized Object[][] dataProvider() {"+"\n");
 		
 		bw.append("    return new Object[][] {	" +"\n");

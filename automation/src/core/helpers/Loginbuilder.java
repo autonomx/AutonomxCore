@@ -1,15 +1,10 @@
 package core.helpers;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import core.support.objects.ActionObject;
 import core.support.objects.ActionObject.ACTION;
 import core.support.objects.TestObject;
-import core.support.objects.UserObject;
-import core.support.objects.UserObject.LoginSequence;
 import core.uiCore.webElement.EnhancedBy;
 
 public class Loginbuilder {

@@ -27,6 +27,7 @@ import java.util.zip.ZipOutputStream;
 import javax.imageio.ImageIO;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Priority;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.OutputType;
@@ -46,6 +47,7 @@ import core.uiCore.webElement.EnhancedBy;
 import core.uiCore.webElement.EnhancedWebElement;
 import java8.util.concurrent.ThreadLocalRandom;
 
+@SuppressWarnings("deprecation")
 public class UtilityHelper {
 
 	/**
@@ -145,15 +147,11 @@ public class UtilityHelper {
 	 */
 	protected static void killWindowsProcess(String serviceName) {
 		String KILL = "taskkill /F /IM ";
-		try {
-			if (isProcessRunning(serviceName))
-				Runtime.getRuntime().exec(KILL + serviceName);
-		} catch (IOException e) {
-			e.getMessage();
-		} catch (Exception e) {
-			e.getMessage();
-		}
-
+		runShellCommand(KILL + serviceName);
+	}
+	
+	protected static void killMacProcess(String serviceName) {
+		runShellCommand("killall " + serviceName);
 	}
 
 	/**
@@ -369,7 +367,7 @@ public class UtilityHelper {
 
 		// fail test if no csv files found
 		if (listOfFiles == null) {
-			Helper.softAssertTrue("test files not found at: " + directoryPath + " type: " + type, false);
+			TestLog.logDirectConsoleMessage(Priority.WARN, "test files not found at: " + directoryPath + " type: " + type);
 			return testFiles;
 		}
 

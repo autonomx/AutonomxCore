@@ -437,16 +437,35 @@ public class TestLog {
 	 * @param value string value to log
 	 */
 	private static void logConsoleMessage(Priority priority, String value) {
-		if(TestObject.getTestInfo().log == null)
-			return;
 		
 		// if batch logging is disabled, log to console
 		Boolean enableBatchLogging = CrossPlatformProperties.getEnableBatchLogging();
+		if (enableBatchLogging)
+			logBatchConsoleMessage(priority, value);
+		else
+			logDirectConsoleMessage(priority, value);
+	}
+	
+	/**
+	 * log message directly to console
+	 * @param priority
+	 * @param value
+	 */
+	public static void logDirectConsoleMessage(Priority priority, String value) {
 		value = Helper.date.getTimestampSeconds() + " : " + getTestLogPrefix() + value;
-		if (!enableBatchLogging)
-			TestObject.getTestInfo().log.log(priority, value);
-
-		// if batch logging is enabled, keep track of all logs for bu
+		TestObject.getTestInfo().log.log(priority, value);
+	}
+	
+	/**
+	 * log to console in batch mode
+	 * @param priority
+	 * @param value
+	 */
+	private static void logBatchConsoleMessage(Priority priority, String value) {
+		// if batch logging is disabled, log to console
+		Boolean enableBatchLogging = CrossPlatformProperties.getEnableBatchLogging();
+		value = Helper.date.getTimestampSeconds() + " : " + getTestLogPrefix() + value;
+		// if batch logging is enabled, keep track of all logs
 		if (!TestObject.getTestInfo().isTestComplete && enableBatchLogging) {
 			LogObject log = new LogObject(value, priority);
 			TestObject.getTestInfo().testLog.add(log);
@@ -507,8 +526,6 @@ public class TestLog {
 	 * @param testId id of the test
 	 */
 	public static void printLogs(List<LogObject> testLog, String testId) {
-		if (testLog.isEmpty())
-			return;
 
 		for (LogObject log : testLog) {
 			if (testId.isEmpty()) {

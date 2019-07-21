@@ -3,7 +3,6 @@ package core.support.listeners;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.log4j.xml.DOMConfigurator;
 import org.testng.IClassListener;
 import org.testng.IConfigurationListener;
 import org.testng.ISuite;
@@ -38,12 +37,6 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 	public void onStart(ITestContext iTestContext) {
 		isTestNG = true;
 		iTestContext.setAttribute("WebDriver", AbstractDriverTestNG.getWebDriver());
-		TestLog.setupLog4j();
-
-		// initialize logging
-		TestObject.setLogging();
-
-		DOMConfigurator.configure(TestLog.LOG4JPATH);
 
 		// shuts down webdriver processes
 		cleanupProcessess();
@@ -76,9 +69,9 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		if (!suite.getName().contains("Default")) {
 			driver.app = suite.getName();
 		}
-		TestObject.initializeTest(driver, TestObject.DEFAULT_TEST);
-		// update default test app name. only time it will be updated
-		TestObject.getTestInfo().withApp(driver.app);
+		
+		// setup default driver
+		new AbstractDriverTestNG().setupWebDriver(TestObject.DEFAULT_TEST, driver);
 	}
 
 	/**
@@ -231,11 +224,16 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 	 * kills all process for clean start
 	 */
 	public void cleanupProcessess() {
-		if (Helper.mobile.isMobile())
-			Helper.killWindowsProcess("node.exe");
-		Helper.killWindowsProcess("IEDriverServer.exe");
-		Helper.killWindowsProcess("chromedriver.exe");
-		Helper.killWindowsProcess("MicrosoftWebDriver.exe");
+		if(Helper.isWindows()) {
+			if (Helper.mobile.isMobile())
+				Helper.killWindowsProcess("node.exe");
+			Helper.killWindowsProcess("IEDriverServer.exe");
+			Helper.killWindowsProcess("chromedriver.exe");
+			Helper.killWindowsProcess("MicrosoftWebDriver.exe");
+		}else if (Helper.isMac()) {
+			Helper.killMacProcess("chromedriver");
+		}
+		
 	}
 
 	public String generateTestMessage(ITestContext iTestContext) {
@@ -302,9 +300,15 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		TestObject.getTestInfo().testFileClassName = classname;
 	}
 
+	/**
+	 * onStart (suite) runs before onStart(ItestContext)
+	 */
 	@Override
 	public void onStart(ISuite suite) {
 
+		TestLog.setupLog4j();
+		
+		
 		// initialize default driver with suit test name
 		initializeDefaultTest(suite);
 

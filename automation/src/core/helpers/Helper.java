@@ -1950,6 +1950,17 @@ public class Helper {
 	}
 	
 	/**
+	 * returns kills the process if running
+	 * 
+	 * @param serviceName
+	 * @return
+	 * @throws Exception
+	 */
+	public static void killMacProcess(String serviceName) {
+		UtilityHelper.killMacProcess(serviceName);
+	}
+	
+	/**
 	 * create directories and files based on absolute path
 	 * @param path
 	 */

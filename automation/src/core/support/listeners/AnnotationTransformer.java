@@ -89,7 +89,7 @@ public class AnnotationTransformer implements IAnnotationTransformer {
 
 		// if parallel api test, get thread count from conf file
 		// if non optimized or sequential, set thread count to 1
-		if (testName.equals("parallelApiRunner")) {
+		if (testName.endsWith(API_TEST_RUNNER_PREFIX)) {
 			annotation.setThreadPoolSize(Integer.valueOf(Config.getValue(THREAD_COUNT)));
 			TestDataProvider.TEST_DATA_PATH = Config.getValue(TestDataProvider.TEST_DATA_PARALLEL_PATH);
 		}

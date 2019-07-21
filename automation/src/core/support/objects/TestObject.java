@@ -47,7 +47,7 @@ public class TestObject{
 	public static String AFTER_CLASS_PREFIX = "-Afterclass";
 	public static String DATAPROVIDER_TEST_SUFFIX = "-test";
 	
-	public static final String DEFAULT_TEST = "core";
+	public static final String DEFAULT_TEST = "autonomx";
 	public static final String DEFAULT_APP = "auto";
 	public static String SUITE_NAME = StringUtils.EMPTY; // suite name is global to all tests in the run
 	public static String APP_IDENTIFIER = StringUtils.EMPTY; // app name associated with test run. If suite is default, use app identifier 
@@ -137,6 +137,10 @@ public class TestObject{
 			test.withTestId(testId).withTestName(test.getTestName()).withTestStartTime(Helper.date.getTimestampMiliseconds())
 					.withApp(driver.app).withRandomStringIdentifier();
 			TestObject.testInfo.put(testId, test);
+			
+			// initialize logging
+			TestObject.setLogging();
+			
 			// loads all property values into config map
 			Config.loadConfig(testId);
 			// loads all the keywords for api references
