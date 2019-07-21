@@ -228,7 +228,7 @@ public class User {
 //				 					{ "testuser_2", "Test@124" }
 //								   };	 
 //		}
-		bw.append("@DataProvider(name = \"DataRunner\")" +"\n");
+		bw.append("@DataProvider(name = \"DataRunner\", parallel = true)" +"\n");
 		bw.append("public synchronized Object[][] dataProvider() {"+"\n");
 		
 		bw.append("    return new Object[][] {	" +"\n");

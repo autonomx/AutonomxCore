@@ -150,7 +150,7 @@ public class AbstractDriverTestNG {
 	 * @return
 	 */
 	@BeforeMethod(alwaysRun = true)
-	public void handleTestMethodName(Method method) {
+	public synchronized void handleTestMethodName(Method method) {
 		TestObject.setTestName(method.getName());
 		TestObject.setTestId(getClassName(), TestObject.currentTestName.get());
 
@@ -199,7 +199,7 @@ public class AbstractDriverTestNG {
 	 * @param method
 	 */
 	@AfterMethod(alwaysRun = true)
-	public void afterMethod(Method method) {
+	public synchronized void afterMethod(Method method) {
 		
 		// do not override test name for running service tests
 		if(!CsvReader.isRunningServiceTest())

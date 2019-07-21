@@ -31,6 +31,7 @@ import core.uiCore.drivers.AbstractDriverTestNG;
 public class TestListener implements ITestListener, IClassListener, ISuiteListener, IConfigurationListener {
 
 	public static boolean isTestNG = false;
+	public static final String PARALLEL_TEST_TYPE = "global.parallel.type";
 
 	// Before starting all tests, below method runs.
 	@Override
@@ -76,13 +77,26 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 	/**
 	 * sets parallel run count
+	 * sets parallel count for Tests and Data Provider tests
 	 * 
 	 * @param iTestContext
 	 */
 	private void setParallelRun(ITestContext iTestContext) {
-		iTestContext.getCurrentXmlTest().setParallel(ParallelMode.METHODS);
+		
+		// set parallel test type
+		String parallelType =  CrossPlatformProperties.getParallelTestType();
+		if(parallelType.equals("CLASSES"))
+			iTestContext.getCurrentXmlTest().setParallel(ParallelMode.CLASSES);
+		else 
+			iTestContext.getCurrentXmlTest().setParallel(ParallelMode.METHODS);
+
+		// set parallel thread count for tests
 		int threadCount = CrossPlatformProperties.getParallelTests();
 		iTestContext.getCurrentXmlTest().setThreadCount(threadCount);
+		
+		// set parallel thread count for data provider tests, not including service tests
+		iTestContext.getCurrentXmlTest().getSuite().setDataProviderThreadCount(threadCount);
+		iTestContext.getCurrentXmlTest().getSuite().setPreserveOrder(true);
 	}
 
 	/**
