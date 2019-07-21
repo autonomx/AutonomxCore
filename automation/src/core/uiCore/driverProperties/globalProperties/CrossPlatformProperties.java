@@ -19,7 +19,7 @@ public class CrossPlatformProperties {
 	private static String AUDIO_COMMENTARY_TYPE = "report.audioCommentaryType";
 	private static String PATH = "appium.path";
 	private static String ENABLE_BATCH_LOGGING = "report.enableBatchLogging";
-	private static String LOCALIZATION_FILE = "localize.file";
+	public static String LOCALIZATION_FILE = "localize.file";
 
 	public static int getRetryCount() {
 		return Config.getIntValue(RETRY_COUNT) + 1;
