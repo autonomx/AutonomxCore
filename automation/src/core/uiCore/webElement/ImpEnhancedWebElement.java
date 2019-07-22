@@ -197,8 +197,8 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 			}
 		} while (!success && retry > 0);
 		
-//		if(!success)
-//			TestLog.ConsoleLog("click was not successful. cause: " + StringUtils.join(exception), success);
+		// wait for page to load
+		Helper.waitForPageToLoad();
 	}
 
 	@Override

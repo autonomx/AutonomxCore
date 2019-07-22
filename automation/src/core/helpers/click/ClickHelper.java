@@ -39,7 +39,7 @@ public class ClickHelper extends Element {
 	 */
 	public void clickAndExpectByText(EnhancedBy target, String text, EnhancedBy expected) {
 		TestLog.logPass("I click " + target.name);
-		Helper.wait.waitForElementToBeClickable(target);
+		Helper.wait.waitForElementToLoad(target);
 
 		boolean isExpectedFound = false;
 		int targetWaitTimeInSeconds = 5;
@@ -68,7 +68,7 @@ public class ClickHelper extends Element {
 
 		TestLog.logPass("I click " + target.name);
 		EnhancedWebElement targetElement = Element.findElements(target);
-		Helper.wait.waitForElementToBeClickable(target);
+		Helper.wait.waitForElementToLoad(target);
 
 		boolean isExpectedFound = false;
 		int targetWaitTimeInSeconds = 5;
@@ -98,12 +98,12 @@ public class ClickHelper extends Element {
 
 		TestLog.logPass("I click " + target.name);
 		EnhancedWebElement targetElement = Element.findElements(target);
-		Helper.wait.waitForElementToBeClickable(target);
+		Helper.wait.waitForElementToLoad(target);
 
 		boolean isExpectedFound = false;
 
 		targetElement.click(index);
-		Helper.wait.waitForElementToLoad(expected);
+		isExpectedFound = Helper.wait.waitForElementToLoad(expected);
 		TestLog.ConsoleLog("clickAndExpect: expected: " + expected.name + " : " + isExpectedFound);
 
 		Helper.assertTrue("expected element not found: " + expected.name, isExpectedFound);
@@ -128,7 +128,7 @@ public class ClickHelper extends Element {
 
 		TestLog.logPass("I click " + target.name);
 		EnhancedWebElement targetElement = Element.findElements(target);
-		Helper.wait.waitForElementToBeClickable(target);
+		Helper.wait.waitForElementToLoad(target);
 
 		boolean isExpectedFound = false;
 		int targetWaitTimeInSeconds = 5;
@@ -169,7 +169,7 @@ public class ClickHelper extends Element {
 
 		TestLog.logPass("I click " + target.name);
 		EnhancedWebElement targetElement = Element.findElements(target);
-		Helper.wait.waitForElementToBeClickable(target);
+		Helper.wait.waitForElementToLoad(target);
 
 		boolean isExpectedFound = false;
 		int targetWaitTimeInSeconds = 5;
@@ -201,7 +201,7 @@ public class ClickHelper extends Element {
 		TestLog.logPass("I click " + target.name);
 
 		EnhancedWebElement targetElement = Element.findElements(target);
-		Helper.wait.waitForElementToBeClickable(target);
+		Helper.wait.waitForElementToLoad(target);
 
 		boolean isExpectedFound = false;
 		int targetWaitTimeInSeconds = 5;
@@ -234,7 +234,7 @@ public class ClickHelper extends Element {
 		TestLog.logPass("I click " + target.name);
 
 		EnhancedWebElement targetElement = Element.findElements(target);
-		Helper.wait.waitForElementToBeClickable(target);
+		Helper.wait.waitForElementToLoad(target);
 
 		EnhancedWebElement expectedElement = null;
 		int targetWaitTimeInSeconds = 5;

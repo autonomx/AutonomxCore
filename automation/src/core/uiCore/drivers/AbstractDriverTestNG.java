@@ -144,7 +144,7 @@ public class AbstractDriverTestNG {
 	}
 
 	/**
-	 * generates new testId from classname And test name if already generated, Then
+	 * generates new testId from class name And test name if already generated, Then
 	 * return existing
 	 * 
 	 * @return
