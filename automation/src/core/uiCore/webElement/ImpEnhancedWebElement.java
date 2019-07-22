@@ -400,6 +400,15 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 
         Helper.assertTrue("send key was not successful", success);
     }
+    
+    @Override
+	public void sendKeyByJs(int index, CharSequence[] keysToSend) {
+
+		WebElement element = getElement(index);
+
+		JavascriptExecutor js = (JavascriptExecutor) webDriver;
+		js.executeScript("arguments[0].setAttribute('value', '"+ String.valueOf(keysToSend[0]) +"')", element);
+	}
 
 	/*
 	 * Enter text to an element by action

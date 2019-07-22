@@ -75,4 +75,6 @@ public interface EnhancedWebElement extends WebElement {
 	List<String> getTextList();
 
 	void scrollToView(int index);
+
+	void sendKeyByJs(int index, CharSequence[] keysToSend);
 }

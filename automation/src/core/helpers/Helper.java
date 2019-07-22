@@ -522,6 +522,22 @@ public class Helper {
 	public static void setField(EnhancedBy field, CharSequence... value) {
 		form.setField(field, value);
 	}
+	
+	public static void setFieldByAction(EnhancedBy field, int index, CharSequence... value) {
+		form.setFieldByAction(field, index, value);
+	}
+	
+	public static void setFieldByAction(EnhancedBy field, CharSequence... value) {
+		form.setFieldByAction(field, 0, value);
+	}
+	
+	public static void setFieldByJs(EnhancedBy field, int index, CharSequence... value) {
+		form.setFieldByJs(field, index, value);
+	}
+	
+	public static void setFieldByJs(EnhancedBy field, CharSequence... value) {
+		form.setFieldByJs(field, 0, value);
+	}
 
 	/**
 	 * sets field clears field before setting the value

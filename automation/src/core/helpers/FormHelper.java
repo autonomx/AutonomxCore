@@ -71,6 +71,17 @@ public class FormHelper {
 	 * @param index
 	 * @param value
 	 */
+	public void setFieldByAction(EnhancedBy field,  CharSequence... value) {
+		setFieldByAction(field, 0, value);
+	}
+	
+	/**
+	 * sets and clears field before setting the value by actions
+	 *
+	 * @param field
+	 * @param index
+	 * @param value
+	 */
 	public void setFieldByAction(EnhancedBy field, int index, CharSequence... value) {
 		TestLog.logPass("I set field '" + field.name + "' with value '" + Arrays.toString(value) + "'");
 
@@ -79,6 +90,35 @@ public class FormHelper {
 			Helper.wait.waitForElementToLoad(field);
 			
 			fieldElement.sendKeysByAction(index, value);
+
+			// hides keyboard if on mobile device (ios/android)
+			Helper.mobile.hideKeyboard();
+		}
+	}
+	
+	/**
+	 * set field through javascript
+	 * @param field
+	 * @param value
+	 */
+	public void setFieldByJs(EnhancedBy field,  CharSequence... value) {
+		setFieldByJs(field, 0, value);
+	}
+	
+	/**
+	 * set field through javascript
+	 * @param field
+	 * @param index
+	 * @param value
+	 */
+	public void setFieldByJs(EnhancedBy field, int index, CharSequence... value) {
+		TestLog.logPass("I set field '" + field.name + "' with value '" + Arrays.toString(value) + "'");
+
+		if (!StringUtils.isBlank(value.toString())) {
+			EnhancedWebElement fieldElement = Element.findElements(field);
+			Helper.wait.waitForElementToLoad(field);
+			
+			fieldElement.sendKeyByJs(index, value);
 
 			// hides keyboard if on mobile device (ios/android)
 			Helper.mobile.hideKeyboard();

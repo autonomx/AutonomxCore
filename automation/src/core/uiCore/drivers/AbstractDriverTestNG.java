@@ -255,6 +255,7 @@ public class AbstractDriverTestNG {
 		if (!url.isEmpty()) {
 			TestLog.logPass("I am the site '" + url + "'");
 			getWebDriver().get(url);
+			Helper.waitForPageToLoad();
 		}
 	}
 
