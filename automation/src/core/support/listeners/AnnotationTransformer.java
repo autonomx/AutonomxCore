@@ -13,6 +13,7 @@ import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.objects.DriverObject;
 import core.support.objects.TestObject;
+import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 
 /**
  * Only runs through suite xml file
@@ -89,8 +90,8 @@ public class AnnotationTransformer implements IAnnotationTransformer {
 
 		// if parallel api test, get thread count from conf file
 		// if non optimized or sequential, set thread count to 1
-		if (testName.equals("parallelApiRunner")) {
-			annotation.setThreadPoolSize(Integer.valueOf(Config.getValue(THREAD_COUNT)));
+		if (testName.endsWith(API_TEST_RUNNER_PREFIX)) {
+			annotation.setThreadPoolSize(CrossPlatformProperties.getParallelTests());
 			TestDataProvider.TEST_DATA_PATH = Config.getValue(TestDataProvider.TEST_DATA_PARALLEL_PATH);
 		}
 	}

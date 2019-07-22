@@ -1,28 +1,30 @@
 package core.support.objects;
 
+import org.apache.commons.lang.StringUtils;
+
 import core.helpers.Helper;
 
 public class ServiceObject {
 
-	private String TestSuite = "";
-	private String TestCaseID = "";
-	private String RunFlag = "";
-	private String Description = "";
-	private String InterfaceType = "";
-	private String UriPath = "";
-	private String ContentType = "";
-	private String Method = "";
-	private String Option = "";
-	private String RequestHeaders = "";
-	private String TemplateFile = "";
-	private String RequestBody = "";
-	private String OutputParams = "";
-	private String RespCodeExp = "";
-	private String ExpectedResponse = "";
-	private String TcComments = "";
-	private String tcName = "";
-	private String tcIndex = "";
-	private String tcClass = "";
+	private String TestSuite = StringUtils.EMPTY;
+	private String TestCaseID = StringUtils.EMPTY;
+	private String RunFlag = StringUtils.EMPTY;
+	private String Description = StringUtils.EMPTY;
+	private String InterfaceType = StringUtils.EMPTY;
+	private String UriPath = StringUtils.EMPTY;
+	private String ContentType = StringUtils.EMPTY;
+	private String Method = StringUtils.EMPTY;
+	private String Option = StringUtils.EMPTY;
+	private String RequestHeaders = StringUtils.EMPTY;
+	private String TemplateFile = StringUtils.EMPTY;
+	private String RequestBody = StringUtils.EMPTY;
+	private String OutputParams = StringUtils.EMPTY;
+	private String RespCodeExp = StringUtils.EMPTY;
+	private String ExpectedResponse = StringUtils.EMPTY;
+	private String TcComments = StringUtils.EMPTY;
+	private String tcName = StringUtils.EMPTY;
+	private String tcIndex = StringUtils.EMPTY;
+	private String tcClass = StringUtils.EMPTY;
 
 	public ServiceObject setApiObject(String TestSuite, String TestCaseID, String RunFlag, String Description,
 			String InterfaceType, String UriPath, String ContentType, String Method, String Option,

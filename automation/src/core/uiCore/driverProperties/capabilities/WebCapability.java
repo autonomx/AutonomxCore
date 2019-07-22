@@ -32,11 +32,15 @@ public class WebCapability {
 
 
 	public DesiredCapabilities capabilities;
+	public ChromeOptions chromeOptions;
+	FirefoxOptions firefoxOptions;
 
 	DriverType driverType;
 
 	public WebCapability() {
 		capabilities = new DesiredCapabilities();
+		chromeOptions = new ChromeOptions();
+		firefoxOptions = new FirefoxOptions();
 	}
 
 	public WebCapability withCapability(DesiredCapabilities Capabilities) {
@@ -82,8 +86,6 @@ public class WebCapability {
 
 		// get all keys from config
 		Map<String, Object> propertiesMap = TestObject.getTestInfo().config;
-		ChromeOptions chromeOptions = new ChromeOptions();
-		FirefoxOptions firefoxOptions = new FirefoxOptions();
 		Map<String, Object> chromePreferences = new HashMap<>();
 		
 		FirefoxProfile fireFoxProfile = new FirefoxProfile();
@@ -138,8 +140,6 @@ public class WebCapability {
 
 		// get all keys from config
 		Map<String, Object> propertiesMap = TestObject.getTestInfo().config;
-		ChromeOptions chromeOptions = new ChromeOptions();
-		FirefoxOptions firefoxOptions = new FirefoxOptions();
 
 		// load config/properties values from entries with "chrome.options." or
 		// "firefox.options." prefix

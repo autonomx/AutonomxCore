@@ -11,6 +11,7 @@ import java.util.List;
 import javax.tools.JavaFileObject;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import core.apiCore.helpers.DataHelper;
 import core.helpers.Helper;
@@ -190,11 +191,21 @@ public class User {
 //		}
 		for(int rowIndex = 1; rowIndex < csvDataWithHeader.size(); rowIndex++) {
 			String key = updateForDuplicateIds(csvDataWithHeader).get(rowIndex - 1);
+			key = normalizeMethodName(key);
+			
 			bw.append("public " + csvName + " " + key +  "() {" + "\n");
 			bw.append("    " + csvName + " " + csvName.toLowerCase() + " = new " + csvName + "()" + "\n");
 			for(int columnIndex = firstIndex; columnIndex < csvDataWithHeader.get(0).length; columnIndex++ ) {
 				String column = StringUtils.capitalize(csvDataWithHeader.get(0)[columnIndex]);
-				String value = csvDataWithHeader.get(rowIndex)[columnIndex];
+				////////////TODOD fix if null
+				String value = "";
+				try {
+				value = csvDataWithHeader.get(rowIndex)[columnIndex];
+				}catch(Exception e) {
+					e.getMessage();
+				}
+				
+				
 				// replace keyword values . <_@Rand4>. same as service level tests
 				value = DataHelper.replaceParameters(value); 
 				bw.append("             .with" + column + "(\"" + value + "\")");
@@ -214,23 +225,27 @@ public class User {
 //		public synchronized Object[][] dataProvider() {
 //			 return new Object[][] {
 //							 		{ "testuser_1", "Test@123" },
-//				 					 { "testuser_1", "Test@123" }
+//				 					{ "testuser_2", "Test@124" }
 //								   };	 
 //		}
-		bw.append("@DataProvider(name = \"DataRunner\")" +"\n");
+		bw.append("@DataProvider(name = \"DataRunner\", parallel = true)" +"\n");
 		bw.append("public synchronized Object[][] dataProvider() {"+"\n");
 		
 		bw.append("    return new Object[][] {	" +"\n");
+		
+		// add missing values if applicable
+		csvDataOnly = normalizeRows(file);
+		
 		for(int rowIndex = 0; rowIndex < csvDataOnly.size(); rowIndex++) {
 		    List<String> rowList = Arrays.asList(csvDataOnly.get(rowIndex)); 
-		    
+		    		    
 			String step1 = StringUtils.join(rowList, "\", \"");// Join with ", "
-			String rowString = StringUtils.wrap(step1, "\"");// Wrap step1 with "
+			String rowString = "";
+			rowString = StringUtils.wrap(step1, "\"");// Wrap step1 with "
 			
 		    // if has id column, remove it
 		    if(hasIdColumn) 
 		    	rowString = removeFirstColumn(rowString);
-		    
 		    // replace parameters
 		    rowString = DataHelper.replaceParameters(rowString); 
 
@@ -281,6 +296,22 @@ public class User {
 	}
 	
 	/**
+	 * updates the method name to remove illegal characters 
+	 * @param key
+	 * @return
+	 */
+	private static String normalizeMethodName(String key) {
+		// remove "-" , "."
+		key = key.replace("-", "").replaceAll("\\.", "");
+		
+		if (NumberUtils.isDigits(key)) {
+		    key = "method" + key; 
+		}
+		
+		return key;
+	}
+	
+	/**
 	 * removes the first column in the row. this is for the id colum that needs to be removed from data provider
 	 * @param rowList
 	 * @return
@@ -301,5 +332,33 @@ public class User {
 			hasIdColumn = true; 
 		}
 		return hasIdColumn;
+	}
+	
+	/**
+	 * updates the rows to add missing values if missing
+	 * eg. @id, name, password
+	 *          bob   -> becomes bob, ""
+	 * @return 
+	 */
+	private static List<String[]> normalizeRows(File file) {
+		List<String[]> csvDataOnly = Helper.csv.getAllCsvDataFirstRowAsHeader(file.getAbsolutePath());
+		List<String[]> csvDataWithHeader = Helper.csv.getAllCsvData(file.getAbsolutePath());
+		List<String[]> updatedList = new ArrayList<String[]>();
+		
+		int columnCount = csvDataWithHeader.get(0).length;
+		for(String[] row : csvDataOnly){
+			
+			
+			if(row.length < columnCount) {
+				List<String> list = new ArrayList<String>();
+				list.addAll(Arrays.asList(row));
+				for(int i = 0; i < columnCount - row.length; i++) {
+					list.add("");
+				}
+				row = list.toArray(new String[list.size()]);
+			}
+			updatedList.add(row);
+		}
+		return updatedList;
 	}
 }

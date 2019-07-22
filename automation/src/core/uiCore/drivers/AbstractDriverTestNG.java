@@ -144,13 +144,13 @@ public class AbstractDriverTestNG {
 	}
 
 	/**
-	 * generates new testId from classname And test name if already generated, Then
+	 * generates new testId from class name And test name if already generated, Then
 	 * return existing
 	 * 
 	 * @return
 	 */
 	@BeforeMethod(alwaysRun = true)
-	public void handleTestMethodName(Method method) {
+	public synchronized void handleTestMethodName(Method method) {
 		TestObject.setTestName(method.getName());
 		TestObject.setTestId(getClassName(), TestObject.currentTestName.get());
 
@@ -199,7 +199,7 @@ public class AbstractDriverTestNG {
 	 * @param method
 	 */
 	@AfterMethod(alwaysRun = true)
-	public void afterMethod(Method method) {
+	public synchronized void afterMethod(Method method) {
 		
 		// do not override test name for running service tests
 		if(!CsvReader.isRunningServiceTest())
@@ -255,6 +255,7 @@ public class AbstractDriverTestNG {
 		if (!url.isEmpty()) {
 			TestLog.logPass("I am the site '" + url + "'");
 			getWebDriver().get(url);
+			Helper.waitForPageToLoad();
 		}
 	}
 

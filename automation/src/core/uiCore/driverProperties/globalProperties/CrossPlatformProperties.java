@@ -8,15 +8,17 @@ import core.support.configReader.Config;
  */
 public class CrossPlatformProperties {
 
-	public static String PARALLEL_TEST_COUNT = "global.parallelTestCount";
-	public static String RETRY_COUNT = "global.retryCount";
-	public static String GLOBAL_TIMEOUT_SECONDS = "global.timeoutSeconds";
-	public static String AUDIO_COMMENTARY = "report.audioCommentary";
-	public static String IS_SINGLE_SIGNIN = "global.isSingleSignIn";
-	public static String LANGUAGE = "language";
-	public static String AUDIO_COMMENTARY_TYPE = "report.audioCommentaryType";
-	public static String PATH = "appium.path";
-	public static String ENABLE_BATCH_LOGGING = "report.enableBatchLogging";
+	private static String PARALLEL_TEST_COUNT = "global.parallelTestCount";
+	private static String PARALLEL_TEST_TYPE = "global.parallelTestType";
+
+	private static String RETRY_COUNT = "global.retryCount";
+	private static String GLOBAL_TIMEOUT_SECONDS = "global.timeoutSeconds";
+	private static String AUDIO_COMMENTARY = "report.audioCommentary";
+	private static String IS_SINGLE_SIGNIN = "global.isSingleSignIn";
+	private static String LANGUAGE = "language";
+	private static String AUDIO_COMMENTARY_TYPE = "report.audioCommentaryType";
+	private static String PATH = "appium.path";
+	private static String ENABLE_BATCH_LOGGING = "report.enableBatchLogging";
 	public static String LOCALIZATION_FILE = "localize.file";
 
 	public static int getRetryCount() {
@@ -25,6 +27,10 @@ public class CrossPlatformProperties {
 
 	public static int getParallelTests() {
 		return Config.getIntValue(PARALLEL_TEST_COUNT);
+	}
+	
+	public static String getParallelTestType() {
+		return Config.getValue(PARALLEL_TEST_TYPE);
 	}
 
 	public static int getGlobalTimeout() {

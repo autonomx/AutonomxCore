@@ -3,7 +3,6 @@ package core.support.listeners;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.log4j.xml.DOMConfigurator;
 import org.testng.IClassListener;
 import org.testng.IConfigurationListener;
 import org.testng.ISuite;
@@ -32,18 +31,13 @@ import core.uiCore.drivers.AbstractDriverTestNG;
 public class TestListener implements ITestListener, IClassListener, ISuiteListener, IConfigurationListener {
 
 	public static boolean isTestNG = false;
+	public static final String PARALLEL_TEST_TYPE = "global.parallel.type";
 
 	// Before starting all tests, below method runs.
 	@Override
 	public void onStart(ITestContext iTestContext) {
 		isTestNG = true;
 		iTestContext.setAttribute("WebDriver", AbstractDriverTestNG.getWebDriver());
-		TestLog.setupLog4j();
-
-		// initialize logging
-		TestObject.setLogging();
-
-		DOMConfigurator.configure(TestLog.LOG4JPATH);
 
 		// shuts down webdriver processes
 		cleanupProcessess();
@@ -76,20 +70,33 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		if (!suite.getName().contains("Default")) {
 			driver.app = suite.getName();
 		}
-		TestObject.initializeTest(driver, TestObject.DEFAULT_TEST);
-		// update default test app name. only time it will be updated
-		TestObject.getTestInfo().withApp(driver.app);
+		
+		// setup default driver
+		new AbstractDriverTestNG().setupWebDriver(TestObject.DEFAULT_TEST, driver);
 	}
 
 	/**
 	 * sets parallel run count
+	 * sets parallel count for Tests and Data Provider tests
 	 * 
 	 * @param iTestContext
 	 */
 	private void setParallelRun(ITestContext iTestContext) {
-		iTestContext.getCurrentXmlTest().setParallel(ParallelMode.METHODS);
+		
+		// set parallel test type
+		String parallelType =  CrossPlatformProperties.getParallelTestType();
+		if(parallelType.equals("CLASSES"))
+			iTestContext.getCurrentXmlTest().setParallel(ParallelMode.CLASSES);
+		else 
+			iTestContext.getCurrentXmlTest().setParallel(ParallelMode.METHODS);
+
+		// set parallel thread count for tests
 		int threadCount = CrossPlatformProperties.getParallelTests();
 		iTestContext.getCurrentXmlTest().setThreadCount(threadCount);
+		
+		// set parallel thread count for data provider tests, not including service tests
+		iTestContext.getCurrentXmlTest().getSuite().setDataProviderThreadCount(threadCount);
+		iTestContext.getCurrentXmlTest().getSuite().setPreserveOrder(true);
 	}
 
 	/**
@@ -231,11 +238,16 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 	 * kills all process for clean start
 	 */
 	public void cleanupProcessess() {
-		if (Helper.mobile.isMobile())
-			Helper.killWindowsProcess("node.exe");
-		Helper.killWindowsProcess("IEDriverServer.exe");
-		Helper.killWindowsProcess("chromedriver.exe");
-		Helper.killWindowsProcess("MicrosoftWebDriver.exe");
+		if(Helper.isWindows()) {
+			if (Helper.mobile.isMobile())
+				Helper.killWindowsProcess("node.exe");
+			Helper.killWindowsProcess("IEDriverServer.exe");
+			Helper.killWindowsProcess("chromedriver.exe");
+			Helper.killWindowsProcess("MicrosoftWebDriver.exe");
+		}else if (Helper.isMac()) {
+			Helper.killMacProcess("chromedriver");
+		}
+		
 	}
 
 	public String generateTestMessage(ITestContext iTestContext) {
@@ -302,10 +314,16 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		TestObject.getTestInfo().testFileClassName = classname;
 	}
 
+	/**
+	 * onStart (suite) runs before onStart(ItestContext)
+	 */
 	@Override
 	public void onStart(ISuite suite) {
 
-		// initialize default driver with suit testname
+		TestLog.setupLog4j();
+		
+		
+		// initialize default driver with suit test name
 		initializeDefaultTest(suite);
 
 		String suitename = suite.getName();
@@ -346,7 +364,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		String suitename = suite.getName();
 		suitename = suitename.replaceAll("\\s", "");
 
-		// setup before suite driver
+		// setup after suite driver
 		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
 		new AbstractDriverTestNG().setupWebDriver(suitename + TestObject.AFTER_SUITE_PREFIX, driver);
 	}

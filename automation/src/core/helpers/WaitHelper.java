@@ -28,9 +28,9 @@ public class WaitHelper {
 	 * 
 	 * @param target
 	 */
-	public void waitForElementToLoad(final EnhancedBy target) {
+	public boolean waitForElementToLoad(final EnhancedBy target) {
 
-		waitForElementToLoad(target, AbstractDriver.TIMEOUT_SECONDS);
+		return waitForElementToLoad(target, AbstractDriver.TIMEOUT_SECONDS);
 	}
 
 	/**
@@ -280,9 +280,12 @@ public class WaitHelper {
 	}
 
 	/**
-	 * waits for webpage to load
+	 * waits for web page to load
 	 */
 	public void waitForPageToLoad() {
+		
+		// only applies to web pages
+		if(!Helper.isWebDriver()) return;
 
 		FluentWait<WebDriver> wait = new FluentWait<>(AbstractDriver.getWebDriver()).withTimeout(Duration.ofSeconds(AbstractDriver.TIMEOUT_SECONDS))
 				.pollingEvery(Duration.ofMillis(5)).ignoring(NoSuchElementException.class);

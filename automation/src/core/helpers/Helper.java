@@ -36,6 +36,7 @@ public class Helper {
 	public static ImageProcessingHelper image = new ImageProcessingHelper();
 	public static DateHelper date = new DateHelper();
 	public static CsvHelper csv = new CsvHelper();
+	public static Loginbuilder loginbuilder = new Loginbuilder();
 
 
 	// ExcelHelper
@@ -520,6 +521,22 @@ public class Helper {
 	 */
 	public static void setField(EnhancedBy field, CharSequence... value) {
 		form.setField(field, value);
+	}
+	
+	public static void setFieldByAction(EnhancedBy field, int index, CharSequence... value) {
+		form.setFieldByAction(field, index, value);
+	}
+	
+	public static void setFieldByAction(EnhancedBy field, CharSequence... value) {
+		form.setFieldByAction(field, 0, value);
+	}
+	
+	public static void setFieldByJs(EnhancedBy field, int index, CharSequence... value) {
+		form.setFieldByJs(field, index, value);
+	}
+	
+	public static void setFieldByJs(EnhancedBy field, CharSequence... value) {
+		form.setFieldByJs(field, 0, value);
 	}
 
 	/**
@@ -1949,6 +1966,17 @@ public class Helper {
 	}
 	
 	/**
+	 * returns kills the process if running
+	 * 
+	 * @param serviceName
+	 * @return
+	 * @throws Exception
+	 */
+	public static void killMacProcess(String serviceName) {
+		UtilityHelper.killMacProcess(serviceName);
+	}
+	
+	/**
 	 * create directories and files based on absolute path
 	 * @param path
 	 */
@@ -2136,8 +2164,8 @@ public class Helper {
 	 * @param newUserName
 	 * @throws Exception
 	 */
-	public static void handleDifferentUser(String newUserName, String password) {
-		LoginHelper.handleDifferentUser(newUserName, password);
+	public static void handleDifferentUser() {
+		LoginHelper.handleDifferentUser();
 	}
 
 	// Localization handler

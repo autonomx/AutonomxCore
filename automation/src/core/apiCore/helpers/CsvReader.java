@@ -115,7 +115,7 @@ public class CsvReader {
 	}
 	
 	public static boolean isRunningServiceTest() {
-		return TestObject.getTestInfo().testCsvFileName != null;
+		return !TestObject.getTestInfo().testCsvFileName.isEmpty();
 	}
 
 	/**

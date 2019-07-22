@@ -1,12 +1,14 @@
 package core.support.objects;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * @author CAEHMAT
  *
  * 
  */
 public class DeviceObject {
-	public String deviceName;
+	public String deviceName = StringUtils.EMPTY;
 	public Boolean isAvailable;
 	public DeviceType deviceType;
 	public int devicePort = -1;

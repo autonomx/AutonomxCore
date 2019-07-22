@@ -113,7 +113,7 @@ public class Config {
 		if (value == null) {
 			// TODO: can cause stack over flow on startup
 			System.out.println("value not found, default empty: " + key);
-			// TestLog.ConsoleLogWarn("value not found, default empty: " + key);
+			 TestLog.ConsoleLogWarn("value not found, default empty: " + key);
 			value = "";
 		}
 		List<String> items = Arrays.asList(value.split("\\s*,\\s*"));
@@ -130,7 +130,7 @@ public class Config {
 		String value = getValue(key);
 		if (value.isEmpty()) {
 			// TODO: can cause null point exception on start. need investigation
-			// TestLog.ConsoleLogWarn("value not found, default false: " + key);
+			 TestLog.ConsoleLogWarn("value not found, default false: " + key);
 			return false;
 		}
 		return Boolean.parseBoolean(value);
@@ -156,7 +156,7 @@ public class Config {
 		String value = getValue(key);
 		if (value.isEmpty()) {
 			// TODO: can cause null point exception on start. need investigation
-			// TestLog.ConsoleLogWarn("value not found, default -1: " + key);
+			 TestLog.ConsoleLogWarn("value not found, default -1: " + key);
 			return -1;
 		}
 		return Integer.valueOf(value);
@@ -172,7 +172,7 @@ public class Config {
 		String value = getValue(key);
 		if (value.isEmpty()) {
 			// TODO: can cause null point exception on start. need investigation
-			// TestLog.ConsoleLogWarn("value not found, default -1: " + key);
+			 TestLog.ConsoleLogWarn("value not found, default -1: " + key);
 			return -1;
 		}
 		return Double.valueOf(value);

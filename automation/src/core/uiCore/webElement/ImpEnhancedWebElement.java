@@ -197,8 +197,8 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 			}
 		} while (!success && retry > 0);
 		
-//		if(!success)
-//			TestLog.ConsoleLog("click was not successful. cause: " + StringUtils.join(exception), success);
+		// wait for page to load
+		Helper.waitForPageToLoad();
 	}
 
 	@Override
@@ -400,6 +400,15 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 
         Helper.assertTrue("send key was not successful", success);
     }
+    
+    @Override
+	public void sendKeyByJs(int index, CharSequence[] keysToSend) {
+
+		WebElement element = getElement(index);
+
+		JavascriptExecutor js = (JavascriptExecutor) webDriver;
+		js.executeScript("arguments[0].setAttribute('value', '"+ String.valueOf(keysToSend[0]) +"')", element);
+	}
 
 	/*
 	 * Enter text to an element by action
@@ -471,9 +480,11 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				if(value.isEmpty()) value = getAttribute("textContent", index);
 				if(value.isEmpty()) value = getAttribute("value", index);
 				if(value.isEmpty()) value = getAttribute("innerText", index);
-
-				isSuccess = true;
+				
+				if(!value.isEmpty())
+					isSuccess = true;
 			} catch (Exception e) {
+				Helper.waitForSeconds(1);
 				e.getMessage();
 			}
 		} while (!isSuccess && retry > 0);
