@@ -100,7 +100,7 @@ public class Config {
 			}
 		}
 	}
-
+	
 	/**
 	 * returns config value
 	 * 
@@ -108,16 +108,36 @@ public class Config {
 	 * @return string value of key
 	 */
 	public static String getValue(String key) {
+		return getValue(key, false);
+	}
+
+	/**
+	 * returns config value
+	 * 
+	 * @param key get string value of key from properties
+	 * @return string value of key
+	 */
+	public static String getValue(String key, boolean isFailable) {
 
 		String value = (String) TestObject.getTestInfo().config.get(key);
 		if (value == null) {
-			// TODO: can cause stack over flow on startup
-			System.out.println("value not found, default empty: " + key);
+			 if(isFailable) Helper.assertFalse("value not found, default empty: " + key);
+		   	System.out.println("value not found, default empty: " + key);
 			 TestLog.ConsoleLogWarn("value not found, default empty: " + key);
 			value = "";
 		}
 		List<String> items = Arrays.asList(value.split("\\s*,\\s*"));
 		return items.get(0);
+	}
+	
+	/**
+	 * gets boolean value from properties key
+	 * 
+	 * @param key target key from properties file
+	 * @return the boolean value of key from properties
+	 */
+	public static Boolean getBooleanValue(String key) {
+		return getBooleanValue(key, false);
 	}
 
 	/**
@@ -126,10 +146,10 @@ public class Config {
 	 * @param key target key from properties file
 	 * @return the boolean value of key from properties
 	 */
-	public static Boolean getBooleanValue(String key) {
-		String value = getValue(key);
+	public static Boolean getBooleanValue(String key, boolean isFailable) {
+		String value = getValue(key,isFailable);
 		if (value.isEmpty()) {
-			// TODO: can cause null point exception on start. need investigation
+			 if(isFailable) Helper.assertFalse("value not found: " + key);
 			 TestLog.ConsoleLogWarn("value not found, default false: " + key);
 			return false;
 		}
@@ -145,7 +165,7 @@ public class Config {
 		Object value = TestObject.getTestInfo().config.get(key);
 		return value;
 	}
-
+	
 	/**
 	 * gets int value from properties key
 	 * 
@@ -153,9 +173,19 @@ public class Config {
 	 * @return returns the integer value of key from properties
 	 */
 	public static int getIntValue(String key) {
-		String value = getValue(key);
+		return getIntValue(key, false);
+	}
+
+	/**
+	 * gets int value from properties key
+	 * 
+	 * @param key key in properties file
+	 * @return returns the integer value of key from properties
+	 */
+	public static int getIntValue(String key, boolean isFailable) {
+		String value = getValue(key, isFailable);
 		if (value.isEmpty()) {
-			// TODO: can cause null point exception on start. need investigation
+			 if(isFailable) Helper.assertFalse("value not found: " + key);
 			 TestLog.ConsoleLogWarn("value not found, default -1: " + key);
 			return -1;
 		}
@@ -169,13 +199,33 @@ public class Config {
 	 * @return the double value of key from properties
 	 */
 	public static double getDoubleValue(String key) {
-		String value = getValue(key);
+		return getDoubleValue(key, false);
+	}
+	
+	/**
+	 * gets double value from properties key
+	 * 
+	 * @param key key in properties file
+	 * @return the double value of key from properties
+	 */
+	public static double getDoubleValue(String key, boolean isFailable) {
+		String value = getValue(key, isFailable);
 		if (value.isEmpty()) {
-			// TODO: can cause null point exception on start. need investigation
+			if(isFailable) Helper.assertFalse("value not found: " + key);
 			 TestLog.ConsoleLogWarn("value not found, default -1: " + key);
 			return -1;
 		}
 		return Double.valueOf(value);
+	}
+	
+	/**
+	 * returns a list from config value values separated by ","
+	 * 
+	 * @param key key in properties file
+	 * @return the list of values from key separated by ","
+	 */
+	public static List<String> getValueList(String key) {
+		return getValueList(key, true);
 	}
 
 	/**
@@ -184,11 +234,12 @@ public class Config {
 	 * @param key key in properties file
 	 * @return the list of values from key separated by ","
 	 */
-	public static List<String> getValueList(String key) {
+	public static List<String> getValueList(String key, boolean isFailable) {
 		String value = (String) TestObject.getTestInfo().config.get(key);
 		List<String> items = new ArrayList<String>();
 		if (value == null)
-			Helper.assertTrue("value not found in config files: " + key, false);
+			if(isFailable) Helper.assertFalse("value not found in config files: " + key);
+			TestLog.ConsoleLogWarn("value not found in config files: " + key, false);
 		if(!value.isEmpty()) 
 			items = Arrays.asList(value.split("\\s*,\\s*"));
 		return items;

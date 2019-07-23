@@ -15,6 +15,7 @@ import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -360,26 +361,39 @@ public class UtilityHelper {
 	 * 
 	 * @return
 	 */
-	protected static ArrayList<File> getFileList(String directoryPath, String type) {
+	protected static ArrayList<File> getFileListByType(String directoryPath, String type) {
+		ArrayList<File> testFiles = getFileList(directoryPath);
+		ArrayList<File> filteredFiles = new ArrayList<File>();
+		
+		// filter files by suffix And add to testFiles list
+		for (int i = 0; i < testFiles.size(); i++) {
+			if (testFiles.get(i).isFile() && testFiles.get(i).getName().endsWith(type)) {
+				filteredFiles.add(testFiles.get(i));
+				// System.out.println("File " + listOfFiles[i].getName());
+			}
+		}
+		return filteredFiles;
+	}
+	
+	/**
+	 * returns the list of files in directory
+	 * @param directoryPath
+	 * @return
+	 */
+	protected static ArrayList<File> getFileList(String directoryPath) {
 		File folder = new File(directoryPath);
 		File[] listOfFiles = folder.listFiles();
 		ArrayList<File> testFiles = new ArrayList<File>();
 
 		// fail test if no csv files found
 		if (listOfFiles == null) {
-			TestLog.logDirectConsoleMessage(Priority.WARN, "test files not found at: " + directoryPath + " type: " + type);
+			TestLog.logDirectConsoleMessage(Priority.WARN, "test files not found at: " + directoryPath );
 			return testFiles;
 		}
-
-		// filter files by suffix And add to testFiles list
-		for (int i = 0; i < listOfFiles.length; i++) {
-			if (listOfFiles[i].isFile() && listOfFiles[i].getName().endsWith(type)) {
-				testFiles.add(listOfFiles[i]);
-				// System.out.println("File " + listOfFiles[i].getName());
-			}
-		}
+		testFiles = new ArrayList<>(Arrays.asList(listOfFiles));
 		return testFiles;
 	}
+	
 	
 	/**
 	 * gets list of files including from sub folder based on type. eg. ".csv"

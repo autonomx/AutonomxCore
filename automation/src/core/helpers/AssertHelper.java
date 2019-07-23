@@ -20,6 +20,10 @@ public class AssertHelper {
 	protected static void assertFalse(String message) {
 		Assert.assertTrue(message, false);
 	}
+	
+	protected static void assertFalse(String message, boolean value) {
+		Assert.assertTrue(message, !value);
+	}
 
 	protected static void assertEquals(String expected, String actual) {
 		TestLog.logPass("validating if expected: " + expected + " equals to actual: " + actual);

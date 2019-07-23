@@ -81,7 +81,7 @@ public class CsvReader {
 	 * gets all test cases from testcase path based on prefix
 	 */
 	public static void getAllTestCases(String testPath, String prefix) {
-		ArrayList<File> csvFiles = Helper.getFileList(testPath, prefix);
+		ArrayList<File> csvFiles = Helper.getFileListByType(testPath, prefix);
 		for (int i = 0; i < csvFiles.size(); i++) {
 			List<String[]> testCases = getCsvTestList(csvFiles.get(i));
 			Map<String, ServiceObject> apiMap = mapToApiObject(testCases);
@@ -125,6 +125,7 @@ public class CsvReader {
 	 */
 	public static String getCsvFileFromIndex(int index) {
 		ArrayList<File> testCsvList = getCsvFileList();
+		Helper.assertTrue("test not found at index: " + index, testCsvList.size() > index);
 		return testCsvList.get(index).getName();
 	}
 
@@ -139,7 +140,7 @@ public class CsvReader {
 	 */
 	public static ArrayList<File> getCsvFileList() {
 		String csvTestPath = PropertiesReader.getLocalRootPath() + Config.getValue(TestDataProvider.TEST_DATA_PARALLEL_PATH);
-		ArrayList<File> csvFiles = Helper.getFileList(csvTestPath, ".csv");
+		ArrayList<File> csvFiles = Helper.getFileListByType(csvTestPath, ".csv");
 		return csvFiles;
 	}
 

@@ -2090,8 +2090,17 @@ public class Helper {
 	 * 
 	 * @return
 	 */
-	public static ArrayList<File> getFileList(String directoryPath, String type) {
-		return UtilityHelper.getFileList(directoryPath, type);
+	public static ArrayList<File> getFileListByType(String directoryPath, String type) {
+		return UtilityHelper.getFileListByType(directoryPath, type);
+	}
+	
+	/**
+	 * returns the list of files in directory
+	 * @param directoryPath
+	 * @return
+	 */
+	public static ArrayList<File> getFileList(String directoryPath) {
+		return UtilityHelper.getFileList(directoryPath);
 	}
 	
 	/**

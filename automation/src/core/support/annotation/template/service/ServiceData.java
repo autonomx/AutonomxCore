@@ -43,7 +43,7 @@ public class ServiceData {
 		  
 			String testFolderPath = Config.getValue(TestDataProvider.API_KEYWORD_PATH);
 			String csvTestPath = PropertiesReader.getLocalRootPath() + testFolderPath;
-			ArrayList<File> csvFiles = Helper.getFileList(csvTestPath, ".csv");
+			ArrayList<File> csvFiles = Helper.getFileListByType(csvTestPath, ".csv");
 			
 			Map<String, ServiceObject> completeServices = new HashMap<String, ServiceObject>();
 

@@ -28,6 +28,9 @@ public class PropertiesReader {
 		properties.addAll(getPropertiesByFileType(path, PROPERTIES_TYPE_PROPERTIES));
 		properties.addAll(getPropertiesByFileType(path, PROPERTIES_TYPE_CONF));
 
+		if(Helper.getFileList(path).isEmpty())
+			Helper.assertFalse("path: '" + path + "' does not have any property files, please verify resources/properties.property for correct path");
+		
 		return properties;
 	}
 
@@ -44,7 +47,7 @@ public class PropertiesReader {
 	public static List<Properties> getPropertiesByFileType(String path, String fileType) throws Exception {
 		List<Properties> properties = new ArrayList<Properties>();
 
-		List<File> files = Helper.getFileList(path, fileType);
+		List<File> files = Helper.getFileListByType(path, fileType);
 
 		for (File file : files) {
 			// get property files
