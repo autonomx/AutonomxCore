@@ -147,7 +147,7 @@ public class RestApiInterface {
 				// replace authorization token with invalid if token already exists
 				if (!authValue.isEmpty() && authValue.length() > 4) {
 					authValue = authValue.substring(0, authValue.length() - 4) + "invalid";
-					request = given().header(AUTHORIZATION_HEADER, "invalid");
+					request = given().header(AUTHORIZATION_HEADER, authValue);
 				} else
 					request = given().header(AUTHORIZATION_HEADER, "invalid");
 				break;

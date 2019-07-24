@@ -92,6 +92,11 @@ public class MainGenerator extends AbstractProcessor {
 		return true;
 	}
 	
+	/**
+	 * a marker class is to indicate when the generated files have been created
+	 * used for comparison with the class files.
+	 * if class files are newer, than the marker class, then regenerate the code
+	 */
 	public static void crateMarkerClass() {
 		try {
 				JavaFileObject fileObject = FileCreatorHelper.createMarkerFile();

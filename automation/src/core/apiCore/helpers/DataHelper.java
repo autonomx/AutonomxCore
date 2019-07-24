@@ -80,8 +80,10 @@ public class DataHelper {
 	public static List<KeyValue> getValidationMap(String expected) {
 		// get hashmap of json path And verification
 		List<KeyValue> keywords = new ArrayList<KeyValue>();
-		expected = expected.replaceFirst("_[^_]*_", "");
-		//expected = expected.replace("_VERIFY_JSON_PART_", "");
+		
+		// remove json indicator _VERIFY.JSON.PART_
+		expected = JsonHelper.removeResponseIndicator(expected);
+		
 		String[] keyVals = expected.split(";");
 		String key = "";
 		String position = "";

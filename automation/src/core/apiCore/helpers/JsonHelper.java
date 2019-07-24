@@ -241,12 +241,18 @@ public class JsonHelper {
 		}
 	}
 	
+	/**
+	 * validates response body
+	 * this is validating the response body as text
+	 * @param expected
+	 * @param response
+	 */
 	public static void validateResponseBody(String expected, Response response) {
 		if (!expected.startsWith(DataHelper.VERIFY_RESPONSE_BODY_INDICATOR)) {
 			return;
 		}
-		// remove the indicator
-		expected = expected.replaceFirst("_[^_]*_", "");
+		// remove the indicator _VERIFY.RESPONSE.BODY_
+		expected = removeResponseIndicator(expected);
 		
 		String actual = JsonHelper.getResponseValue(response);
 		String[] expectedArr = expected.split("[\\(\\)]");
@@ -256,5 +262,22 @@ public class JsonHelper {
 			
 		DataHelper.validateCommand(command, actual, expectedValue, "1");
 		
+	}
+	
+	/**
+	 * remove response indicators
+	 * @param expected
+	 * @return
+	 */
+	public static String removeResponseIndicator(String expected) {
+		List<String> indicator = new ArrayList<String>();
+		indicator.add(DataHelper.VERIFY_RESPONSE_BODY_INDICATOR);
+		indicator.add(DataHelper.VERIFY_JSON_PART_INDICATOR);
+		
+		for(String value : indicator) {
+			expected = expected.replace(value, "");
+		}
+
+		return expected;
 	}
 }
