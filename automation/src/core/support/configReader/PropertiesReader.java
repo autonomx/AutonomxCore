@@ -75,6 +75,7 @@ public class PropertiesReader {
 		if (isUsingCloud()) {
 			return LOCAL_RESOURCE_CLOUD_PATH;
 		} else {
+			System.out.println("root directory with pom.xlm: " + Helper.getCurrentDir());
 			return LOCAL_RESOURCE_PATH;
 		}
 	}

@@ -28,7 +28,6 @@ import java.util.zip.ZipOutputStream;
 import javax.imageio.ImageIO;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Priority;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.OutputType;
@@ -48,7 +47,6 @@ import core.uiCore.webElement.EnhancedBy;
 import core.uiCore.webElement.EnhancedWebElement;
 import java8.util.concurrent.ThreadLocalRandom;
 
-@SuppressWarnings("deprecation")
 public class UtilityHelper {
 
 	/**
@@ -387,8 +385,14 @@ public class UtilityHelper {
 
 		// fail test if no csv files found
 		if (listOfFiles == null) {
-			TestLog.logDirectConsoleMessage(Priority.WARN, "test files not found at: " + directoryPath );
-			return testFiles;
+			 try {
+				throw new Exception("test files not found at path: " + directoryPath);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		//	TestLog.logDirectConsoleMessage(Priority.WARN, "test files not found at path: " + directoryPath );
+		//	return testFiles;
 		}
 		testFiles = new ArrayList<>(Arrays.asList(listOfFiles));
 		return testFiles;
