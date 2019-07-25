@@ -59,10 +59,10 @@ public class DataHelper {
 			if (StringUtil.isNullOrEmpty(valueStr))
 				Helper.assertTrue("parameter value not found: " + parameter, false);
 
-			// disabled due to this running before anything and causing null point exception
-			//TestLog.logPass("replacing value '" + parameter + "' with: " + value + "");
-			if(valueStr instanceof String)
-				source = source.replaceAll("<" + parameter + ">", Matcher.quoteReplacement(valueStr));
+			if(valueStr instanceof String) {
+				source = source.replace("<" + parameter + ">", Matcher.quoteReplacement(valueStr));
+				TestLog.logPass("replacing value '" + parameter + "' with: " + valueStr + "");
+			}
 		}
 		return source;
 	}

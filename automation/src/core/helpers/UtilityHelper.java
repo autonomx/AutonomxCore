@@ -309,11 +309,11 @@ public class UtilityHelper {
 	}
 
 	/**
-	 * get current directory
+	 * get current project root directory, where pom.xml is
 	 * 
 	 * @return
 	 */
-	protected static String getCurrentDir() {
+	protected static String getCurrentDir() {	
 		Path currentWorkingDir = Paths.get("").toAbsolutePath();
 		return currentWorkingDir.normalize().toString() + File.separator;
 	}
