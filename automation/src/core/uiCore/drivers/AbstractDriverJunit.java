@@ -133,7 +133,7 @@ public class AbstractDriverJunit {
 	 * 
 	 * @param driverObject
 	 */
-	public synchronized void initTest(DriverObject driverObject) {
+	public void initTest(DriverObject driverObject) {
 		//setTestId();
 
 		String testId = TestObject.getTestId();

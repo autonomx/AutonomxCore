@@ -260,7 +260,7 @@ public class IosCapability {
 	 * else generate new port number
 	 * @param deviceName
 	 */
-	public void setPort(String deviceName) {
+	public synchronized void setPort(String deviceName) {
 		
 		// if device port is already set
 		if(DeviceManager.devices.get(deviceName) != null && (DeviceManager.devices.get(deviceName).devicePort != -1))

@@ -43,6 +43,11 @@ public class DriverObject {
 
 	public static Map<WebDriver, DriverObject> driverList = new ConcurrentHashMap<WebDriver, DriverObject>();
 
+	/**
+	 * keeps track of all the drivers and selects the first available driver
+	 * used when single sign in is used
+	 * @return
+	 */
 	public synchronized static WebDriver getFirstAvailableDriver() {
 		for (Entry<WebDriver, DriverObject> entry : driverList.entrySet()) {
 			if (entry.getValue().isAvailable.equals(true)) {

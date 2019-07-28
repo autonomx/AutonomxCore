@@ -45,7 +45,7 @@ public class AbstractDriverTestNG {
 
 	}
 
-	public synchronized void setupApiDriver(ServiceObject apiObject) throws Exception {
+	public void setupApiDriver(ServiceObject apiObject) throws Exception {
 		new ApiTestDriver().initTest(apiObject);
 
 		// initiallize logging
@@ -55,7 +55,14 @@ public class AbstractDriverTestNG {
 		ExtentManager.reportSetup();
 	}
 
-	public synchronized static WebDriver setupWebDriver(DriverObject driverObject) throws Exception {
+	/**
+	 * setup driver for web and mobile testing
+	 * if single sign in is enabled, we try to reuse the existing drivers if available
+	 * @param driverObject
+	 * @return
+	 * @throws Exception
+	 */
+	public static WebDriver setupWebDriver(DriverObject driverObject) throws Exception {
 		initTest(driverObject);
 		ExtentManager.reportSetup();
 

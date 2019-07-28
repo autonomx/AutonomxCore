@@ -18,8 +18,8 @@ public class DeviceManager {
 	public static Map<String, DeviceObject> devices = new ConcurrentHashMap<String, DeviceObject>();
 
 	/**
-	 * get first avaialble device for test ios or android simulator or real device
-	 * sets device availablilty to false
+	 * get first available device for test ios or android simulator or real device
+	 * sets device availability to false
 	 * 
 	 * @return
 	 */
