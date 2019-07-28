@@ -134,7 +134,7 @@ public class PackageHelper {
 	
 	/**
 	 * gets class name from path
-	 * eg. module.common.data.user returns login
+	 * eg. module.common.data.user returns user
 	 * @param classPath
 	 * @return
 	 */

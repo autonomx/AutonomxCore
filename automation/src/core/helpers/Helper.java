@@ -2167,7 +2167,7 @@ public class Helper {
 
 	// login helper
 	/**
-	 * if single signin enabled, And new test login is different form previous,
+	 * if single signin enabled, And new test user is different form previous,
 	 * shutdown webdriver And restart
 	 * 
 	 * @param newUserName

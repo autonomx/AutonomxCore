@@ -274,7 +274,7 @@ public class User {
 	/**
 	 * replaces duplicate ids with id + index
 	 * allows for data with duplicate ids to compile
-	 * login should replace duplicates with unique values
+	 * user should replace duplicates with unique values
 	 * @param csvDataWithHeader
 	 * @return
 	 */
