@@ -47,7 +47,11 @@ public class PageHelper {
 	 * reload page
 	 */
 	public void refreshPage() {
-		AbstractDriver.getWebDriver().navigate().refresh();
+		if(Helper.isWebDriver())
+			AbstractDriver.getWebDriver().navigate().refresh();
+		if(Helper.mobile_isMobile())
+			Helper.refreshMobileApp();
+		
 		Helper.wait.waitForSeconds(1);
 	}
 

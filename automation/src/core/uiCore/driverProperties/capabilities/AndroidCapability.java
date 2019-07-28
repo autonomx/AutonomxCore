@@ -39,6 +39,7 @@ public class AndroidCapability {
 	public static String UIAUTOMATOR2 = "UiAutomator2";
 	public static boolean ANDROID_INIT = false; // first time android is setup
 	public static String ANDROID_HOME = "android.home";
+	public static String ANDROID_UDID = "android.UDID";
 
 	private static final String CAPABILITIES_PREFIX = "android.capabilties.";
 
@@ -241,26 +242,26 @@ public class AndroidCapability {
 			cmd = "adb devices";
 
 		// get list of device udid
-		List<String> results = new ArrayList<String>();
-		results = Config.getValueList("android.UDID");
+		List<String> deviceList = new ArrayList<String>();
+		deviceList = Config.getValueList(ANDROID_UDID);
 
 		// if no device is set in properties, attempt to auto detect
-		if (results.size() == 0) {
+		if (deviceList.size() == 0) {
 
-			results = Helper.runShellCommand(cmd);
-			if (!results.isEmpty())
-				results.remove(0);
+			deviceList = Helper.runShellCommand(cmd);
+			if (!deviceList.isEmpty())
+				deviceList.remove(0);
 		}
 		List<String> devices = new ArrayList<String>();
-		for (String list : results) {
+		for (String list : deviceList) {
 			String arr[] = list.split("\t", 2);
 			String device = arr[0];
 			if (!device.isEmpty())
 				devices.add(device);
 		}
 		
-		if(results.size() > 0)
-			TestLog.ConsoleLogDebug("Android device list: " + Arrays.toString(results.toArray()));
+		if(deviceList.size() > 0)
+			TestLog.ConsoleLogDebug("Android device list: " + Arrays.toString(deviceList.toArray()));
 
 		return devices;
 	}
@@ -371,29 +372,29 @@ public class AndroidCapability {
 		String androidError = "It is impossible to create a new session";
 		String androidSolution = "*******************************************************************\r\n" + "\r\n"
 				+ "\r\n" + "\r\n" + "*******************************************************************\r\n" + "\r\n"
-				+ "1. this could be an environment issue. Try the following solutions:\r\n"
-				+ "    1. Turn on debugging in properties at resource folder for more info:\r\n"
-				+ "        1. appiumLogging = true\r\n" + "    2. set android home environment in properties\r\n"
-				+ "        1. androidHome = \"/Users/username/Library/Android/sdk\"\r\n"
-				+ "    3. please download appium doctor https://github.com/appium/appium-doctor\r\n"
-				+ "        1. download with command: npm install appium-doctor -g\r\n"
-				+ "        2. Run: appium-doctor -android\r\n"
-				+ "        3. Ensure the environment is setup properly\r\n" + "        4. Restart eclipse\r\n"
-				+ "    4. is appium terminal installation correct?\r\n" + "        1. command line: appium\r\n"
-				+ "            1. Does it start. If not install: “npm install -g appium”  or “sudo npm install -g appium --unsafe-perm=true --allow-root”\r\n"
-				+ "            2. Run against appium terminal\r\n" + "                1. In properties set:\r\n"
+				+ " This could be an environment issue. Try the following solutions:\r\n"
+				+ "    1. Try running against appium desktop server\r\n"
+				+ "        1. Download And run appium desktop\r\n" + " "
+			    + "        2. Start the server\r\n"
+				+ "        3. In resources/properties/appium.property, set values\r\n"
+				+ "            1. appium.useExternalAppiumServer = true\r\n" 
+				+ "            2. appium.externalPort  = 4723\r\n"
+				+ "            3. run test\r\n"
+				+ "    2. Is appium terminal installation correct?\r\n" + " "
+			    + "            1. command line: appium\r\n"
+				+ "            2. Does it start. If not install: “npm install -g appium”  or “sudo npm install -g appium --unsafe-perm=true --allow-root”\r\n"
+				+ "            3. Run against appium terminal\r\n" + "                1. In properties set:\r\n"
 				+ "                    1. useExternalAppiumServer = true\r\n"
 				+ "                    2. appiumExternalPort = 4723\r\n"
 				+ "                2. run test And see if it passes\r\n"
-				+ "    5. is simulator working correctly: Run\r\n"
-				+ "        1. adb uninstall io.appium.uiautomator2.server\r\n"
-				+ "        2. adb uninstall io.appium.uiautomator2.server.test \r\n"
-				+ "    6. Try running against appium desktop server\r\n"
-				+ "        1. Download And run appium desktop\r\n" + "        2. Start the server\r\n"
-				+ "        3. In properties at resource folder, set values\r\n"
-				+ "            1. useExternalAppiumServer = true\r\n" 
-				+ "            2. appiumExternalPort = 4723\r\n"
-				+ "            3. run test\r\n" + "*******************************************************************\r\n"
+				+ "    3. Turn on debugging in properties at resource folder for more info:\r\n"
+				+ "        1. appiumLogging = true\r\n" + "    2. set android home environment in properties\r\n"
+				+ "        1. androidHome = \"/Users/username/Library/Android/sdk\"\r\n"
+				+ "    4. please download appium doctor https://github.com/appium/appium-doctor\r\n"
+				+ "        1. download with command: npm install appium-doctor -g\r\n"
+				+ "        2. Run: appium-doctor -android\r\n"
+				+ "        3. Ensure the environment is setup properly\r\n" + "        4. Restart eclipse\r\n"
+				+ "        *******************************************************************\r\n"
 				+ "\r\n" + "\r\n" + "\r\n" + "*******************************************************************";
 		if (e.getMessage().contains(androidError)) {
 			System.out.println(androidSolution);

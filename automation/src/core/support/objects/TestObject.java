@@ -68,7 +68,7 @@ public class TestObject{
 	public Boolean isFirstRun = false; // is the test running from beginning
 	public Boolean isForcedRestart = false; // incase of test failed or other situations
 
-	public UserObject user = new UserObject();
+	public LoginObject login = new LoginObject();
 	public int runCount = 0;
 	public Boolean isTestPass = false;
 	public Boolean isTestComplete = false;

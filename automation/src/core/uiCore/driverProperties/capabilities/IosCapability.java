@@ -87,7 +87,7 @@ public class IosCapability {
 	public IosCapability withIosCapability() {
 
 		// https://github.com/appium/appium
-		// user appium desktop app for locator
+		// use appium desktop app for locator
 		
 		// sets capabilties from properties files
 		capabilities = setiOSCapabilties();

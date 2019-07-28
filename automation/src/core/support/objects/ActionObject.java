@@ -7,7 +7,7 @@ import core.uiCore.webElement.EnhancedBy;
 public class ActionObject {
 	
 	// action of actions
-	public enum ACTION { FIELD, SUBMIT, BUTTON, OPTIONAL_BUTTON, OPTIONAL_FIELD, BUTTON_WAIT_FIRST_ELEMENT, WAIT_ELEMENT, WAIT_EITHER_ELEMENT }
+	public enum ACTION { FIELD, SUBMIT, BUTTON, OPTIONAL_BUTTON, OPTIONAL_FIELD, BUTTON_WAIT_FIRST_ELEMENT, WAIT_ELEMENT, WAIT_EITHER_ELEMENT, VERIFY_TEXT }
 	
 	private EnhancedBy element1;
 	private EnhancedBy element2;

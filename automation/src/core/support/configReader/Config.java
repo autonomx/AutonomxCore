@@ -237,9 +237,10 @@ public class Config {
 	public static List<String> getValueList(String key, boolean isFailable) {
 		String value = (String) TestObject.getTestInfo().config.get(key);
 		List<String> items = new ArrayList<String>();
-		if (value == null)
+		if (value == null) {
 			if(isFailable) Helper.assertFalse("value not found in config files: " + key);
 			TestLog.ConsoleLogWarn("value not found in config files: " + key, false);
+		}
 		if(!value.isEmpty()) 
 			items = Arrays.asList(value.split("\\s*,\\s*"));
 		return items;

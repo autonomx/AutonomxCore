@@ -89,8 +89,8 @@ public class User {
 	}
 	
 	public User admin() {
-		User user = new User().withUserName("admin" + Helper.generateRandomString(4)).withPassword("password1");
-		return user;
+		User login = new User().withUserName("admin" + Helper.generateRandomString(4)).withPassword("password1");
+		return login;
 	}
 	
 	@DataProvider(name = "DataRunner")
@@ -184,10 +184,10 @@ public class User {
 		
 		
 //		public User admin() {
-//			User user = new User()
+//			User login = new User()
 //				.withUserName("admin1");
 //				.withPassword("password1");
-//			return user;
+//			return login;
 //		}
 		for(int rowIndex = 1; rowIndex < csvDataWithHeader.size(); rowIndex++) {
 			String key = updateForDuplicateIds(csvDataWithHeader).get(rowIndex - 1);
