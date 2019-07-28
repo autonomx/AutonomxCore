@@ -48,7 +48,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 			method.setRetryAnalyzer(new core.support.listeners.RetryTest(CrossPlatformProperties.getRetryCount()));
 		}
 
-		// sets parallel run for default user. overwritten by suite xml settings
+		// sets parallel run for default login. overwritten by suite xml settings
 		setParallelRun(iTestContext);
 
 		// overwrite existing report

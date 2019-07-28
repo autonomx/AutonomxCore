@@ -513,7 +513,7 @@ public class ServiceBusInterface {
 	/**
 	 * filter outbound messages based on messageId, order number or useId/bu if
 	 * message comes from service bus And has request body, Then match message id if
-	 * not from service bus, try to match either order number or user id/bu
+	 * not from service bus, try to match either order number or login id/bu
 	 * 
 	 * @param requestBody
 	 * @param expStr
@@ -559,7 +559,7 @@ public class ServiceBusInterface {
 			}
 		}
 
-		// if request body is empty, And no order number exists, filter based on user id
+		// if request body is empty, And no order number exists, filter based on login id
 		// And bu
 		//TODO: uncomment And fix
 /*

@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
-public class UserObject {
+public class LoginObject {
 	
-	// sequence of actions for user login
+	// sequence of actions for login login
 	public enum LoginSequence { USERNAME, PASSWORD, SUBMIT, NEXT, BUTTON }
 
 	private String username = StringUtils.EMPTY;
@@ -17,32 +17,32 @@ public class UserObject {
 	private Boolean isLoggedIn = false;
 	private List<ActionObject> loginSequence = new ArrayList<ActionObject>();
 
-	public UserObject withUsername(String username) {
+	public LoginObject withUsername(String username) {
 		this.username = username;
 		return this;
 	}
 	
-	public UserObject withPassword(String password) {
+	public LoginObject withPassword(String password) {
 		this.password = password;
 		return this;
 	}
 	
-	public UserObject withLoggedInUsername(String loggedInUsername) {
+	public LoginObject withLoggedInUsername(String loggedInUsername) {
 		this.loggedInUsername = loggedInUsername;
 		return this;
 	}
 	
-	public UserObject withLoggedInPassword(String loggedInPassword) {
+	public LoginObject withLoggedInPassword(String loggedInPassword) {
 		this.loggedInPassword = loggedInPassword;
 		return this;
 	}
 	
-	public UserObject withIsLoggedIn(Boolean isLoggedIn) {
+	public LoginObject withIsLoggedIn(Boolean isLoggedIn) {
 		this.isLoggedIn = isLoggedIn;
 		return this;
 	}
 	
-	public UserObject withLoginSequence(ActionObject loginSequence) {
+	public LoginObject withLoginSequence(ActionObject loginSequence) {
 		this.loginSequence.add(loginSequence);
 		return this;
 	}

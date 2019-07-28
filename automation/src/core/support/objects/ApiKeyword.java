@@ -18,8 +18,8 @@ public class ApiKeyword {
 		ServiceObject login = TestObject.getApiDef("getToken");
 		/*
 		ServiceObject login = Backend.getToken()
-		.withUserName(user.username().get())
-		.withPassword(user.password().get());
+		.withUserName(login.username().get())
+		.withPassword(login.password().get());
 		*/
 		RestApiInterface.RestfullApiInterface(login);
 	}

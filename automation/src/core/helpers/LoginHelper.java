@@ -11,8 +11,8 @@ import core.uiCore.drivers.AbstractDriver;
 public class LoginHelper {
 
 	/**
-	 * if single signin enabled, And new test user is different form previous,
-	 * shutdown webdriver And restart user is stored at Suite level
+	 * if single signin enabled, And new test login is different form previous,
+	 * shutdown webdriver And restart login is stored at Suite level
 	 * 
 	 * @throws Exception
 	 */
@@ -22,31 +22,31 @@ public class LoginHelper {
 		if (!CrossPlatformProperties.isSingleSignIn())
 			return;
 		
-		String username = TestObject.getTestInfo().user.getUsername();
-		String password = TestObject.getTestInfo().user.getPassword();
+		String username = TestObject.getTestInfo().login.getUsername();
+		String password = TestObject.getTestInfo().login.getPassword();
 
 		boolean isDifferentUser = isDifferentUser();
 
-		// restart the driver if user name has changed
+		// restart the driver if login name has changed
 		if (isDifferentUser) {
 			restartDriver(username, password);
 		}
 	}
 
 	/**
-	 * @return if the user has changed
+	 * @return if the login has changed
 	 */
 	private static boolean isDifferentUser() {
-		// get already logged in user name/password
-		String loggedInUsername = TestObject.getDefaultTestInfo().user.getLoggedInUsername();
-		String loggedInPassword = TestObject.getDefaultTestInfo().user.getLoggedInPassword();
+		// get already logged in login name/password
+		String loggedInUsername = TestObject.getDefaultTestInfo().login.getLoggedInUsername();
+		String loggedInPassword = TestObject.getDefaultTestInfo().login.getLoggedInPassword();
 
-		TestObject.getDefaultTestInfo().user.withIsLoggedIn(false);
+		TestObject.getDefaultTestInfo().login.withIsLoggedIn(false);
 
-		String username = TestObject.getTestInfo().user.getUsername();
-		String password = TestObject.getTestInfo().user.getPassword();
+		String username = TestObject.getTestInfo().login.getUsername();
+		String password = TestObject.getTestInfo().login.getPassword();
 
-		// user name has changed
+		// login name has changed
 		boolean condition1 = !StringUtils.isEmpty(loggedInUsername) && !username.equals(loggedInUsername);
 
 		// password has changed
@@ -59,8 +59,8 @@ public class LoginHelper {
 	/**
 	 * if single signin disabled, continue with login
 	 * if enabled, continue if:
-	 * 	- user has changed
-	 *  - logged in user is not set
+	 * 	- login has changed
+	 *  - logged in login is not set
 	 * @return
 	 */
 	protected static boolean isContinueLogin() {
@@ -69,12 +69,12 @@ public class LoginHelper {
 		if (!CrossPlatformProperties.isSingleSignIn())
 			return true;
 		
-		// if user has changed, continue with login
+		// if login has changed, continue with login
 		if(isDifferentUser()) return true;
 		
-		// get already logged in user name/password
-		String loggedInUsername = TestObject.getDefaultTestInfo().user.getLoggedInUsername();
-		String loggedInPassword = TestObject.getDefaultTestInfo().user.getLoggedInPassword();
+		// get already logged in login name/password
+		String loggedInUsername = TestObject.getDefaultTestInfo().login.getLoggedInUsername();
+		String loggedInPassword = TestObject.getDefaultTestInfo().login.getLoggedInPassword();
 		
 		if(StringUtils.isEmpty(loggedInUsername) || StringUtils.isEmpty(loggedInPassword))
 			return true;
@@ -89,7 +89,7 @@ public class LoginHelper {
 	 * @param password
 	 */
 	private static void restartDriver(String username, String password) {
-		TestLog.ConsoleLog("logged in user has changed, restarting the driver...");
+		TestLog.ConsoleLog("logged in login has changed, restarting the driver...");
 		
 		DriverObject driver = TestObject.getTestInfo().currentDriver;
 

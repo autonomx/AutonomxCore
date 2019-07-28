@@ -2,9 +2,11 @@ package core.helpers;
 
 import java.util.List;
 
+import core.support.exceptions.loginException;
 import core.support.objects.ActionObject;
 import core.support.objects.ActionObject.ACTION;
 import core.support.objects.TestObject;
+import core.uiCore.drivers.AbstractDriver;
 import core.uiCore.webElement.EnhancedBy;
 
 public class Loginbuilder {
@@ -14,95 +16,124 @@ public class Loginbuilder {
 
 	public Loginbuilder withUsername(EnhancedBy element, String value) {
 		ActionObject action = new ActionObject().withElement1(element).withValue(value).withAction(ACTION.FIELD);
-		TestObject.getTestInfo().user.withLoginSequence(action);
+		TestObject.getTestInfo().login.withLoginSequence(action);
 
 		// save username
-		TestObject.getTestInfo().user.withUsername(value);
+		TestObject.getTestInfo().login.withUsername(value);
 
 		return this;
 	}
 
 	public Loginbuilder withPassword(EnhancedBy element, String value) {
 		ActionObject action = new ActionObject().withElement1(element).withValue(value).withAction(ACTION.FIELD);
-		TestObject.getTestInfo().user.withLoginSequence(action);
+		TestObject.getTestInfo().login.withLoginSequence(action);
 
 		// save password
-		TestObject.getTestInfo().user.withPassword(value);
+		TestObject.getTestInfo().login.withPassword(value);
 
 		return this;
 	}
-	
+
 	public Loginbuilder withOptionalField(EnhancedBy element, String value) {
-		ActionObject action = new ActionObject().withElement1(element).withValue(value).withAction(ACTION.OPTIONAL_FIELD);
-		TestObject.getTestInfo().user.withLoginSequence(action);
+		ActionObject action = new ActionObject().withElement1(element).withValue(value)
+				.withAction(ACTION.OPTIONAL_FIELD);
+		TestObject.getTestInfo().login.withLoginSequence(action);
 
 		return this;
 	}
 
 	public Loginbuilder withFormSubmit(EnhancedBy element, EnhancedBy expected) {
 		ActionObject action = new ActionObject().withElement1(element).withElement2(expected).withAction(ACTION.SUBMIT);
-		TestObject.getTestInfo().user.withLoginSequence(action);
+		TestObject.getTestInfo().login.withLoginSequence(action);
 
 		return this;
 	}
-	
+
 	public Loginbuilder withFormSubmit(EnhancedBy element, EnhancedBy expected, EnhancedBy optionalElemennt) {
-		ActionObject action = new ActionObject().withElement1(element).withElement2(expected).withElement3(optionalElemennt).withAction(ACTION.BUTTON_WAIT_FIRST_ELEMENT);
-		TestObject.getTestInfo().user.withLoginSequence(action);
+		ActionObject action = new ActionObject().withElement1(element).withElement2(expected)
+				.withElement3(optionalElemennt).withAction(ACTION.BUTTON_WAIT_FIRST_ELEMENT);
+		TestObject.getTestInfo().login.withLoginSequence(action);
 
 		return this;
 	}
 
 	public Loginbuilder withSelectNext(EnhancedBy element, EnhancedBy expected) {
 		ActionObject action = new ActionObject().withElement1(element).withElement2(expected).withAction(ACTION.BUTTON);
-		TestObject.getTestInfo().user.withLoginSequence(action);
+		TestObject.getTestInfo().login.withLoginSequence(action);
 
 		return this;
 	}
-	
+
 	public Loginbuilder withOptionalButton(EnhancedBy element) {
 		ActionObject action = new ActionObject().withElement1(element).withAction(ACTION.OPTIONAL_BUTTON);
-		TestObject.getTestInfo().user.withLoginSequence(action);
+		TestObject.getTestInfo().login.withLoginSequence(action);
 
 		return this;
 	}
 
 	public Loginbuilder withSelectButton(EnhancedBy element, EnhancedBy expected) {
 		ActionObject action = new ActionObject().withElement1(element).withElement2(expected).withAction(ACTION.BUTTON);
-		TestObject.getTestInfo().user.withLoginSequence(action);
+		TestObject.getTestInfo().login.withLoginSequence(action);
 
 		return this;
 	}
-	
+
+	public Loginbuilder withSelectButtonAndWaitForFirstElement(EnhancedBy element, EnhancedBy expected,
+			EnhancedBy expected2) {
+		ActionObject action = new ActionObject().withElement1(element).withElement2(expected).withElement3(expected2)
+				.withAction(ACTION.BUTTON_WAIT_FIRST_ELEMENT);
+		TestObject.getTestInfo().login.withLoginSequence(action);
+
+		return this;
+	}
+
 	public Loginbuilder withWaitForElement(EnhancedBy element) {
 		ActionObject action = new ActionObject().withElement1(element).withAction(ACTION.WAIT_ELEMENT);
-		TestObject.getTestInfo().user.withLoginSequence(action);
+		TestObject.getTestInfo().login.withLoginSequence(action);
 
 		return this;
 	}
-	
+
 	public Loginbuilder withWaitForEitherElement(EnhancedBy element, EnhancedBy element2) {
-		ActionObject action = new ActionObject().withElement1(element).withElement1(element2).withAction(ACTION.WAIT_EITHER_ELEMENT);
-		TestObject.getTestInfo().user.withLoginSequence(action);
+		ActionObject action = new ActionObject().withElement1(element).withElement1(element2)
+				.withAction(ACTION.WAIT_EITHER_ELEMENT);
+		TestObject.getTestInfo().login.withLoginSequence(action);
+
+		return this;
+	}
+
+	public Loginbuilder withVerifyError(EnhancedBy element, String error) {
+		ActionObject action = new ActionObject().withElement1(element).withValue(error).withAction(ACTION.VERIFY_TEXT);
+		TestObject.getTestInfo().login.withLoginSequence(action);
+
+		return this;
+	}
+
+	public Loginbuilder withVerifyText(EnhancedBy element, String text) {
+		ActionObject action = new ActionObject().withElement1(element).withValue(text).withAction(ACTION.VERIFY_TEXT);
+		TestObject.getTestInfo().login.withLoginSequence(action);
 
 		return this;
 	}
 
 	public void build() {
 
-		// restart the driver if single signin is set and user has changed
+		// restart the driver if single signin is set and login has changed
 		Helper.handleDifferentUser();
 
 		// if conditions for continue login are not met, return
 		if (!LoginHelper.isContinueLogin())
 			return;
 
-		// set user info at suite level
-		String username = TestObject.getTestInfo().user.getUsername();
-		String password = TestObject.getTestInfo().user.getPassword();
-		TestObject.getDefaultTestInfo().user.withLoggedInUsername(username).withLoggedInPassword(password);
+		// set login info at suite level
+		String username = TestObject.getTestInfo().login.getUsername();
+		String password = TestObject.getTestInfo().login.getPassword();
+		TestObject.getDefaultTestInfo().login.withLoggedInUsername(username).withLoggedInPassword(password);
 
-		List<ActionObject> sequence = TestObject.getTestInfo().user.getLoginSequence();
+		List<ActionObject> sequence = TestObject.getTestInfo().login.getLoginSequence();
+	
+		ensurePageLoaded(sequence);
+		
 		for (ActionObject action : sequence) {
 
 			switch (action.getAction()) {
@@ -110,32 +141,66 @@ public class Loginbuilder {
 				Helper.form.setField(action.getElement1(), action.getValue());
 				break;
 			case OPTIONAL_FIELD:
-				if(Helper.isPresent(action.getElement1()))
+				if (Helper.isPresent(action.getElement1()))
 					Helper.form.setField(action.getElement1(), action.getValue());
 				break;
 			case BUTTON:
 				Helper.click.clickAndExpect(action.getElement1(), action.getElement2());
 				break;
 			case BUTTON_WAIT_FIRST_ELEMENT:
-				Helper.click.clickAndExpect(action.getElement1(), 0, action.getElement2(),action.getElement3());
+				Helper.click.clickAndExpect(action.getElement1(), 0, action.getElement2(), action.getElement3());
 				break;
 			case OPTIONAL_BUTTON:
-				if(Helper.isPresent(action.getElement1()))
+				if (Helper.isPresent(action.getElement1()))
 					Helper.clickAndWait(action.getElement1(), 0);
 				break;
 			case SUBMIT:
 				Helper.form.formSubmitNoRetry(action.getElement1(), action.getElement2());
-				break;	
+				break;
 			case WAIT_ELEMENT:
 				Helper.waitForElementToLoad(action.getElement1());
 				break;
 			case WAIT_EITHER_ELEMENT:
 				Helper.waitForFirstElementToLoad(action.getElement1(), action.getElement2());
 				break;
+			case VERIFY_TEXT:
+				Helper.verifyElementContainingText(action.getElement1(), action.getValue());
+				break;
 			default:
 				Helper.assertFalse("build action is not available: " + action.getAction().name());
 				break;
 			}
 		}
+	}
+
+	/**
+	 * looks for the first element in the login builder
+	 * if not displayed, then retry refreshing the page
+	 * @param sequence
+	 */
+	private void ensurePageLoaded(List<ActionObject> sequence) {
+
+		// return if no sequence
+		if (sequence.size() == 0)
+			return;
+
+		int retry = 3;		
+		EnhancedBy firstElement = sequence.get(0).getElement1();
+		
+		do {
+			retry--;
+			Helper.waitForElementToLoad(firstElement, AbstractDriver.TIMEOUT_SECONDS - 1);
+			if (Helper.isPresent(firstElement))
+				Helper.refreshPage();
+	
+		} while (!Helper.isPresent(firstElement) && retry > 0);
+
+		// if element is not displayed, through login exception
+		if (!Helper.isPresent(firstElement))
+			try {
+				throw new loginException("element '" + firstElement.name + "' did not load");
+			} catch (loginException e) {
+				e.printStackTrace();
+			}
 	}
 }

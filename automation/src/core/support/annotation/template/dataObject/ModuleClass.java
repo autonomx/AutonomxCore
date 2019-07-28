@@ -93,7 +93,7 @@ public class ModuleClass {
 		
 		public class webApp {
 			
-			public User user() {
+			public User login() {
 				return new User();
 			}
 		}
@@ -139,7 +139,7 @@ public class ModuleClass {
 		
 		
 		
-//		public User user() {
+//		public User login() {
 //			return new User();
 //		}
 		for(String filename : entry.getValue()) {

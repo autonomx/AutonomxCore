@@ -1,7 +1,7 @@
 package core.support.exceptions;
 
 /**
- * login exception for retryign login failures
+ * login exception for retrying login failures
  * 
  * @author CAEHMAT
  *
