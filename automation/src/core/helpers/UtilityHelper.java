@@ -313,7 +313,7 @@ public class UtilityHelper {
 	 * 
 	 * @return
 	 */
-	protected static String getCurrentDir() {	
+	protected static String getRootDir() {	
 		Path currentWorkingDir = Paths.get("").toAbsolutePath();
 		return currentWorkingDir.normalize().toString() + File.separator;
 	}

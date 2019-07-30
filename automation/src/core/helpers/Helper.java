@@ -2081,8 +2081,8 @@ public class Helper {
 	 * 
 	 * @return
 	 */
-	public static String getCurrentDir() {
-		return UtilityHelper.getCurrentDir();
+	public static String getRootDir() {
+		return UtilityHelper.getRootDir();
 	}
 
 	/**

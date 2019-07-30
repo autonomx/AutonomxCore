@@ -59,7 +59,7 @@ public class ExtentManager {
 	public static ExtentKlovReporter klovReporter;
 
 	public static String TEST_OUTPUT_PATH = File.separator + "test-output" + File.separator;
-	public static String TEST_OUTPUT_FULL_PATH = Helper.getCurrentDir() + TEST_OUTPUT_PATH;
+	public static String TEST_OUTPUT_FULL_PATH = Helper.getRootDir() + TEST_OUTPUT_PATH;
 
 	public synchronized static ExtentReports getReporter() {
 		if (extent == null)
@@ -93,7 +93,7 @@ public class ExtentManager {
 	}
 
 	public static String getReportRootFullPath() {
-		return Helper.getCurrentDir() + getReportRootRelativePath();
+		return Helper.getRootDir() + getReportRootRelativePath();
 	}
 
 	/**
