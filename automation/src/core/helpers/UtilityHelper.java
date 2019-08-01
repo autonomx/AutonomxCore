@@ -3,12 +3,16 @@ package core.helpers;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -41,6 +45,7 @@ import core.support.configReader.Config;
 import core.support.logger.ExtentManager;
 import core.support.logger.TestLog;
 import core.support.objects.TestObject;
+import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import core.uiCore.drivers.AbstractDriver;
 import core.uiCore.drivers.AbstractDriverTestNG;
 import core.uiCore.webElement.EnhancedBy;
@@ -146,29 +151,71 @@ public class UtilityHelper {
 	 */
 	protected static void killWindowsProcess(String serviceName) {
 		String KILL = "taskkill /F /IM ";
-		runShellCommand(KILL + serviceName);
+		excuteCommand(KILL + serviceName);
 	}
 	
 	protected static void killMacProcess(String serviceName) {
-		runShellCommand("killall " + serviceName);
+		excuteCommand("killall " + serviceName);
 	}
-
+	
 	/**
-	 * runs shell command And returns results as an array list
-	 * 
-	 * @param cmd
+	 * run command and return results as array list
+	 * will run bash on linux or mac
+	 * will run batch command on windows
+	 * @param command
 	 * @return
+	 * @throws IOException
 	 */
-	protected static ArrayList<String> runShellCommand(String cmd) {
+	protected static ArrayList<String> excuteCommand(String command){
+	    ArrayList<String> results = new ArrayList<String>();
+
+	    if(Helper.isMac() || Helper.isUnix()){
+	    	results = runCommand(new String[] {"/bin/sh", "-c", command});
+	    }else if(Helper.isWindows()){
+	    	results = runCommand("cmd /c start " + command);
+	    }
+	    
+	    return results;
+	}
+	
+	/**
+	 * run script file and return results as array list
+	 * will run bash on linux or mac
+	 * will run batch command on windows
+	 * @param filePath path from the root directory ( where pom.xml is )
+	 * @return the results as arraylist
+	 */
+	protected static ArrayList<String> excuteCommandFromFile(String filePath){
+		filePath = Helper.getRootDir() + filePath;
+	    File file = new File(filePath);
+	    if(!file.isFile()){
+	        throw new IllegalArgumentException("The file " + filePath + " does not exist");
+	    }
+	    
+	    ArrayList<String> results = new ArrayList<String>();
+	    
+	    if(Helper.isMac() || Helper.isUnix()){
+	    	results = runCommand(new String[] {"/bin/sh", "-c", filePath});
+	    }else if(Helper.isWindows()){
+	    	results = runCommand("cmd /c start " + filePath);
+	    }
+	    
+	    return results;
+	}
+	
+	private static ArrayList<String> runCommand(String... cmd) {
 		ArrayList<String> results = new ArrayList<String>();
 		Process pr = null;
 		boolean success = false;
 		int retry = 3;
+		String path = CrossPlatformProperties.getPath();
+		String[] env = {"PATH=" + path };
+
 		do {
 			retry--;
 			try {
 				Runtime run = Runtime.getRuntime();
-				pr = run.exec(cmd);
+				pr = run.exec(cmd, env);
 				pr.waitFor();
 				BufferedReader buf = new BufferedReader(new InputStreamReader(pr.getInputStream()));
 				String line;
@@ -176,15 +223,18 @@ public class UtilityHelper {
 					results.add(line);
 				}
 				success = true;
-			} catch (Exception e) {
+ 			} catch (Exception e) {
 				TestLog.ConsoleLogDebug("shell command:  '" + cmd + "' output: " + e.getMessage());
 			} finally {
 				if (pr != null)
 					pr.destroy();
 			}
 		} while (!success && retry > 0);
+		if(results.isEmpty())
+			TestLog.ConsoleLogDebug("shell command:  '" + cmd + "' did not return results. please check your path: " + path);
 		return results;
 	}
+
 
 	/**
 	 * Copies directory And all content from dirFrom to dirTo overwrites the content
@@ -421,19 +471,82 @@ public class UtilityHelper {
 	
 	/**
 	 * create directories and files based on absolute path
+	 * set permissions to rw-r--r--
+	 * set executable to true
 	 * @param path
 	 */
 	protected static void createFileFromPath(String absolutePath) {
-		File media = new File(absolutePath);
+		
+		File file = new File(absolutePath);
 		Path pathToFile = Paths.get(absolutePath);
 		
 		try {
 			Files.createDirectories(pathToFile.getParent());
-			media.createNewFile(); // if file already exists will do nothing
+			file.createNewFile(); // if file already exists will do nothing
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		// set permissions
+		file.setReadable(true);
+		file.setWritable(true);
+		file.setExecutable(true);
 	}
+	
+	/**
+	 * Create file with path starting from root directory (where pom.xml is) and
+	 * write to it. eg. writeFile("something","", "myFile", "txt");
+	 * 
+	 * @param value
+	 *            value in file
+	 * @param directory
+	 *            directory from root
+	 * @param filename
+	 *            name of the file
+	 * @param type
+	 *            type of file
+	 */
+	protected static void writeFile(String value, String directory, String filename, String type) {
+		String fullPath  = Helper.getRootDir() + directory + filename + "." + type;
+		Helper.createFileFromPath(fullPath);
+		
+		try (Writer writer = new BufferedWriter(
+				new OutputStreamWriter(new FileOutputStream(fullPath), "utf-8"))) {
+			writer.write(value);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * delete file
+	 * @param absolutePath
+	 */
+	protected static void deleteFile(String absolutePath) {
+		File file = new File(absolutePath);
+		file.delete();
+	}
+	
+	/**
+	 * appends to existing file
+	 * @param value
+	 * @param absolutePath
+	 */
+	protected static void appendToFile(String value, String absolutePath) {
+		
+	    BufferedWriter writer = null;
+		try {
+			writer = new BufferedWriter(
+			                            new FileWriter(absolutePath, true)  //Set true for append mode
+			                        );
+			 writer.write(value);
+			 writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}  
+	}
+	
+	
 
 	/**
 	 * captures screenshot And attaches to extent test report
@@ -595,7 +708,7 @@ public class UtilityHelper {
 	 */
 	protected static boolean isUnix() {
 		String osName = System.getProperty("os.name");
-		return (osName.indexOf("nix") >= 0 || osName.indexOf("nux") >= 0 || osName.indexOf("aix") > 0 );
+		return (osName.indexOf("nix") >= 0 || osName.indexOf("linux") >= 0 || osName.indexOf("nux") >= 0 || osName.indexOf("aix") > 0 );
 	}
 	
 	/**

@@ -67,11 +67,19 @@ public class ScreenRecorderHelper {
 		VideoQuality iosQuality = VideoQuality.valueOf(Config.getValue(RECORDER_IOS_QUALITY));
 
 		if(Helper.mobile.isAndroid()) {
+			// if ongoing recording, stop
+			Helper.mobile.getAndroidDriver().stopRecordingScreen();
+			
+			// set recording options
 			AndroidStartScreenRecordingOptions record = new AndroidStartScreenRecordingOptions();
 			record.withTimeLimit(Duration.ofSeconds(maxTime)); 
 			record.withVideoSize(androidVideoSize);
 			Helper.mobile.getAndroidDriver().startRecordingScreen(record);
 		}else if(Helper.mobile.isIOS()) {
+			// if ongoing recording, stop
+			Helper.mobile.getiOSDriver().stopRecordingScreen();
+			
+			// set recording options
 			IOSStartScreenRecordingOptions record = new IOSStartScreenRecordingOptions();
 			record.withTimeLimit(Duration.ofSeconds(maxTime));
 			record.withVideoQuality(iosQuality);
@@ -210,7 +218,7 @@ public class ScreenRecorderHelper {
 					}
 				}
 			} catch (IOException e) {
-
+				e.printStackTrace();
 			}
 		}
 	}
