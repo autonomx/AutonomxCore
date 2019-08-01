@@ -94,10 +94,6 @@ public class IosCapability {
 
 		capabilities.setCapability(MobileCapabilityType.APP, getAppPath());
 
-		//TODO: does not work with ios 11.4. try again in the future
-		//	capabilities.setCapability("locationServicesEnabled", true);
-		//	capabilities.setCapability("locationServicesAuthorized", true);
-
 		// set chrome version if value set in properties file
 		if (!getDriverVersion().equals("DEFAULT")) {
 			WebDriverManager.chromedriver().version(getDriverVersion()).setup();
@@ -177,17 +173,13 @@ public class IosCapability {
 	 */
 	public static List<String> getIosDeviceList() {
 		String cmd = "idevice_id -l";
-		// TODO: test out
-		// "xcrun simctl list | grep Booted"
-		// system_profiler SPUSBDataType | sed -n -E -e '/(iPhone|iPad)/,/Serial/s/
-		// *Serial Number: *(.+)/\1/p'
 
 		List<String> results = new ArrayList<String>();
 		results = Config.getValueList("ios.UDID");
 		
 		// if no device is set in properties, attempt to auto detect
 		if(results.isEmpty()) {
-			results = Helper.runShellCommand(cmd);
+			results = Helper.excuteCommand(cmd);
 			if (!results.isEmpty() && results.get(0).contains("command not found"))
 				Helper.assertFalse("idevice not installed. install: brew install ideviceinstaller");
 		}

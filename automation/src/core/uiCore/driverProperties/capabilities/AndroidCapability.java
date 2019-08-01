@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 import core.helpers.Helper;
@@ -231,39 +232,27 @@ public class AndroidCapability {
 	 * gets the list of android devices including real devices + emulators skips the
 	 * first item, as it is not a device
 	 * 
-	 * @return
+	 * @return device list
 	 */
-	public List<String> getAndroidDeviceList() {
-		String cmd;
+	public static List<String> getAndroidDeviceList() {
+		String cmd = "adb devices | tail -n +2 | cut -sf 1";
 
 		if (!Config.getValue(AppiumServer.ANDROID_HOME).isEmpty())
-			cmd = Config.getValue(AppiumServer.ANDROID_HOME) + "/platform-tools/adb devices";
-		else
-			cmd = "adb devices";
+			cmd = Config.getValue(AppiumServer.ANDROID_HOME) + "/platform-tools/"+ cmd;
 
 		// get list of device udid
 		List<String> deviceList = new ArrayList<String>();
 		deviceList = Config.getValueList(ANDROID_UDID);
-
 		// if no device is set in properties, attempt to auto detect
-		if (deviceList.size() == 0) {
-
-			deviceList = Helper.runShellCommand(cmd);
-			if (!deviceList.isEmpty())
-				deviceList.remove(0);
-		}
-		List<String> devices = new ArrayList<String>();
-		for (String list : deviceList) {
-			String arr[] = list.split("\t", 2);
-			String device = arr[0];
-			if (!device.isEmpty())
-				devices.add(device);
+		if (deviceList.isEmpty()) {
+			deviceList = Helper.excuteCommand(cmd);
 		}
 		
-		if(deviceList.size() > 0)
+		// log device list
+		if(!deviceList.isEmpty())
 			TestLog.ConsoleLogDebug("Android device list: " + Arrays.toString(deviceList.toArray()));
 
-		return devices;
+		return deviceList;
 	}
 	
 	public List<String> getAndroidRealDeviceList() {
@@ -314,24 +303,27 @@ public class AndroidCapability {
 	}
 	
 	public static void restartAdb() {
-	    Helper.runShellCommand("adb kill-server");
-	    Helper.runShellCommand("adb start-server");
+	    Helper.excuteCommand("adb kill-server");
+	    Helper.excuteCommand("adb start-server");
 	}
 
 	/**
 	 * uninstalls the uiautomator2 server
 	 * only runs the first time android test is run
+	 * a device or emulator must be connected
 	 */
 	public static void uninstallUiAutomator2() {
 		// runs the first time android test is run
 		if(!ANDROID_INIT) {
 			ANDROID_INIT = true;
-			if(Config.getValue(ANDROID_ENGINE).equals(UIAUTOMATOR2)) {
+			boolean isAndroidConnected = !CollectionUtils.isEmpty(getAndroidDeviceList());
+
+			if(isAndroidConnected && Config.getValue(ANDROID_ENGINE).equals(UIAUTOMATOR2)) {
 				TestLog.ConsoleLog("Uninstalling uiautomator2.server");
 				TestLog.ConsoleLog("Uninstalling uiautomator2.server.test");
 				
-				Helper.runShellCommand("adb uninstall io.appium.uiautomator2.server");
-				Helper.runShellCommand("adb uninstall io.appium.uiautomator2.server.test");
+				Helper.excuteCommand("adb uninstall io.appium.uiautomator2.server");
+				Helper.excuteCommand("adb uninstall io.appium.uiautomator2.server.test");
 			}
 		}
 	}
@@ -403,19 +395,24 @@ public class AndroidCapability {
 	
 	/**
 	 * sets the value for android home based on its default location
+	 * sets android home based on user.home location on mac
+	 * checks if the generated android home location exists, if true, adds to android.home config value
 	 */
 	public static void setAndroidHome() {
+
+		// return if not on osx
+		if (!Helper.isMac())
+			return;
+
 		String userHome = System.getProperty("user.home");
 		String androidHome = Config.getValue(ANDROID_HOME);
 		String javaHomePath = "";
 		if (androidHome.isEmpty()) {
-			if (Helper.isMac()) {
-				 javaHomePath = userHome + File.separator + "Library" + File.separator + "Android" + File.separator + "sdk/";
+			javaHomePath = userHome + File.separator + "Library" + File.separator + "Android" + File.separator + "sdk/";
+			boolean isAndroidHome = new File(javaHomePath).exists();
+			if (isAndroidHome) {
+				Config.putValue(ANDROID_HOME, javaHomePath);
 			}
-				boolean isAndroidHome = new File(javaHomePath).exists();
-				if (isAndroidHome) { 
-					Config.putValue(ANDROID_HOME, javaHomePath);	
-				}
 		}
 	}
 }

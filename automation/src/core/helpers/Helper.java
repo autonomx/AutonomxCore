@@ -2,6 +2,7 @@ package core.helpers;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -1983,15 +1984,63 @@ public class Helper {
 	protected static void createFileFromPath(String absolutePath) {
 		UtilityHelper.createFileFromPath(absolutePath);
 	}
+	
+	/**
+	 * Create file with path starting from root directory (where pom.xml is) and
+	 * write to it. eg. writeFile("something","", "myFile", "txt");
+	 * 
+	 * @param value
+	 *            value in file
+	 * @param path
+	 *            path from root
+	 * @param filename
+	 *            name of the file
+	 * @param type
+	 *            type of file
+	 */
+	public static void writeFile(String value, String path, String filename, String type) {
+		UtilityHelper.writeFile(value, path, filename, type);
+	}
+
+	
+	/**
+	 * delete file
+	 * @param absolutePath
+	 */
+	public static void deleteFile(String absolutePath) {
+		UtilityHelper.deleteFile(absolutePath);
+	}
+	
+	/**
+	 * appends to existing file
+	 * @param value
+	 * @param absolutePath
+	 */
+	public static void appendToFile(String value, String absolutePath) {
+		UtilityHelper.appendToFile(value, absolutePath);
+	}
 
 	/**
-	 * runs shell command And returns results as an array list
-	 * 
-	 * @param cmd
+	 * run command and return results as array list
+	 * will run bash on linux or mac
+	 * will run batch command on windows
+	 * @param command
 	 * @return
+	 * @throws IOException
 	 */
-	public static ArrayList<String> runShellCommand(String cmd) {
-		return UtilityHelper.runShellCommand(cmd);
+	public static ArrayList<String> excuteCommand(String command){
+		return UtilityHelper.excuteCommand(command);
+	}
+	
+	/**
+	 * run script file and return results as array list
+	 * will run bash on linux or mac
+	 * will run batch command on windows
+	 * @param filePath path from the root directory ( where pom.xml is )
+	 * @return the results as arraylist
+	 */
+	public static ArrayList<String> excuteCommandFromFile(String filePath){
+		return UtilityHelper.excuteCommandFromFile(filePath);
 	}
 
 	/**
