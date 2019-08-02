@@ -55,12 +55,12 @@ public class FormHelper {
 
 		if (!StringUtils.isBlank(value.toString())) {
 			EnhancedWebElement fieldElement = Element.findElements(field);
-			Helper.wait.waitForElementToLoad(field);
 			
+			// attempt to hide keyboard if element is not visible
+			Helper.mobile.smartHideKeyboard(field);
+		
+			Helper.wait.waitForElementToLoad(field);
 			fieldElement.sendKeys(index, value);
-
-			// hides keyboard if on mobile device (ios/android)
-			Helper.mobile.hideKeyboard();
 		}
 	}
 	
@@ -235,6 +235,9 @@ public class FormHelper {
 	 * @param expected
 	 */
 	public void formSubmitNoRetry(EnhancedBy button,  EnhancedBy expected) {
+		// attempt to hide keyboard if element is not visible
+		Helper.mobile.smartHideKeyboard(button);
+		
 		Helper.click.clickAndExpectNoRetry(button, 0, expected);
 	}
 	
@@ -257,6 +260,9 @@ public class FormHelper {
 	 * @param spinner
 	 */
 	public void formSubmit(EnhancedBy button, EnhancedBy expected, EnhancedBy spinner) {
+		// attempt to hide keyboard if element is not visible
+		Helper.mobile.smartHideKeyboard(button);
+		
 		Helper.click.clickAndExpect(button, expected, spinner);
 	}
 

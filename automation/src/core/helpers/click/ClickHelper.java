@@ -44,7 +44,7 @@ public class ClickHelper extends Element {
 		boolean isExpectedFound = false;
 		int targetWaitTimeInSeconds = 5;
 		int retry = AbstractDriver.TIMEOUT_SECONDS / targetWaitTimeInSeconds;
-
+		
 		do {
 			retry--;
 			if (Helper.isPresent(target))
@@ -206,7 +206,7 @@ public class ClickHelper extends Element {
 		boolean isExpectedFound = false;
 		int targetWaitTimeInSeconds = 5;
 		int retry = AbstractDriver.TIMEOUT_SECONDS / targetWaitTimeInSeconds;
-
+		
 		do {
 			retry--;
 			if (Helper.isPresent(target))

@@ -17,6 +17,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.html5.Location;
 import org.openqa.selenium.remote.RemoteWebElement;
 
+import core.support.configReader.Config;
 import core.support.logger.TestLog;
 import core.uiCore.drivers.AbstractDriver;
 import core.uiCore.webElement.EnhancedBy;
@@ -39,6 +40,11 @@ public class MobileHelper {
 	    DOWN, UP, LEFT, RIGHT;
 	}
 
+	private static final String DISMISS_IF_BLOCKING = "ios.keyboard.dismissIfBlocking";
+	private static final String DISMISS_BY_KEY_PRESS = "ios.keyboard.dismissByKeyPress";
+	private static final String DISMISS_STRATEGY = "ios.keyboard.dismiss.Strategy";
+
+	
 	public AppiumDriver getAppiumDriver() {
 		return ((AppiumDriver) AbstractDriver.getWebDriver());
 	}
@@ -57,12 +63,23 @@ public class MobileHelper {
 	 */
 	public void hideKeyboard() {
 		if (isIOS()) {
-			try {
-				removeIosKeyboard();
-			} catch (Exception e) {
-				e.getMessage();
-			}
+			dimissIosKeyboard();
 		}
+	}
+	
+	/**
+	 * if element is not visible, attempt to hide keyboard
+	 * @param element
+	 */
+	public void smartHideKeyboard(EnhancedBy element) {
+		
+		// if dismiss keyboard when blocking is enable, proceed
+		boolean enableSmartDismissKeyboard = Config.getBooleanValue(DISMISS_IF_BLOCKING);
+		if(!enableSmartDismissKeyboard) return;
+		
+		// if element is not visible, attempt to dismiss keyboard
+		if(!Helper.isPresent(element))
+			dimissIosKeyboard();
 	}
 
 	/**
@@ -685,48 +702,54 @@ public class MobileHelper {
 	/**
 	 * strategies:
 	 * if no keyboard displayed, return
-	 * Strategy1: if keys: "Hide keyboard", "DONE", "Done", "Return", "Next" displayed, click them
-	 * Strategy2: tap outside the keyboard. just above the keyboard, left side
-	 * Strategy3: scroll above keyboard 
-	 * Strategy4: if keyboard still exists, use appium.hideKeyboard()
+	 * Strategy1: tap outside the keyboard. just above the keyboard, left side
+	 * Strategy2: if keys: "Hide keyboard", "DONE", "Done", "Return", "Next" displayed, click them
+	 * Strategy3: if keyboard still exists, use appium.hideKeyboard()
 	 */
-	public void removeIosKeyboard() {
+	private void dimissIosKeyboard() {
 		if(isIOS()) {
 			
 			//if no keyboard displayed, return
             EnhancedBy KEYBOARD_IOS = Element.byClass("XCUIElementTypeKeyboard","Keyboard");
             if(!Element.findElements(KEYBOARD_IOS).isExist()) return;
               
+            String dismissStrategy = Config.getValue(DISMISS_STRATEGY);
             
-            // Strategy1: tap outside the keyboard. just above the keyboard, left side
-			EnhancedWebElement targetElement = Element.findElements(KEYBOARD_IOS);
-            Point p = targetElement.get(0).getLocation();
-            int xPosition = 1;
-			int bottomY = p.getY();
-			int topY = p.getY() - 10;
-			
-			// Strategy1: implementation
-			TouchAction touchAction = new TouchAction((AppiumDriver) AbstractDriver.getWebDriver());
-			touchAction.tap(PointOption.point(xPosition, topY)).perform();
-            if(!Element.findElements(KEYBOARD_IOS).isExist()) return;
-
-            // Strategy2:scroll above keyboard 
-			scroll(xPosition, bottomY, xPosition, topY);
-            if(!Element.findElements(KEYBOARD_IOS).isExist()) return;
-            
-            // TODO: Strategy3 is too slow. isExist takes too long
-            //Strategy1: if keys: "Hide keyboard", "DONE", "Done", "Return", "Next" displayed, click them
-            List<String> keys = Arrays.asList("Next", "Done", "DONE", "Hide keyboard","Hide");
-            for(String key : keys) {
-                EnhancedBy ios_keys = Element.byAccessibility(key,"Keyboard");
-                if(Element.findElements(ios_keys).isExist()) {
-                	Helper.clickAndWait(ios_keys, 0);
-                	break;
-                }
+            switch(dismissStrategy) {
+            case "tapOutside":
+            	
+            	// Strategy1: tap outside the keyboard. just above the keyboard, left side
+				EnhancedWebElement targetElement = Element.findElements(KEYBOARD_IOS);
+	            Point p = targetElement.get(0).getLocation();
+	            int xPosition = 1;
+				int topY = p.getY() - 10;
+				
+				// Strategy1: implementation
+				TouchAction touchAction = new TouchAction((AppiumDriver) AbstractDriver.getWebDriver());
+				touchAction.tap(PointOption.point(xPosition, topY)).perform();
+              break;
+              
+            case "keyPress":
+            	
+            	// TODO: Strategy2 is too slow. isExist takes too long
+	            //Strategy2: if keys: "Hide keyboard", "DONE", "Done", "Return", "Next" displayed, click them
+	            List<String> keys = Config.getValueList(DISMISS_BY_KEY_PRESS);
+	            for(String key : keys) {
+	                EnhancedBy ios_keys = Element.byAccessibility(key,"keyboard key: " +  key);
+	                if(Element.findElements(ios_keys).isExist()) {
+	                	Helper.clickAndWait(ios_keys, 0);
+	                	break;
+	                }
+	            }
+              break;
+              
+            default:
+            	getAppiumDriver().hideKeyboard();
             }
+            
             if(!Element.findElements(KEYBOARD_IOS).isExist()) return;
 
-           // Strategy4: if keyboard still exists, use appium.hideKeyboard()
+           // Strategy3: if keyboard still exists, use appium.hideKeyboard()
 			getAppiumDriver().hideKeyboard();
 		}
 	}
