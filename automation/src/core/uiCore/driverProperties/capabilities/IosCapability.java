@@ -32,8 +32,9 @@ public class IosCapability {
 	public static String APP_DIR_PATH = "ios.appDir";
 	public static String APP_NAME = "ios.app";
 
-	public static String DEVICE_VERSION = "ios.deviceVersion";
+	public static String IS_HYBRID_APP = "appium.isHybridApp";
 	public static String CHROME_VERSION = "appium.chromeVersion";
+	
 	public List<String> simulatorList = new ArrayList<String>();
 
 	private static final String CAPABILITIES_PREFIX = "ios.capabilties.";
@@ -42,11 +43,6 @@ public class IosCapability {
 
 	public IosCapability() {
 		capabilities = new DesiredCapabilities();
-	}
-
-	public String getDriverVersion() {
-		String value = Config.getValue(CHROME_VERSION);
-		return value;
 	}
 
 	public IosCapability withCapability(DesiredCapabilities Capabilities) {
@@ -94,13 +90,10 @@ public class IosCapability {
 
 		capabilities.setCapability(MobileCapabilityType.APP, getAppPath());
 
-		// set chrome version if value set in properties file
-		if (!getDriverVersion().equals("DEFAULT")) {
-			WebDriverManager.chromedriver().version(getDriverVersion()).setup();
-			String chromePath = WebDriverManager.chromedriver().getBinaryPath();
-			capabilities.setCapability("chromedriverExecutable", chromePath);
-		}
-
+		// download chrome driver if hybrid
+		setChromeDriver();
+		
+		// set device using device manager. device manager handles multiple devices in parallel
 		setIosDevice();
 		
 		// set port for appium 
@@ -264,5 +257,26 @@ public class IosCapability {
 		}
 		
 		TestLog.ConsoleLog("deviceName " + deviceName + " wdaLocalPort: " + DeviceManager.devices.get(deviceName).devicePort);
+	}
+
+	/**
+	 * download chrome driver if hybrid app is enabled 
+	 * if Version is LATEST, download latest driver unless set in config
+	 */
+	public void setChromeDriver() {
+
+		boolean isHybridApp = Config.getBooleanValue(IS_HYBRID_APP);
+		
+		if (isHybridApp) {
+			String chromeVersion = Config.getValue(CHROME_VERSION);
+
+			// if version is LATEST, set version to null to download latest version
+			if(chromeVersion.equals("LATEST")) chromeVersion = null;
+			
+			WebDriverManager.chromedriver().version(chromeVersion).setup();
+			String chromePath = WebDriverManager.chromedriver().getBinaryPath();
+			capabilities.setCapability("chromedriverExecutable", chromePath);
+			TestLog.ConsoleLog("setting chrome version: " + WebDriverManager.chromedriver().getDownloadedVersion());
+		}
 	}
 }

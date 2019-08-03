@@ -33,14 +33,14 @@ public class AndroidCapability {
 	public DesiredCapabilities capabilities;
 	public static String APP_DIR_PATH = "android.appDir";
 	public static String APP_NAME = "android.app";
-	public static String CHROME_VERSION = "appium.chromeVersion";
-	public static String iS_CHROME_AUTO_MANAGE = "appium.chromeAutoManage";
-	public static String CHROME_DRIVER_PATH = "appium.chromeDriverPath";
 	public static String ANDROID_ENGINE = "android.capabilties.automationName";
 	public static String UIAUTOMATOR2 = "UiAutomator2";
 	public static boolean ANDROID_INIT = false; // first time android is setup
 	public static String ANDROID_HOME = "android.home";
 	public static String ANDROID_UDID = "android.UDID";
+	
+	public static String IS_HYBRID_APP = "appium.isHybridApp";
+	public static String CHROME_VERSION = "appium.chromeVersion";
 
 	private static final String CAPABILITIES_PREFIX = "android.capabilties.";
 
@@ -66,21 +66,6 @@ public class AndroidCapability {
 		return this;
 	}
 
-	public String getChromeDriverVersion() {
-		String value = Config.getValue(CHROME_VERSION);
-		return value;
-	}
-
-	public boolean isChromeAutoManager() {
-		boolean value = Config.getBooleanValue(iS_CHROME_AUTO_MANAGE);
-		return value;
-	}
-
-	public String chromeDriverPath() {
-		String value = Config.getValue(CHROME_DRIVER_PATH);
-		return value;
-	}
-
 	public DesiredCapabilities getCapability() {
 		return capabilities;
 	}
@@ -103,20 +88,13 @@ public class AndroidCapability {
 	 */
 	public AndroidCapability withAndroidCapability() {
 		
-		// sets capabilties from properties files
+		// sets capabilities from properties files
 		capabilities = setAndroidCapabilties();
 		
 		capabilities.setCapability(MobileCapabilityType.APP, getAppPath());
 
-		// mandatory capabilities
-		// capabilities.setCapability("session-override", true);
-
-		// set chrome version if value set in properties file
-		if (!getChromeDriverVersion().equals("DEFAULT")) {
-			WebDriverManager.chromedriver().version(getChromeDriverVersion()).setup();
-			String chromePath = WebDriverManager.chromedriver().getBinaryPath();
-			capabilities.setCapability("chromedriverExecutable", chromePath);
-		}
+		// download chrome driver if hybrid
+		setChromeDriver();
 		
 		// sets android home value if not already set in properties
 		setAndroidHome();
@@ -162,22 +140,23 @@ public class AndroidCapability {
 	}
 
 	/**
-	 * set chrome version if value set in properties file to use: set
-	 * appiumChromeVersion, Then appiumChromeAutoManage if appiumChromeAutoManage =
-	 * true : version will automatically download if appiumChromeAutoManage = false
-	 * : set the path to the location
+	 * download chrome driver if hybrid app is enabled 
+	 * if Version is LATEST, download latest driver unless set in config
 	 */
-	public void setChromePath() {
+	public void setChromeDriver() {
 
-		if (!getChromeDriverVersion().equals("DEFAULT")) {
-			String chromePath;
-			if (isChromeAutoManager()) {
-				WebDriverManager.chromedriver().version(getChromeDriverVersion()).setup();
-				chromePath = WebDriverManager.chromedriver().getBinaryPath();
-			} else {
-				chromePath = PropertiesReader.getLocalRootPath() + chromeDriverPath();
-			}
+		boolean isHybridApp = Config.getBooleanValue(IS_HYBRID_APP);
+		
+		if (isHybridApp) {
+			String chromeVersion = Config.getValue(CHROME_VERSION);
+
+			// if version is LATEST, set version to null to download latest version
+			if(chromeVersion.equals("LATEST")) chromeVersion = null;
+			
+			WebDriverManager.chromedriver().version(chromeVersion).setup();
+			String chromePath = WebDriverManager.chromedriver().getBinaryPath();
 			capabilities.setCapability("chromedriverExecutable", chromePath);
+			TestLog.ConsoleLog("setting chrome version: " + WebDriverManager.chromedriver().getDownloadedVersion());
 		}
 	}
 
