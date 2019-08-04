@@ -31,60 +31,61 @@ public class SqlHelper {
 
 		JsonHelper.configMapJsonKeyValues(response, outputParam);
 	}
-	
-	/** replaces output parameter with response values eg. $token with id form
-	 * response
-	 * eg. ASSET:1:<$asset_id_selected> -> column:row:variable
+
+	/**
+	 * replaces output parameter with response values eg. $token with id form
+	 * response eg. ASSET:1:<$asset_id_selected> -> column:row:variable
+	 * 
 	 * @param response
 	 * @param outputParam
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public static void saveOutboundSQLParameters(ResultSet resSet, String outputParam) throws Exception {
 		configMapSqlKeyValues(resSet, outputParam);
 	}
-	
+
 	/**
-	 * map key value to config
-	 * eg.features.features.id:1:<$id>
+	 * map key value to config eg.features.features.id:1:<$id>
+	 * 
 	 * @param response
 	 * @param keyValue
-	 * @throws SQLException 
-	 * @throws NumberFormatException 
+	 * @throws SQLException
+	 * @throws NumberFormatException
 	 */
 	public static void configMapSqlKeyValues(ResultSet resSet, String keyValue) throws Exception {
-		
-		if (keyValue.isEmpty()) return;
-		
+
+		if (keyValue.isEmpty())
+			return;
+
 		// set random value based on database max number of rows. 0...max-row-count
 		keyValue = setRandomRowValue(resSet, keyValue);
-		
+
 		// replace parameters for outputParam
 		keyValue = DataHelper.replaceParameters(keyValue);
-		
+
 		List<KeyValue> keywords = DataHelper.getValidationMap(keyValue);
 		for (KeyValue keyword : keywords) {
 			String key = (String) keyword.value;
 			key = key.replace("$", "").replace("<", "").replace(">", "").trim();
-			String value ="";
-			
+			String value = "";
+
 			// eg. NAME:1:<$name> : if row available, get value of column at row
 			// eg. NAME:<$name> : if row not available, gets all values of rows from column
-			if(keyword.position.isEmpty()) {
+			if (keyword.position.isEmpty()) {
 				value = getAllValuesInColumn(resSet, keyword.key);
-			}else
-			{
+			} else {
 				resSet.absolute(Integer.valueOf(keyword.position));
 				value = resSet.getString(keyword.key);
 			}
 
-			if(!keyword.position.isEmpty()) {
-				value = value.split(",")[Integer.valueOf(keyword.position) -1 ];
+			if (!keyword.position.isEmpty()) {
+				value = value.split(",")[Integer.valueOf(keyword.position) - 1];
 			}
 			Config.putValue(key, value);
 			TestLog.logPass("replacing value " + key + " with: " + value);
 		}
 	}
-	
+
 	private static String getAllValuesInColumn(ResultSet resSet, String column) throws SQLException {
 		resSet.beforeFirst();
 		List<String> results = new ArrayList<String>();
@@ -93,33 +94,36 @@ public class SqlHelper {
 		}
 		return String.join(",", results);
 	}
-	
+
 	/**
 	 * replaces RAND_DatabaseMaxRows variable with random number
+	 * 
 	 * @param resSet
 	 * @param outputParam
 	 * @return
 	 * @throws SQLException
 	 */
-	public static String setRandomRowValue(ResultSet resSet, String outputParam) throws SQLException{
-		if (outputParam.isEmpty()) return outputParam;
+	public static String setRandomRowValue(ResultSet resSet, String outputParam) throws SQLException {
+		if (outputParam.isEmpty())
+			return outputParam;
 
 		// set random value based on database max number of rows. 0...max-row-count
-		if(outputParam.contains("<@RAND_DatabaseMaxRows>"))	{
+		if (outputParam.contains("<@RAND_DatabaseMaxRows>")) {
 			int maxRowCount = getMaxResultRowCount(resSet);
 			int row = Helper.generateRandomNumber(1, maxRowCount);
 			outputParam = outputParam.replace("<@RAND_DatabaseMaxRows>", String.valueOf(row));
 		}
 		return outputParam;
 	}
-	
+
 	/**
 	 * gets the number of results from ResultSet
+	 * 
 	 * @param resSet
 	 * @return
-	 * @throws SQLException 
+	 * @throws SQLException
 	 */
-	private static int getMaxResultRowCount(ResultSet resSet) throws SQLException{
+	private static int getMaxResultRowCount(ResultSet resSet) throws SQLException {
 		resSet.last();
 		int size = resSet.getRow();
 		resSet.beforeFirst();
@@ -152,16 +156,15 @@ public class SqlHelper {
 				command = expectedValue;
 				expectedValue = "";
 			}
-			
+
 			// if no position specified, Then set row to 1, else row = position
-			if(position.isEmpty()) {
+			if (position.isEmpty()) {
 				responseString = getAllValuesInColumn(resSet, keyword.key);
-			}
-			else {
+			} else {
 				resSet.absolute(Integer.valueOf(position));
 				responseString = Helper.stringNormalize(resSet.getString(key));
 			}
-			
+
 			// validate response
 			DataHelper.validateCommand(command, responseString, expectedValue);
 		}

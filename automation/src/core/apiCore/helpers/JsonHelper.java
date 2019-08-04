@@ -2,14 +2,18 @@ package core.apiCore.helpers;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
+import org.apache.commons.lang.StringUtils;
 import org.hamcrest.Matchers;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.XML;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
+
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.ReadContext;
 
 import core.helpers.Helper;
 import core.support.configReader.Config;
@@ -31,30 +35,30 @@ public class JsonHelper {
 			return;
 		configMapJsonKeyValues(response, outputParam);
 	}
-	
-	
+
 	/**
-	 * map key value to config
-	 * eg.features.features.id:1:<$id>
+	 * map key value to config eg.features.features.id:1:<$id>
+	 * 
 	 * @param response
 	 * @param keyValue
 	 */
 	public static void configMapJsonKeyValues(Response response, String keyValue) {
-		
-		if (keyValue.isEmpty()) return;
-		
+
+		if (keyValue.isEmpty())
+			return;
+
 		// replace parameters for outputParam
 		keyValue = DataHelper.replaceParameters(keyValue);
-		
+
 		List<KeyValue> keywords = DataHelper.getValidationMap(keyValue);
 		for (KeyValue keyword : keywords) {
 			String key = (String) keyword.value;
 			key = key.replace("$", "").replace("<", "").replace(">", "").trim();
 			// gets json value. if list, returns string separated by comma
 			String value = getJsonValue(response, keyword.key);
-			
-			if(!keyword.position.isEmpty()) {
-				value = value.split(",")[Integer.valueOf(keyword.position) -1 ];
+
+			if (!keyword.position.isEmpty()) {
+				value = value.split(",")[Integer.valueOf(keyword.position) - 1];
 			}
 			Config.putValue(key, value);
 			TestLog.logPass("replacing value " + key + " with: " + value);
@@ -63,79 +67,127 @@ public class JsonHelper {
 
 	/**
 	 * gets json value as list if applicable, or string if single item converts to
-	 * string separted by ","
+	 * string separated by ","
 	 * 
 	 * @param response
 	 * @param path
 	 * @return
 	 */
 	public static String getJsonValue(Response response, String path) {
-		String value = "";
+		String value = StringUtils.EMPTY;
 		List<String> values = getJsonListValueResponse(response, path);
-		
-		if(values == null || values.isEmpty()) {
-			 value = getJsonStringResponse(response, path);
+
+		if (values == null || values.isEmpty()) {
+			value = getJsonStringResponse(response, path);
 		}
-			
+
 		if (values != null && !values.isEmpty())
-			value = listToString(values);
+			value = DataHelper.listToString(values);
 		return value;
 	}
-	
+
+	/**
+	 * gets json value as list if applicable, or string if single item converts to
+	 * string separated by "," https://github.com/json-path/JsonPath
+	 * 
+	 * @param path
+	 *            https://github.com/json-path/JsonPath
+	 * @return value string list separated by ","
+	 */
+	public static String getJsonValue(String json, String path) {
+		String value = StringUtils.EMPTY;
+
+		ReadContext ctx = JsonPath.parse(json);
+		List<String> values = ctx.read("$." + path);
+
+		if (values != null && !values.isEmpty())
+			value = DataHelper.listToString(values);
+		return value;
+	}
+
+	/**
+	 * get json path value from xml string
+	 * 
+	 * @param xml
+	 * @param path
+	 * @return
+	 */
+	public static String getJsonValueFromXml(String xml, String path) {
+		String value = StringUtils.EMPTY;
+
+		// convert xml stirng to json string
+		String json = XMLToJson(xml);
+
+		// parse json string and get path value
+		ReadContext ctx = JsonPath.parse(json);
+		List<String> values = ctx.read("$." + path);
+
+		if (values != null && !values.isEmpty())
+			value = DataHelper.listToString(values);
+		return value;
+	}
+
+	/**
+	 * convert xml string to json string
+	 * 
+	 * @param xml
+	 *            string
+	 * @return json string
+	 */
+	public static String XMLToJson(String xml) {
+		int printIndentFactor = 4;
+		String jsonString = StringUtils.EMPTY;
+		try {
+			JSONObject xmlJSONObj = XML.toJSONObject(xml);
+			jsonString = xmlJSONObj.toString(printIndentFactor);
+		} catch (JSONException je) {
+			je.toString();
+		}
+		return jsonString;
+	}
+
 	public static String getResponseValue(Response response) {
 		return response.getBody().asString();
 	}
-			
-	
-	public static String listToString(List<String> values) {
-		String result = "";
-		for(Object val : values) {
-			String value = Objects.toString(val, "");
-			result = result + value;
-			if(values.size()>1) result+=",";
-		}
-		return result;		
-	}
-	
-	private static List<String> getJsonListValueResponse(Response response, String path){
+
+	private static List<String> getJsonListValueResponse(Response response, String path) {
 		List<String> values = new ArrayList<String>();
 		try {
 			values = response.jsonPath().getList(path);
 		} catch (Exception e) {
 			e.getMessage();
-		}	
-		
-		if(values == null || values.isEmpty()) {
+		}
+
+		if (values == null || values.isEmpty()) {
 			// logWarn causes warning in the report
 			TestLog.ConsoleLog("path: <" + path + "> returned empty results");
 		}
 		return values;
 	}
-	
+
 	private static String getJsonStringResponse(Response response, String path) {
 		String value = "";
-		
-		if(response.path(path) instanceof String) {
+
+		if (response.path(path) instanceof String) {
 			value = response.path(path);
 		}
-		
-		if(response.path(path) instanceof Integer) {
+
+		if (response.path(path) instanceof Integer) {
 			value = Integer.toString(response.path(path));
-		
+
 		}
-		
-		if(response.path(path) instanceof Boolean) {		 	
+
+		if (response.path(path) instanceof Boolean) {
 			value = Boolean.toString(response.path(path));
 		}
-		if(value == null) value = "";
+		if (value == null)
+			value = "";
 		return value;
 	}
-	
-	
 
 	/**
-	 * validates the json maps against the keyword requirements 
-	 * examples: "person.roles.name": hasItems("admin"), "person.lastName":
+	 * validates the json maps against the keyword requirements examples:
+	 * "person.roles.name": hasItems("admin"), "person.lastName":
 	 * equalTo("Administrator"), "person.lastName": isNotEmpty, "person.roles.name":
 	 * contains("admin"), "person.roles.name": containsInAnyOrder(admin),
 	 * "person.roles": nodeSizeGreaterThan(0), "person.sites.": nodeSizeExact(0)
@@ -148,9 +200,9 @@ public class JsonHelper {
 	public static void validateJsonKeywords(List<KeyValue> keywords, Response response) {
 		for (KeyValue keyword : keywords) {
 			String jsonPath = Helper.stringNormalize(keyword.key);
-			String expectedValue =  Helper.stringNormalize((String) keyword.value);
+			String expectedValue = Helper.stringNormalize((String) keyword.value);
 			String command = "";
-			
+
 			String[] expected = expectedValue.split("[\\(\\)]");
 			// get value in between parenthesis
 			if (expected.length > 1) {
@@ -163,13 +215,12 @@ public class JsonHelper {
 
 			// get response string from json path (eg. data.user.id) would return "2"
 			String responseString = getJsonValue(response, jsonPath);
-			
+
 			// validate response
 			DataHelper.validateCommand(command, responseString, expectedValue, keyword.position);
 		}
 	}
-	
-	
+
 	/**
 	 * validates json string
 	 * 
@@ -207,12 +258,14 @@ public class JsonHelper {
 			}
 		}
 	}
+
 	public static boolean isValidExpectation(String expectedJson) {
 		if (JsonHelper.isJSONValid(expectedJson)) {
 			return true;
 		}
 		expectedJson = Helper.stringNormalize(expectedJson);
-		if (expectedJson.startsWith(DataHelper.VERIFY_JSON_PART_INDICATOR) || expectedJson.startsWith("_NOT_EMPTY_") || expectedJson.startsWith(DataHelper.VERIFY_RESPONSE_BODY_INDICATOR)) {
+		if (expectedJson.startsWith(DataHelper.VERIFY_JSON_PART_INDICATOR) || expectedJson.startsWith("_NOT_EMPTY_")
+				|| expectedJson.startsWith(DataHelper.VERIFY_RESPONSE_BODY_INDICATOR)) {
 			return true;
 		}
 		return false;
@@ -240,10 +293,10 @@ public class JsonHelper {
 			}
 		}
 	}
-	
+
 	/**
-	 * validates response body
-	 * this is validating the response body as text
+	 * validates response body this is validating the response body as text
+	 * 
 	 * @param expected
 	 * @param response
 	 */
@@ -253,19 +306,20 @@ public class JsonHelper {
 		}
 		// remove the indicator _VERIFY.RESPONSE.BODY_
 		expected = removeResponseIndicator(expected);
-		
+
 		String actual = JsonHelper.getResponseValue(response);
 		String[] expectedArr = expected.split("[\\(\\)]");
 		// get value in between parenthesis
 		String command = expectedArr[0].trim();
 		String expectedValue = expectedArr[1].trim();
-			
+
 		DataHelper.validateCommand(command, actual, expectedValue, "1");
-		
+
 	}
-	
+
 	/**
 	 * remove response indicators
+	 * 
 	 * @param expected
 	 * @return
 	 */
@@ -273,8 +327,8 @@ public class JsonHelper {
 		List<String> indicator = new ArrayList<String>();
 		indicator.add(DataHelper.VERIFY_RESPONSE_BODY_INDICATOR);
 		indicator.add(DataHelper.VERIFY_JSON_PART_INDICATOR);
-		
-		for(String value : indicator) {
+
+		for (String value : indicator) {
 			expected = expected.replace(value, "");
 		}
 

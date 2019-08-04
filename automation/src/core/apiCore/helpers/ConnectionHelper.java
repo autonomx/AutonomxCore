@@ -17,11 +17,8 @@ public class ConnectionHelper {
 	private static final String SSH_RHOST = "ssh.rHost";
 	private static final String SSH_RPORT = "ssh.rport";
 
-
 	/**
-	 * ssh connection
-	 * supports port forwarding as well
-	 * if host is empty, Then return
+	 * ssh connection supports port forwarding as well if host is empty, Then return
 	 * if rhost is empty, return for port forwarding
 	 */
 	public static void sshConnect() {
@@ -29,8 +26,9 @@ public class ConnectionHelper {
 		String password = Config.getValue(SSH_PASSWORD);
 		String host = Config.getValue(SSH_HOST);
 		int port = Config.getIntValue(SSH_PORT);
-		
-		if(host.isEmpty()) return;
+
+		if (host.isEmpty())
+			return;
 
 		Session session = null;
 		try {

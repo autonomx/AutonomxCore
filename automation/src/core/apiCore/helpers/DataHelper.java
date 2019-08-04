@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,28 +23,29 @@ import core.support.objects.TestObject;
 import io.netty.util.internal.StringUtil;
 
 public class DataHelper {
-	
+
 	public static final String VERIFY_JSON_PART_INDICATOR = "_VERIFY.JSON.PART_";
 	public static final String VERIFY_RESPONSE_BODY_INDICATOR = "_VERIFY.RESPONSE.BODY_";
 
 	/**
-	 * replaces placeholder values with values from config properties
-	 * replaces only string values
+	 * replaces placeholder values with values from config properties replaces only
+	 * string values
 	 * 
 	 * @param source
 	 * @return
 	 */
 	public static String replaceParameters(String source) {
-		
-		if (source.isEmpty()) return source;
-		
+
+		if (source.isEmpty())
+			return source;
+
 		List<String> parameters = Helper.getValuesFromPattern(source, "<(.+?)>");
 		String valueStr = null;
 		Object val = null;
 		int length = 0;
 		for (String parameter : parameters) {
 
-			if(parameter.contains("$"))
+			if (parameter.contains("$"))
 				continue;
 			if (parameter.contains("@_TIME")) {
 				length = getIntFromString(parameter);
@@ -53,13 +55,13 @@ public class DataHelper {
 				valueStr = TestObject.getTestInfo().randStringIdentifier.substring(0, length);
 			} else {
 				val = Config.getObjectValue(parameter.replace("@", ""));
-				if(val instanceof String)
+				if (val instanceof String)
 					valueStr = (String) val;
 			}
 			if (StringUtil.isNullOrEmpty(valueStr))
 				Helper.assertTrue("parameter value not found: " + parameter, false);
 
-			if(valueStr instanceof String) {
+			if (valueStr instanceof String) {
 				source = source.replace("<" + parameter + ">", Matcher.quoteReplacement(valueStr));
 				TestLog.logPass("replacing value '" + parameter + "' with: " + valueStr + "");
 			}
@@ -80,40 +82,41 @@ public class DataHelper {
 	public static List<KeyValue> getValidationMap(String expected) {
 		// get hashmap of json path And verification
 		List<KeyValue> keywords = new ArrayList<KeyValue>();
-		
+
 		// remove json indicator _VERIFY.JSON.PART_
 		expected = JsonHelper.removeResponseIndicator(expected);
-		
+
 		String[] keyVals = expected.split(";");
 		String key = "";
 		String position = "";
 		String value = "";
 		for (String keyVal : keyVals) {
 			String[] parts = keyVal.split(":", 3);
-			if(parts.length == 1) { 
-				 key = Helper.stringRemoveLines(parts[0]);
+			if (parts.length == 1) {
+				key = Helper.stringRemoveLines(parts[0]);
 			}
-			if(parts.length == 2) { // without position
-				 key = Helper.stringRemoveLines(parts[0]);
-				 position = StringUtil.EMPTY_STRING;
-				 value = Helper.stringRemoveLines(parts[1]);
-			}else if(parts.length == 3) { // with position
-				 key = Helper.stringRemoveLines(parts[0]);
-				 position = Helper.stringRemoveLines(parts[1]);
-				 value = Helper.stringRemoveLines(parts[2]);
+			if (parts.length == 2) { // without position
+				key = Helper.stringRemoveLines(parts[0]);
+				position = StringUtil.EMPTY_STRING;
+				value = Helper.stringRemoveLines(parts[1]);
+			} else if (parts.length == 3) { // with position
+				key = Helper.stringRemoveLines(parts[0]);
+				position = Helper.stringRemoveLines(parts[1]);
+				value = Helper.stringRemoveLines(parts[2]);
 			}
-			
+
 			// if there is a value
-			if(!key.isEmpty()) {
+			if (!key.isEmpty()) {
 				KeyValue keyword = new KeyValue(key, position, value);
 				keywords.add(keyword);
 			}
 		}
 		return keywords;
 	}
-	
+
 	/**
 	 * get value in between tags >value<
+	 * 
 	 * @param requestBody
 	 * @param tag
 	 * @return
@@ -131,60 +134,61 @@ public class DataHelper {
 		}
 		return value;
 	}
-	
+
 	public static String getTemplateFile(String file) {
 		String templatePath = Config.getValue(TestDataProvider.TEST_DATA_TEMPLATE_PATH);
 		String templateTestPath = PropertiesReader.getLocalRootPath() + templatePath;
 
-		return templateTestPath + file;	
+		return templateTestPath + file;
 	}
-	
+
 	public static File getFile(String filename) {
 		String templatePath = Config.getValue(TestDataProvider.TEST_DATA_TEMPLATE_PATH);
 		String templateTestPath = PropertiesReader.getLocalRootPath() + templatePath;
 		File file = new File(templateTestPath + filename);
-		return file;	
+		return file;
 	}
-	
+
 	public static String convertTemplateToString(String templateFilePath) throws IOException {
 		BufferedReader br = new BufferedReader(new FileReader(new File(templateFilePath)));
 		String line;
 		StringBuilder sb = new StringBuilder();
 
-		while((line=br.readLine())!= null){
-		    sb.append(line.trim());
+		while ((line = br.readLine()) != null) {
+			sb.append(line.trim());
 		}
 		br.close();
-		
+
 		return sb.toString();
 	}
-	
-	   /**
-     * In outputParams get the params enclosed by <$> look up their values
-     * in outboundMsg And Then add them to ConfigurationParams
-     *
-     * @param outputParams
-     * @param outboundMsg
-     */
-    public static void addOutputMessageToConfigParams(String outputParams, String outboundMsg) {
-        
-        //Copy responseBody into the variable
-         String key = StringUtils.substringBetween(outputParams, "<$", ">");
-         Config.putValue(key, outboundMsg);
-        
-        TestLog.logPass("Get Service Bus Outbound Message:{0}", Config.getValue(key));
-    }
-    
-    /**
-     * validates response against expected values
-     * @param command
-     * @param responseString
-     * @param expectedString
-     */
-    public static void validateCommand(String command, String responseString, String expectedString) {
-    	validateCommand(command,responseString,expectedString, StringUtils.EMPTY);
-    }
-    
+
+	/**
+	 * In outputParams get the params enclosed by <$> look up their values in
+	 * outboundMsg And Then add them to ConfigurationParams
+	 *
+	 * @param outputParams
+	 * @param outboundMsg
+	 */
+	public static void addOutputMessageToConfigParams(String outputParams, String outboundMsg) {
+
+		// Copy responseBody into the variable
+		String key = StringUtils.substringBetween(outputParams, "<$", ">");
+		Config.putValue(key, outboundMsg);
+
+		TestLog.logPass("Get Service Bus Outbound Message:{0}", Config.getValue(key));
+	}
+
+	/**
+	 * validates response against expected values
+	 * 
+	 * @param command
+	 * @param responseString
+	 * @param expectedString
+	 */
+	public static void validateCommand(String command, String responseString, String expectedString) {
+		validateCommand(command, responseString, expectedString, StringUtils.EMPTY);
+	}
+
     /**
 	 * validates response against expected values
 	 * @param command
@@ -277,5 +281,20 @@ public class DataHelper {
 		default:
 			break;
 		}
+	}
+	
+	/**
+	 * converts list to string separated by ","
+	 * @param values
+	 * @return
+	 */
+	public static String listToString(List<String> values) {
+		String result = "";
+		for(Object val : values) {
+			String value = Objects.toString(val, "");
+			result = result + value;
+			if(values.size()>1) result+=",";
+		}
+		return result;		
 	}
 }

@@ -68,10 +68,9 @@ public class CsvReader {
 		Map<String, ServiceObject> apiMap = new ConcurrentHashMap<String, ServiceObject>();
 		for (String[] testCase : testCases) {
 			// add parameters to ServiceObject
-			ServiceObject apiObject = new ServiceObject().setApiObject(testCase[0], testCase[1], testCase[2], testCase[3],
-					testCase[4], testCase[5], testCase[6], testCase[7], testCase[8], testCase[9], testCase[10],
-					testCase[11], testCase[12], testCase[13], testCase[14], testCase[15],
-					"", "");
+			ServiceObject apiObject = new ServiceObject().setApiObject(testCase[0], testCase[1], testCase[2],
+					testCase[3], testCase[4], testCase[5], testCase[6], testCase[7], testCase[8], testCase[9],
+					testCase[10], testCase[11], testCase[12], testCase[13], testCase[14], testCase[15], "", "");
 			apiMap.put(apiObject.getTestCaseID(), apiObject);
 		}
 		return apiMap;
@@ -106,14 +105,13 @@ public class CsvReader {
 	public static int getCurrentTestInvocation() {
 
 		// if test class (based on csv file) has initiated, get the current csv file
-		if(isRunningServiceTest()) 
-		{
+		if (isRunningServiceTest()) {
 			String activeTest = TestObject.getTestInfo().testCsvFileName;
 			return getCsvFileIndex(activeTest);
 		}
 		return TestDataProvider.csvFileIndex.getAndIncrement();
 	}
-	
+
 	public static boolean isRunningServiceTest() {
 		return !TestObject.getTestInfo().testCsvFileName.isEmpty();
 	}
@@ -139,7 +137,8 @@ public class CsvReader {
 	 * @return
 	 */
 	public static ArrayList<File> getCsvFileList() {
-		String csvTestPath = PropertiesReader.getLocalRootPath() + Config.getValue(TestDataProvider.TEST_DATA_PARALLEL_PATH);
+		String csvTestPath = PropertiesReader.getLocalRootPath()
+				+ Config.getValue(TestDataProvider.TEST_DATA_PARALLEL_PATH);
 		ArrayList<File> csvFiles = Helper.getFileListByType(csvTestPath, ".csv");
 		return csvFiles;
 	}
