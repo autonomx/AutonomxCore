@@ -2,6 +2,7 @@ package core.support.annotation.template.dataObject;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,12 +14,15 @@ import javax.tools.JavaFileObject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
+import com.opencsv.CSVReader;
+
 import core.apiCore.helpers.DataHelper;
 import core.helpers.Helper;
 import core.support.annotation.helper.DataObjectHelper;
 import core.support.annotation.helper.FileCreatorHelper;
 import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PackageHelper;
+import data.webApp.User;
 
 public class CsvDataObject {
 	
@@ -129,6 +133,8 @@ public class User {
 		bw.newLine();
 		bw.append("import org.apache.commons.lang3.StringUtils;"+ "\n");
 		bw.append("import org.testng.annotations.DataProvider;"+ "\n");
+		bw.append("import core.helpers.Helper;"+ "\n");
+		bw.append("import core.helpers.csvHelper.CsvObject;"+ "\n");
 		bw.newLine();
 		bw.newLine();
 		
@@ -148,6 +154,7 @@ public class User {
 			String column = csvDataWithHeader.get(0)[i];
 			bw.append("private String " + column + " = StringUtils.EMPTY;\n" );
 		}
+		bw.append("private String id = StringUtils.EMPTY;\n" );
 		bw.newLine();
 		bw.newLine();
 
@@ -159,10 +166,10 @@ public class User {
 //		}
 		// first column is id
 		for(int i = firstIndex; i<csvDataWithHeader.get(0).length; i++) {
-			String column = csvDataWithHeader.get(0)[i];
-			bw.append("public " + csvName + " with" + StringUtils.capitalize(column) + "(String " +column + ") {\n" );
-			bw.append("    this." + column + " = " + column + ";" + "\n");
-			bw.append("    return this;" + "\n");
+			String column = csvDataWithHeader.get(0)[i].trim();
+			bw.append("	public " + csvName + " with" + StringUtils.capitalize(column) + "(String " +column + ") {\n" );
+			bw.append("    	this." + column + " = " + column + ";" + "\n");
+			bw.append("    	return this;" + "\n");
 			bw.append("}" + "\n");
 			bw.newLine();
 			bw.newLine();
@@ -174,53 +181,96 @@ public class User {
 //		}
 		// first column is id
 		for(int i = firstIndex; i<csvDataWithHeader.get(0).length; i++) {
-			String column = csvDataWithHeader.get(0)[i];
-			bw.append("public String get" + StringUtils.capitalize(column) + "() {" + "\n");
-			bw.append("    return " + column + ";" + "\n");
+			String column = csvDataWithHeader.get(0)[i].trim();
+			bw.append("	public String get" + StringUtils.capitalize(column) + "() {" + "\n");
+			bw.append("    	return " + column + ";" + "\n");
 			bw.append("}"+ "\n");
 			bw.newLine();
 			bw.newLine();
 		}
 		
 		
-//		public User admin() {
-//			User login = new User()
-//				.withUserName("admin1");
-//				.withPassword("password1");
-//			return login;
-//		}
+		/*
+		 * 	public User admin() {
+		 	  User user = new User();
+			  user.username = "autoAdmin1";
+			  user.password = "autoPass1";
+			  user.name = "dave";
+			  user.id = "admin";
+		    return user;
+		}
+		 */
 		for(int rowIndex = 1; rowIndex < csvDataWithHeader.size(); rowIndex++) {
-			String key = updateForDuplicateIds(csvDataWithHeader).get(rowIndex - 1);
+			String key = updateForDuplicateIds(csvDataWithHeader).get(rowIndex - 1).trim();
 			key = normalizeMethodName(key);
 			
-			bw.append("public " + csvName + " " + key +  "() {" + "\n");
-			bw.append("    " + csvName + " " + csvName.toLowerCase() + " = new " + csvName + "()" + "\n");
+			bw.append("	public " + csvName + " " + key +  "() {" + "\n");
+			bw.append(" 	  " + csvName + " " + csvName.toLowerCase() + " = new " + csvName + "();" + "\n");
 			for(int columnIndex = firstIndex; columnIndex < csvDataWithHeader.get(0).length; columnIndex++ ) {
-				String column = StringUtils.capitalize(csvDataWithHeader.get(0)[columnIndex]);
-				////////////TODOD fix if null
+				String column = csvDataWithHeader.get(0)[columnIndex].trim();
+				////////////TODO fix if null
 				String value = "";
-				try {
 				value = csvDataWithHeader.get(rowIndex)[columnIndex];
-				}catch(Exception e) {
-					e.getMessage();
-				}
-				
 				
 				// replace keyword values . <_@Rand4>. same as service level tests
 				value = DataHelper.replaceParameters(value); 
-				bw.append("             .with" + column + "(\"" + value + "\")");
-				
-				// if last line
-				if(columnIndex == csvDataWithHeader.get(0).length -1) {
-					bw.append(";");
-				}
-				bw.append("\n");
+				bw.append("	  " + csvName.toLowerCase() +"." + column + " = \"" + value + "\";" + "\n");
 			}
+			
+			// if '@id' field does not exist, set id as empty
+			String idValue = StringUtils.EMPTY;
+			if(hasIdColumn ) idValue = key;
+			
+			bw.append("	  " + csvName.toLowerCase() +".id = \"" + idValue + "\";" + "\n");
 			bw.append("    return " + csvName.toLowerCase() + ";" +"\n");
 			bw.append("}"+ "\n");
 			bw.newLine();
 			bw.newLine();
 		}
+		
+		
+		
+		/*
+		// update value in csv file
+		public synchronized void updateRate( String rate) {
+	
+			Helper.assertTrue("id cannot be empty, select row id. eg. Data.webApp.users().admin().updateName('bob'); " , !this.id.isEmpty());
+	
+			String path = "/Users/Shared/Jenkins/Documents/Selenium/mining/mining/automation/src/main/java/module/webApp/data";
+			String fileName = "MinerList.csv";
+			String value = rate;
+			String[] valueArray = value.split(",");
+			int columnIndex = Helper.csv.getColumnIndex("rate", path + "/" + fileName);
+			int rowIndex = Helper.csv.getRowIndex(this.id, path + "/" + fileName );
+			CsvObject csv = new CsvObject().withCsvPath(path).withCsvFile("MinerList.csv").withValue(valueArray).withRow(rowIndex).withColumn(columnIndex);
+			Helper.csv.writeToCell(csv, rate, path + "/" + fileName );
+		}
+		 */
+		
+		// list of columns, excluding '@id' column
+		List<String> headers = getColumnListFromCsv(file);
+
+		for(int i = firstIndex; i < headers.size(); i++) {
+			String column = headers.get(i).trim();
+			bw.append("// update value in csv file" +"\n");
+			bw.append("	public synchronized void update"+ StringUtils.capitalize(column) +"( String "+ column +") {" +"\n" +"\n");
+			bw.append("		Helper.assertTrue(\"id cannot be empty, select row id. eg. Data.webApp.users().admin().updateName('bob'); \" , !this.id.isEmpty());" + "\n" + "\n");
+			bw.append("		String path = \"" + file.getParent() +"\";" + "\n");
+			bw.append("		String fileName = \"" + file.getName() +"\";" + "\n");
+			bw.append("		String value = " + column + ";" +"\n");
+			bw.append("		String[] valueArray = value.split(\",\");" +"\n");
+			bw.append("		int columnIndex = Helper.csv.getColumnIndex(\""+ column +"\", path + \"/\" + fileName);" +"\n");
+			bw.append("		int rowIndex = Helper.csv.getRowIndex(this.id, path + \"/\" + fileName );" +"\n");
+			bw.append("		CsvObject csv = new CsvObject().withCsvPath(path).withCsvFile(\"" + file.getName() + "\").withValue(valueArray).withRow(rowIndex).withColumn(columnIndex);" + "\n");
+			bw.append("		Helper.csv.writeToCell(csv, "+ column +", path + \"/\" + fileName );" +"\n");
+			bw.append("	}\n ");
+			bw.newLine();
+		}
+		
+		bw.newLine();
+		bw.newLine();
+		
+		
 		
 //		public synchronized Object[][] dataProvider() {
 //			 return new Object[][] {
@@ -228,8 +278,8 @@ public class User {
 //				 					{ "testuser_2", "Test@124" }
 //								   };	 
 //		}
-		bw.append("@DataProvider(name = \"DataRunner\", parallel = true)" +"\n");
-		bw.append("public synchronized Object[][] dataProvider() {"+"\n");
+		bw.append("	@DataProvider(name = \"DataRunner\", parallel = true)" +"\n");
+		bw.append("	public synchronized Object[][] dataProvider() {"+"\n");
 		
 		bw.append("    return new Object[][] {	" +"\n");
 		
@@ -265,6 +315,24 @@ public class User {
 		bw.newLine();
 		bw.newLine();
 		
+		/**
+		 * public void addRow(String type, String hashrate) {
+			String path = Helper.getRootDir() + "src" + File.separator + "main" + File.separator + "java" + File.separator + "module" + File.separator + "webApp" + File.separator + "data" + File.separator; 
+			
+			String[] value = "type,hashrate".split(",");
+			CsvObject csv = new CsvObject().withCsvPath(path).withCsvFile("MinerList.csv").withValue(value);	
+			Helper.csv.writeAddRow(csv);	
+		}
+		 */
+		
+		String headerParameters = getMethodParametersFromColumnHeaders(headers);
+		bw.append("	public void addRow("+ headerParameters +") {" +"\n" +"\n");
+		bw.append("		String path = \"" + file.getParent() +"\";" + "\n");
+		bw.append("		String value = " + String.join(" + \",\" +", headers) + ";" +"\n");
+		bw.append("		String[] valueArray = value.split(\",\");" +"\n");
+		bw.append("		CsvObject csv = new CsvObject().withCsvPath(path).withCsvFile(\"" + file.getName() + "\").withValue(valueArray);" + "\n");
+		bw.append("		Helper.csv.AddRow(csv);" +"\n");
+		bw.append("	}\n");
 		bw.append("}\n");
 
 		bw.flush();
@@ -360,5 +428,44 @@ public class User {
 			updatedList.add(row);
 		}
 		return updatedList;
+	}
+	
+	/**
+	 * gets list of column headers
+	 * replaces '@id' if exists with id
+	 * @param file
+	 * @return arraylist of column headers
+	 */
+	private static List<String> getColumnListFromCsv(File file){
+		CSVReader reader;
+		List<String> headerList = new ArrayList<String>();
+		try {
+			reader = new CSVReader(new FileReader(file.getAbsoluteFile()));
+			// if the first line is the header
+			headerList = Arrays.asList(reader.readNext());
+			
+			reader.close();
+			
+			// return list if empty
+			if(headerList.isEmpty()) return headerList;
+			
+			// replace @id with id on the first column header
+			if(headerList.get(0).equals(ID_COLUMN))
+				headerList.set(0, ID_COLUMN.replace("@", ""));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return headerList;
+	}
+	
+	/**
+	 * converts list of headers to method parameters
+	 * eg. {"id","type"} becomes "String id, String type"
+	 * @param headers
+	 * @return
+	 */
+	private static String getMethodParametersFromColumnHeaders(List<String> headers) {
+		String headerMethod = String.join(", String ", headers);
+		return "String " + headerMethod;
 	}
 }

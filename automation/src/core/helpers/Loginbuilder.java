@@ -190,7 +190,7 @@ public class Loginbuilder {
 		do {
 			retry--;
 			Helper.waitForElementToLoad(firstElement, AbstractDriver.TIMEOUT_SECONDS - 1);
-			if (Helper.isPresent(firstElement))
+			if (!Helper.isPresent(firstElement))
 				Helper.refreshPage();
 	
 		} while (!Helper.isPresent(firstElement) && retry > 0);

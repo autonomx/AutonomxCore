@@ -11,7 +11,8 @@ import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import au.com.bytecode.opencsv.CSVReader;
+import com.opencsv.CSVReader;
+
 import core.apiCore.TestDataProvider;
 import core.helpers.Helper;
 import core.support.configReader.Config;
