@@ -22,7 +22,6 @@ import core.support.annotation.helper.DataObjectHelper;
 import core.support.annotation.helper.FileCreatorHelper;
 import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PackageHelper;
-import data.webApp.User;
 
 public class CsvDataObject {
 	
