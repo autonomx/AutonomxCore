@@ -254,14 +254,14 @@ public class User {
 			bw.append("// update value in csv file" +"\n");
 			bw.append("	public synchronized void update"+ StringUtils.capitalize(column) +"( String "+ column +") {" +"\n" +"\n");
 			bw.append("		Helper.assertTrue(\"id cannot be empty, select row id. eg. Data.webApp.users().admin().updateName('bob'); \" , !this.id.isEmpty());" + "\n" + "\n");
-			bw.append("		String path = \"" + file.getParent() +"\";" + "\n");
+			bw.append("		String path = \"" + file.getParent().replace(File.separator, File.separator + File.separator) + File.separator + File.separator +"\";" + "\n");
 			bw.append("		String fileName = \"" + file.getName() +"\";" + "\n");
 			bw.append("		String value = " + column + ";" +"\n");
 			bw.append("		String[] valueArray = value.split(\",\");" +"\n");
-			bw.append("		int columnIndex = Helper.csv.getColumnIndex(\""+ column +"\", path + \"/\" + fileName);" +"\n");
-			bw.append("		int rowIndex = Helper.csv.getRowIndex(this.id, path + \"/\" + fileName );" +"\n");
+			bw.append("		int columnIndex = Helper.csv.getColumnIndex(\""+ column +"\", path  + fileName);" +"\n");
+			bw.append("		int rowIndex = Helper.csv.getRowIndex(this.id, path + fileName );" +"\n");
 			bw.append("		CsvObject csv = new CsvObject().withCsvPath(path).withCsvFile(\"" + file.getName() + "\").withValue(valueArray).withRow(rowIndex).withColumn(columnIndex);" + "\n");
-			bw.append("		Helper.csv.writeToCell(csv, "+ column +", path + \"/\" + fileName );" +"\n");
+			bw.append("		Helper.csv.writeToCell(csv, "+ column +", path + fileName );" +"\n");
 			bw.append("	}\n ");
 			bw.newLine();
 		}
@@ -326,7 +326,7 @@ public class User {
 		
 		String headerParameters = getMethodParametersFromColumnHeaders(headers);
 		bw.append("	public void addRow("+ headerParameters +") {" +"\n" +"\n");
-		bw.append("		String path = \"" + file.getParent() +"\";" + "\n");
+		bw.append("		String path = \"" + file.getParent().replace(File.separator, File.separator + File.separator) +"\";" + "\n");
 		bw.append("		String value = " + String.join(" + \",\" +", headers) + ";" +"\n");
 		bw.append("		String[] valueArray = value.split(\",\");" +"\n");
 		bw.append("		CsvObject csv = new CsvObject().withCsvPath(path).withCsvFile(\"" + file.getName() + "\").withValue(valueArray);" + "\n");

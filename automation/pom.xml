@@ -278,11 +278,11 @@
 
 		<dependency>
 			<groupId>de.dfki.mary</groupId>
-			<artifactId>voice-dfki-prudence-hsmm</artifactId>
+			<artifactId>voice-cmu-slt-hsmm</artifactId>
 			<version>5.2</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/com.ibm.watson.developer_cloud/text-to-speech -->
+		<!-- voice-dfki-prudence-hsmm https://mvnrepository.com/artifact/com.ibm.watson.developer_cloud/text-to-speech -->
 		<dependency>
 			<groupId>com.ibm.watson.developer_cloud</groupId>
 			<artifactId>java-sdk</artifactId>

@@ -390,8 +390,8 @@ public class TestLog {
 			String[] voiceList = voices.toArray(new String[voices.size()]);
 
 			marytts.setVoice(voiceList[0]);
-
-			AudioInputStream audio = marytts.generateAudio(value);
+			
+			AudioInputStream audio = marytts.generateAudio(value + "!");
 			player = new marytts.util.data.audio.AudioPlayer(audio);
 			player.start();
 			player.join();
@@ -407,7 +407,8 @@ public class TestLog {
 	 */
 	public synchronized static void playWatsonAudio(String value) {
 		TextToSpeech textToSpeech = new TextToSpeech();
-		textToSpeech.setUsernameAndPassword("55fffe86-bf08-4e28-82d3-c934fc8dff38", "0PQpBf8XIWCj");
+		// set username and password from IBM account
+		textToSpeech.setUsernameAndPassword("", "");
 		textToSpeech.setEndPoint("https://stream.watsonplatform.net/text-to-speech/api");
 
 		try {
