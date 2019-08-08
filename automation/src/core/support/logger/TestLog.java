@@ -391,6 +391,7 @@ public class TestLog {
 
 			marytts.setVoice(voiceList[0]);
 			
+			// '!' results in playback being a bit faster, more natural
 			AudioInputStream audio = marytts.generateAudio(value + "!");
 			player = new marytts.util.data.audio.AudioPlayer(audio);
 			player.start();

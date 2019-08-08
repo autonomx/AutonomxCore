@@ -88,9 +88,13 @@ public class AndroidCapability {
 	 */
 	public AndroidCapability withAndroidCapability() {
 		
+		// run only once per test run
+		uninstallUiAutomator2();
+		
 		// sets capabilities from properties files
 		capabilities = setAndroidCapabilties();
 		
+		// set app path
 		capabilities.setCapability(MobileCapabilityType.APP, getAppPath());
 
 		// download chrome driver if hybrid
@@ -118,9 +122,6 @@ public class AndroidCapability {
 	 * @return 
 	 */
 	public DesiredCapabilities setAndroidCapabilties() {
-
-		// run only once per test run
-		uninstallUiAutomator2();
 		
 		// get all keys from config 
 		Map<String, Object> propertiesMap = TestObject.getTestInfo().config;

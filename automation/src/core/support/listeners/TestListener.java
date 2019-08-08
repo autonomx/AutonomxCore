@@ -174,16 +174,13 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		// mobile device is now available again
 		DeviceManager.setDeviceAvailability(true);
 		
-		// shutdown drivers if single sign in is false
-		if (!CrossPlatformProperties.isSingleSignIn())
-			DriverObject.quitTestDrivers();
-		
 		// reset test object
 		TestObject.getTestInfo().resetTestObject();
 	}
 
 	@Override
 	public void onTestFailure(ITestResult iTestResult) {
+		
 		TestObject.getTestInfo().isTestComplete = TestObject.isTestcomplete();
 
 		// sets the class name for logging before class
@@ -201,9 +198,6 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		
 		// stop screen recording if enabled
 		ScreenRecorderHelper.stopRecording();
-
-		// quits web driver no matter the situation, as new browser will be launched
-		DriverObject.quitTestDrivers();
 
 		// reset test object
 		TestObject.getTestInfo().resetTestObject();
@@ -224,7 +218,6 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		// stop screen recording if enabled
 		ScreenRecorderHelper.stopRecording();
 
-		DriverObject.quitTestDrivers();
 		// Extentreports log operation for skipped tests.
 		// ExtentTestManager.getTest().log(LogStatus.SKIP, "Test Skipped");
 	}

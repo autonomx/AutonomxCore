@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.openqa.selenium.WebDriver;
+import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Listeners;
@@ -271,8 +272,16 @@ public class AbstractDriverTestNG {
 	}
 
 	@AfterMethod
-	public void shutdown() {
+	public void shutdown(ITestResult iTestResult) {
 		letRetryKnowAboutReports();
+		if(iTestResult.isSuccess()) {
+			// shutdown drivers if single sign in is false
+			if (!CrossPlatformProperties.isSingleSignIn())
+				DriverObject.quitTestDrivers();
+		}else {
+			// quits web driver no matter the situation, as new browser will be launched
+			DriverObject.quitTestDrivers();	
+		}
 	}
 
 	private void letRetryKnowAboutReports() {

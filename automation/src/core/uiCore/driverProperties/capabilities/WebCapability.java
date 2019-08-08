@@ -29,6 +29,7 @@ public class WebCapability {
 
 	private static final String CHROME_PREF_PREFIX = "chrome.pref";
 	private static final String FIREFOX_PREF_PREFIX = "firefox.pref";
+	private static final String WEB_CAPABILITIES_PREFIX = "web.capabilities.";
 
 
 	public DesiredCapabilities capabilities;
@@ -60,13 +61,17 @@ public class WebCapability {
 		System.setProperty("webdriver.chrome.silentOutput", "true");
 
 		capabilities.setCapability("recordVideo", true);
-		capabilities.setCapability("takesScreenshot", true);
+		//capabilities.setCapability("takesScreenshot", true);
 		capabilities.setBrowserName(getBrowserName());
+		capabilities.setCapability("name", TestObject.getTestInfo().testName);
 		
-		// set chrome or firefox options based on prefix
+		// set web capabilities based on prefix web.capabilities
+		setWebCapabilties();
+		
+		// set chrome or firefox options based on prefix chrome.options or firefox.options
 		setOptions();
 		
-		// set chrome or firefox preferences based on prefix
+		// set chrome or firefox preferences based on prefix chrome.pref or firefox.pref
 		setPreferences();
 		
 		// set logging for browser to severe only
@@ -76,6 +81,31 @@ public class WebCapability {
 		capabilities.setCapability(CapabilityType.LOGGING_PREFS, logs);		
 		
 		return this;
+	}
+	
+	/**
+	 * set capabilties with prefix android.capabilties.
+	 * eg. android.capabilties.fullReset="false
+	 * iterates through all property values with such prefix And adds them to android desired capabilities
+	 * @return 
+	 */
+	public DesiredCapabilities setWebCapabilties() {
+		
+		// get all keys from config 
+		Map<String, Object> propertiesMap = TestObject.getTestInfo().config;
+
+		// load config/properties values from entries with "android.capabilties." prefix
+		for (Entry<String, Object> entry : propertiesMap.entrySet()) {
+			boolean isWebCapability = entry.getKey().toString().startsWith(WEB_CAPABILITIES_PREFIX);
+			if (isWebCapability) {
+				String fullKey = entry.getKey().toString();
+				String key = fullKey.substring(fullKey.lastIndexOf(".") + 1).trim();
+				String value = entry.getValue().toString().trim();
+				
+				capabilities.setCapability(key, value);
+			}
+		}
+		return capabilities;
 	}
 	
 	/**
