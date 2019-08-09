@@ -150,11 +150,11 @@ public class Helper {
 		AssertHelper.softAssertTrue(message, value);
 	}
 	
-	protected static void softAssertEqual(String expected, String actual) {
+	public static void softAssertEqual(String expected, String actual) {
 		AssertHelper.softAssertEqual(actual, expected);
 	}
 	
-	protected static void softAssertEqual(int expected, int actual) {
+	public static void softAssertEqual(int expected, int actual) {
 		AssertHelper.softAssertEqual(actual, expected);
 	}
 
@@ -423,7 +423,17 @@ public class Helper {
 	 */
 	public static void verifyElementIsDisplayed(EnhancedBy by) {
 		VerifyHelper.verifyElementIsDisplayed(by);
-	}	
+	}
+	
+	/**
+	 * returns true if element is displayed
+	 * 
+	 * @param element
+	 * @return
+	 */
+	public static boolean isDisplayed(EnhancedBy element) {
+		return VerifyHelper.isPresent(element);
+	}
 
 	/**
 	 * returns true if element is displayed
@@ -499,6 +509,24 @@ public class Helper {
 	 */
 	public static void verifyElementCount(EnhancedBy by, int value, int... correction) {
 		VerifyHelper.verifyElementCount(by, value, correction);
+	}
+	
+	/**
+	 * verifies if text contains any of values in list
+	 * @param target
+	 * @param values
+	 */
+	public static void verifyAnyTextContaining(EnhancedBy target, String... values) {
+		VerifyHelper.verifyAnyTextContaining(target, values);
+	}
+	
+	/**
+	 * verifies if text contains any of values in list
+	 * @param target
+	 * @param values
+	 */
+	public  static void verifyAnyText(EnhancedBy target, String... values) {
+		VerifyHelper.verifyAnyText(target, values);
 	}
 
 	// FormHelper Class
@@ -1847,6 +1875,73 @@ public class Helper {
 	public static boolean waitForElementToBeClickable(EnhancedBy selector, int timeInSeconds) {
 		return wait.waitForElementToBeClickable(selector, timeInSeconds);
 	}
+	
+	/**
+	 * wait for class to contain
+	 * @param target
+	 * @param index
+	 * @param value
+	 * @return
+	 */
+	public boolean waitForClassContain(final EnhancedBy target, int index, String value) {
+		return wait.waitForClassContain(target, index, value);
+	}
+	
+	/**
+	 * wait for class to contain value
+	 * @param target
+	 * @param index
+	 * @param value
+	 * @param time
+	 * @return
+	 */
+	public boolean waitForClassContain(final EnhancedBy target, int index, String value, int time) {
+		return wait.waitForClassContain(target, index, value, time);
+	}
+	
+	/**
+	 * wait for any text strings to become available
+	 * @param target
+	 * @param time
+	 * @param text
+	 * @return
+	 */
+	public static boolean waitForAnyTextToLoadContaining(final EnhancedBy target, String... text) {
+		return wait.waitForAnyTextToLoad(target, text);
+	}
+	
+	/**
+	 * wait for any text strings to become available
+	 * @param target
+	 * @param time
+	 * @param text
+	 * @return
+	 */
+	public static  boolean waitForAnyTextToLoadContaining(final EnhancedBy target, int time, String... text) {
+		return wait.waitForAnyTextToLoad(target, time, text);
+	}
+	
+	/**
+	 * wait for any text strings to become available
+	 * @param target
+	 * @param time
+	 * @param text
+	 * @return
+	 */
+	public static boolean waitForAnyTextToLoad(final EnhancedBy target, String... text) {
+		return wait.waitForAnyTextToLoad(target,  text);
+	}
+	
+	/**
+	 * wait for any text strings to become available
+	 * @param target
+	 * @param time
+	 * @param text
+	 * @return
+	 */
+	public static  boolean waitForAnyTextToLoad(final EnhancedBy target, int time, String... text) {
+		return wait.waitForAnyTextToLoad(target, time, text);
+	}
 
 	// StopWatchHelper
 
@@ -1981,7 +2076,7 @@ public class Helper {
 	 * create directories and files based on absolute path
 	 * @param path
 	 */
-	protected static void createFileFromPath(String absolutePath) {
+	public static void createFileFromPath(String absolutePath) {
 		UtilityHelper.createFileFromPath(absolutePath);
 	}
 	

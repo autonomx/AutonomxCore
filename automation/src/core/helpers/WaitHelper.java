@@ -1,6 +1,7 @@
 package core.helpers;
 
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.JavascriptExecutor;
@@ -384,10 +385,25 @@ public class WaitHelper {
 		return true;
 	}
 	
+	/**
+	 * wait for class to contain value
+	 * @param target
+	 * @param index
+	 * @param value
+	 * @return
+	 */
 	public boolean waitForClassContain(final EnhancedBy target, int index, String value) {
 		return waitForClassContain(target, index,  value, AbstractDriver.TIMEOUT_SECONDS);
 	}
 	
+	/**
+	 * wait for class to contain value
+	 * @param target
+	 * @param index
+	 * @param value
+	 * @param time
+	 * @return
+	 */
 	public boolean waitForClassContain(final EnhancedBy target, int index, String value, int time) {
 		FluentWait<WebDriver> wait = new FluentWait<>(AbstractDriver.getWebDriver()).withTimeout(Duration.ofSeconds(time))
 				.pollingEvery(Duration.ofMillis(5)).ignoring(NoSuchElementException.class);
@@ -408,4 +424,94 @@ public class WaitHelper {
 		}
 		return true;	
 	}
+	
+	/**
+	 * wait for any text strings to become available
+	 * @param target
+	 * @param time
+	 * @param text
+	 * @return
+	 */
+	public boolean waitForAnyTextToLoadContaining(final EnhancedBy target, String... text) {
+		return waitForAnyTextToLoadContaining(target, AbstractDriver.TIMEOUT_SECONDS, text);
+	}
+	
+	/**
+	 * wait for any text strings to become available
+	 * @param target
+	 * @param time
+	 * @param text
+	 * @return
+	 */
+	public boolean waitForAnyTextToLoadContaining(final EnhancedBy target, int time, String... text) {
+		FluentWait<WebDriver> wait = new FluentWait<>(AbstractDriver.getWebDriver()).withTimeout(Duration.ofSeconds(time))
+				.pollingEvery(Duration.ofMillis(5)).ignoring(NoSuchElementException.class);
+		try {
+			wait.until(new Function<WebDriver, Boolean>() {
+				@Override
+				public Boolean apply(WebDriver driver) {
+					EnhancedWebElement elements = Element.findElements(target);
+					String actualValue = elements.getText();
+
+					for(String value : text) {
+						if(actualValue.contains(value))
+							return true;
+					}
+					return false;
+				}
+			});
+		} catch (Exception e) {
+			if (time == AbstractDriver.TIMEOUT_SECONDS)
+				AssertHelper.assertTrue("element: " + target.name + " did not display any text allowed time (s) " + time +  " , text values: " + Arrays.toString(text) ,
+						false);
+			e.getMessage();
+			return false;
+		}
+		return true;	
+	}
+	
+	/**
+	 * wait for any text strings to become available
+	 * @param target
+	 * @param time
+	 * @param text
+	 * @return
+	 */
+	public boolean waitForAnyTextToLoad(final EnhancedBy target, String... text) {
+		return waitForAnyTextToLoad(target, AbstractDriver.TIMEOUT_SECONDS, text);
+	}
+	
+	/**
+	 * wait for any text strings to become available
+	 * @param target
+	 * @param time
+	 * @param text
+	 * @return
+	 */
+	public boolean waitForAnyTextToLoad(final EnhancedBy target, int time, String... text) {
+		FluentWait<WebDriver> wait = new FluentWait<>(AbstractDriver.getWebDriver()).withTimeout(Duration.ofSeconds(time))
+				.pollingEvery(Duration.ofMillis(5)).ignoring(NoSuchElementException.class);
+		try {
+			wait.until(new Function<WebDriver, Boolean>() {
+				@Override
+				public Boolean apply(WebDriver driver) {
+					EnhancedWebElement elements = Element.findElements(target);
+					String actualValue = elements.getText();
+					for(String value : text) {
+						if(actualValue.equals(value))
+							return true;
+					}
+					return false;
+				}
+			});
+		} catch (Exception e) {
+			if (time == AbstractDriver.TIMEOUT_SECONDS)
+				AssertHelper.assertTrue("element: " + target.name + " did not display any text allowed time (s) " + time +  " , text values: " + Arrays.toString(text) ,
+						false);
+			e.getMessage();
+			return false;
+		}
+		return true;	
+	}
+	
 }

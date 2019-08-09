@@ -1,5 +1,7 @@
 package core.helpers;
 
+import java.util.Arrays;
+
 import core.support.logger.TestLog;
 import core.uiCore.drivers.AbstractDriver;
 import core.uiCore.webElement.EnhancedBy;
@@ -20,7 +22,7 @@ public class VerifyHelper {
 		EnhancedWebElement elements = Element.findElements(by);
 		AssertHelper.assertTrue("element '" + by.name + "' is not displayed", elements.count() > 0);
 	}
-
+	
 	/**
 	 * returns true if element is displayed
 	 *
@@ -122,5 +124,47 @@ public class VerifyHelper {
 		Helper.wait.waitForElementToLoad(by, AbstractDriver.TIMEOUT_SECONDS, value);
 		int count = Helper.list.getListCount(by);
 		Helper.assertEquals(value, count);
+	}
+	
+	/**
+	 * verifies if text contains any of values in list
+	 * @param target
+	 * @param values
+	 */
+	protected static void verifyAnyTextContaining(EnhancedBy target, String... values) {
+		TestLog.logPass("I verify element '" + target.name + "' " + " contains " + Arrays.toString(values));
+		Helper.waitForAnyTextToLoadContaining(target, values);
+		
+		EnhancedWebElement elements = Element.findElements(target);
+		String actualValue = elements.getText();
+		
+		for(String value : values) {
+			if(actualValue.contains(value)) {
+				TestLog.logPass("value found: " + value);
+				return;
+			}
+		}
+		Helper.assertFalse("element: " + target.name + " did not display any text, text values: " + Arrays.toString(values));
+	}
+	
+	/**
+	 * verifies if text contains any of values in list
+	 * @param target
+	 * @param values
+	 */
+	protected static void verifyAnyText(EnhancedBy target, String... values) {
+		TestLog.logPass("I verify element '" + target.name + "' " + " contains " + Arrays.toString(values));
+		Helper.waitForAnyTextToLoadContaining(target, values);
+		
+		EnhancedWebElement elements = Element.findElements(target);
+		String actualValue = elements.getText();
+		
+		for(String value : values) {
+			if(actualValue.equals(value)) {
+				TestLog.logPass("value found: " + value);
+				return;
+			}
+		}
+		Helper.assertFalse("element: " + target.name + " did not display any text, text values: " + Arrays.toString(values));
 	}
 }
