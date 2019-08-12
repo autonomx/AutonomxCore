@@ -2096,6 +2096,15 @@ public class Helper {
 	public static void writeFile(String value, String path, String filename, String type) {
 		UtilityHelper.writeFile(value, path, filename, type);
 	}
+	
+	/**
+	 * Create file  (where pom.xml is) and write to it
+	 * @param value
+	 * @param absolutePath
+	 */
+	public static void writeFile(String value, String absolutePath) {
+		UtilityHelper.writeFile(value, absolutePath);
+	}
 
 	
 	/**
@@ -2113,6 +2122,18 @@ public class Helper {
 	 */
 	public static void appendToFile(String value, String absolutePath) {
 		UtilityHelper.appendToFile(value, absolutePath);
+	}
+	
+	/**
+	 * appends to existing file
+	 * @param value
+	 * @param directory
+	 * @param filename
+	 * @param type
+	 */
+	public static void appendToFile(String value, String directory, String filename, String type) {
+		UtilityHelper.appendToFile(value, directory, filename, type);
+
 	}
 
 	/**
@@ -2253,6 +2274,15 @@ public class Helper {
 	 */
 	public static List<File> getFileListWithSubfolders(String directoryName, String type, List<File> files) {
 		return UtilityHelper.getFileListWithSubfolders(directoryName, type, files);
+	}
+	
+	/**
+	 * gets file content as String
+	 * @param absolutePath
+	 * @return
+	 */
+	protected static String getFileContent(String absolutePath) {
+		return UtilityHelper.getFileContent(absolutePath);
 	}
 
 	/**

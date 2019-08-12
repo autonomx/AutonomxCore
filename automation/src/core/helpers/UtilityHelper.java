@@ -32,6 +32,7 @@ import java.util.zip.ZipOutputStream;
 import javax.imageio.ImageIO;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.OutputType;
@@ -470,6 +471,27 @@ public class UtilityHelper {
 	 }
 	
 	/**
+	 * gets file content as String
+	 * @param absolutePath
+	 * @return
+	 */
+	protected static String getFileContent(String absolutePath) {
+		String content = StringUtils.EMPTY;
+		File file = new File(absolutePath);
+		
+		// return empty if file does not exist
+		if(!file.exists())
+			return content;
+		
+		try {
+			content = new String(Files.readAllBytes(Paths.get(absolutePath)));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return content;
+	}
+	
+	/**
 	 * create directories and files based on absolute path
 	 * set permissions to rw-r--r--
 	 * set executable to true
@@ -507,11 +529,20 @@ public class UtilityHelper {
 	 *            type of file
 	 */
 	protected static void writeFile(String value, String directory, String filename, String type) {
-		String fullPath  = Helper.getRootDir() + directory + filename + "." + type;
-		Helper.createFileFromPath(fullPath);
+		String fullPath  = Helper.getRootDir() + File.separator + directory + File.separator +  filename + "." + type;
+		writeFile(value, fullPath );
+	}
+	
+	/**
+	 * Create file  (where pom.xml is) and write to it
+	 * @param value
+	 * @param absolutePath
+	 */
+	protected static void writeFile(String value, String absolutePath) {
+		Helper.createFileFromPath(absolutePath);
 		
 		try (Writer writer = new BufferedWriter(
-				new OutputStreamWriter(new FileOutputStream(fullPath), "utf-8"))) {
+				new OutputStreamWriter(new FileOutputStream(absolutePath), "utf-8"))) {
 			writer.write(value);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -544,6 +575,18 @@ public class UtilityHelper {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}  
+	}
+	
+	/**
+	 * appends to existing file
+	 * @param value
+	 * @param directory
+	 * @param filename
+	 * @param type
+	 */
+	protected static void appendToFile(String value, String directory, String filename, String type) {
+		String fullPath  = Helper.getRootDir() + File.separator + directory + File.separator +  filename + "." + type;
+		appendToFile(value, fullPath);
 	}
 	
 	

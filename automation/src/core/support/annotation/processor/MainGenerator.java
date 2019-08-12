@@ -6,6 +6,8 @@
 package core.support.annotation.processor;
 
 import java.io.BufferedWriter;
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -23,6 +25,7 @@ import javax.tools.JavaFileObject;
 
 import com.google.auto.service.AutoService;
 
+import core.helpers.Helper;
 import core.support.annotation.helper.FileCreatorHelper;
 import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.annotationMap.DataMapHelper;
@@ -36,6 +39,7 @@ import core.support.annotation.template.manager.PanelManagerGenerator;
 import core.support.annotation.template.service.Service;
 import core.support.annotation.template.service.ServiceData;
 import core.support.annotation.template.service.ServiceRunner;
+import core.support.configReader.PropertiesReader;
 
 @SupportedAnnotationTypes(value = { "core.support.annotation.Panel", "core.support.annotation.Data", "core.support.annotation.Service"})
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
@@ -54,7 +58,6 @@ public class MainGenerator extends AbstractProcessor {
 			PROCESS_ENV = processingEnv;
 
 			System.out.println("Annotation called");
-		
 			
 			// map of modules and class with @Panel annotation
 			Map<String, List<Element>> appMap = PanelMapHelper.getPanelMap(roundEnv);
@@ -97,8 +100,11 @@ public class MainGenerator extends AbstractProcessor {
 	 * used for comparison with the class files.
 	 * if class files are newer, than the marker class, then regenerate the code
 	 */
-	public static void crateMarkerClass() {
+	private static void crateMarkerClass() {
 		try {
+     			createFileList("src" + File.separator + "main", "src_dir", false);
+				createFileList("resources" + File.separator + "api", "src_dir", true);
+
 				JavaFileObject fileObject = FileCreatorHelper.createMarkerFile();
 
 				BufferedWriter bw = new BufferedWriter(fileObject.openWriter());
@@ -110,6 +116,22 @@ public class MainGenerator extends AbstractProcessor {
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * creates text file with the list of files in sourceDir
+	 * used for file change detection
+	 * @param sourceDir
+	 * @param fileName
+	 */
+	private static void createFileList(String sourceDir, String fileName, boolean isAppend) {
+		File Directory = new File(Helper.getRootDir() + sourceDir);
+		ArrayList<String> fileList = PropertiesReader.getAllFiles(Directory);
+		String listString = String.join(",", fileList);
+		if(isAppend)
+			Helper.appendToFile(listString, "target/generated-sources", fileName, "txt");
+		else
+			Helper.writeFile(listString, "target/generated-sources", fileName, "txt");
 	}
 
 }

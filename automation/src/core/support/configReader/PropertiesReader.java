@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Properties;
 
 import core.helpers.Helper;
-import core.support.logger.TestLog;
 
 public class PropertiesReader {
 
@@ -107,6 +106,12 @@ public class PropertiesReader {
 		return "";
 	}
 
+	public static ArrayList<String> getAllFiles(File curDir) {
+		ArrayList<String> array = new ArrayList<String>();
+
+		array = getFileList(curDir, array);
+		return array;
+	}
 	/**
 	 * gets all files in a directory to get all files: File curDir = new File(".");
 	 * getAllFiles(curDir);
@@ -114,15 +119,14 @@ public class PropertiesReader {
 	 * @param curDir target directory
 	 * @return the list of all files in given directory
 	 */
-	public static ArrayList<String> getAllFiles(File curDir) {
-		ArrayList<String> array = new ArrayList<String>();
+	public static ArrayList<String> getFileList(File curDir, ArrayList<String> array) {
 		File[] filesList = curDir.listFiles();
 		for (File f : filesList) {
 			if (f.isDirectory())
-				getAllFiles(f);
+				getFileList(f, array);
 			if (f.isFile()) {
-				TestLog.ConsoleLog("All files: " + f.getPath() + " : " + f.getName());
-				array.add("All files: " + f.getPath() + " : " + f.getName());
+				//TestLog.ConsoleLog("All files: " + f.getPath() + " : " + f.getName());
+				array.add(f.getPath());
 			}
 		}
 		return array;
