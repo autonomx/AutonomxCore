@@ -6,7 +6,8 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-
+import java.util.Arrays;
+import java.util.List;
 
 public class dirChangeDetector {
 
@@ -14,21 +15,24 @@ public class dirChangeDetector {
 		
 		// get src and keyword directory list, String format separated by ","
 		String sourceDir = getRootDir() + "src" + File.separator + "main";
-		String keywordDir = getRootDir() + "resources" + File.separator + "api";	
-		
+		String keywordDir = getRootDir() + "resources" + File.separator + "api" + File.separator + "keywords";			
 		
 		System.out.println("sourceDir : " + sourceDir);
 		System.out.println("keywordDir : " + keywordDir);
 
-		String sourceList = getFileList(sourceDir);
-		String keywordList = getFileList(keywordDir);
-		String allNewFiles = sourceList + keywordList;
+		ArrayList<String> sourceList = getFileList(sourceDir);
+		ArrayList<String> keywordList = getFileList(keywordDir);
+		
+		sourceList.addAll(keywordList);
+		
 		
 		
 		String targetFile = getRootDir() + "target"+ File.separator +"generated-sources"+ File.separator +"src_dir.txt";
 		String oldFileList = getFileContent(targetFile);
+		ArrayList<String> oldDirList = new ArrayList<String>(Arrays.asList(oldFileList.split(",")));
+
 		
-		boolean hasChanged = hasChangeDetected(oldFileList, allNewFiles);
+		boolean hasChanged = hasChangeDetected(oldDirList, sourceList);
 		if(hasChanged) {
 			String markerPath = getRootDir() + "target"+ File.separator +"generated-sources"+ File.separator + "annotations" + File.separator + "marker" + File.separator +  "marker.java";
 			deleteFile(markerPath);
@@ -36,21 +40,31 @@ public class dirChangeDetector {
 		
 	}
 	
-	private static boolean hasChangeDetected(String oldDir, String newDir) {
+	private static boolean hasChangeDetected(ArrayList<String> oldDirList, ArrayList<String> newDirList) {
+		String oldDir =   String.join(", ", oldDirList);
+		String newDir =   String.join(", ", newDirList);
+		List<String> differenceList = listDifference(oldDirList, newDirList);
 		boolean hasChanged = !oldDir.equals(newDir);
-		if(hasChanged)
-			System.out.println("changes in (src, or keyword) directory detected: \n");
+	
+		if(hasChanged) {
+			System.out.println("changes in (src, or keyword) directory detected: \n" + " changes: " );
+			differenceList.forEach(System.out::println);
+		}
 
 		return hasChanged;
 	}
 	
-	public static String getFileList(String directory) {
-		ArrayList<String> fileList = getAllFiles(directory);
-		String listString = String.join(",", fileList);
-		return listString;
+	private static ArrayList<String> listDifference(ArrayList<String> oldDirList, ArrayList<String> newDirList){
+		List<String> newList = new ArrayList<>(newDirList);
+		newDirList.removeAll(oldDirList);
+		oldDirList.removeAll(newList);
+		
+		newDirList.addAll(oldDirList);
+		
+		return newDirList;		
 	}
 	
-	public static ArrayList<String> getAllFiles(String directory) {
+	public static ArrayList<String> getFileList(String directory) {
 		ArrayList<String> array = new ArrayList<String>();
 		File file = new File(directory);
 		array = getFileList(file, array);
@@ -84,6 +98,7 @@ public class dirChangeDetector {
 			e.printStackTrace();
 		};
 		return root + File.separator;
+		//return "/Users/Shared/Jenkins/Documents/Selenium/autonomx/autonomx-client/autonomx/automation/";
 	}
 	
 	protected static String getFileContent(String absolutePath) {
@@ -99,6 +114,7 @@ public class dirChangeDetector {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
 		return content;
 	}
 	

@@ -103,7 +103,7 @@ public class MainGenerator extends AbstractProcessor {
 	private static void crateMarkerClass() {
 		try {
      			createFileList("src" + File.separator + "main", "src_dir", false);
-				createFileList("resources" + File.separator + "api", "src_dir", true);
+				createFileList("resources" + File.separator + "api" + File.separator + "keywords", "src_dir", true);
 
 				JavaFileObject fileObject = FileCreatorHelper.createMarkerFile();
 
@@ -129,7 +129,7 @@ public class MainGenerator extends AbstractProcessor {
 		ArrayList<String> fileList = PropertiesReader.getAllFiles(Directory);
 		String listString = String.join(",", fileList);
 		if(isAppend)
-			Helper.appendToFile(listString, "target/generated-sources", fileName, "txt");
+			Helper.appendToFile("," + listString, "target/generated-sources", fileName, "txt");
 		else
 			Helper.writeFile(listString, "target/generated-sources", fileName, "txt");
 	}
