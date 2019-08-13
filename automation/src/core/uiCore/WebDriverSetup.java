@@ -12,6 +12,7 @@ import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.opera.OperaDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.safari.SafariDriver;
 
 import com.microsoft.appcenter.appium.EnhancedAndroidDriver;
 import com.microsoft.appcenter.appium.Factory;
@@ -146,6 +147,9 @@ public class WebDriverSetup {
 		case OPERA:
 			WebDriverManager.operadriver().version(driverObject.driverVersion).setup();
 			driver = new OperaDriver(driverObject.capabilities);
+			break;
+		case SAFARI:
+			driver = new SafariDriver(driverObject.capabilities); 
 			break;
 		default:
 			throw new IllegalStateException("Unsupported browsertype " + browserType);
