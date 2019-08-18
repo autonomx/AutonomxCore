@@ -6,7 +6,9 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.openqa.selenium.WebDriver;
+import org.testng.ITestContext;
 import org.testng.ITestResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Listeners;
@@ -15,7 +17,6 @@ import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
 
 import core.apiCore.driver.ApiTestDriver;
-import core.apiCore.helpers.CsvReader;
 import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.listeners.RetryTest;
@@ -210,7 +211,7 @@ public class AbstractDriverTestNG {
 	public synchronized void afterMethod(Method method) {
 		
 		// do not override test name for running service tests
-		if(!CsvReader.isRunningServiceTest())
+		if(!ApiTestDriver.isRunningServiceTest())
 		{
 			
 			TestObject.setTestName(method.getName());
@@ -219,7 +220,7 @@ public class AbstractDriverTestNG {
 			setDataProviderTestExtention(method);
 		}
 
-		// setup before class driver
+		//	 setup before class driver with new id
 		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
 		new AbstractDriverTestNG().setupWebDriver(TestObject.getTestId(), driver);
 	}
@@ -273,6 +274,10 @@ public class AbstractDriverTestNG {
 
 	@AfterMethod
 	public void shutdown(ITestResult iTestResult) {
+		
+		// print after method 
+		TestLog.printBatchLogsToConsole();
+		
 		letRetryKnowAboutReports();
 		if(iTestResult.isSuccess()) {
 			// shutdown drivers if single sign in is false
@@ -282,6 +287,19 @@ public class AbstractDriverTestNG {
 			// quits web driver no matter the situation, as new browser will be launched
 			DriverObject.quitTestDrivers();	
 		}
+	}
+	
+	/**
+	 * After class batch log print is called here, cause this after class method is called after all other after class
+	 * methods
+	 * @param iTestContext
+	 */
+	@AfterClass
+	public synchronized void afterClassMethod(ITestContext iTestContext) {
+			String name = getClassName();
+			// print after class logs
+			String testId = name + TestObject.AFTER_CLASS_PREFIX;
+			TestLog.printBatchToConsole(testId);
 	}
 
 	private void letRetryKnowAboutReports() {

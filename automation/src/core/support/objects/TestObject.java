@@ -31,10 +31,10 @@ import core.uiCore.drivers.AbstractDriver;
 
 public class TestObject{
 
-	// apiTest : api tests read from csv files through apiTestRunner
+	// serviceTest : api tests read from csv files through apiTestRunner
 	// uiTest : non api tests
 	public static enum testType {
-		apiTest, uiTest
+		serviceTest, uiTest
 	}
 	
 	public static enum testState {
@@ -46,7 +46,7 @@ public class TestObject{
 	public static String BEFORE_CLASS_PREFIX = "-Beforeclass";
 	public static String AFTER_CLASS_PREFIX = "-Afterclass";
 	public static String DATAPROVIDER_TEST_SUFFIX = "-test";
-	
+
 	public static final String DEFAULT_TEST = "autonomx";
 	public static final String DEFAULT_APP = "auto";
 	public static String SUITE_NAME = StringUtils.EMPTY; // suite name is global to all tests in the run
@@ -381,7 +381,8 @@ public class TestObject{
 			String testname = TestObject.getTestInfo(testId).testName;
 			String testFileClass = TestObject.getTestInfo(testId).testFileClassName;
 			List<WebDriver> webDrivers = TestObject.getTestInfo(testId).webDriverList;
-			
+			Logger log = TestObject.getTestInfo(testId).log;
+			boolean isTestComplete = TestObject.getTestInfo(testId).isTestComplete;
 			// after method run after test success or test failure, hence run count should not be reset
 			int runCount = TestObject.getTestInfo(testId).runCount;
 			
@@ -390,7 +391,9 @@ public class TestObject{
 					.withTestName(testname)
 					.withTestFileClassName(testFileClass)
 					.withWebDriverList(webDrivers)
-					.withRunCount(runCount));
+					.withRunCount(runCount)
+					.withIsTestComplete(isTestComplete)
+					.withLog(log));
 
 			// populate the config with default values
 			TestObject.getTestInfo(testId).config.putAll(TestObject.getTestInfo(TestObject.DEFAULT_TEST).config);
@@ -492,6 +495,12 @@ public class TestObject{
 		this.className = className;
 		return this;
 	}
+	
+	public TestObject withIsTestComplete(boolean isTestComplete) {
+		this.isTestComplete = isTestComplete;
+		return this;
+	}
+	
 
 	public TestObject withTestFileClassName(String testFileClassName) {
 		this.testFileClassName = testFileClassName;
@@ -523,6 +532,11 @@ public class TestObject{
 
 	public TestObject withRunCount(int rerunCount) {
 		this.runCount = rerunCount;
+		return this;
+	}
+	
+	public TestObject withLog(Logger log) {
+		this.log = log;
 		return this;
 	}
 

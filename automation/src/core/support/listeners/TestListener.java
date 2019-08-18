@@ -38,6 +38,10 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 	public void onStart(ITestContext iTestContext) {
 		isTestNG = true;
 		iTestContext.setAttribute("WebDriver", AbstractDriverTestNG.getWebDriver());
+		
+		// print out suite console logs  if batch logging is enabled
+		String testId = getSuiteName(iTestContext.getSuite().getName().toString()) + TestObject.BEFORE_SUITE_PREFIX;
+		TestLog.printBatchToConsole(testId);
 
 		// shuts down webdriver processes
 		cleanupProcessess();
@@ -110,6 +114,13 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		ExtentManager.launchReportAfterTest();
 		ExtentManager.printReportLink();
 		sendReport(iTestContext);
+		
+		// get suite name, removing spaces
+		String suitename = getSuiteName(iTestContext.getSuite().getName());
+
+		// setup after suite driver
+		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
+		new AbstractDriverTestNG().setupWebDriver(suitename + TestObject.AFTER_SUITE_PREFIX, driver);
 	}
 	
 	/**
@@ -157,7 +168,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		TestObject.getTestInfo().withIsTestPass(true);
 
 		TestLog.Then("Test is finished successfully");
-		TestLog.printLogsToConsole();
+		TestLog.printBatchLogsToConsole();
 		
 		// stop screen recording if enabled
 		ScreenRecorderHelper.stopRecording();
@@ -173,9 +184,6 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		// mobile device is now available again
 		DeviceManager.setDeviceAvailability(true);
-		
-		// reset test object
-		TestObject.getTestInfo().resetTestObject();
 	}
 
 	@Override
@@ -187,7 +195,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		setTestClassName(iTestResult);
 
 		// print out console logs to console if batch logging is enabled
-		TestLog.printLogsToConsole();
+		TestLog.printBatchLogsToConsole();
 		// set forced restart to true, so new driver is created for next test
 		TestObject.getTestInfo().withIsForcedRestart(true);
 		TestObject.getTestInfo().isFirstRun = true;
@@ -198,9 +206,6 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		
 		// stop screen recording if enabled
 		ScreenRecorderHelper.stopRecording();
-
-		// reset test object
-		TestObject.getTestInfo().resetTestObject();
 	}
 
 	@Override
@@ -270,8 +275,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 	@Override
 	public void onBeforeClass(ITestClass testClass) {
-		String classname = testClass.getName();
-		classname = classname.substring(classname.lastIndexOf(".") + 1);
+		String classname = getClassName(testClass.getName());
 
 		// setup before class driver
 		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
@@ -280,8 +284,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 	@Override
 	public void onAfterClass(ITestClass testClass) {
-		String classname = testClass.getName();
-		classname = classname.substring(classname.lastIndexOf(".") + 1);
+		String classname = getClassName(testClass.getName());
 
 		// setup after class driver
 		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
@@ -290,7 +293,6 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 	@Override
 	public void onConfigurationSuccess(ITestResult itr) {
-
 	}
 
 	@Override
@@ -319,8 +321,8 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		// initialize default driver with suit test name
 		initializeDefaultTest(suite);
 
-		String suitename = suite.getName();
-		suitename = suitename.replaceAll("\\s", "");
+		// get suite name, remove spaces
+		String suitename = getSuiteName(suite.getName());
 
 		// global identified for the app. if suite is default, Then app_indentifier is
 		// used for test run id
@@ -354,11 +356,18 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 	@Override
 	public void onFinish(ISuite suite) {
-		String suitename = suite.getName();
+		// print out suite console logs  if batch logging is enabled
+		String testId = getSuiteName(suite.getName()) + TestObject.AFTER_SUITE_PREFIX;
+		TestLog.printBatchToConsole(testId);
+	}
+	
+	private String getSuiteName(String suitename) {
 		suitename = suitename.replaceAll("\\s", "");
-
-		// setup after suite driver
-		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
-		new AbstractDriverTestNG().setupWebDriver(suitename + TestObject.AFTER_SUITE_PREFIX, driver);
+		return suitename;
+	}
+	
+	private String getClassName(String className) {
+		className = className.substring(className.lastIndexOf(".") + 1);
+		return className;
 	}
 }

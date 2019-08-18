@@ -60,7 +60,7 @@ public class ApiTestDriver {
 		TestObject.getTestInfo().config = TestObject.getTestInfo(classname).config;
 		TestObject.getTestInfo().testLog = TestObject.getTestInfo(classname).testLog;
 
-		TestObject.getTestInfo().type = testType.apiTest;
+		TestObject.getTestInfo().type = testType.serviceTest;
 		TestObject.getTestInfo().app = APP;
 		TestObject.getTestInfo().testCsvFileName = apiObject.getTcName();
 
@@ -86,5 +86,13 @@ public class ApiTestDriver {
 	public String getClassName() {
 		String className = getClass().toString().substring(getClass().toString().lastIndexOf(".") + 1);
 		return className;
+	}
+	
+	/**
+	 * is service test running
+	 * @return
+	 */
+	public static boolean isRunningServiceTest() {
+		return TestObject.getTestInfo().type.equals(TestObject.testType.serviceTest);
 	}
 }

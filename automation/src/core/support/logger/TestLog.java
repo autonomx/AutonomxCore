@@ -468,7 +468,7 @@ public class TestLog {
 		Boolean enableBatchLogging = CrossPlatformProperties.getEnableBatchLogging();
 		value = Helper.date.getTimestampSeconds() + " : " + getTestLogPrefix() + value;
 		// if batch logging is enabled, keep track of all logs
-		if (!TestObject.getTestInfo().isTestComplete && enableBatchLogging) {
+		if ( enableBatchLogging) {
 			LogObject log = new LogObject(value, priority);
 			TestObject.getTestInfo().testLog.add(log);
 		}
@@ -486,13 +486,14 @@ public class TestLog {
 	 * prints out the entire test log for csv file at once Occurs When number of csv
 	 * files are greater than 1
 	 */
-	public synchronized static void printLogsToConsole() {
+	public synchronized static void printBatchLogsToConsole() {
 		Boolean enableBatchLogging = CrossPlatformProperties.getEnableBatchLogging();
-
-		if (TestObject.getTestInfo().isTestComplete && enableBatchLogging) {
+        if(!enableBatchLogging) return;
+        
+		if (TestObject.getTestInfo().isTestComplete) {
 			// print before class logs
-			printClassLevelLogsToConsole("Beforeclass");
-
+			printBatchClassToConsole(TestObject.BEFORE_CLASS_PREFIX);
+			
 			// print test logs
 			printLogs(TestObject.getTestInfo().testLog);
 		}
@@ -502,8 +503,20 @@ public class TestLog {
 	 * prints class level logs to console prints only once
 	 * @param classType
 	 */
-	public static void printClassLevelLogsToConsole(String classType) {
-		String testId = TestObject.getTestInfo().testFileClassName + "-" + classType;
+	public static void printBatchClassToConsole(String classType) {
+		String testId = TestObject.getTestInfo().testFileClassName + classType;
+		printBatchToConsole(testId);
+
+	}
+	
+	/**
+	 * prints batch class to console based on testId
+	 * @param testId
+	 */
+	public static void printBatchToConsole(String testId) {
+		// if batch login is disabled, return
+		if (!CrossPlatformProperties.getEnableBatchLogging()) return;
+		
 		// if test class object does not exist, return
 		if (TestObject.testInfo.get(testId) == null)
 			return;
@@ -524,6 +537,7 @@ public class TestLog {
 
 	/**
 	 * prints logs to console
+	 * removes logs from list after printing to console
 	 * @param testLog list of logs
 	 * @param testId id of the test
 	 */
