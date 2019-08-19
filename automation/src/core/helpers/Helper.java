@@ -369,6 +369,24 @@ public class Helper {
     	click.doubleClickPoints(x, y);
     }
     
+	/**
+	 * double click on element
+	 * @param target
+	 * @param index
+	 */
+	public void doubleClick(EnhancedBy target, int index) {
+		ClickHelper.clickAction.doubleClick(target, index);
+    }
+    
+	/**
+	 * right click on element at index
+	 * @param target
+	 * @param index
+	 */
+	public static void rightClick(EnhancedBy target, int index) {
+		ClickHelper.clickAction.rightClick(target, index);
+	}
+    
     /**
      * click element with text containing
      * @param by

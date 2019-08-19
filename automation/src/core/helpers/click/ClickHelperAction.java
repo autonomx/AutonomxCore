@@ -250,6 +250,18 @@ public class ClickHelperAction extends Element {
 		Actions action = new Actions(AbstractDriver.getWebDriver());
 		action.moveByOffset(x, y).click().build().perform();
 	}
+	
+	/**
+	 * double click on element
+	 * @param target
+	 * @param index
+	 */
+	public void doubleClick(EnhancedBy target, int index) {
+
+		Actions action = new Actions(AbstractDriver.getWebDriver());
+		EnhancedWebElement targetElement = Element.findElements(target);
+		action.doubleClick(targetElement.get(index)).perform();
+	}
 
 	/**
 	 * double click at position
@@ -261,6 +273,29 @@ public class ClickHelperAction extends Element {
 
 		Actions action = new Actions(AbstractDriver.getWebDriver());
 		action.moveByOffset(x, y).click().release().pause(Duration.ofMillis(250)).click().release().build().perform();
+	}
+	
+	/**
+	 * right click on element at index
+	 * @param target
+	 * @param index
+	 */
+	public void rightClick(EnhancedBy target, int index) {
+
+		Actions action = new Actions(AbstractDriver.getWebDriver());
+		EnhancedWebElement targetElement = Element.findElements(target);
+		action.contextClick(targetElement.get(index)).perform();
+	}
+	
+	/**
+	 * right click on x, y points
+	 * @param x
+	 * @param y
+	 */
+	public void rightClick(int x, int y) {
+
+		Actions action = new Actions(AbstractDriver.getWebDriver());
+		action.moveByOffset(x, y).contextClick().release();
 	}
 
 	/**
