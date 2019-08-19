@@ -60,6 +60,9 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		// delete old reports
 		ExtentManager.clearOldTestReports();
+		
+		// delete screen recorder temp directory
+		ScreenRecorderHelper.deleteScreenRecorderTempDir();
 	}
 
 	/**

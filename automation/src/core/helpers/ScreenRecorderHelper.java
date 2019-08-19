@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.FileUtils;
 import org.monte.media.Format;
 import org.monte.media.FormatKeys;
 import org.monte.media.VideoFormatKeys;
@@ -54,13 +55,13 @@ public class ScreenRecorderHelper {
 	 * start screen recording
 	 * works for ios, android and web
 	 */
-	public static void startRecording() {
+	public synchronized static void startRecording() {
 		
 		// return if enableRecording is false
 		if(!Config.getBooleanValue(RECORDER_ENABLE_RECORDING))
 			return;
 		
-		TestLog.ConsoleLog("starting screen recording");
+		TestLog.ConsoleLog("initiating screen recording");
 		
 		int maxTime = Config.getIntValue(RECORDER_MAX_TIME_SECONDS);
 		String androidVideoSize = Config.getValue(RECORDER_ANDROID_VIDEO_SIZE);
@@ -94,7 +95,7 @@ public class ScreenRecorderHelper {
 	 * stops screen recording
 	 * works for ios, android and web
 	 */
-	public static void stopRecording() {
+	public synchronized static void stopRecording() {
 
 		// return if enableRecording is false 
 		if (!Config.getBooleanValue(RECORDER_ENABLE_RECORDING))
@@ -114,15 +115,16 @@ public class ScreenRecorderHelper {
 	}
 	
 	private static void startWebScreenRecording() {
-		
+	
+		File output = new File(getScreenRecorderTempDir().getAbsoluteFile() + File.separator + TestObject.getTestInfo().getTestName());
+		output.deleteOnExit();
 
 		GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
 				.getDefaultConfiguration();
 
 		// Create a instance of ScreenRecorder with the required configurations
 		try {
-			
-            TestObject.getTestInfo().screenRecorder = new ScreenRecorder(gc,
+            TestObject.getTestInfo().screenRecorder = new ScreenRecorder(gc,null,
                     new Format(MediaTypeKey, FormatKeys.MediaType.FILE,
                             MimeTypeKey, FormatKeys.MIME_AVI),
                     new Format(MediaTypeKey, FormatKeys.MediaType.VIDEO,
@@ -135,8 +137,7 @@ public class ScreenRecorderHelper {
                     new Format(MediaTypeKey, FormatKeys.MediaType.VIDEO,
                             EncodingKey, "black",
                             FrameRateKey, Rational.valueOf(30)),
-                    null);
-            
+                    null,output);
             TestObject.getTestInfo().screenRecorder.start();
 
         } catch (Exception e) {
@@ -231,5 +232,25 @@ public class ScreenRecorderHelper {
 		String format = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss", Locale.ENGLISH).format(new Date());
 		String fileName = TestObject.getTestInfo().testName + "-" + format;
 		return fileName;
+	}
+	
+	/**
+	 * gets the temp dir for screen recorder videos. created on start recording.
+	 * @return
+	 */
+	public static File getScreenRecorderTempDir() {
+		File output = new File(System.getProperty("java.io.tmpdir") + File.separator + "screenrecorder" + File.separator);
+		return output;
+	}
+	
+	/**
+	 * delete screen recorder temp folder
+	 */
+	public static void deleteScreenRecorderTempDir() {
+		try {
+			FileUtils.deleteDirectory( getScreenRecorderTempDir());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

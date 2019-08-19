@@ -2290,7 +2290,7 @@ public class Helper {
 	 * 
 	 * @param description
 	 */
-	public static void captureExtentReportScreenshot() {
+	public synchronized static void captureExtentReportScreenshot() {
 		UtilityHelper.captureExtentReportScreenshot();
 	}
 	

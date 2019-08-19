@@ -186,43 +186,8 @@ public class AbstractDriverTestNG {
 		}
 	}
 	
-	/**
-	 * append test invocation count to test name if data provider is running
-	 * @param method
-	 */
-	private void setDataProviderTestExtention(Method method) {
-		if (isDataProviderRunning(method)) {
-			int invocationCount = TestObject.getTestInvocationCount(TestObject.getTestId());
-			TestObject.setTestName(method.getName() + TestObject.DATAPROVIDER_TEST_SUFFIX + invocationCount);
-			TestObject.setTestId(getClassName(), TestObject.currentTestName.get());
-		}
-	}
-	
 	private boolean isDataProviderRunning(Method method) {
 		return method.getParameterCount() > 0;
-	}
-
-	/**
-	 * initialize after method
-	 * 
-	 * @param method
-	 */
-	@AfterMethod(alwaysRun = true)
-	public synchronized void afterMethod(Method method) {
-		
-		// do not override test name for running service tests
-		if(!ApiTestDriver.isRunningServiceTest())
-		{
-			
-			TestObject.setTestName(method.getName());
-			TestObject.setTestId(getClassName(), TestObject.currentTestName.get());
-			
-			setDataProviderTestExtention(method);
-		}
-
-		//	 setup before class driver with new id
-		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
-		new AbstractDriverTestNG().setupWebDriver(TestObject.getTestId(), driver);
 	}
 
 	private String getClassName() {
