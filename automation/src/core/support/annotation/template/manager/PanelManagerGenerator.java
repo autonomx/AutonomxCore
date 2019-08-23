@@ -10,12 +10,9 @@ import java.util.Map.Entry;
 import javax.lang.model.element.Element;
 import javax.tools.JavaFileObject;
 
-import core.helpers.Helper;
 import core.support.annotation.helper.FileCreatorHelper;
 import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PackageHelper;
-import core.support.configReader.Config;
-import core.support.objects.DriverObject;
 
 public class PanelManagerGenerator {
 	
