@@ -10,9 +10,12 @@ import java.util.Map.Entry;
 import javax.lang.model.element.Element;
 import javax.tools.JavaFileObject;
 
+import core.helpers.Helper;
 import core.support.annotation.helper.FileCreatorHelper;
 import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PackageHelper;
+import core.support.configReader.Config;
+import core.support.objects.DriverObject;
 
 public class PanelManagerGenerator {
 	
@@ -58,7 +61,8 @@ public class PanelManagerGenerator {
 			}
 			bw.append("import core.support.configReader.Config;\n");
 			bw.append("import core.support.objects.DriverObject;\n");
-
+			bw.append("import core.helpers.Helper;\n");
+			
 			bw.newLine();
 			bw.newLine();
 
@@ -89,7 +93,7 @@ public class PanelManagerGenerator {
 	 * DriverObject().withWebDriver("webApp", Config.getValue("webApp")); }
 	 * 
 	 * public DriverObject getWebDriver(String url) { return new
-	 * DriverObject().withWebDriver("webApp", Config.getValue(url)); }
+	 * DriverObject().withWebDriver("webApp", url); }
 	 * 
 	 * public DriverObject getIosTabletDriver() { return new
 	 * DriverObject().withiOSDriver("ios.tablet"); }
@@ -111,57 +115,105 @@ public class PanelManagerGenerator {
 	 * 
 	 * public DriverObject getGenericDriver() { return new
 	 * DriverObject().withDriverType(DriverType.API); }
-	 * 
+	 
+	public DriverObject getHybridDriver() {
+		return getHybridDriver(Config.getValue("webApp"));
+	}
+	
+	public DriverObject getHybridDriver(String url) {
+		String hybridDriver = Config.getValue("appium.hybrid.driver");
+		if(hybridDriver.equals("WEB"))
+			return getWebDriver(url);
+		else if(hybridDriver.equals("ANDROID_MOBILE"))
+			return getAndroidMobileDriver();
+		else if(hybridDriver.equals("ANDROID_TABLET"))
+			return getAndroidTabletDriver();
+		else if(hybridDriver.equals("IOS_MOBILE"))
+			return getIosMobileDriver();
+		else if(hybridDriver.equals("IOS_TABLET"))
+			return getIosTabletDriver();
+		else if(hybridDriver.equals("WINAPP"))
+			return getWinAppDriver();
+		Helper.assertFalse("Correct driver not selected at appium.hybrid.driver option at appium.property ");
+		return null;
+	}
+	
+	return new DriverObject().withGenericDriver("webApp");
+}
+	 
 	 * @throws IOException
 	 */
 
 	private static void writeDrivers(String moduleName, BufferedWriter bw) throws IOException {
 
 		// web driver
-		bw.append("public DriverObject getWebDriver() {\n");
-		bw.append("	return new DriverObject().withWebDriver(\"" + moduleName + "\", Config.getValue(\"" + moduleName
+		bw.append("	public DriverObject getWebDriver() {\n");
+		bw.append("		return new DriverObject().withWebDriver(\"" + moduleName + "\", Config.getValue(\"" + moduleName
 				+ "\"));\n");
-		bw.append("}\n");
+		bw.append("	}\n");
 
 		// web driver
-		bw.append("public DriverObject getWebDriver(String url) {\n");
-		bw.append("	return new DriverObject().withWebDriver(\"" + moduleName + "\", Config.getValue(url));\n");
-		bw.append("}\n");
+		bw.append("	public DriverObject getWebDriver(String url) {\n");
+		bw.append("		return new DriverObject().withWebDriver(\"" + moduleName + "\", url);\n");
+		bw.append("	}\n");
 
 		// ios tablet driver
-		bw.append("public DriverObject getIosTabletDriver() {\n");
-		bw.append("	return new DriverObject().withiOSDriver(\"" + moduleName + "\",\"ios.tablet\");\n");
-		bw.append("}\n");
+		bw.append("	public DriverObject getIosTabletDriver() {\n");
+		bw.append("		return new DriverObject().withiOSDriver(\"" + moduleName + "\",\"ios.tablet\");\n");
+		bw.append("	}\n");
 
 		// ios mobile driver
-		bw.append("public DriverObject getIosMobileDriver() {\n");
-		bw.append("	return new DriverObject().withiOSDriver(\"" + moduleName + "\",\"ios.mobile\");\n");
-		bw.append("}\n");
+		bw.append("	public DriverObject getIosMobileDriver() {\n");
+		bw.append("		return new DriverObject().withiOSDriver(\"" + moduleName + "\",\"ios.mobile\");\n");
+		bw.append("	}\n");
 
 		// andorid tablet driver
-		bw.append("public DriverObject getAndroidTabletDriver() {\n");
-		bw.append("	return new DriverObject().withAndroidDriver(\"" + moduleName + "\",\"android.tablet\");\n");
-		bw.append("}\n");
+		bw.append("	public DriverObject getAndroidTabletDriver() {\n");
+		bw.append("		return new DriverObject().withAndroidDriver(\"" + moduleName + "\",\"android.tablet\");\n");
+		bw.append("	}\n");
 
 		// android mobile driver
-		bw.append("public DriverObject getAndroidMobileDriver() {\n");
-		bw.append("	return new DriverObject().withAndroidDriver(\"" + moduleName + "\",\"android.mobile\");\n");
-		bw.append("}\n");
+		bw.append("	public DriverObject getAndroidMobileDriver() {\n");
+		bw.append("		return new DriverObject().withAndroidDriver(\"" + moduleName + "\",\"android.mobile\");\n");
+		bw.append("	}\n");
 
 		// windows driver
-		bw.append("public DriverObject getWinAppDriver() {\n");
-		bw.append("	return new DriverObject().withWinDriver(\"" + moduleName + "\");\n");
-		bw.append("}\n");
+		bw.append("	public DriverObject getWinAppDriver() {\n");
+		bw.append("		return new DriverObject().withWinDriver(\"" + moduleName + "\");\n");
+		bw.append("	}\n");
 
 		// api driver
-		bw.append("public DriverObject getApiDriver() {\n");
-		bw.append("	return new DriverObject().withApiDriver(\"" + moduleName + "\");\n");
-		bw.append("}\n");
+		bw.append("	public DriverObject getApiDriver() {\n");
+		bw.append("		return new DriverObject().withApiDriver(\"" + moduleName + "\");\n");
+		bw.append("	}\n");
 
 		// generic driver
-		bw.append("public DriverObject getGenericDriver() {\n");
-		bw.append("	return new DriverObject().withGenericDriver(\"" + moduleName + "\");\n");
-		bw.append("}\n");
+		bw.append("	public DriverObject getGenericDriver() {\n");
+		bw.append("		return new DriverObject().withGenericDriver(\"" + moduleName + "\");\n");
+		bw.append("	}\n");
+	
+		// hybrid driver
+		bw.append("	public DriverObject getHybridDriver() {" + "\n");
+		bw.append("		return getHybridDriver(Config.getValue(\"webApp\"));" + "\n");
+		bw.append("	}" + "\n" );
+		
+		// hybrid driver
+		bw.append("	public DriverObject getHybridDriver(String url) {" + "\n");
+		bw.append("		String hybridDriver = Config.getValue(\"appium.hybrid.driver\");" + "\n");
+		bw.append("		if(hybridDriver.equals(\"WEB\"))" + "\n" );
+		bw.append("			return getWebDriver(url);" + "\n" );
+		bw.append("		else if(hybridDriver.equals(\"ANDROID_MOBILE\"))" + "\n" );
+		bw.append("			return getAndroidMobileDriver();" + "\n" );
+		bw.append("		else if(hybridDriver.equals(\"ANDROID_TABLET\"))" + "\n" );
+		bw.append("			return getAndroidTabletDriver();" + "\n" );
+		bw.append("		else if(hybridDriver.equals(\"IOS_MOBILE\"))" + "\n" );
+		bw.append("			return getIosMobileDriver();" + "\n" );
+		bw.append("		else if(hybridDriver.equals(\"IOS_TABLET\"))" + "\n" );
+		bw.append("			return getIosTabletDriver();" + "\n" );
+		bw.append("		else if(hybridDriver.equals(\"WINAPP\"))" + "\n" );
+		bw.append("			return getWinAppDriver();" + "\n" );
+		bw.append("		Helper.assertFalse(\"Correct driver not selected at appium.hybrid.driver option at appium.property \");" + "\n" );
+		bw.append("		return null;" + "\n" );
+		bw.append("	}" + "\n" );
 	}
-
 }

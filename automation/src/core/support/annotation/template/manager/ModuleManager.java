@@ -47,7 +47,7 @@ public class ModuleManager {
 		bw.append("* Date  And Time     ---- > " + currentDate.toString() + "\n");
 		bw.append("*");
 		bw.append("**/\n\n\n\n");
-		bw.append("package " + PackageHelper.ROOT_PATH + ";\n");
+		bw.append("package " + PackageHelper.MODULE_MANAGER_PATH + ";\n");
 		bw.newLine();
 
 		// eg. import module.android.androidPanel

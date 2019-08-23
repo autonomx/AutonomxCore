@@ -125,6 +125,16 @@ public class Helper {
 	public static void assertEquals(String expected, String actual) {
 		AssertHelper.assertEquals(expected, actual);
 	}
+	
+	/**
+	 * assert expected equals actual
+	 * 
+	 * @param expected
+	 * @param actual
+	 */
+	public static void assertEquals(boolean expected, boolean actual) {
+		AssertHelper.assertEquals(expected, actual);
+	}
 
 	/**
 	 * assert expected equals actual
@@ -2046,6 +2056,24 @@ public class Helper {
 	 */
 	public static boolean isUUID(String value) {
 		return UtilityHelper.isUUID(value);
+	}
+	
+	/**
+	 * returns if string is boolean
+	 * @param value
+	 * @return
+	 */
+	public static boolean isBoolean(String value) {
+		return UtilityHelper.isBoolean(value);
+	}
+	
+	/**
+	 * return if string is a number
+	 * @param str
+	 * @return
+	 */
+	public static boolean isNumeric(String value) { 
+		return UtilityHelper.isNumeric(value);
 	}
 
 	/**

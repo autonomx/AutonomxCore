@@ -14,12 +14,15 @@ import javax.lang.model.element.Element;
 
 public class PackageHelper {
 	
+	public static String CONFIG_MANAGER_CLASS = "ConfigManager";
 	public static String MODULE_MANAGER_CLASS = "ModuleManager";
 	public static String PANEL_MANAGER_CLASS = "PanelManager";
-	public static String ROOT_PATH = "moduleManager";
 	public static String MODULE_CLASS = "ModuleBase";
 	public static String DATA_PATH = "data";
 	public static String SERVICE_PATH = "serviceManager";
+	public static String MODULE_MANAGER_PATH = "moduleManager";
+	public static String CONFIG_MANAGER_PATH = "configManager";
+
 
 
 	/**
@@ -36,7 +39,7 @@ public class PackageHelper {
 
 	public static String getPackagePath(Element element) {
 		String sourceClass = element.asType().toString();
-		String packagePath = ROOT_PATH + "." + sourceClass.split("\\.")[0] + "." + sourceClass.split("\\.")[1];
+		String packagePath = MODULE_MANAGER_PATH + "." + sourceClass.split("\\.")[0] + "." + sourceClass.split("\\.")[1];
 		return packagePath;
 	}
 	

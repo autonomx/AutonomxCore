@@ -32,8 +32,8 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 
 public class WebDriverSetup {
 
-	public static String SERVER_URL = "web.remote.server_url";
-	public static String SERVER_PORT = "web.remote.server_port";
+	public static String SERVER_URL = "web.remote.server.url";
+	public static String SERVER_PORT = "web.remote.server.port";
 	public static String LATEST_BROWSER_VERSION = "LATEST";
 
 	/**

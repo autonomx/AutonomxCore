@@ -14,6 +14,8 @@ import core.support.annotation.processor.MainGenerator;
 
 public class FileCreatorHelper {
 	
+	public static JavaFileObject CONFIG_VARIABLE_FILE_OBJECT = null;
+	public static JavaFileObject CONFIG_MODULE_FILE_OBJECT = null;
 	public static JavaFileObject moduleManagerFileObject = null;
 	public static JavaFileObject moduleFileObject = null;
 	public static JavaFileObject CSVDATA_CSV_File_Object = null;
@@ -51,7 +53,7 @@ public class FileCreatorHelper {
 	 * @throws IOException
 	 */
 	public static JavaFileObject createModuleFile() throws IOException {
-		moduleFileObject = MainGenerator.PROCESS_ENV.getFiler().createSourceFile(PackageHelper.ROOT_PATH + "." + PackageHelper.MODULE_CLASS);
+		moduleFileObject = MainGenerator.PROCESS_ENV.getFiler().createSourceFile(PackageHelper.MODULE_MANAGER_PATH + "." + PackageHelper.MODULE_CLASS);
 		return moduleFileObject;
 	}
 
@@ -63,7 +65,7 @@ public class FileCreatorHelper {
 	 * @throws IOException
 	 */
 	public static JavaFileObject createFile(String path) throws IOException {
-		moduleManagerFileObject = MainGenerator.PROCESS_ENV.getFiler().createSourceFile(PackageHelper.ROOT_PATH + "." + PackageHelper.MODULE_MANAGER_CLASS);
+		moduleManagerFileObject = MainGenerator.PROCESS_ENV.getFiler().createSourceFile(PackageHelper.MODULE_MANAGER_PATH + "." + PackageHelper.MODULE_MANAGER_CLASS);
 		return moduleManagerFileObject;
 	}
 

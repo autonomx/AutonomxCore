@@ -87,18 +87,31 @@ public class Config {
 	 */
 	public static void loadConfig(String testId) {
 
+		Map<String, Object> config = loadConfigProperties();
+		TestObject.getTestInfo(testId).config.putAll(config);	
+	}
+	
+	/**
+	 * loads config And properties files to TestObject config map
+	 * @param testId id of the test
+	 * @return 
+	 */
+	public static Map<String, Object> loadConfigProperties() {
+
+		Map<String, Object> config = new ConcurrentHashMap<String, Object>();
 		// get all keys from resource path
 		Map<String, String> propertiesMap = getAllKeys(RESOURCE_PATH);
-		TestObject.getTestInfo(testId).config.putAll(propertiesMap);
+		config.putAll(propertiesMap);
 
 		// load config/properties values from entries with "config_" prefix
 		for (Entry<String, String> entry : propertiesMap.entrySet()) {
 			boolean isConfig = entry.getKey().toString().startsWith(CONFIG_PREFIX);
 			if (isConfig) {
 				propertiesMap = getAllKeys(PropertiesReader.getLocalRootPath() + entry.getValue());
-				TestObject.getTestInfo(testId).config.putAll(propertiesMap);
+				config.putAll(propertiesMap);
 			}
 		}
+		return config;
 	}
 	
 	/**
@@ -119,7 +132,7 @@ public class Config {
 	 */
 	public static String getValue(String key, boolean isFailable) {
 
-		String value = (String) TestObject.getTestInfo().config.get(key);
+		String value = TestObject.getTestInfo().config.get(key).toString();
 		if (value == null) {
 			 if(isFailable) Helper.assertFalse("value not found, default empty: " + key);
 		   	System.out.println("value not found, default empty: " + key);
@@ -252,7 +265,7 @@ public class Config {
 	 * @param key key in properties file
 	 * @param value value associated with key
 	 */
-	public static void putValue(String key, String value) {
+	public static void putValue(String key, Object value) {
 		TestLog.logPass("storing in key: " + key + " value: " + value);
 		TestObject.getTestInfo().config.put(key, value);
 	}

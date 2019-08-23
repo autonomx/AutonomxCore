@@ -767,4 +767,28 @@ public class UtilityHelper {
 		}
 		return true;
 	}
+	
+	/**
+	 * returns if string is boolean
+	 * @param value
+	 * @return
+	 */
+	protected static boolean isBoolean(String value) {
+			value = value.toLowerCase();
+		    return (value.equals("true") || value.equals("false"));
+		}
+	
+	/**
+	 * return if string is a number
+	 * @param str
+	 * @return
+	 */
+	protected static boolean isNumeric(String str) { 
+		  try {  
+		    Double.parseDouble(str);  
+		    return true;
+		  } catch(NumberFormatException e){  
+		    return false;  
+		  }  
+		}
 }
