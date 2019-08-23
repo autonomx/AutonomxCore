@@ -111,12 +111,32 @@ public class ListHelper {
 		Helper.wait.waitForElementToLoad(list);
 		int index = getElementIndexContainByText(list, option);
 		AssertHelper.assertTrue("option not found in list: " + list.name, index > -1);
-
+		
 		EnhancedWebElement containerList = Element.findElements(list);
 		EnhancedWebElement targetElement = Element.findElements(target, containerList.get(index));
 
 		targetElement.click();
 		TestLog.logPass("I select list option '" + option + "' from list '" + list.name + "'");
+	}
+	
+	/**
+	 * 	  find the index of the target element in list
+		eg. list A, 5 rows, has element B in row 2. therefore, index 1 is returned @param list
+	 * @param list
+	 * @param target
+	 * @return index of element in list
+	 */
+	public int getElementIndexInList(EnhancedBy list, EnhancedBy target) {
+		Helper.waitForElementToLoad(list);
+		EnhancedWebElement listElements = Element.findElements(list);
+		int count = listElements.count();
+		for (int i = 0; i < count; i++) {
+			EnhancedWebElement targetElement = Element.findElements(target, listElements.get(i));
+			if (targetElement.isExist()) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	/**

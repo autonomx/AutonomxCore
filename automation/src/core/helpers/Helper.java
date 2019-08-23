@@ -947,20 +947,16 @@ public class Helper {
 	public static void selectListItemContainsByName(EnhancedBy listValue, String option, EnhancedBy target) {
 		list.selectListItemContainsByName(listValue, option, target);
 	}
-
+	
 	/**
-	 * Selects list item from a parent container eg. delete button in a list defined
-	 * by name find the container containing the name And Then finds the delete
-	 * button in that container as target
-	 * 
+	 * 	  find the index of the target element in list
+		eg. list A, 5 rows, has element B in row 2. therefore, index 1 is returned @param list
 	 * @param list
-	 * @param option
 	 * @param target
-	 * @deprecated use {@link #selectElementContainedInList()} instead.
+	 * @return index of element in list
 	 */
-	@Deprecated
-	public static void selectListItemContainsFromContainer(EnhancedBy listValue, String option, EnhancedBy target) {
-		list.selectElementContainedInList(listValue, option, target);
+	public static int getElementIndexInList(EnhancedBy srcList, EnhancedBy target) {
+		return list.getElementIndexInList(srcList, target);
 	}
 
 	/**
