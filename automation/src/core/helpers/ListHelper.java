@@ -112,8 +112,7 @@ public class ListHelper {
 		int index = getElementIndexContainByText(list, option);
 		AssertHelper.assertTrue("option not found in list: " + list.name, index > -1);
 		
-		EnhancedWebElement containerList = Element.findElements(list);
-		EnhancedWebElement targetElement = Element.findElements(target, containerList.get(index));
+		EnhancedWebElement targetElement = Element.findElements(list, target);
 
 		targetElement.click();
 		TestLog.logPass("I select list option '" + option + "' from list '" + list.name + "'");
@@ -130,10 +129,10 @@ public class ListHelper {
 		Helper.waitForElementToLoad(list);
 		EnhancedWebElement listElements = Element.findElements(list);
 		int count = listElements.count();
-		for (int i = 0; i < count; i++) {
-			EnhancedWebElement targetElement = Element.findElements(target, listElements.get(i));
+		for (int index = 0; index < count; index++) {
+			EnhancedWebElement targetElement = Element.findElements(list, index, target);
 			if (targetElement.isExist()) {
-				return i;
+				return index;
 			}
 		}
 		return -1;
@@ -208,7 +207,7 @@ public class ListHelper {
 	}
 
 	/**
-	 * retuns index of element in list which contains in text
+	 * returns index of element in list which contains in text
 	 * 
 	 * @param list
 	 * @param option

@@ -30,22 +30,26 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	private final EnhancedBy enhanceBy;
 	private By by;
 	private final WebDriver webDriver;
-	private final WebElement parent;
+	private final EnhancedBy parent;
+	private final int parentIndex;
+	private List<WebElement> parentElements;
 	private List<WebElement> current;
 	private Element.LocatorType locatorType;
 
-	public ImpEnhancedWebElement(EnhancedBy enhanceBy, WebDriver webDriver, WebElement parent) {
+	public ImpEnhancedWebElement(EnhancedBy parent, int parentIndex, WebDriver webDriver, EnhancedBy enhanceBy) {
 		this.elementName = enhanceBy.name;
 		this.enhanceBy = enhanceBy;
 		this.webDriver = webDriver;
 		this.parent = parent;
+		this.parentIndex = parentIndex;
 		this.current = null;
+		parentElements = new ArrayList<WebElement>();
 	}
 
 	@Override
-	public EnhancedWebElement findElement(EnhancedBy enhanceBy, EnhancedWebElement parentElement) {
+	public EnhancedWebElement findElement(EnhancedBy parentElement, int parentIndex, EnhancedBy enhanceBy) {
 
-		return new ImpEnhancedWebElement(enhanceBy, webDriver, parentElement);
+		return new ImpEnhancedWebElement(parentElement, parentIndex, webDriver, enhanceBy);
 	}
 
 	@Override
@@ -339,7 +343,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 
 	@Override
 	public void setValue(int index, CharSequence... keysToSend) {
-		MobileElement element = (MobileElement) getElement().get(index);
+		MobileElement element = (MobileElement) getElement(index);
 		String value = keysToSend[0].toString();
 		element.setValue(value);
 	}
@@ -561,25 +565,59 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		webDriver.manage().timeouts().implicitlyWait(AbstractDriver.TIMEOUT_SECONDS, TimeUnit.SECONDS);
 		return element;
 	}
-
+	
 	/**
-	 * gets a single element 
-	 * gets first element in the elementObject list
-	 * 
+	 * gets parent elements and stores in parentElements list
+	 */
+	public void getParentElement() {
+
+		// if parent locator is not set, or parent elements have already been found, do
+		// not proceed
+		if (parent == null || !this.parentElements.isEmpty())
+			return;
+
+		List<WebElement> elements = new ArrayList<WebElement>();
+		for (ElementObject elementObject : this.parent.elementObject) {
+			this.by = elementObject.by;
+			this.locatorType = elementObject.locatorType;
+
+			try {
+				this.current = new ArrayList<WebElement>();
+				elements = webDriver.findElements(by);
+
+				// if no element found, go to next locator
+				if (elements.isEmpty())
+					continue;
+
+				// get first visible element
+				WebElement element = getFirstVisibleElement(elements);
+				this.parentElements.add(element);
+			} catch (Exception e) {
+				e.getMessage();
+			}
+		}
+	}
+	
+	/**
+	 * gets the list of elements, then selects the first visible element from the list
+	 * in situation where the first elements are not visible, out of view
 	 * @return
 	 */
 	public List<WebElement> getElement() {
 		List<WebElement> elements = new ArrayList<WebElement>();
 		if (current != null && !current.isEmpty() ) return this.current;
 		
+		// get parent elements if applicable
+		getParentElement();
+		
 		for (ElementObject elementObject : this.enhanceBy.elementObject) {
 			this.by = elementObject.by;
 			this.locatorType = elementObject.locatorType;
 			
 			try {
-				if (parent != null) {
+				if (!this.parentElements.isEmpty()) {
 					this.current = new ArrayList<WebElement>();
-					elements = parent.findElements(by);
+					elements = parentElements.get(parentIndex).findElements(by);
 				} else if (current == null || current.isEmpty()) {
 					this.current = new ArrayList<WebElement>();
 					elements = webDriver.findElements(by);
@@ -590,6 +628,32 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				// get first visible element
 				WebElement element = getFirstVisibleElement(elements);
 				this.current.add(element);
+			} catch (Exception e) {
+				e.getMessage();
+			}
+		}
+		return this.current;
+	}
+	
+	public List<WebElement> getElements() {
+		if (current != null && !current.isEmpty() ) return this.current;
+		
+		// get parent elements if applicable
+		getParentElement();
+
+		for (ElementObject elementObject : this.enhanceBy.elementObject) {
+			try {
+				this.by = elementObject.by;
+				this.locatorType = elementObject.locatorType;
+
+				if (!this.parentElements.isEmpty()) {
+					this.current = parentElements.get(parentIndex).findElements(by);
+				} else if (current == null || current.isEmpty()) {
+					this.current = webDriver.findElements(by);
+				}
+				// if element is found, exit loop
+				if (!this.current.isEmpty())
+					break;
 			} catch (Exception e) {
 				e.getMessage();
 			}
@@ -620,28 +684,6 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 
 		webDriver.manage().timeouts().implicitlyWait(AbstractDriver.TIMEOUT_SECONDS, TimeUnit.SECONDS);
 		return element;
-	}
-
-	public List<WebElement> getElements() {
-
-		for (ElementObject elementObject : this.enhanceBy.elementObject) {
-			try {
-				this.by = elementObject.by;
-				this.locatorType = elementObject.locatorType;
-
-				if (parent != null) {
-					this.current = parent.findElements(by);
-				} else if (current == null || current.isEmpty()) {
-					this.current = webDriver.findElements(by);
-				}
-				// if element is found, exit loop
-				if (!this.current.isEmpty())
-					break;
-			} catch (Exception e) {
-				e.getMessage();
-			}
-		}
-		return this.current;
 	}
 
 	@Override

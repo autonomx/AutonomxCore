@@ -12,7 +12,6 @@ import org.json.JSONException;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.html5.Location;
 
 import core.helpers.click.ClickHelper;
@@ -176,8 +175,8 @@ public class Helper {
 	 * @param parent
 	 * @return
 	 */
-	protected static EnhancedWebElement findElements(EnhancedBy child, WebElement parent) {
-		return Element.findElements(child, parent);
+	protected static EnhancedWebElement findElements(EnhancedBy parent, EnhancedBy child) {
+		return Element.findElements(parent, child);
 	}
 
 	/**
@@ -197,8 +196,8 @@ public class Helper {
 	 * @param parent
 	 * @return
 	 */
-	protected static EnhancedWebElement findElements(EnhancedBy child, EnhancedWebElement parent) {
-		return Element.findElements(child, parent);
+	protected static EnhancedWebElement findElements(EnhancedBy parent, int parentIndex, EnhancedBy child) {
+		return Element.findElements(child, parentIndex, parent);
 	}
 
 	/**
