@@ -11,6 +11,10 @@ import java.util.List;
 
 public class dirChangeDetector {
 
+	/**
+	 * detects changes in directories: files added, removed, name changed
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		
 		// get src and keyword directory list, String format separated by ","
