@@ -16,8 +16,6 @@ public interface EnhancedWebElement extends WebElement {
 
 	void moveMouse(int index);
 
-	EnhancedWebElement findElement(EnhancedBy enhanceBy, EnhancedWebElement parentElement);
-
 	By getElementCssSelector();
 
 	By getElementCssSelector(int index);
@@ -77,4 +75,6 @@ public interface EnhancedWebElement extends WebElement {
 	void scrollToView(int index);
 
 	void sendKeyByJs(int index, CharSequence[] keysToSend);
+
+	EnhancedWebElement findElement(EnhancedBy parentElement, int parentIndex, EnhancedBy enhanceBy);
 }

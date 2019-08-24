@@ -12,7 +12,6 @@ import java.util.List;
 import javax.tools.JavaFileObject;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 
 import com.opencsv.CSVReader;
 
@@ -201,7 +200,7 @@ public class User {
 		 */
 		for(int rowIndex = 1; rowIndex < csvDataWithHeader.size(); rowIndex++) {
 			String key = updateForDuplicateIds(csvDataWithHeader).get(rowIndex - 1).trim();
-			key = normalizeMethodName(key);
+			key = DataObjectHelper.normalizeMethod(key);
 			
 			bw.append("	public " + csvName + " " + key +  "() {" + "\n");
 			bw.append(" 	  " + csvName + " " + csvName.toLowerCase() + " = new " + csvName + "();" + "\n");
@@ -362,21 +361,6 @@ public class User {
 		return idList; 
 	}
 	
-	/**
-	 * updates the method name to remove illegal characters 
-	 * @param key
-	 * @return
-	 */
-	private static String normalizeMethodName(String key) {
-		// remove "-" , "."
-		key = key.replace("-", "").replaceAll("\\.", "");
-		
-		if (NumberUtils.isDigits(key)) {
-		    key = "method" + key; 
-		}
-		
-		return key;
-	}
 	
 	/**
 	 * removes the first column in the row. this is for the id colum that needs to be removed from data provider

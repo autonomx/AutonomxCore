@@ -176,8 +176,7 @@ public class FormHelper {
 		TestLog.logPass("I set field '" + child.name + "' with value '" + Arrays.toString(value) + "'");
 
 		if (value != null && value.length != 0) {
-			EnhancedWebElement parentElement = Element.findElements(parent);
-			EnhancedWebElement childElement = Element.findElements(child, parentElement.get(parentIndex));
+			EnhancedWebElement childElement = Element.findElements(parent, parentIndex, child);
 			// clear field is slow on android And ios
 			childElement.clear(childIndex);
 			childElement.sendKeys(childIndex, value);

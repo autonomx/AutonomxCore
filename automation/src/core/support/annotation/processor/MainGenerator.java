@@ -31,6 +31,8 @@ import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.annotationMap.DataMapHelper;
 import core.support.annotation.helper.annotationMap.PanelMapHelper;
 import core.support.annotation.helper.annotationMap.ServiceMapHelper;
+import core.support.annotation.template.config.ConfigManager;
+import core.support.annotation.template.config.ConfigVariableGenerator;
 import core.support.annotation.template.dataObject.CsvDataObject;
 import core.support.annotation.template.dataObject.DataClass;
 import core.support.annotation.template.dataObject.ModuleClass;
@@ -88,7 +90,12 @@ public class MainGenerator extends AbstractProcessor {
 			ServiceData.writeServiceDataClass();
 			ServiceRunner.writeServiceClass(serviceObjectMap);
 			
-		    crateMarkerClass();
+			// generate config objects
+			ConfigManager.writeConfigManagerClass();
+			ConfigVariableGenerator.writeConfigVariableClass();
+			
+			// create marker crasll
+		    createMarkerClass();
 			
 			System.out.println("Annotation generation complete");
 		}
@@ -100,7 +107,7 @@ public class MainGenerator extends AbstractProcessor {
 	 * used for comparison with the class files.
 	 * if class files are newer, than the marker class, then regenerate the code
 	 */
-	private static void crateMarkerClass() {
+	private static void createMarkerClass() {
 		try {
      			createFileList("src" + File.separator + "main", "src_dir", false);
 				createFileList("resources" + File.separator + "api" + File.separator + "keywords", "src_dir", true);

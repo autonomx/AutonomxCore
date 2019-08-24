@@ -12,7 +12,6 @@ import org.json.JSONException;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.html5.Location;
 
 import core.helpers.click.ClickHelper;
@@ -125,6 +124,16 @@ public class Helper {
 	public static void assertEquals(String expected, String actual) {
 		AssertHelper.assertEquals(expected, actual);
 	}
+	
+	/**
+	 * assert expected equals actual
+	 * 
+	 * @param expected
+	 * @param actual
+	 */
+	public static void assertEquals(boolean expected, boolean actual) {
+		AssertHelper.assertEquals(expected, actual);
+	}
 
 	/**
 	 * assert expected equals actual
@@ -166,8 +175,8 @@ public class Helper {
 	 * @param parent
 	 * @return
 	 */
-	protected static EnhancedWebElement findElements(EnhancedBy child, WebElement parent) {
-		return Element.findElements(child, parent);
+	protected static EnhancedWebElement findElements(EnhancedBy parent, EnhancedBy child) {
+		return Element.findElements(parent, child);
 	}
 
 	/**
@@ -187,8 +196,8 @@ public class Helper {
 	 * @param parent
 	 * @return
 	 */
-	protected static EnhancedWebElement findElements(EnhancedBy child, EnhancedWebElement parent) {
-		return Element.findElements(child, parent);
+	protected static EnhancedWebElement findElements(EnhancedBy parent, int parentIndex, EnhancedBy child) {
+		return Element.findElements(child, parentIndex, parent);
 	}
 
 	/**
@@ -937,20 +946,16 @@ public class Helper {
 	public static void selectListItemContainsByName(EnhancedBy listValue, String option, EnhancedBy target) {
 		list.selectListItemContainsByName(listValue, option, target);
 	}
-
+	
 	/**
-	 * Selects list item from a parent container eg. delete button in a list defined
-	 * by name find the container containing the name And Then finds the delete
-	 * button in that container as target
-	 * 
+	 * 	  find the index of the target element in list
+		eg. list A, 5 rows, has element B in row 2. therefore, index 1 is returned @param list
 	 * @param list
-	 * @param option
 	 * @param target
-	 * @deprecated use {@link #selectElementContainedInList()} instead.
+	 * @return index of element in list
 	 */
-	@Deprecated
-	public static void selectListItemContainsFromContainer(EnhancedBy listValue, String option, EnhancedBy target) {
-		list.selectElementContainedInList(listValue, option, target);
+	public static int getElementIndexInList(EnhancedBy srcList, EnhancedBy target) {
+		return list.getElementIndexInList(srcList, target);
 	}
 
 	/**
@@ -2046,6 +2051,24 @@ public class Helper {
 	 */
 	public static boolean isUUID(String value) {
 		return UtilityHelper.isUUID(value);
+	}
+	
+	/**
+	 * returns if string is boolean
+	 * @param value
+	 * @return
+	 */
+	public static boolean isBoolean(String value) {
+		return UtilityHelper.isBoolean(value);
+	}
+	
+	/**
+	 * return if string is a number
+	 * @param str
+	 * @return
+	 */
+	public static boolean isNumeric(String value) { 
+		return UtilityHelper.isNumeric(value);
 	}
 
 	/**

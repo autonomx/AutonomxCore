@@ -1,7 +1,5 @@
 package core.helpers;
 
-import org.openqa.selenium.WebElement;
-
 import core.uiCore.drivers.AbstractDriver;
 import core.uiCore.webElement.EnhancedBy;
 import core.uiCore.webElement.EnhancedWebElement;
@@ -21,18 +19,6 @@ public class Element {
 	}
 
 	/**
-	 * finds element based on parent element
-	 * 
-	 * @param element
-	 * @param parent
-	 * @return
-	 */
-	protected static EnhancedWebElement findElements(EnhancedBy child, WebElement parent) {
-
-		return new ImpEnhancedWebElement(child, AbstractDriver.getWebDriver(), parent);
-	}
-
-	/**
 	 * finds list of elements
 	 * 
 	 * @param element
@@ -40,7 +26,7 @@ public class Element {
 	 */
 	protected static EnhancedWebElement findElements(EnhancedBy element) {
 
-		return new ImpEnhancedWebElement(element, AbstractDriver.getWebDriver(), null);
+		return new ImpEnhancedWebElement(null, 0, AbstractDriver.getWebDriver(), element);
 	}
 
 	/**
@@ -50,9 +36,15 @@ public class Element {
 	 * @param parent
 	 * @return
 	 */
-	protected static EnhancedWebElement findElements(EnhancedBy child, EnhancedWebElement parent) {
+	
+	protected static EnhancedWebElement findElements(EnhancedBy parent, int parentIndex, EnhancedBy child) {
 
-		return new ImpEnhancedWebElement(child, AbstractDriver.getWebDriver(), parent);
+		return new ImpEnhancedWebElement(parent, parentIndex, AbstractDriver.getWebDriver(), child);
+	}
+	
+	protected static EnhancedWebElement findElements(EnhancedBy parent, EnhancedBy child) {
+
+		return new ImpEnhancedWebElement(parent, 0, AbstractDriver.getWebDriver(), child);
 	}
 
 	/**
