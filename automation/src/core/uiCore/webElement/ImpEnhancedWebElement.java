@@ -576,22 +576,18 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		if (parent == null || !this.parentElements.isEmpty())
 			return;
 
-		List<WebElement> elements = new ArrayList<WebElement>();
 		for (ElementObject elementObject : this.parent.elementObject) {
 			this.by = elementObject.by;
 			this.locatorType = elementObject.locatorType;
 
 			try {
 				this.current = new ArrayList<WebElement>();
-				elements = webDriver.findElements(by);
+				this.parentElements = webDriver.findElements(by);
 
 				// if no element found, go to next locator
-				if (elements.isEmpty())
+				if (this.parentElements.isEmpty())
 					continue;
 
-				// get first visible element
-				WebElement element = getFirstVisibleElement(elements);
-				this.parentElements.add(element);
 			} catch (Exception e) {
 				e.getMessage();
 			}
