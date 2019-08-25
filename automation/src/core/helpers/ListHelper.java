@@ -112,7 +112,7 @@ public class ListHelper {
 		int index = getElementIndexContainByText(list, option);
 		AssertHelper.assertTrue("option not found in list: " + list.name, index > -1);
 		
-		EnhancedWebElement targetElement = Element.findElements(list, target);
+		EnhancedWebElement targetElement = Element.findElements(list, index, target);
 
 		targetElement.click();
 		TestLog.logPass("I select list option '" + option + "' from list '" + list.name + "'");

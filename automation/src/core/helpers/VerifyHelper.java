@@ -14,7 +14,7 @@ public class VerifyHelper {
 	 *
 	 * @param by
 	 */
-	protected static void verifyElementIsDisplayed(EnhancedBy by) {
+	public void verifyElementIsDisplayed(EnhancedBy by) {
 		Helper.wait.waitForElementToLoad(by, 3); // initially waits up to 3 seconds before scrolling attempt
 		Helper.mobile.mobile_scrollToElement(by);
 		TestLog.logPass("I verify '" + by.name + "' " + "is displayed");
@@ -29,7 +29,7 @@ public class VerifyHelper {
 	 * @param element
 	 * @return
 	 */
-	protected static boolean isPresent(EnhancedBy element) {
+	public boolean isPresent(EnhancedBy element) {
 		EnhancedWebElement expectedElement = Element.findElements(element);
 		expectedElement.scrollToView();
 		TestLog.ConsoleLog("isPresent:  " + element.name + " :" + expectedElement.isExist());
@@ -43,16 +43,69 @@ public class VerifyHelper {
 	 * @param text
 	 * @return
 	 */
-	protected static boolean isElementContainingText(EnhancedBy element, String text) {
+	public boolean isElementContainingText(EnhancedBy element, String text) {
 		return Helper.list.isContainedInList(element, text);
 	}
+	
+	/**
+	 * returns true if element has exact text value
+	 *
+	 * @param element
+	 * @param text
+	 * @return
+	 */
+	public boolean isElementHasExactText(EnhancedBy element, int index, String text) {
+		Helper.waitForElementToBeClickable(element);
+		String actualText = Helper.getTextValue(element, index);
+		return actualText.equals(text);
+	}
+	
+	/**
+	 * return true if element is in list of elements. eg. delete button in a table
+	 * @param list
+	 * @param target
+	 * @return
+	 */
+	public boolean isElementInList(EnhancedBy list, EnhancedBy target) {
+		return Helper.list.getElementIndexInList(list, target) != -1;
+	}
+	
+	/**
+	 * return true if element is in list of elements. 
+	 * eg. delete button in a table with user row identified by name: bob
+	 * @param list
+	 * @param target
+	 * @return
+	 */
+	public boolean isElementInList(EnhancedBy list, String option, EnhancedBy target) {
+		Helper.wait.waitForElementToLoad(list);
+		int index = Helper.list.getElementIndexContainByText(list, option);
+		AssertHelper.assertTrue("option not found in list: " + list.name, index > -1);
+		
+		EnhancedWebElement targetElement = Element.findElements(list, index, target);
+		return targetElement.isExist();
+	}
+	
+	/**
+	 * verify if element has exact text value
+	 *
+	 * @param element
+	 * @param text
+	 * @return
+	 */
+	public void verifyElementHasExactText(EnhancedBy element, int index, String text) {
+		Helper.waitForElementToBeClickable(element);
+		String actualText = Helper.getTextValue(element, index);
+		Helper.assertEquals(text, actualText);
+	}
+	
 	
 	/**
 	 * verify if element contains text
 	 * @param element
 	 * @param text
 	 */
-	protected static void verifyElementContainingText(EnhancedBy element, String text) {
+	public void verifyElementContainingText(EnhancedBy element, String text) {
 		Helper.waitForElementToLoad(element);
 		Helper.assertTrue("element does not contain text: " + text, isElementContainingText(element, text));
 	}
@@ -61,7 +114,7 @@ public class VerifyHelper {
 	 * verify if text is displayed on page
 	 * @param text
 	 */
-	protected static void verifyTextDisplayed(String text) {
+	public void verifyTextDisplayed(String text) {
 		boolean isText = isTextDisplayed(text);
 		Helper.assertTrue("text: " + "text is not displayed", isText);
 	}
@@ -71,7 +124,7 @@ public class VerifyHelper {
 	 * @param text
 	 * @return
 	 */
-	protected static boolean isTextDisplayed(String text) {
+	public boolean isTextDisplayed(String text) {
 		try {
 			boolean b = AbstractDriver.getWebDriver().getPageSource().contains(text);
 			return b;
@@ -85,7 +138,7 @@ public class VerifyHelper {
 	 *
 	 * @param by
 	 */
-	protected static void verifyElementIsNotDisplayed(EnhancedBy by) {
+	public void verifyElementIsNotDisplayed(EnhancedBy by) {
 		EnhancedWebElement elements = Element.findElements(by);
 		TestLog.logPass("I verify element '" + by.name + "' " + "is not displayed");
 		Helper.wait.waitForElementToBeRemoved(by);
@@ -98,7 +151,7 @@ public class VerifyHelper {
 	 * @param by
 	 * @param value
 	 */
-	protected static void verifyElementText(EnhancedBy by, String value) {
+	public void verifyElementText(EnhancedBy by, String value) {
 		if (!value.isEmpty()) {
 			Helper.wait.waitForElementToLoad(by);
 			EnhancedWebElement elements = Element.findElements(by);
@@ -116,7 +169,7 @@ public class VerifyHelper {
 	 * @param by
 	 * @param value
 	 */
-	protected static void verifyElementCount(EnhancedBy by, int value, int... correction) {
+	public void verifyElementCount(EnhancedBy by, int value, int... correction) {
 		int correctValue = 0;
 		if (correction.length > 0)
 			correctValue = correction[0];
@@ -131,7 +184,7 @@ public class VerifyHelper {
 	 * @param target
 	 * @param values
 	 */
-	protected static void verifyAnyTextContaining(EnhancedBy target, String... values) {
+	public void verifyAnyTextContaining(EnhancedBy target, String... values) {
 		TestLog.logPass("I verify element '" + target.name + "' " + " contains " + Arrays.toString(values));
 		Helper.waitForAnyTextToLoadContaining(target, values);
 		
@@ -152,7 +205,7 @@ public class VerifyHelper {
 	 * @param target
 	 * @param values
 	 */
-	protected static void verifyAnyText(EnhancedBy target, String... values) {
+	public void verifyAnyText(EnhancedBy target, String... values) {
 		TestLog.logPass("I verify element '" + target.name + "' " + " contains " + Arrays.toString(values));
 		Helper.waitForAnyTextToLoadContaining(target, values);
 		
@@ -166,5 +219,27 @@ public class VerifyHelper {
 			}
 		}
 		Helper.assertFalse("element: " + target.name + " did not display any text, text values: " + Arrays.toString(values));
+	}
+	
+	/**
+	 * return if element is contained in list
+	 * 
+	 * @param list
+	 * @param option
+	 * @return
+	 */
+	public boolean isContainedInList(EnhancedBy list, String option) {
+		return Helper.isContainedInList(list, option);
+	}
+	
+	/**
+	 * return if element is an exact match in list
+	 * 
+	 * @param list
+	 * @param option
+	 * @return
+	 */
+	public boolean isExactMatchInList(EnhancedBy list, String option) {
+		return Helper.isExactMatchInList(list, option);
 	}
 }

@@ -37,6 +37,7 @@ public class Helper {
 	public static DateHelper date = new DateHelper();
 	public static CsvHelper csv = new CsvHelper();
 	public static Loginbuilder loginbuilder = new Loginbuilder();
+	public static VerifyHelper verify = new VerifyHelper();
 
 
 	// ExcelHelper
@@ -449,7 +450,7 @@ public class Helper {
 	 * @param by
 	 */
 	public static void verifyElementIsDisplayed(EnhancedBy by) {
-		VerifyHelper.verifyElementIsDisplayed(by);
+		verify.verifyElementIsDisplayed(by);
 	}
 	
 	/**
@@ -459,7 +460,7 @@ public class Helper {
 	 * @return
 	 */
 	public static boolean isDisplayed(EnhancedBy element) {
-		return VerifyHelper.isPresent(element);
+		return verify.isPresent(element);
 	}
 
 	/**
@@ -469,7 +470,7 @@ public class Helper {
 	 * @return
 	 */
 	public static boolean isPresent(EnhancedBy element) {
-		return VerifyHelper.isPresent(element);
+		return verify.isPresent(element);
 	}
 
 	/**
@@ -480,7 +481,7 @@ public class Helper {
 	 * @return
 	 */
 	public static boolean isElementContainingText(EnhancedBy element, String text) {
-		return VerifyHelper.isElementContainingText(element, text);
+		return verify.isElementContainingText(element, text);
 	}
 	
 	/**
@@ -489,7 +490,7 @@ public class Helper {
 	 * @param text
 	 */
 	public static void verifyElementContainingText(EnhancedBy element, String text) {
-		VerifyHelper.verifyElementContainingText(element, text);
+		verify.verifyElementContainingText(element, text);
 	}
 	
 	/**
@@ -497,7 +498,7 @@ public class Helper {
 	 * @param text
 	 */
 	public static void verifyTextDisplayed(String text) {
-		VerifyHelper.verifyTextDisplayed(text);
+		verify.verifyTextDisplayed(text);
 	}
 	
 	/**
@@ -506,7 +507,7 @@ public class Helper {
 	 * @return
 	 */
 	public static boolean isTextDisplayed(String text) {
-		return VerifyHelper.isTextDisplayed(text);
+		return verify.isTextDisplayed(text);
 	}
 
 	/**
@@ -515,7 +516,7 @@ public class Helper {
 	 * @param by
 	 */
 	public static void verifyElementIsNotDisplayed(EnhancedBy by) {
-		VerifyHelper.verifyElementIsNotDisplayed(by);
+		verify.verifyElementIsNotDisplayed(by);
 	}
 
 	/**
@@ -525,7 +526,7 @@ public class Helper {
 	 * @param value
 	 */
 	public static void verifyElementText(EnhancedBy by, String value) {
-		VerifyHelper.verifyElementText(by, value);
+		verify.verifyElementText(by, value);
 	}
 
 	/**
@@ -535,7 +536,7 @@ public class Helper {
 	 * @param value
 	 */
 	public static void verifyElementCount(EnhancedBy by, int value, int... correction) {
-		VerifyHelper.verifyElementCount(by, value, correction);
+		verify.verifyElementCount(by, value, correction);
 	}
 	
 	/**
@@ -544,7 +545,7 @@ public class Helper {
 	 * @param values
 	 */
 	public static void verifyAnyTextContaining(EnhancedBy target, String... values) {
-		VerifyHelper.verifyAnyTextContaining(target, values);
+		verify.verifyAnyTextContaining(target, values);
 	}
 	
 	/**
@@ -553,7 +554,7 @@ public class Helper {
 	 * @param values
 	 */
 	public  static void verifyAnyText(EnhancedBy target, String... values) {
-		VerifyHelper.verifyAnyText(target, values);
+		verify.verifyAnyText(target, values);
 	}
 
 	// FormHelper Class
