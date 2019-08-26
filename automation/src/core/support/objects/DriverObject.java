@@ -13,6 +13,7 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import core.support.logger.TestLog;
 import core.uiCore.driverProperties.browserType.BrowserType;
 import core.uiCore.driverProperties.driverType.DriverType;
+import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import core.uiCore.driverProperties.capabilities.AndroidCapability;
 import core.uiCore.driverProperties.capabilities.IosCapability;
 import core.uiCore.driverProperties.capabilities.WebCapability;
@@ -62,10 +63,12 @@ public class DriverObject {
 	 * quite all drivers associated with a test
 	 */
 	public static void quitTestDrivers() {
-		List<WebDriver> drivers = TestObject.getTestInfo().webDriverList;
+		List<WebDriver> drivers =  new ArrayList<>(TestObject.getTestInfo().webDriverList);
 		for (WebDriver driver : drivers) {
-			quitWebDriver(driver);
+			quitWebDriver(driver);	
 		}
+		// reset driver list
+		TestObject.getTestInfo().withWebDriverList(new ArrayList<WebDriver>());
 	}
 
 	/**
@@ -87,6 +90,40 @@ public class DriverObject {
 				e.getMessage();
 			}
 		}
+		
+		// remove from testObject driver list
+		List<WebDriver> currentTestDrivers = new ArrayList<>(TestObject.getTestInfo().webDriverList);
+		if(currentTestDrivers.contains(driver)) {
+			TestObject.getTestInfo().webDriverList.remove(driver);
+		}
+	}
+	
+	public static void shutDownDriver(boolean isTestPass) {
+		if(isTestPass) {
+			// shutdown drivers if single sign in is false, else shutdown all except active driver
+			if (!CrossPlatformProperties.isSingleSignIn())
+				DriverObject.quitTestDrivers();
+			else
+				shutdownSingleSignInDrivers();
+		}else {
+			// quits web driver no matter the situation, as new browser will be launched
+			DriverObject.quitTestDrivers();	
+		}
+	}
+	
+	/**
+	 * will quite all drivers except for the current driver
+	 * a test could have multiple drivers initiated.
+	 * we will only take the active driver to be used for next test
+	 */
+	private static void shutdownSingleSignInDrivers() {
+		if (!CrossPlatformProperties.isSingleSignIn()) return;
+		List<WebDriver> currentTestDrivers = new ArrayList<>(TestObject.getTestInfo().webDriverList);
+		WebDriver activeDriver = AbstractDriver.getWebDriver();
+		for(WebDriver driver : currentTestDrivers) {
+			if(!driver.equals(activeDriver))
+				quitWebDriver( driver);
+		}
 	}
 
 	// quites all drivers
@@ -95,11 +132,13 @@ public class DriverObject {
 			try {
 				boolean hasQuit = entry.getKey().toString().contains("(null)");
 				if (!hasQuit)
-					entry.getKey().quit();
+					quitWebDriver(entry.getKey());
 			} catch (Exception e) {
 				e.getMessage();
 			}
 		}
+		// reset driver list
+		driverList = new ConcurrentHashMap<WebDriver, DriverObject>();
 	}
 
 	/**

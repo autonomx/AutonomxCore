@@ -1629,6 +1629,14 @@ public class Helper {
     }
     
     /**
+     * quit driver
+     * @param driver
+     */
+    public static void quitDriver(WebDriver driver){
+    	page.quitDriver(driver);
+    }
+    
+    /**
      * quits all drivers in the current test
      */
     public static void quitAllCurrentTestDrivers() {

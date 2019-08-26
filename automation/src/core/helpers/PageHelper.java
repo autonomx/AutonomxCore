@@ -392,6 +392,14 @@ public class PageHelper {
     }
     
     /**
+     * quit driver
+     * @param driver
+     */
+    public void quitDriver(WebDriver driver){
+    	DriverObject.quitWebDriver(driver);
+    }
+    
+    /**
      * quits all drivers in the current test
      */
     public void quitAllCurrentTestDrivers() {

@@ -65,6 +65,7 @@ public class AbstractDriverTestNG {
 	 * @throws Exception
 	 */
 	public static WebDriver setupWebDriver(DriverObject driverObject) throws Exception {
+
 		initTest(driverObject);
 		ExtentManager.reportSetup();
 
@@ -90,7 +91,6 @@ public class AbstractDriverTestNG {
 		}
 		// associate current driver with test object
 		TestObject.getTestInfo().withWebDriver(AbstractDriver.getWebDriver());
-
 		// get url if is web test
 		getURL(driverObject.initialURL);
 		// set full screen for browser if set true in properties
@@ -244,14 +244,9 @@ public class AbstractDriverTestNG {
 		TestLog.printBatchLogsToConsole();
 		
 		letRetryKnowAboutReports();
-		if(iTestResult.isSuccess()) {
-			// shutdown drivers if single sign in is false
-			if (!CrossPlatformProperties.isSingleSignIn())
-				DriverObject.quitTestDrivers();
-		}else {
-			// quits web driver no matter the situation, as new browser will be launched
-			DriverObject.quitTestDrivers();	
-		}
+		
+		// shut down drivers after test
+		DriverObject.shutDownDriver(iTestResult.isSuccess());
 	}
 	
 	/**
