@@ -142,7 +142,10 @@ public class TestObject{
 			TestObject.setLogging();
 			
 			// loads all property values into config map
-			Config.loadConfig(testId);
+			// if config from inherited layer is empty ( empty for default (autonomx), and before suite )
+			if(test.config.isEmpty())
+				Config.loadConfig(testId);
+			
 			// loads all the keywords for api references
 			CsvReader.getAllKeywords();
 
@@ -155,13 +158,14 @@ public class TestObject{
 	 * 
 	 * before suite -> before class -> test method
 	 * before suite -> before class -> after class
-	 * before suite -
+	 * before suite -> after suite
 	 * @return 
 	 */
 	public static TestObject inheritParent(DriverObject driver, String testId) {
 		TestObject test = new TestObject();
 		// add config object from previous state to new test object
-		test.config.putAll(getTestObjectInheritence(driver, testId).config);
+		Map<String, Object> configValue = getTestObjectInheritence(driver, testId).config;
+		test.config.putAll(configValue);
 			
 		return test;
 	}
@@ -179,6 +183,7 @@ public class TestObject{
 		// gets test state of test object: suite, testClass, testMethod
 		testState testObjectState = getTestState(testId);
 
+		// name of the test to be pass inheritance
 		String[] testValues = testId.split("-");
 		String testName = testValues[0];
 		

@@ -81,7 +81,7 @@ public class VerifyHelper {
 		Helper.wait.waitForElementToLoad(list);
 		int index = Helper.list.getElementIndexContainByText(list, option);
 		AssertHelper.assertTrue("option not found in list: " + list.name, index > -1);
-		
+
 		EnhancedWebElement targetElement = Element.findElements(list, index, target);
 		return targetElement.isExist();
 	}
