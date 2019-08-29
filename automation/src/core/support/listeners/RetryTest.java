@@ -15,12 +15,13 @@ import core.helpers.Helper;
 import core.helpers.excelHelper.ExcelObject;
 import core.support.logger.TestLog;
 import core.support.objects.TestObject;
+import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import core.uiCore.drivers.AbstractDriverTestNG;
 
 public class RetryTest implements IRetryAnalyzer {
 
 	public static final String[] PageErrors = { "MultipleFailureException", "WebDriverException", "GridException",
-			"SessionNotFoundException", "UnreachableBrowserException", "loginException" };
+			"SessionNotFoundException", "UnreachableBrowserException", "LoginException" };
 
 	public enum ReportType {
 		pass, info, warning, debug, fail, code
@@ -32,21 +33,12 @@ public class RetryTest implements IRetryAnalyzer {
 	public static List<ExcelObject> exceList = new ArrayList<ExcelObject>();
 	public static List<String> errorList = new ArrayList<String>();
 
-	private int maxRetryCount = 1;
 	public int retryCount = 1;
 	public static boolean enableRetry = true;
 	private ExtentTest test;
 	private ExtentTest step;
 
 	public RetryTest() {
-	}
-
-	public RetryTest(int maxRetryCount) {
-		this.maxRetryCount = maxRetryCount;
-	}
-
-	public void setMaxRetryCount(int maxRetryCount) {
-		this.maxRetryCount = maxRetryCount;
 	}
 
 	public void setExtendReport(ExtentTest test, ExtentTest step) {
@@ -69,12 +61,18 @@ public class RetryTest implements IRetryAnalyzer {
 
 	@Override
 	public boolean retry(ITestResult iTestResult) {
-		// ITestResult iTestResult
+		
+		// update retry count from config
+		int maxRetryCount = CrossPlatformProperties.getRetryCount();
+				
 		setExtendReport();
 		TestObject.getTestInfo().withCaughtThrowable(iTestResult.getThrowable());
-		processTestResult();
-
-		if (TestObject.getTestInfo().runCount < maxRetryCount) {
+		
+		// if the max retry has not been reached, log the failure And quite the browser
+		maxRetryCount = processTestResult();
+		
+		// if the max retry has not been reached, increment test count and continue to retry the test
+		if (TestObject.getTestInfo().runCount < maxRetryCount + 1) {
 			TestObject.getTestInfo().incremenetRunCount();
 			return true;
 		}
@@ -91,21 +89,27 @@ public class RetryTest implements IRetryAnalyzer {
 	/**
 	 * 
 	 * if the max retry has not been reached, log the failure And quite the browser
+	 * @return 
 	 */
-	public void processTestResult() {
+	public int processTestResult() {
 		logReport(ReportType.info, "run " + (TestObject.getTestInfo().runCount) + " failed ", null);
 		
 		logReport(ReportType.code, TestObject.getTestInfo().caughtThrowable.toString(), null);
 
+		// handle exception by adding extra retries
+		int maxRetryCount = errorHandling(TestObject.getTestInfo().caughtThrowable);
+		
 		// capture error screenshot
 		Helper.captureExtentReportScreenshot();
 				
 		logError("run " + (TestObject.getTestInfo().runCount) + " failed");
 		
-		if (TestObject.getTestInfo().runCount == maxRetryCount) {
+		if (TestObject.getTestInfo().runCount == maxRetryCount + 1) {
 			logReport(ReportType.fail, "giving up after " + maxRetryCount + " failures", null);
 			logError("giving up after " + maxRetryCount + " failures");
 		}
+		
+		return maxRetryCount;
 	}
 
 	public void logReport(ReportType type, String value, Throwable t) {
@@ -160,11 +164,14 @@ public class RetryTest implements IRetryAnalyzer {
 	 * PageErrors exists, Then the test will be retried
 	 * 
 	 * @param t
+	 * @return 
 	 */
-	public void errorHandling(Throwable t) {
+	public int errorHandling(Throwable t) {
+		int maxRetryCount = CrossPlatformProperties.getRetryCount();
 		if (pageHasError(t)) {
-			setMaxRetryCount(maxRetryCount + 1);
+			return ++maxRetryCount;
 		}
+		return maxRetryCount;
 	}
 
 	public void randomFailStack(ArrayList<String> FailTrace) {

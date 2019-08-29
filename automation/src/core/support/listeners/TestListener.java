@@ -49,7 +49,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		// add retry listeners to all tests
 		iTestContext.setAttribute("platform", "");
 		for (ITestNGMethod method : iTestContext.getAllTestMethods()) {
-			method.setRetryAnalyzer(new RetryTest(CrossPlatformProperties.getRetryCount()));
+			method.setRetryAnalyzer(new RetryTest());
 		}
 
 		// sets parallel run for default user. overwritten by suite xml settings
