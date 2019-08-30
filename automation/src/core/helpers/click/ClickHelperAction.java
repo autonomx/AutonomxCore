@@ -303,6 +303,9 @@ public class ClickHelperAction extends Element {
 
 		Actions action = new Actions(AbstractDriver.getWebDriver());
 		action.moveByOffset(x, y).contextClick().release();
+		
+        // return back to 0,0 position
+        Helper.click.resetMouse(x, y);
 	}
 
 	/**
@@ -368,7 +371,7 @@ public class ClickHelperAction extends Element {
 	 * @param target
 	 */
 	public void dragAndDrop(EnhancedBy src, int xOffset, int yOffset) {
-		Helper.wait.waitForElementToBeClickable(src);
+		Helper.wait.waitForElementToLoad(src);
 
 		EnhancedWebElement srcElement = Element.findElements(src);
 

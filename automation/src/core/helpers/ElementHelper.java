@@ -33,6 +33,8 @@ public class ElementHelper {
 	 * @param attribute
 	 */
 	protected static String getAttribute(EnhancedBy byValue, int index, String attribute) {
+		Helper.waitForElementToLoad(byValue);
+
 		EnhancedWebElement element = Element.findElements(byValue);
 		return element.getAttribute(attribute, index);
 	}
@@ -61,6 +63,8 @@ public class ElementHelper {
 	 * @param value
 	 */
 	protected static void setAttribute(EnhancedBy by, String attribute, String value) {
+		Helper.waitForElementToLoad(by);
+
 		EnhancedWebElement element = Element.findElements(by);
 		element.setAttribute(attribute, value);
 	}
@@ -72,6 +76,7 @@ public class ElementHelper {
 	 * @return
 	 */
 	protected static Dimension getElementSize(EnhancedBy by) {
+		Helper.waitForElementToLoad(by);
 		EnhancedWebElement element = Element.findElements(by);
 		return element.getSize();
 	}
@@ -82,10 +87,11 @@ public class ElementHelper {
 	 * @return
 	 */
 	protected static int[] findMiddleOfElement(EnhancedBy target) {
+		Helper.waitForElementToLoad(target);
 
 		EnhancedWebElement targetElement = Element.findElements(target);
-		int x = targetElement.get(0).getRect().x + targetElement.get(0).getRect().width / 2;
-		int y = targetElement.get(0).getRect().y + targetElement.get(0).getRect().height / 2;
+		int x = targetElement.get(0).getLocation().x;
+		int y =  targetElement.get(0).getLocation().y;
 		TestLog.ConsoleLog("Center at: point x: " + x + " point y: " + y);
 		return new int[] { x, y };
 	}

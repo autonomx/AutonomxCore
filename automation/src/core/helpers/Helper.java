@@ -15,6 +15,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.html5.Location;
 
 import core.helpers.click.ClickHelper;
+import core.helpers.click.ClickHelperAction;
+import core.helpers.click.ClickHelperJs;
 import core.helpers.csvHelper.CsvHelper;
 import core.helpers.emailHelper.EmailObject;
 import core.helpers.emailHelper.EmailSendHelper;
@@ -38,7 +40,8 @@ public class Helper {
 	public static CsvHelper csv = new CsvHelper();
 	public static Loginbuilder loginbuilder = new Loginbuilder();
 	public static VerifyHelper verify = new VerifyHelper();
-
+	public static ClickHelperJs clickJs = new ClickHelperJs();
+	public static ClickHelperAction clickAction = new ClickHelperAction();
 
 	// ExcelHelper
 	/**
@@ -385,7 +388,7 @@ public class Helper {
 	 * @param index
 	 */
 	public void doubleClick(EnhancedBy target, int index) {
-		ClickHelper.clickAction.doubleClick(target, index);
+		clickAction.doubleClick(target, index);
     }
     
 	/**
@@ -394,7 +397,7 @@ public class Helper {
 	 * @param index
 	 */
 	public static void rightClick(EnhancedBy target, int index) {
-		ClickHelper.clickAction.rightClick(target, index);
+		clickAction.rightClick(target, index);
 	}
     
     /**
@@ -1707,6 +1710,15 @@ public class Helper {
 	 */
 	public static Dimension getElementSize(EnhancedBy by) {
 		return ElementHelper.getElementSize(by);
+	}
+	
+	/**
+	 * returns the center coordinates of the target element
+	 * @param target
+	 * @return
+	 */
+	public static int[] findElementCoordinates(EnhancedBy target) {
+		return ElementHelper.findMiddleOfElement(target);
 	}
 	
 	/**

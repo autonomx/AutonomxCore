@@ -13,8 +13,6 @@ import core.uiCore.webElement.EnhancedWebElement;
 
 public class ClickHelper extends Element {
 
-	public static ClickHelperJs clickJs = new ClickHelperJs();
-	public static ClickHelperAction clickAction = new ClickHelperAction();
 	/**
 	 * clicks target And waits for expected element to display retries 10 times
 	 * 
