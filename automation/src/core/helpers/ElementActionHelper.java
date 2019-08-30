@@ -43,7 +43,7 @@ public class ElementActionHelper {
 	
 	/**
 	 * Hover on the x,y points
-	 *
+	 * Reset mouse position to 0,0 after hover action is complete with Helper.click.resetMouse(x, y);
 	 * @param x
 	 * @param y
 	 */
@@ -51,11 +51,6 @@ public class ElementActionHelper {
 		Actions action = new Actions(AbstractDriver.getWebDriver());
 
 		TestLog.ConsoleLog("Hovering at: point x: " + x + " point y: " + y);
-
-		EnhancedBy body = Element.byCss("body", "body");
-		EnhancedWebElement bodyElement = Helper.findElements(body);
-
-		action.moveToElement(bodyElement.get(0), 0, 0);
 
 		action.moveByOffset(x, y).build().perform();
 		Helper.waitForSeconds(0.5);

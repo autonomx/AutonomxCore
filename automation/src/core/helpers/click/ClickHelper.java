@@ -302,14 +302,23 @@ public class ClickHelper extends Element {
     public void clickPoints(int x ,int y) {
         Actions action = new Actions(AbstractDriver.getWebDriver());
 
-        // web: set initial 0,0 point
-        if(!Helper.mobile.isMobile()) {
-	    	EnhancedBy body = Element.byCss("body", "body");
-			EnhancedWebElement bodyElement = Element.findElements(body);
-			action.moveToElement(bodyElement.get(0), 0, 0);
-        }
-        
+        // offset from 0,0 position
         action.moveByOffset(x, y).click().build().perform();
+        
+        // return back to 0,0 position
+        resetMouse(x, y);
+    }
+    
+    /**
+     * moves mouse back to original position
+     * @param x
+     * @param y
+     */
+    public void resetMouse(int x ,int y) {
+        Actions action = new Actions(AbstractDriver.getWebDriver());
+
+    	 // return back to 0,0 position
+        action.moveByOffset(-x, -y).build().perform();
     }
 
     /**
@@ -321,6 +330,9 @@ public class ClickHelper extends Element {
 
         Actions action = new Actions(AbstractDriver.getWebDriver());
         action.moveByOffset(x, y).click().release().pause(Duration.ofMillis(250)).click().release().build().perform();
+       
+        // return back to 0,0 position
+        resetMouse(x, y);
     }
 	
     /**
