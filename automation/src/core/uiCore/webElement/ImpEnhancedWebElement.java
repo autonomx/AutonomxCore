@@ -27,7 +27,7 @@ import io.appium.java_client.touch.offset.PointOption;
 public class ImpEnhancedWebElement implements EnhancedWebElement {
 
 	private final String elementName;
-	private final EnhancedBy enhanceBy;
+	private final EnhancedBy element;
 	private By by;
 	private final WebDriver webDriver;
 	private final EnhancedBy parent;
@@ -36,9 +36,9 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	private List<WebElement> current;
 	private Element.LocatorType locatorType;
 
-	public ImpEnhancedWebElement(EnhancedBy parent, int parentIndex, WebDriver webDriver, EnhancedBy enhanceBy) {
-		this.elementName = enhanceBy.name;
-		this.enhanceBy = enhanceBy;
+	public ImpEnhancedWebElement(EnhancedBy parent, int parentIndex, WebDriver webDriver, EnhancedBy element) {
+		this.elementName = element.name;
+		this.element = element;
 		this.webDriver = webDriver;
 		this.parent = parent;
 		this.parentIndex = parentIndex;
@@ -47,9 +47,9 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	}
 
 	@Override
-	public EnhancedWebElement findElement(EnhancedBy parentElement, int parentIndex, EnhancedBy enhanceBy) {
+	public EnhancedWebElement findElement(EnhancedBy parentElement, int parentIndex, EnhancedBy element) {
 
-		return new ImpEnhancedWebElement(parentElement, parentIndex, webDriver, enhanceBy);
+		return new ImpEnhancedWebElement(parentElement, parentIndex, webDriver, element);
 	}
 
 	@Override
@@ -187,7 +187,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				scrollToView(index);
 				if (isExist()) {
 					// highlight the element if enabled
-					Helper.highLightWebElement(enhanceBy, index);
+					Helper.highLightWebElement(element, index);
 					WebElement toClick = getElement(index);
 					toClick.click();
 					success = true;
@@ -364,7 +364,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				scrollToView(index);
 				isDisplayed(index);
 				if (isExist()) {
-					Helper.highLightWebElement(enhanceBy, index);
+					Helper.highLightWebElement(element, index);
 					WebElement element = getElement(index);
 					element.sendKeys(keysToSend);
 					success = true;
@@ -606,7 +606,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		// get parent elements if applicable
 		getParentElement();
 		
-		for (ElementObject elementObject : this.enhanceBy.elementObject) {
+		for (ElementObject elementObject : this.element.elementObject) {
 			this.by = elementObject.by;
 			this.locatorType = elementObject.locatorType;
 			
@@ -637,7 +637,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		// get parent elements if applicable
 		getParentElement();
 
-		for (ElementObject elementObject : this.enhanceBy.elementObject) {
+		for (ElementObject elementObject : this.element.elementObject) {
 			try {
 				this.by = elementObject.by;
 				this.locatorType = elementObject.locatorType;

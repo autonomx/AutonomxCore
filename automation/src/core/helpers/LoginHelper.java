@@ -61,6 +61,7 @@ public class LoginHelper {
 	 * if enabled, continue if:
 	 * 	- user has changed
 	 *  - logged in user is not set
+	 *  - user is at login page
 	 * @return
 	 */
 	protected static boolean isContinueLogin() {
@@ -78,7 +79,7 @@ public class LoginHelper {
 		
 		if(StringUtils.isEmpty(loggedInUsername) || StringUtils.isEmpty(loggedInPassword))
 			return true;
-
+		
 		return false;
 	}
 

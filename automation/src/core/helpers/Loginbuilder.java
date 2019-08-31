@@ -6,6 +6,7 @@ import core.support.exceptions.loginException;
 import core.support.objects.ActionObject;
 import core.support.objects.ActionObject.ACTION;
 import core.support.objects.TestObject;
+import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import core.uiCore.drivers.AbstractDriver;
 import core.uiCore.webElement.EnhancedBy;
 
@@ -18,7 +19,7 @@ public class Loginbuilder {
 		ActionObject action = new ActionObject().withElement1(element).withValue(value).withAction(ACTION.FIELD);
 		TestObject.getTestInfo().login.withLoginSequence(action);
 
-		// save username
+		// save username and username field (to check if user is on log in page)
 		TestObject.getTestInfo().login.withUsername(value);
 
 		return this;
@@ -126,10 +127,8 @@ public class Loginbuilder {
 			return;
 
 		// set login info at suite level
-		String username = TestObject.getTestInfo().login.getUsername();
-		String password = TestObject.getTestInfo().login.getPassword();
-		TestObject.getDefaultTestInfo().login.withLoggedInUsername(username).withLoggedInPassword(password);
-
+		setGlobalUserCredentials();
+		
 		List<ActionObject> sequence = TestObject.getTestInfo().login.getLoginSequence();
 	
 		ensurePageLoaded(sequence);
@@ -171,6 +170,21 @@ public class Loginbuilder {
 				break;
 			}
 		}
+	}
+	
+	/**
+	 * store user credentials at global level
+	 * this is used to keep track of user login across different tests
+	 * also store username field to check if user is at login page
+	 */
+	private void setGlobalUserCredentials() {
+		// if single sign in is disabled, return 
+		if (!CrossPlatformProperties.isSingleSignIn()) return;
+		
+		// set login info at suite level
+		String username = TestObject.getTestInfo().login.getUsername();
+		String password = TestObject.getTestInfo().login.getPassword();
+		TestObject.getDefaultTestInfo().login.withLoggedInUsername(username).withLoggedInPassword(password);
 	}
 
 	/**
