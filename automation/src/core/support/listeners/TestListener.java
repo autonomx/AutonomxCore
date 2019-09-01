@@ -34,6 +34,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 	public static final String PARALLEL_TEST_TYPE = "global.parallel.type";
 
 	// Before starting all tests, below method runs.
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onStart(ITestContext iTestContext) {
 		isTestNG = true;
@@ -63,23 +64,6 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		
 		// delete screen recorder temp directory
 		ScreenRecorderHelper.deleteScreenRecorderTempDir();
-	}
-
-	/**
-	 * initialize default driver with suit name
-	 * 
-	 * @param iTestContext
-	 */
-	private void initializeDefaultTest(ISuite suite) {
-		DriverObject driver = new DriverObject().withDriverType(DriverType.API).withApp(TestObject.DEFAULT_TEST);
-
-		// set suite name as app name
-		if (!suite.getName().contains("Default")) {
-			driver.app = suite.getName();
-		}
-		
-		// setup default driver
-		new AbstractDriverTestNG().setupWebDriver(TestObject.DEFAULT_TEST, driver);
 	}
 
 	/**
@@ -278,6 +262,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 	@Override
 	public void onBeforeClass(ITestClass testClass) {
+		
 		String classname = getClassName(testClass.getName());
 
 		// setup before class driver
@@ -320,9 +305,8 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		TestLog.setupLog4j();
 		
-		
-		// initialize default driver with suit test name
-		initializeDefaultTest(suite);
+		// setup default drivers
+		TestObject.setupDefaultDriver();
 
 		// get suite name, remove spaces
 		String suitename = getSuiteName(suite.getName());

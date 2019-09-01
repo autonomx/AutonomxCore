@@ -106,7 +106,7 @@ public class ExtentManager {
 		Date date = new Date();
 		String folderName = dateFormat.format(date);
 		return TEST_OUTPUT_PATH + "testReports"+ File.separator + folderName + File.separator
-				+ TestObject.getTestInfo(TestObject.DEFAULT_TEST).app + File.separator;
+				+ TestObject.getTestInfo(TestObject.getDefaultTestObjectId()).app + File.separator;
 	}
 
 	public static ExtentReports createInstance(String fileName) {

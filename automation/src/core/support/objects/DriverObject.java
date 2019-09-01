@@ -13,11 +13,11 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import core.support.logger.TestLog;
 import core.uiCore.driverProperties.browserType.BrowserType;
 import core.uiCore.driverProperties.driverType.DriverType;
-import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import core.uiCore.driverProperties.capabilities.AndroidCapability;
 import core.uiCore.driverProperties.capabilities.IosCapability;
 import core.uiCore.driverProperties.capabilities.WebCapability;
 import core.uiCore.driverProperties.capabilities.WinAppCapabilities;
+import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import core.uiCore.drivers.AbstractDriver;
 
 /**

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -17,7 +18,9 @@ import core.apiCore.helpers.CsvReader;
 import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.logger.LogObject;
+import core.uiCore.driverProperties.driverType.DriverType;
 import core.uiCore.drivers.AbstractDriver;
+import core.uiCore.drivers.AbstractDriverTestNG;
 
 /**
  * testInfo
@@ -48,6 +51,9 @@ public class TestObject{
 	public static String DATAPROVIDER_TEST_SUFFIX = "-test";
 
 	public static final String DEFAULT_TEST = "autonomx";
+	public static final String DEFAULT_TEST_THREAD_PREFIX = "Runner";
+
+	
 	public static final String DEFAULT_APP = "auto";
 	public static String SUITE_NAME = StringUtils.EMPTY; // suite name is global to all tests in the run
 	public static String APP_IDENTIFIER = StringUtils.EMPTY; // app name associated with test run. If suite is default, use app identifier 
@@ -102,7 +108,13 @@ public class TestObject{
 
 	public static ThreadLocal<String> currentTestName = new ThreadLocal<String>();
 	public static ThreadLocal<String> currentTestId = new ThreadLocal<String>(); // key for testObject
+	//public static ThreadLocal<Integer> runnerCount = new ThreadLocal<Integer>();
+	public static AtomicInteger runnerCount = new AtomicInteger(0);
+ //   AtomicBoolean isRunnerSet = new AtomicBoolean(false);
+	public static ThreadLocal<Boolean> isRunnerSet = ThreadLocal.withInitial(() -> new Boolean(false)); // key for testObject
 
+	
+	
 	public String language;
 
 	// key: testId
@@ -190,8 +202,13 @@ public class TestObject{
 		// service level tests are handled in ApiTestDriver
 		if(driver.app.equals(TEST_APP_API)) return new TestObject();
 		
+		
 		// if default test, return itself. Not gaining from other test objects
-		if(testName.equals(DEFAULT_TEST)) return new TestObject();
+		if(testId.equals(TestObject.DEFAULT_TEST)) return new TestObject();
+		
+		// if default test with thread count, inherit from default test
+		if(testId.equals(TestObject.getDefaultTestObjectId()))
+			return TestObject.getTestInfo(TestObject.DEFAULT_TEST);
 		
 		// if before class, inherit test object from before suite
 		if(testId.contains(BEFORE_CLASS_PREFIX))
@@ -239,19 +256,31 @@ public class TestObject{
 		String testId = getTestId();
 
 		if (testInfo.get(testId) == null) {
-			TestObject.initializeTest(new DriverObject(), TestObject.DEFAULT_TEST);
-			testId = DEFAULT_TEST;
+			return getDefaultTestInfo();
 		}
 		return testInfo.get(testId);
 	}
 	
+	/**
+	 * gets default test object
+	 * if not exist, create default test object
+	 * @return
+	 */
 	public static TestObject getDefaultTestInfo() {
-		String testId = DEFAULT_TEST;
+		String testId = TestObject.getDefaultTestObjectId();
 
 		if (testInfo.get(testId) == null) {
-			TestObject.initializeTest(new DriverObject(), TestObject.DEFAULT_TEST);
+			setupDefaultDriver();
 		}
 		return testInfo.get(testId);
+	}
+	
+	public static void setupDefaultDriver() {
+		
+		DriverObject driver = new DriverObject().withDriverType(DriverType.API).withApp(TestObject.DEFAULT_TEST);
+
+		// setup default driver
+		new AbstractDriverTestNG().setupWebDriver(getDefaultTestObjectId(), driver);
 	}
 
 	/**
@@ -261,8 +290,9 @@ public class TestObject{
 	 * @param driver
 	 */
 	public static void updateAppName(DriverObject driver) {
-		if (TestObject.getTestInfo(DEFAULT_TEST).app.equals(DEFAULT_APP))
-			TestObject.getTestInfo(DEFAULT_TEST).withApp(driver.app);
+		String defaultTest = TestObject.getDefaultTestObjectId();
+		if (TestObject.getTestInfo(defaultTest).app.equals(DEFAULT_APP))
+			TestObject.getTestInfo(defaultTest).withApp(driver.app);
 	}
 	
 	/**
@@ -279,7 +309,7 @@ public class TestObject{
 		if(testName.contains(BEFORE_CLASS_PREFIX) || testName.contains(AFTER_CLASS_PREFIX))
 			return testState.testClass;
 		
-		if(testName.equals(DEFAULT_TEST))
+		if(testName.contains(TestObject.DEFAULT_TEST))
 			return testState.defaultState;
 		
 		else
@@ -303,7 +333,7 @@ public class TestObject{
 		
 		// if testId = null, set to default test
 		if (testId == null || testId.isEmpty())
-			testId = TestObject.DEFAULT_TEST;
+			testId = TestObject.getDefaultTestObjectId();
 
 		return testId;
 	}
@@ -379,7 +409,7 @@ public class TestObject{
 		if (isTestComplete) {
 
 			// do not reset default test
-			if (testId.equals(DEFAULT_TEST))
+			if (testId.equals(TestObject.getDefaultTestObjectId()))
 				return;
 
 			// do not reset these values
@@ -578,5 +608,54 @@ public class TestObject{
 	public TestObject withApp(String app) {
 		this.app = app;
 		return this;
+	}
+	
+	/**
+	 * set counter for each parallel run
+	 * note: before class runs on different thread. issue with testng
+	 */
+	public static void setRunnerId() {
+		
+		if(!isRunnerSet.get()) {
+			runnerCount.incrementAndGet();
+			isRunnerSet.set(true);
+		}
+	}
+	
+	/**
+	 * 	setup default driver. beforeClass works on different thread,
+	    hence we only set default test with thread count for test methods only
+	    - default test with thread count inherits config from default test
+	 * @return
+	 */
+	public synchronized static String getDefaultTestObjectId() {
+		
+		if(isValidThreadState()) {
+			setRunnerId();
+			String runnerId = DEFAULT_TEST_THREAD_PREFIX + runnerCount.get();
+			String testId = DEFAULT_TEST + "-" + runnerId;
+			return testId;
+		}else			
+			return TestObject.DEFAULT_TEST;
+	}
+	
+	/**
+	 * returns true if:
+	 * - is test method
+	 * - test id format is DEFAULT_TEST-DEFAULT_TEST_THREAD_PREFIX
+	 * @return
+	 */
+	private static boolean isValidThreadState() {
+		String testId = TestObject.currentTestId.get();
+		if(testId == null) return false;
+		testState testObjectState = getTestState(testId);
+		if(testObjectState == testState.testMethod) 
+			return true;
+		
+		// if it has thread count prefix
+		if(testId.contains(TestObject.DEFAULT_TEST + "-" + DEFAULT_TEST_THREAD_PREFIX))
+			return true;
+		
+		return false;
 	}
 }

@@ -11,7 +11,6 @@ import core.apiCore.TestDataProvider;
 import core.apiCore.helpers.CsvReader;
 import core.helpers.Helper;
 import core.support.configReader.Config;
-import core.support.objects.DriverObject;
 import core.support.objects.TestObject;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 
@@ -29,8 +28,10 @@ public class AnnotationTransformer implements IAnnotationTransformer {
 
 	@Override
 	public void transform(ITestAnnotation annotation, Class testClass, Constructor testConstructor, Method testMethod) {
-		// initialize test object
-		TestObject.initializeTest(new DriverObject(), TestObject.DEFAULT_TEST);
+		// setup default driver
+		TestObject.setupDefaultDriver();
+		
+		@SuppressWarnings("deprecation")
 		IRetryAnalyzer retry = annotation.getRetryAnalyzer();
 		if (retry == null) {
 			annotation.setRetryAnalyzer(RetryTest.class);

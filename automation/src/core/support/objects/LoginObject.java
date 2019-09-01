@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
-import core.uiCore.webElement.EnhancedBy;
-
 public class LoginObject {
 	
 	// sequence of actions for login login

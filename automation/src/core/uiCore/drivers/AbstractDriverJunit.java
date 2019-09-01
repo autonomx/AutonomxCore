@@ -189,7 +189,7 @@ public class AbstractDriverJunit {
 		if (!setUpIsDone) {
 			
 			DriverObject driver = new DriverObject().withDriverType(DriverType.API).withApp(TestObject.DEFAULT_TEST);
-			new AbstractDriverJunit().setupWebDriver(TestObject.DEFAULT_TEST, driver);
+			new AbstractDriverJunit().setupWebDriver(TestObject.getDefaultTestObjectId(), driver);
 			
 			// deletes screenshots
 			ExtentManager.clearTestReport();
