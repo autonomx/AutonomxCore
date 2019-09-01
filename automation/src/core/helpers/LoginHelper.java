@@ -38,10 +38,10 @@ public class LoginHelper {
 	 */
 	private static boolean isDifferentUser() {
 		// get already logged in user name/password
-		String loggedInUsername = TestObject.getDefaultTestInfo().login.getLoggedInUsername();
-		String loggedInPassword = TestObject.getDefaultTestInfo().login.getLoggedInPassword();
+		String loggedInUsername = DriverObject.getCurrentDriverObject().login.getLoggedInUsername();
+		String loggedInPassword = DriverObject.getCurrentDriverObject().login.getLoggedInPassword();
 
-		TestObject.getDefaultTestInfo().login.withIsLoggedIn(false);
+		DriverObject.getCurrentDriverObject().login.withIsLoggedIn(false);
 
 		String username = TestObject.getTestInfo().login.getUsername();
 		String password = TestObject.getTestInfo().login.getPassword();
@@ -74,8 +74,8 @@ public class LoginHelper {
 		if(isDifferentUser()) return true;
 		
 		// get already logged in login name/password
-		String loggedInUsername = TestObject.getDefaultTestInfo().login.getLoggedInUsername();
-		String loggedInPassword = TestObject.getDefaultTestInfo().login.getLoggedInPassword();
+		String loggedInUsername = DriverObject.getCurrentDriverObject().login.getLoggedInUsername();
+		String loggedInPassword = DriverObject.getCurrentDriverObject().login.getLoggedInPassword();
 		
 		if(StringUtils.isEmpty(loggedInUsername) || StringUtils.isEmpty(loggedInPassword))
 			return true;

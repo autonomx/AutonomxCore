@@ -94,7 +94,7 @@ public class TestLog {
 	 * @param value value to log
 	 * @param args additional arguments for logging to be formatted
 	 */
-	public static void Background(String value, Object... args) {
+	public synchronized static void Background(String value, Object... args) {
 		setTestStep(gherkins.Background, value, args);
 	}
 
@@ -103,7 +103,7 @@ public class TestLog {
 	 * @param value value to log
 	 * @param args additional arguments for logging to be formatted
 	 */
-	public static void But(String value, Object... args) {
+	public synchronized static void But(String value, Object... args) {
 		logConsoleMessage(Priority.INFO, "But " + formatMessage(value, args));
 		setTestStep(gherkins.But, value, args);
 	}
@@ -113,7 +113,7 @@ public class TestLog {
 	 * @param value value to log
 	 * @param args additional arguments for logging to be formatted
 	 */
-	public static void Given(String value, Object... args) {
+	public synchronized static void Given(String value, Object... args) {
 		logConsoleMessage(Priority.INFO, "Given " + formatMessage(value, args));
 		setTestStep(gherkins.Given, value, args);
 	}
@@ -123,7 +123,7 @@ public class TestLog {
 	 * @param value value to log
 	 * @param args additional arguments for logging to be formatted
 	 */
-	public static void When(String value, Object... args) {
+	public synchronized static void When(String value, Object... args) {
 		logConsoleMessage(Priority.INFO, "When " + formatMessage(value, args));
 
 		setTestStep(gherkins.When, value, args);
@@ -135,7 +135,7 @@ public class TestLog {
 	 * @param value value to log
 	 * @param args additional arguments for logging to be formatted
 	 */
-	public static void And(String value, Object... args) {
+	public synchronized static void And(String value, Object... args) {
 		logConsoleMessage(Priority.INFO, "And " + formatMessage(value, args));
 
 		setTestStep(gherkins.And, value, args);
@@ -147,24 +147,11 @@ public class TestLog {
 	 * @param value value to log
 	 * @param args additional arguments for logging to be formatted
 	 */
-	public static void Then(String value, Object... args) {
+	public synchronized static void Then(String value, Object... args) {
 		logConsoleMessage(Priority.INFO, "Then " + formatMessage(value, args));
 
 		setTestStep(gherkins.Then, value, args);
 		playAudio(gherkins.Then.name() + " "+ formatMessage(value, args));
-	}
-
-	/**
-	 * sets test step: Given, When, Then, And
-	 * 
-	 * @param testStep the test step node
-	 */
-	public static void setTestStep1(ExtentTest testStep) {
-		// if test step is not set, do not log. Test will be set in test method state only.
-		if(TestObject.getTestInfo().testSteps == null) return;
-		
-		TestObject.getTestInfo().testSteps.add(testStep);
-		AbstractDriver.getStep().set(testStep);
 	}
 	
 	/**

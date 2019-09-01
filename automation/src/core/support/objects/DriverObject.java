@@ -6,10 +6,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
+import core.helpers.Helper;
 import core.support.logger.TestLog;
 import core.uiCore.driverProperties.browserType.BrowserType;
 import core.uiCore.driverProperties.driverType.DriverType;
@@ -34,11 +36,12 @@ public class DriverObject {
 	public List<WebDriver> webdriver;
 	public Boolean isAvailable = true;
 	public List<String> testIdList; // keys for testObject
-	public String initialURL = "";
-	public String app = "";
+	public String initialURL = StringUtils.EMPTY;
+	public String app = StringUtils.EMPTY;
 	public DriverType driverType;
 	public BrowserType browserType;
 	public String driverVersion;
+	public LoginObject login = new LoginObject();	
 
 	public DesiredCapabilities capabilities;
 
@@ -171,13 +174,9 @@ public class DriverObject {
 
 	public static String getCurrentTestId() {
 		List<String> testIdList = driverList.get(AbstractDriver.getWebDriver()).testIdList;
-
-		// TestLog.ConsoleLog("getCurrentTestId: " +
-		// Arrays.toString(testIdList.toArray()) + " chrome: " +
-		// AbstractDriver.getWebDriver());
 		return testIdList.get(testIdList.size() - 1);
 	}
-
+	
 	/**
 	 * returns the previous test id of the test ran on the driver
 	 * 
@@ -196,7 +195,7 @@ public class DriverObject {
 	}
 
 	public DriverObject withIsAvailable(Boolean isAvailable) {
-		getCurrentDriverObject().isAvailable = isAvailable;
+		this.isAvailable = isAvailable;
 		return this;
 	}
 
@@ -225,9 +224,11 @@ public class DriverObject {
 		return this;
 	}
 
-	public DriverObject getCurrentDriverObject() {
-		if (AbstractDriver.getWebDriver() == null || driverList.get(AbstractDriver.getWebDriver()) == null)
-			return this;
+	public static DriverObject getCurrentDriverObject() {
+		if (AbstractDriver.getWebDriver() == null || driverList.get(AbstractDriver.getWebDriver()) == null) {
+			Helper.assertFalse("driver object not available");
+			return null;
+		}
 		else
 			return driverList.get(AbstractDriver.getWebDriver());
 	}

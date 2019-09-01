@@ -161,14 +161,8 @@ public class AbstractDriverTestNG {
 	@BeforeMethod(alwaysRun = true)
 	public synchronized void handleTestMethodName(Method method) {
 
-		// set test id to indicate test method
-		TestObject.setTestId(getClassName(), method.getName());
-
-		// setup default drivers with thread count
-		TestObject.setupDefaultDriver();
-		
-		// set test id. was overwritten by default test setup
-		TestObject.setTestId(getClassName(), method.getName());
+		TestObject.setTestName(method.getName());
+		TestObject.setTestId(getClassName(), TestObject.currentTestName.get());
 		
 		// append test invocation count to test name if data provider is running increments the invocation count
 		setAndIncremenetDataProviderTestExtention(method);

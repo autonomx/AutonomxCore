@@ -108,12 +108,6 @@ public class TestObject{
 
 	public static ThreadLocal<String> currentTestName = new ThreadLocal<String>();
 	public static ThreadLocal<String> currentTestId = new ThreadLocal<String>(); // key for testObject
-	//public static ThreadLocal<Integer> runnerCount = new ThreadLocal<Integer>();
-	public static AtomicInteger runnerCount = new AtomicInteger(0);
- //   AtomicBoolean isRunnerSet = new AtomicBoolean(false);
-	public static ThreadLocal<Boolean> isRunnerSet = ThreadLocal.withInitial(() -> new Boolean(false)); // key for testObject
-
-	
 	
 	public String language;
 
@@ -202,13 +196,8 @@ public class TestObject{
 		// service level tests are handled in ApiTestDriver
 		if(driver.app.equals(TEST_APP_API)) return new TestObject();
 		
-		
 		// if default test, return itself. Not gaining from other test objects
 		if(testId.equals(TestObject.DEFAULT_TEST)) return new TestObject();
-		
-		// if default test with thread count, inherit from default test
-		if(testId.equals(TestObject.getDefaultTestObjectId()))
-			return TestObject.getTestInfo(TestObject.DEFAULT_TEST);
 		
 		// if before class, inherit test object from before suite
 		if(testId.contains(BEFORE_CLASS_PREFIX))
@@ -309,7 +298,7 @@ public class TestObject{
 		if(testName.contains(BEFORE_CLASS_PREFIX) || testName.contains(AFTER_CLASS_PREFIX))
 			return testState.testClass;
 		
-		if(testName.contains(TestObject.DEFAULT_TEST))
+		if(testName.equals(TestObject.DEFAULT_TEST))
 			return testState.defaultState;
 		
 		else
@@ -609,53 +598,7 @@ public class TestObject{
 		this.app = app;
 		return this;
 	}
-	
-	/**
-	 * set counter for each parallel run
-	 * note: before class runs on different thread. issue with testng
-	 */
-	public static void setRunnerId() {
-		
-		if(!isRunnerSet.get()) {
-			runnerCount.incrementAndGet();
-			isRunnerSet.set(true);
-		}
-	}
-	
-	/**
-	 * 	setup default driver. beforeClass works on different thread,
-	    hence we only set default test with thread count for test methods only
-	    - default test with thread count inherits config from default test
-	 * @return
-	 */
-	public synchronized static String getDefaultTestObjectId() {
-		
-		if(isValidThreadState()) {
-			setRunnerId();
-			String runnerId = DEFAULT_TEST_THREAD_PREFIX + runnerCount.get();
-			String testId = DEFAULT_TEST + "-" + runnerId;
-			return testId;
-		}else			
-			return TestObject.DEFAULT_TEST;
-	}
-	
-	/**
-	 * returns true if:
-	 * - is test method
-	 * - test id format is DEFAULT_TEST-DEFAULT_TEST_THREAD_PREFIX
-	 * @return
-	 */
-	private static boolean isValidThreadState() {
-		String testId = TestObject.currentTestId.get();
-		if(testId == null) return false;
-		testState testObjectState = getTestState(testId);
-		if(testObjectState == testState.testMethod) 
-			return true;
-		
-		// if it has thread count prefix
-		if(testId.contains(TestObject.DEFAULT_TEST + "-" + DEFAULT_TEST_THREAD_PREFIX))
-			return true;
-		
-		return false;
+	public static String getDefaultTestObjectId() {
+		return TestObject.DEFAULT_TEST;
 	}
 }

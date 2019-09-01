@@ -4,6 +4,7 @@ import java.util.List;
 
 import core.support.exceptions.loginException;
 import core.support.objects.ActionObject;
+import core.support.objects.DriverObject;
 import core.support.objects.ActionObject.ACTION;
 import core.support.objects.TestObject;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
@@ -126,7 +127,7 @@ public class Loginbuilder {
 		if (!LoginHelper.isContinueLogin())
 			return;
 
-		// set login info at suite level
+		// set login info at default test object level
 		setGlobalUserCredentials();
 		
 		List<ActionObject> sequence = TestObject.getTestInfo().login.getLoginSequence();
@@ -184,7 +185,7 @@ public class Loginbuilder {
 		// set login info at suite level
 		String username = TestObject.getTestInfo().login.getUsername();
 		String password = TestObject.getTestInfo().login.getPassword();
-		TestObject.getDefaultTestInfo().login.withLoggedInUsername(username).withLoggedInPassword(password);
+		DriverObject.getCurrentDriverObject().login.withLoggedInUsername(username).withLoggedInPassword(password);
 	}
 
 	/**
