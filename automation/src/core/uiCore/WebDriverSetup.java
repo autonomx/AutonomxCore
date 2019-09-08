@@ -80,7 +80,8 @@ public class WebDriverSetup {
 			if(Config.getBooleanValue("appium.useExternalAppiumServer"))
 			{
 				int port = Config.getIntValue("appium.externalPort");
-				driver = new AndroidDriver(new URL("http://localhost:"+ port + "/wd/hub"), driverObject.capabilities);
+				String server = Config.getValue("appium.externalServer");
+				driver = new AndroidDriver(new URL("http://" +server + ":"+ port + "/wd/hub"), driverObject.capabilities);
 			}
 			// if microsoft app center
 			else if (PropertiesReader.isUsingCloud()) {
