@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
@@ -473,8 +474,8 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	@Override
 	public String getText(int index) {
 		scrollToView_Web(index);
-		int retry = 3;
-		String value = "";
+		int retry = 1;
+		String value = StringUtils.EMPTY;
 		boolean isSuccess = false;
 		do {
 			retry--;
@@ -488,7 +489,6 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				if(!value.isEmpty())
 					isSuccess = true;
 			} catch (Exception e) {
-				Helper.waitForSeconds(1);
 				e.getMessage();
 			}
 		} while (!isSuccess && retry > 0);

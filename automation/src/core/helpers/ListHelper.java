@@ -1,6 +1,9 @@
 package core.helpers;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import core.support.logger.TestLog;
@@ -136,6 +139,112 @@ public class ListHelper {
 			}
 		}
 		return -1;
+	}
+	
+	/**
+	 * returns the list of string values for a row of elements 
+	 * @param list
+	 * @param index
+	 * @param rows
+	 * @return
+	 */
+	public List<String> getRowValuesFromList(EnhancedBy list, int index,  EnhancedBy rows) {
+		Helper.waitForElementToLoad(list);
+		EnhancedWebElement targetElement = Element.findElements(list, index, rows);
+		return targetElement.getTextList();
+	}
+	
+	/**
+	 * gets hashmap representation of data column with row values
+	 * @param columns
+	 * @param dataRows
+	 * @return
+	 */
+	public HashMap<String, List<String>> getTableMap(EnhancedBy columns, EnhancedBy dataRows, EnhancedBy dataCells){
+		return getTableMap(columns,0, dataRows,0, dataCells, -1);
+	}
+	
+	/**
+	 * gets hashmap representation of data column with row values
+
+	 * @param columns
+	 * @param dataRows
+	 * @param dataCells
+	 * @param maxRows
+	 * @return
+	 */
+	public HashMap<String, List<String>> getTableMap(EnhancedBy columns, EnhancedBy dataRows, EnhancedBy dataCells, int maxRows){
+		return getTableMap(columns,0, dataRows,0, dataCells, maxRows);
+	}
+	
+
+		
+	
+	/**
+	 * gets hashmap representation of data column with row values
+
+	 * @param columns
+	 * @param columnInitialIndex
+	 * @param dataRows
+	 * @param rowInitialIndex
+	 * @param dataCells
+	 * @param maxRows
+	 * @return
+	 */
+	public HashMap<String, List<String>> getTableMap(EnhancedBy columns, int columnInitialIndex, EnhancedBy dataRows, int rowInitialIndex, EnhancedBy dataCells, int maxRows){
+		Helper.waitForElementToLoad(columns);
+        HashMap<String, List<String>> table = new HashMap<String, List<String>>();
+
+		int columnCount = Helper.getListCount(columns);
+
+		HashMap<Integer, List<String>> rowValues =  getTableMap(dataRows, dataCells);
+		List<String> columnList =  Helper.getListValues(columns);
+        int currentRowIndex = rowInitialIndex;
+       
+        for(int i = columnInitialIndex; i < columnCount; i++){
+        
+        	
+            String column = columnList.get(i);
+           
+            List<String> columnValues = new ArrayList<String>();
+            
+            for (Entry<Integer, List<String>> entry : rowValues.entrySet()) {
+            	
+            	// set max rows
+            	if(maxRows != -1 && entry.getKey() >= maxRows) {
+            		break;
+            	}
+            	
+            	// warn if the column count is not the same as data in row
+            	if(entry.getValue().size()!= columnCount)
+            		TestLog.ConsoleLogWarn("number of columns and row data mismatch at row: " + entry.getKey() );
+
+            	String rowValue = entry.getValue().get(currentRowIndex);
+            	columnValues.add(rowValue);
+            	currentRowIndex++;
+            }
+            table.put(column, columnValues);           
+        }        
+        return table;
+	}
+	
+	/**
+	 * gets hashmap of table rows
+	 * map will return row index and row values as arraylist
+	 * @param dataRows
+	 * @param dataCells
+	 * @return
+	 */
+	public HashMap<Integer, List<String>> getTableMap(EnhancedBy dataRows, EnhancedBy dataCells){
+        HashMap<Integer, List<String>> table = new HashMap<Integer, List<String>>();
+
+		int rowCount = Helper.getListCount(dataRows);
+		 for(int j = 0; j < rowCount; j++) {        
+     		EnhancedWebElement targetElement = Element.findElements(dataRows, j, dataCells);
+     		List<String> rowValues = targetElement.getTextList();
+     		table.put(j, rowValues);
+		 }
+		return table;	
 	}
 
 	/**

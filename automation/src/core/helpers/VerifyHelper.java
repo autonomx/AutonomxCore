@@ -55,7 +55,7 @@ public class VerifyHelper {
 	 * @return
 	 */
 	public boolean isElementHasExactText(EnhancedBy element, int index, String text) {
-		Helper.waitForElementToBeClickable(element);
+		Helper.waitForElementToLoad(element);
 		String actualText = Helper.getTextValue(element, index);
 		return actualText.equals(text);
 	}
@@ -94,7 +94,7 @@ public class VerifyHelper {
 	 * @return
 	 */
 	public void verifyElementHasExactText(EnhancedBy element, int index, String text) {
-		Helper.waitForElementToBeClickable(element);
+		Helper.waitForElementToLoad(element);
 		String actualText = Helper.getTextValue(element, index);
 		Helper.assertEquals(text, actualText);
 	}

@@ -559,6 +559,7 @@ public class FormHelper {
 	 * @return
 	 */
 	public String getTextValue(EnhancedBy element, int index) {
+		Helper.waitForElementToLoad(element);
 		EnhancedWebElement targetElement = Element.findElements(element);
 		return targetElement.getText(index);
 	}

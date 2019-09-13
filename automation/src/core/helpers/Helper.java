@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.zip.ZipOutputStream;
@@ -961,6 +962,66 @@ public class Helper {
 	public static int getElementIndexInList(EnhancedBy srcList, EnhancedBy target) {
 		return list.getElementIndexInList(srcList, target);
 	}
+	
+	/**
+	 * returns the list of string values for a row of elements 
+	 * @param list
+	 * @param index
+	 * @param rows
+	 * @return
+	 */
+	public List<String> getRowValuesFromList(EnhancedBy list, int index,  EnhancedBy rows) {
+		return getRowValuesFromList(list, index, rows);
+	}
+	
+	/**
+	 * gets hashmap representation of data column with row values
+	 * @param columns
+	 * @param dataRows
+	 * @return
+	 */
+	public HashMap<String, List<String>> getTableMap(EnhancedBy columns, EnhancedBy dataRows, EnhancedBy dataCells){
+		return getTableMap(columns, dataRows, dataCells);
+	}
+	
+	/**
+	 * gets hashmap representation of data column with row values
+
+	 * @param columns
+	 * @param dataRows
+	 * @param dataCells
+	 * @param maxRows
+	 * @return
+	 */
+	public HashMap<String, List<String>> getTableMap(EnhancedBy columns, EnhancedBy dataRows, EnhancedBy dataCells, int maxRows){
+		return getTableMap(columns, dataRows, dataCells, maxRows);
+	}
+	
+	/**
+	 * gets hashmap representation of data column with row values
+
+	 * @param columns
+	 * @param columnInitialIndex
+	 * @param dataRows
+	 * @param rowInitialIndex
+	 * @param dataCells
+	 * @param maxRows
+	 * @return
+	 */
+	public HashMap<String, List<String>> getTableMap(EnhancedBy columns, int columnInitialIndex, EnhancedBy dataRows, int rowInitialIndex, EnhancedBy dataCells, int maxRows){
+		return getTableMap(columns, columnInitialIndex,  dataRows, rowInitialIndex, dataCells, maxRows);
+	}
+	
+	/**
+	 * gets hashmap of table rows
+	 * map will return row index and row values as arraylist
+	 * @param dataRows
+	 * @param dataCells
+	 * @return
+	 */
+	public HashMap<Integer, List<String>> getTableMap(EnhancedBy dataRows, EnhancedBy dataCells){
+		return getTableMap(dataRows, dataCells);
+	}
 
 	/**
 	 * Selects list item from a parent container eg. delete button in a list defined
@@ -1908,7 +1969,7 @@ public class Helper {
 
 	/**
 	 * wait for element to become clickable
-	 * 
+	 * causes instability with hybrid mobile app
 	 * @param selector
 	 * @return
 	 */
@@ -1916,6 +1977,12 @@ public class Helper {
 		return wait.waitForElementToBeClickable(selector);
 	}
 
+	/**
+	 * wait for element to become clickable
+	 * causes instability with hybrid mobile app
+	 * @param selector
+	 * @return
+	 */
 	public static boolean waitForElementToBeClickable(EnhancedBy selector, int timeInSeconds) {
 		return wait.waitForElementToBeClickable(selector, timeInSeconds);
 	}
