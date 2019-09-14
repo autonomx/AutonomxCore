@@ -20,7 +20,6 @@ import core.helpers.Element;
 import core.helpers.Helper;
 import core.support.logger.TestLog;
 import core.uiCore.drivers.AbstractDriver;
-import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.MobileElement;
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.touch.offset.PointOption;
@@ -225,7 +224,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	 * @param element
 	 */
 	public void mobileScroll(int index) {
-			if (isMobile()) {
+			if (Helper.mobile_isMobile()) {
 				int scrollCount = 5;
 				while (!isExist() && scrollCount > 0) {
 					Helper.scrollDown();

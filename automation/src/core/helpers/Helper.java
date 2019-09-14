@@ -1255,7 +1255,7 @@ public class Helper {
 	 * 
 	 * @return
 	 */
-	public static boolean mobile_isIOS() {
+	public static boolean isIOS() {
 		return mobile.isIOS();
 	}
 
