@@ -1244,6 +1244,13 @@ public class Helper {
 	}
 
 	/**
+	 * returns true if browser is ie
+	 * @return
+	 */
+	public static boolean isInternetExplorer() {
+		return mobile.isIeExplorer();
+	}
+	/**
 	 * is ios driver
 	 * 
 	 * @return

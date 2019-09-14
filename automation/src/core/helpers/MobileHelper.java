@@ -18,6 +18,7 @@ import org.openqa.selenium.remote.RemoteWebElement;
 
 import core.support.configReader.Config;
 import core.support.logger.TestLog;
+import core.uiCore.driverProperties.browserType.BrowserType;
 import core.uiCore.drivers.AbstractDriver;
 import core.uiCore.webElement.EnhancedBy;
 import core.uiCore.webElement.EnhancedWebElement;
@@ -157,6 +158,21 @@ public class MobileHelper {
 			return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * returns true if browser is ie
+	 * @return
+	 */
+	public boolean isIeExplorer() {
+		if (isIOS() || isAndroid())
+			return false;
+		
+		if(!isWebDriver())
+			return false;
+		
+		String browser = Config.getValue("web.browserType");
+		return browser.equals(BrowserType.INTERNET_EXPLORER.name());
 	}
 
 	/**

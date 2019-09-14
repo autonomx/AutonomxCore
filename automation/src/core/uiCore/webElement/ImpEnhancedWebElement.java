@@ -501,8 +501,8 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		List<String> stringList = new ArrayList<String>();
 		List<WebElement> elementList = getElements();
 		
-		// if mobile or not css locator type
-		if (isMobile() || !locatorType.equals(Element.LocatorType.css)) {
+		// if mobile or internet explorer or not css locator type
+		if (Helper.mobile_isMobile() || Helper.isInternetExplorer()|| !locatorType.equals(Element.LocatorType.css)) {
 			int listSize = elementList.size();
 			for (int i = 0; i < listSize; i++) {
 				stringList.add(elementList.get(i).getText().trim());
@@ -729,13 +729,6 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	public String getElementName(int index) {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	public boolean isMobile() {
-		if (AbstractDriver.getWebDriver() instanceof AppiumDriver) {
-			return true;
-		}
-		return false;
 	}
 
 	@Override
