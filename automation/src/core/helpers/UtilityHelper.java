@@ -791,4 +791,35 @@ public class UtilityHelper {
 		    return false;  
 		  }  
 		}
+	
+	/**
+	 * execute javascript 
+	 * @param script
+	 */
+	protected static Object executeJs(String script) {
+		JavascriptExecutor js = (JavascriptExecutor) AbstractDriver.getWebDriver();
+		Object value =  js.executeScript(script);
+		return value;
+	}
+	
+	/**
+	 * execute javascript 
+	 * @param script
+	 */
+	@SuppressWarnings("unchecked")
+	protected static List<String> executeJsWithListReturn(String script) {
+		Object valueObject = executeJs(script);
+		List<String> value = (List<String>) valueObject;
+		return value;
+	}
+	
+	/**
+	 * execute javascript 
+	 * @param script
+	 */
+	protected static String executeJsWithStringReturn(String script) {
+		Object valueObject = executeJs(script);
+		String value =  (String) valueObject;
+		return value;
+	}
 }

@@ -1,6 +1,7 @@
 package core.uiCore.webElement;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -34,7 +35,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	private final int parentIndex;
 	private List<WebElement> parentElements;
 	private List<WebElement> current;
-	private Element.LocatorType locatorType;
+	public Element.LocatorType locatorType;
 
 	public ImpEnhancedWebElement(EnhancedBy parent, int parentIndex, WebDriver webDriver, EnhancedBy element) {
 		this.elementName = element.name;
@@ -500,40 +501,12 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		List<String> stringList = new ArrayList<String>();
 		List<WebElement> elementList = getElements();
 		
-		// if mobile or internet explorer or not css locator type
-		if (Helper.mobile_isMobile() || Helper.isInternetExplorer()|| !locatorType.equals(Element.LocatorType.css)) {
-			int listSize = elementList.size();
-			for (int i = 0; i < listSize; i++) {
-				stringList.add(elementList.get(i).getText().trim());
-			}
-		} else
-			stringList = getTextJs();
+		int listSize = elementList.size();
+		for (int i = 0; i < listSize; i++) {
+			stringList.add(elementList.get(i).getText().trim());
+		}
 
 		return stringList;
-	}
-
-	@SuppressWarnings("unchecked")
-	private List<String> getTextJs() {
-		List<String> value = new ArrayList<String>();
-		JavascriptExecutor js = (JavascriptExecutor) webDriver;
-		
-		String script = "var queryList = document.querySelectorAll(\"" + getCssSelectorValue() + "\"); "
-				+ "var finalList= [];" + " for (var i=0; i<queryList.length; i++) {"
-				+ "  finalList.push(queryList[i].textContent);" + "}; return finalList;";
-
-		value = (List<String>) js.executeScript(script);
-		if (value.size() > 0 && !value.get(0).isEmpty())
-			return value;
-
-		script = "var queryList = document.querySelectorAll(\"" + getCssSelectorValue() + "\"); " + "var finalList= [];"
-				+ " for (var i=0; i<queryList.length; i++) {" + "  finalList.push(queryList[i].innerText);"
-				+ "}; return finalList;";
-
-		value = (List<String>) js.executeScript(script);
-		if (value.size() > 0 && !value.get(0).isEmpty())
-			return value;
-
-		return value;
 	}
 
 	private void resetElement() {

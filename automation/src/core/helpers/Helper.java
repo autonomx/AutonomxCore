@@ -2165,6 +2165,30 @@ public class Helper {
 	public static boolean isNumeric(String value) { 
 		return UtilityHelper.isNumeric(value);
 	}
+	
+	/**
+	 * execute javascript 
+	 * @param script
+	 */
+	public static Object executeJs(String script) {
+		return UtilityHelper.executeJs(script);
+	}
+	
+	/**
+	 * execute javascript 
+	 * @param script
+	 */
+	public static List<String> executeJsWithListReturn(String script) {
+		return UtilityHelper.executeJsWithListReturn(script);
+	}
+	
+	/**
+	 * execute javascript 
+	 * @param script
+	 */
+	public static String executeJsWithStringReturn(String script) {
+		return UtilityHelper.executeJsWithStringReturn(script);
+	}
 
 	/**
 	 * normalizes string removes space, new line chars

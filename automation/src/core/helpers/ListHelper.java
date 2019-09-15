@@ -114,16 +114,17 @@ public class ListHelper {
 		Helper.wait.waitForElementToLoad(list);
 		int index = getElementIndexContainByText(list, option);
 		AssertHelper.assertTrue("option not found in list: " + list.name, index > -1);
-		
+
 		EnhancedWebElement targetElement = Element.findElements(list, index, target);
 
 		targetElement.click();
 		TestLog.logPass("I select list option '" + option + "' from list '" + list.name + "'");
 	}
-	
+
 	/**
-	 * 	  find the index of the target element in list
-		eg. list A, 5 rows, has element B in row 2. therefore, index 1 is returned @param list
+	 * find the index of the target element in list eg. list A, 5 rows, has element
+	 * B in row 2. therefore, index 1 is returned @param list
+	 * 
 	 * @param list
 	 * @param target
 	 * @return index of element in list
@@ -140,49 +141,49 @@ public class ListHelper {
 		}
 		return -1;
 	}
-	
+
 	/**
-	 * returns the list of string values for a row of elements 
+	 * returns the list of string values for a row of elements
+	 * 
 	 * @param list
 	 * @param index
 	 * @param rows
 	 * @return
 	 */
-	public List<String> getRowValuesFromList(EnhancedBy list, int index,  EnhancedBy rows) {
+	public List<String> getRowValuesFromList(EnhancedBy list, int index, EnhancedBy rows) {
 		Helper.waitForElementToLoad(list);
 		EnhancedWebElement targetElement = Element.findElements(list, index, rows);
 		return targetElement.getTextList();
 	}
-	
+
 	/**
 	 * gets hashmap representation of data column with row values
+	 * 
 	 * @param columns
 	 * @param dataRows
 	 * @return
 	 */
-	public HashMap<String, List<String>> getTableMap(EnhancedBy columns, EnhancedBy dataRows, EnhancedBy dataCells){
-		return getTableMap(columns,0, dataRows,0, dataCells, -1);
+	public HashMap<String, List<String>> getTableMap(EnhancedBy columns, EnhancedBy dataRows, EnhancedBy dataCells) {
+		return getTableMap(columns, 0, dataRows, 0, dataCells, -1);
 	}
-	
+
 	/**
 	 * gets hashmap representation of data column with row values
-
+	 * 
 	 * @param columns
 	 * @param dataRows
 	 * @param dataCells
 	 * @param maxRows
 	 * @return
 	 */
-	public HashMap<String, List<String>> getTableMap(EnhancedBy columns, EnhancedBy dataRows, EnhancedBy dataCells, int maxRows){
-		return getTableMap(columns,0, dataRows,0, dataCells, maxRows);
+	public HashMap<String, List<String>> getTableMap(EnhancedBy columns, EnhancedBy dataRows, EnhancedBy dataCells,
+			int maxRows) {
+		return getTableMap(columns, 0, dataRows, 0, dataCells, maxRows);
 	}
-	
 
-		
-	
 	/**
 	 * gets hashmap representation of data column with row values
-
+	 * 
 	 * @param columns
 	 * @param columnInitialIndex
 	 * @param dataRows
@@ -191,60 +192,58 @@ public class ListHelper {
 	 * @param maxRows
 	 * @return
 	 */
-	public HashMap<String, List<String>> getTableMap(EnhancedBy columns, int columnInitialIndex, EnhancedBy dataRows, int rowInitialIndex, EnhancedBy dataCells, int maxRows){
+	public HashMap<String, List<String>> getTableMap(EnhancedBy columns, int columnInitialIndex, EnhancedBy dataRows,
+			int rowInitialIndex, EnhancedBy dataCells, int maxRows) {
 		Helper.waitForElementToLoad(columns);
-        HashMap<String, List<String>> table = new HashMap<String, List<String>>();
+		HashMap<String, List<String>> table = new HashMap<String, List<String>>();
 
 		int columnCount = Helper.getListCount(columns);
 
-		HashMap<Integer, List<String>> rowValues =  getTableMap(dataRows, dataCells);
-		List<String> columnList =  Helper.getListValues(columns);
-        int currentRowIndex = rowInitialIndex;
-       
-        for(int i = columnInitialIndex; i < columnCount; i++){
-        
-        	
-            String column = columnList.get(i);
-           
-            List<String> columnValues = new ArrayList<String>();
-            
-            for (Entry<Integer, List<String>> entry : rowValues.entrySet()) {
-            	
-            	// set max rows
-            	if(maxRows != -1 && entry.getKey() >= maxRows) {
-            		break;
-            	}
-            	
-            	// warn if the column count is not the same as data in row
-            	if(entry.getValue().size()!= columnCount)
-            		TestLog.ConsoleLogWarn("number of columns and row data mismatch at row: " + entry.getKey() );
+		HashMap<Integer, List<String>> rowValues = getTableRowValues(dataRows, dataCells);
+		List<String> columnList = Helper.getListValues(columns);
 
-            	String rowValue = entry.getValue().get(currentRowIndex);
-            	columnValues.add(rowValue);
-            	currentRowIndex++;
-            }
-            table.put(column, columnValues);           
-        }        
-        return table;
+		for (int i = columnInitialIndex; i < columnCount; i++) {
+			String column = columnList.get(i);
+
+			List<String> columnValues = new ArrayList<String>();
+
+			for (Entry<Integer, List<String>> entry : rowValues.entrySet()) {
+
+				// set max rows
+				if (maxRows != -1 && entry.getKey() >= maxRows) {
+					break;
+				}
+
+				// warn if the column count is not the same as data in row
+				if (entry.getValue().size() != columnCount)
+					TestLog.ConsoleLogWarn("number of columns and row data mismatch at row: " + entry.getKey());
+
+				String rowValue = entry.getValue().get(i);
+				columnValues.add(rowValue);
+			}
+			table.put(column, columnValues);
+		}
+		return table;
 	}
-	
+
 	/**
-	 * gets hashmap of table rows
-	 * map will return row index and row values as arraylist
+	 * gets hashmap of table rows map will return row index and row values as
+	 * arraylist
+	 * 
 	 * @param dataRows
 	 * @param dataCells
 	 * @return
 	 */
-	public HashMap<Integer, List<String>> getTableMap(EnhancedBy dataRows, EnhancedBy dataCells){
-        HashMap<Integer, List<String>> table = new HashMap<Integer, List<String>>();
+	public HashMap<Integer, List<String>> getTableRowValues(EnhancedBy dataRows, EnhancedBy dataCells) {
+		HashMap<Integer, List<String>> table = new HashMap<Integer, List<String>>();
 
 		int rowCount = Helper.getListCount(dataRows);
-		 for(int j = 0; j < rowCount; j++) {        
-     		EnhancedWebElement targetElement = Element.findElements(dataRows, j, dataCells);
-     		List<String> rowValues = targetElement.getTextList();
-     		table.put(j, rowValues);
-		 }
-		return table;	
+		for (int j = 0; j < rowCount; j++) {
+			EnhancedWebElement targetElement = Element.findElements(dataRows, j, dataCells);
+			List<String> rowValues = targetElement.getTextList();
+			table.put(j, rowValues);
+		}
+		return table;
 	}
 
 	/**
@@ -353,10 +352,8 @@ public class ListHelper {
 	/**
 	 * returns the index of string value in list of strings
 	 * 
-	 * @param stringList
-	 *            normalized
-	 * @param option
-	 *            normalized
+	 * @param stringList normalized
+	 * @param option     normalized
 	 * @return
 	 */
 	public int getStringIndexContainByText(EnhancedBy list, List<String> stringList, String option) {
@@ -381,10 +378,8 @@ public class ListHelper {
 	/**
 	 * returns the index of string value in list of strings
 	 * 
-	 * @param stringList
-	 *            normalized
-	 * @param option
-	 *            normalized
+	 * @param stringList normalized
+	 * @param option     normalized
 	 * @return
 	 */
 	public int getStringIndexContainByText(List<String> stringList, String option) {
@@ -404,10 +399,8 @@ public class ListHelper {
 	/**
 	 * returns the index of string value in list of strings
 	 * 
-	 * @param stringList
-	 *            normalized
-	 * @param option
-	 *            normalized
+	 * @param stringList normalized
+	 * @param option     normalized
 	 * @return
 	 */
 	public int getStringIndexEqualsByText(EnhancedBy list, List<String> stringList, String option) {
@@ -431,10 +424,8 @@ public class ListHelper {
 	/**
 	 * returns the index of string value in list of strings
 	 * 
-	 * @param stringList
-	 *            normalized
-	 * @param option
-	 *            normalized
+	 * @param stringList normalized
+	 * @param option     normalized
 	 * @return
 	 */
 	public int getStringIndexEqualsByText(List<String> stringList, String option) {
