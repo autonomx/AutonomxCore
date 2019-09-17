@@ -1781,6 +1781,18 @@ public class Helper {
 	public static void setAttribute(EnhancedBy by, String attribute, String value) {
 		ElementHelper.setAttribute(by, attribute, value);
 	}
+	
+	/**
+	 * sets attribute value of an element
+	 * 
+	 * @param by
+	 * @param index
+	 * @param attribute
+	 * @param value
+	 */
+	public static void setAttribute(EnhancedBy by, int index, String attribute, String value) {
+		ElementHelper.setAttribute(by, index, attribute, value);
+	}
 
 	/**
 	 * returns element dimension
@@ -2182,24 +2194,24 @@ public class Helper {
 	 * execute javascript 
 	 * @param script
 	 */
-	public static Object executeJs(String script) {
-		return UtilityHelper.executeJs(script);
+	public static Object executeJs(String script, Object... args) {
+		return UtilityHelper.executeJs(script, args);
 	}
 	
 	/**
 	 * execute javascript 
 	 * @param script
 	 */
-	public static List<String> executeJsWithListReturn(String script) {
-		return UtilityHelper.executeJsWithListReturn(script);
+	public static List<String> executeJsWithListReturn(String script, Object... args) {
+		return UtilityHelper.executeJsWithListReturn(script, args);
 	}
 	
 	/**
 	 * execute javascript 
 	 * @param script
 	 */
-	public static String executeJsWithStringReturn(String script) {
-		return UtilityHelper.executeJsWithStringReturn(script);
+	public static String executeJsWithStringReturn(String script, Object... args) {
+		return UtilityHelper.executeJsWithStringReturn(script, args);
 	}
 
 	/**

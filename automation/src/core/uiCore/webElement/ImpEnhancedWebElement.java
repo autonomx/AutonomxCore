@@ -7,7 +7,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.Rectangle;
@@ -402,9 +401,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	public void sendKeyByJs(int index, CharSequence[] keysToSend) {
 
 		WebElement element = getElement(index);
-
-		JavascriptExecutor js = (JavascriptExecutor) webDriver;
-		js.executeScript("arguments[0].setAttribute('value', '"+ String.valueOf(keysToSend[0]) +"')", element);
+		Helper.executeJs("arguments[0].setAttribute('value', '"+ String.valueOf(keysToSend[0]) +"')", element);
 	}
 
 	/*
@@ -441,16 +438,15 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		return value;
 	}
 
+	@Override
 	public void setAttribute(String attribute, String value) {
-		JavascriptExecutor js = (JavascriptExecutor) webDriver;
-		js.executeScript("document.querySelector('" + getCssSelectorValue() + "').setAttribute('" + attribute + "', '"
-				+ value + "')");
+		setAttribute(attribute, 0, value);
 	}
 
 	public void setAttribute(String attribute, int index, String value) {
-		JavascriptExecutor js = (JavascriptExecutor) webDriver;
-		js.executeScript("document.querySelectorAll('" + getCssSelectorValue() + ":nth-child(" + index
-				+ ")').setAttribute('" + attribute + "', '" + value + "')");
+		WebElement element = getElement(index);
+		Helper.executeJs("arguments[0].setAttribute('" + attribute + "', '"
+				+ value + "')", element);
 	}
 
 	@Override

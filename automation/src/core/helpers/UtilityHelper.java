@@ -796,9 +796,9 @@ public class UtilityHelper {
 	 * execute javascript 
 	 * @param script
 	 */
-	protected static Object executeJs(String script) {
+	protected static Object executeJs(String script, Object... args) {
 		JavascriptExecutor js = (JavascriptExecutor) AbstractDriver.getWebDriver();
-		Object value =  js.executeScript(script);
+		Object value =  js.executeScript(script, args);
 		return value;
 	}
 	
@@ -807,8 +807,8 @@ public class UtilityHelper {
 	 * @param script
 	 */
 	@SuppressWarnings("unchecked")
-	protected static List<String> executeJsWithListReturn(String script) {
-		Object valueObject = executeJs(script);
+	protected static List<String> executeJsWithListReturn(String script, Object... args) {
+		Object valueObject = executeJs(script, args);
 		List<String> value = (List<String>) valueObject;
 		return value;
 	}
@@ -817,8 +817,8 @@ public class UtilityHelper {
 	 * execute javascript 
 	 * @param script
 	 */
-	protected static String executeJsWithStringReturn(String script) {
-		Object valueObject = executeJs(script);
+	protected static String executeJsWithStringReturn(String script, Object... args) {
+		Object valueObject = executeJs(script, args);
 		String value =  (String) valueObject;
 		return value;
 	}

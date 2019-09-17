@@ -63,6 +63,8 @@ public interface EnhancedWebElement extends WebElement {
 	String getAttribute(String name, int index);
 
 	void setAttribute(String attribute, String value);
+	
+	void setAttribute(String attribute, int index, String value);
 
 	WebElement get(int index);
 
@@ -77,4 +79,5 @@ public interface EnhancedWebElement extends WebElement {
 	void sendKeyByJs(int index, CharSequence[] keysToSend);
 
 	EnhancedWebElement findElement(EnhancedBy parentElement, int parentIndex, EnhancedBy enhanceBy);
+
 }

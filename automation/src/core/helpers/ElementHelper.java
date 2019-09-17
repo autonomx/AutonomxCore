@@ -63,10 +63,22 @@ public class ElementHelper {
 	 * @param value
 	 */
 	protected static void setAttribute(EnhancedBy by, String attribute, String value) {
+		setAttribute(by, 0, attribute, value);
+	}
+	
+	/**
+	 * sets attribute value of an element
+	 * 
+	 * @param by
+	 * @param index
+	 * @param attribute
+	 * @param value
+	 */
+	protected static void setAttribute(EnhancedBy by, int index, String attribute, String value) {
 		Helper.waitForElementToLoad(by);
 
 		EnhancedWebElement element = Element.findElements(by);
-		element.setAttribute(attribute, value);
+		element.setAttribute(attribute, index, value);
 	}
 
 	/**
