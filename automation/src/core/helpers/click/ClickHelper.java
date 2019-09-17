@@ -52,6 +52,32 @@ public class ClickHelper extends Element {
 
 		Helper.assertTrue("expected element not found: " + expected.name, isExpectedFound);
 	}
+	
+	/**
+	 * click And expect based on the text value on the element. eg. button with "OK"
+	 * text
+	 * 
+	 * @param target
+	 * @param text
+	 * @param expected
+	 */
+	public void clickAndExpectContainsByText(EnhancedBy target, String text, EnhancedBy expected) {
+		TestLog.logPass("I click " + target.name);
+		Helper.wait.waitForElementToLoad(target);
+
+		boolean isExpectedFound = false;
+		int targetWaitTimeInSeconds = 5;
+		int retry = AbstractDriver.TIMEOUT_SECONDS / targetWaitTimeInSeconds;
+		
+		do {
+			retry--;
+			if (Helper.isPresent(target))
+				Helper.list.selectListItemContainsByName(target, text);
+			isExpectedFound = Helper.wait.waitForElementToLoad(expected, targetWaitTimeInSeconds);
+		} while (!isExpectedFound && retry > 0);
+
+		Helper.assertTrue("expected element not found: " + expected.name, isExpectedFound);
+	}
 
 	/**
 	 * clicks element based on index And waits for expected element to be displayed

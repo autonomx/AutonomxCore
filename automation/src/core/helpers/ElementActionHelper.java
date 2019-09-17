@@ -55,4 +55,26 @@ public class ElementActionHelper {
 		action.moveByOffset(x, y).build().perform();
 		Helper.waitForSeconds(0.5);
 	}
+	
+	/**
+	 * move to element by using action
+	 * @param target
+	 * @param index
+	 */
+	protected static void moveToElement(EnhancedBy target, int index) {
+		Actions action = new Actions(AbstractDriver.getWebDriver());
+		EnhancedWebElement targetElement = Element.findElements(target);
+		action.moveToElement(targetElement.get(index));
+	}
+	
+	/**
+	 * move to element by using action
+	 * @param target
+	 * @param index
+	 */
+	protected static void moveToElement(EnhancedBy target, int index, int xOffset, int yOffset) {
+		Actions action = new Actions(AbstractDriver.getWebDriver());
+		EnhancedWebElement targetElement = Element.findElements(target);
+		action.moveToElement(targetElement.get(index), xOffset, yOffset);
+	}
 }

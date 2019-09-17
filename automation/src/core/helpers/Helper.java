@@ -271,6 +271,18 @@ public class Helper {
 	public static void clickAndExpect(EnhancedBy target, String text, EnhancedBy expected) {
 		click.clickAndExpectByText(target, text, expected);
 	}
+	
+	/**
+	 * click And expect based on the text value on the element. eg. button with "OK"
+	 * text
+	 * 
+	 * @param target
+	 * @param text
+	 * @param expected
+	 */
+	public void clickAndExpectContainsByText(EnhancedBy target, String text, EnhancedBy expected) {
+		click.clickAndExpectContainsByText(target, text, expected);
+	}
 
 	/**
 	 * clicks target And waits for expected element to display retries 10 times
@@ -2487,6 +2499,24 @@ public class Helper {
 	 */
 	public static void hoverPoints(int x, int y) {
 		ElementActionHelper.hoverPoints(x, y);
+	}
+	
+	/**
+	 * move to element by using action
+	 * @param target
+	 * @param index
+	 */
+	public static void moveToElement(EnhancedBy target, int index) {
+		ElementActionHelper.moveToElement(target, index);
+	}
+	
+	/**
+	 * move to element by using action
+	 * @param target
+	 * @param index
+	 */
+	public static void moveToElement(EnhancedBy target, int index, int xOffset, int yOffset) {
+		ElementActionHelper.moveToElement(target, index, xOffset, yOffset);
 	}
 
 	// email helper

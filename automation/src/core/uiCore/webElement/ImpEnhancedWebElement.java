@@ -249,21 +249,14 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	}
 
 	/**
-	 * scroll element to center of view on web
+	 * scroll to element on web
 	 */
 	public void scrollToView_Web(int index) {
-		if (Helper.mobile.isWebDriver()) {
-			try {
-				webDriver.manage().timeouts().implicitlyWait(1, TimeUnit.MILLISECONDS);
-				WebElement element = getElement(index);
-
-				JavascriptExecutor js = (JavascriptExecutor) webDriver;
-				js.executeScript("arguments[0].scrollIntoView();", element);
-			} catch (Exception e) {
-				e.getMessage();
-			}
-			webDriver.manage().timeouts().implicitlyWait(AbstractDriver.TIMEOUT_SECONDS, TimeUnit.SECONDS);
-		}
+		if (!Helper.mobile.isWebDriver()) return;
+			
+		WebElement element = getElement(index);
+		Actions action = new Actions(AbstractDriver.getWebDriver());
+		action.moveToElement(element);
 	}
 
 	/**
