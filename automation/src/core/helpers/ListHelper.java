@@ -147,12 +147,12 @@ public class ListHelper {
 	 * 
 	 * @param list
 	 * @param index
-	 * @param rows
+	 * @param cells
 	 * @return
 	 */
-	public List<String> getRowValuesFromList(EnhancedBy list, int index, EnhancedBy rows) {
+	public List<String> getRowValuesFromList(EnhancedBy list, int index, EnhancedBy cells) {
 		Helper.waitForElementToLoad(list);
-		EnhancedWebElement targetElement = Element.findElements(list, index, rows);
+		EnhancedWebElement targetElement = Element.findElements(list, index, cells);
 		return targetElement.getTextList();
 	}
 
@@ -234,11 +234,29 @@ public class ListHelper {
 	 * @param dataCells
 	 * @return
 	 */
-	public HashMap<Integer, List<String>> getTableRowValues(EnhancedBy dataRows, EnhancedBy dataCells) {
+	public HashMap<Integer, List<String>> getTableRowValues(EnhancedBy dataRows, EnhancedBy dataCells){
+		 return getTableRowValues(dataRows, dataCells, -1);
+	}
+	/**
+	 * gets hashmap of table rows map will return row index and row values as
+	 * arraylist
+	 * 
+	 * @param dataRows
+	 * @param dataCells
+	 * @param maxRows
+	 * @return
+	 */
+	public HashMap<Integer, List<String>> getTableRowValues(EnhancedBy dataRows, EnhancedBy dataCells, int maxRows) {
 		HashMap<Integer, List<String>> table = new HashMap<Integer, List<String>>();
 
 		int rowCount = Helper.getListCount(dataRows);
-		for (int j = 0; j < rowCount; j++) {
+		
+		// if max rows is greater than the actual number of rows, set max rows to row count
+		if(maxRows > rowCount) maxRows = rowCount;
+		// -1 denotes all the rows
+		if(maxRows == -1) maxRows = rowCount;
+		
+		for (int j = 0; j < maxRows; j++) {
 			EnhancedWebElement targetElement = Element.findElements(dataRows, j, dataCells);
 			List<String> rowValues = targetElement.getTextList();
 			table.put(j, rowValues);
