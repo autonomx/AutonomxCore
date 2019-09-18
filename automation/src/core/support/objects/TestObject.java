@@ -49,7 +49,7 @@ public class TestObject{
 	public static String AFTER_CLASS_PREFIX = "-Afterclass";
 	public static String DATAPROVIDER_TEST_SUFFIX = "-test";
 
-	public static final String DEFAULT_TEST = "autonomx";
+	public static final String DEFAULT_TEST = "Autonomx-default";
 	public static final String DEFAULT_TEST_THREAD_PREFIX = "Runner";
 
 	

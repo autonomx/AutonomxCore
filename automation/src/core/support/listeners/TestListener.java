@@ -307,6 +307,8 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		
 		// setup default drivers
 		TestObject.setupDefaultDriver();
+		
+		TestLog.ConsoleLog("Autonomx initiating...");
 
 		// get suite name, remove spaces
 		String suitename = getSuiteName(suite.getName());

@@ -12,6 +12,7 @@ import java.util.zip.ZipOutputStream;
 import org.json.JSONException;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.html5.Location;
 
@@ -1802,6 +1803,26 @@ public class Helper {
 	 */
 	public static Dimension getElementSize(EnhancedBy by) {
 		return ElementHelper.getElementSize(by);
+	}
+	
+	/**
+	 * 	get element position on display
+
+	 * @param by
+	 * @return
+	 */
+	public static Point getElementPosition(EnhancedBy by) {
+		return getElementPosition(by);
+	}
+	
+	/**
+	 * get element position on display
+	 * @param by
+	 * @param index
+	 * @return
+	 */
+	public static Point getElementPosition(EnhancedBy by, int index) {
+		return getElementPosition(by, index);
 	}
 	
 	/**

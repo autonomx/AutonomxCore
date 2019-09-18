@@ -1,6 +1,7 @@
 package core.helpers;
 
 import org.openqa.selenium.Dimension;
+import org.openqa.selenium.Point;
 
 import core.support.logger.TestLog;
 import core.uiCore.webElement.EnhancedBy;
@@ -91,6 +92,28 @@ public class ElementHelper {
 		Helper.waitForElementToLoad(by);
 		EnhancedWebElement element = Element.findElements(by);
 		return element.getSize();
+	}
+	
+	/**
+	 * 	get element position on display
+
+	 * @param by
+	 * @return
+	 */
+	protected static Point getElementPosition(EnhancedBy by) {
+		return getElementPosition(by, 0);
+	}
+	
+	/**
+	 * get element position on display
+	 * @param by
+	 * @param index
+	 * @return
+	 */
+	protected static Point getElementPosition(EnhancedBy by, int index) {
+		Helper.waitForElementToLoad(by);
+		EnhancedWebElement element = Element.findElements(by);
+		return element.getLocation(index);
 	}
 	
 	/**
