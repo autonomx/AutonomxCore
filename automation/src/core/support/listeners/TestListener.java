@@ -108,6 +108,10 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		// setup after suite driver
 		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
 		new AbstractDriverTestNG().setupWebDriver(suitename + TestObject.AFTER_SUITE_PREFIX, driver);
+		
+		// if tests passed, print success autonomx logo if enabled
+		if(iTestContext.getFailedTests().size() == 0)
+			TestLog.printLogoOnSuccess();
 	}
 	
 	/**
@@ -347,7 +351,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 	public void onFinish(ISuite suite) {
 		// print out suite console logs  if batch logging is enabled
 		String testId = getSuiteName(suite.getName()) + TestObject.AFTER_SUITE_PREFIX;
-		TestLog.printBatchToConsole(testId);
+		TestLog.printBatchToConsole(testId);	
 	}
 	
 	private String getSuiteName(String suitename) {
