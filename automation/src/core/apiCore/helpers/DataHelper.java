@@ -39,22 +39,19 @@ public class DataHelper {
 		if (source.isEmpty())
 			return source;
 
-		List<String> parameters = Helper.getValuesFromPattern(source, "<(.+?)>");
+		List<String> parameters = Helper.getValuesFromPattern(source, "<@(.+?)>");
 		String valueStr = null;
 		Object val = null;
 		int length = 0;
 		for (String parameter : parameters) {
 
-			if (parameter.contains("$"))
-				continue;
-			if (parameter.contains("@_TIME")) {
+			if (parameter.contains("_TIME")) {
 				length = getIntFromString(parameter);
 				valueStr = TestObject.getTestInfo().startTime.substring(0, length);
-			} else if (parameter.contains("@_RAND")) {
+			} else if (parameter.contains("_RAND")) {
 				length = getIntFromString(parameter);
 				valueStr = TestObject.getTestInfo().randStringIdentifier.substring(0, length);
 			} else {
-				val = Config.getObjectValue(parameter.replace("@", ""));
 				if (val instanceof String)
 					valueStr = (String) val;
 			}
@@ -62,7 +59,7 @@ public class DataHelper {
 				Helper.assertTrue("parameter value not found: " + parameter, false);
 
 			if (valueStr instanceof String) {
-				source = source.replace("<" + parameter + ">", Matcher.quoteReplacement(valueStr));
+				source = source.replace("<@" + parameter + ">", Matcher.quoteReplacement(valueStr));
 				//TestLog.logPass("replacing value '" + parameter + "' with: " + valueStr + "");
 			}
 		}

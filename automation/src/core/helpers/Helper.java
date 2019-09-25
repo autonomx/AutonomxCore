@@ -2349,7 +2349,7 @@ public class Helper {
 	 * @return
 	 * @throws IOException
 	 */
-	public static ArrayList<String> excuteCommand(String command){
+	public static ArrayList<String> executeCommand(String command){
 		return UtilityHelper.excuteCommand(command);
 	}
 	
@@ -2360,7 +2360,7 @@ public class Helper {
 	 * @param filePath path from the root directory ( where pom.xml is )
 	 * @return the results as arraylist
 	 */
-	public static ArrayList<String> excuteCommandFromFile(String filePath){
+	public static ArrayList<String> executeCommandFromFile(String filePath){
 		return UtilityHelper.excuteCommandFromFile(filePath);
 	}
 

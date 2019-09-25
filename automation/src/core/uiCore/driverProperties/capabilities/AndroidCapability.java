@@ -225,7 +225,7 @@ public class AndroidCapability {
 		deviceList = Config.getValueList(ANDROID_UDID);
 		// if no device is set in properties, attempt to auto detect
 		if (deviceList.isEmpty()) {
-			deviceList = Helper.excuteCommand(cmd);
+			deviceList = Helper.executeCommand(cmd);
 		}
 		
 		// log device list
@@ -283,8 +283,8 @@ public class AndroidCapability {
 	}
 	
 	public static void restartAdb() {
-	    Helper.excuteCommand("adb kill-server");
-	    Helper.excuteCommand("adb start-server");
+	    Helper.executeCommand("adb kill-server");
+	    Helper.executeCommand("adb start-server");
 	}
 
 	/**
@@ -302,8 +302,8 @@ public class AndroidCapability {
 				TestLog.ConsoleLog("Uninstalling uiautomator2.server");
 				TestLog.ConsoleLog("Uninstalling uiautomator2.server.test");
 				
-				Helper.excuteCommand("adb uninstall io.appium.uiautomator2.server");
-				Helper.excuteCommand("adb uninstall io.appium.uiautomator2.server.test");
+				Helper.executeCommand("adb uninstall io.appium.uiautomator2.server");
+				Helper.executeCommand("adb uninstall io.appium.uiautomator2.server.test");
 			}
 		}
 	}

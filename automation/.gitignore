@@ -3,3 +3,4 @@
 /logs/
 /target/
 /test-output/
+/.apt_generated/

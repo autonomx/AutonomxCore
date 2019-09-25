@@ -172,7 +172,7 @@ public class IosCapability {
 		
 		// if no device is set in properties, attempt to auto detect
 		if(results.isEmpty()) {
-			results = Helper.excuteCommand(cmd);
+			results = Helper.executeCommand(cmd);
 			if (!results.isEmpty() && results.get(0).contains("command not found"))
 				Helper.assertFalse("idevice not installed. install: brew install ideviceinstaller");
 		}
