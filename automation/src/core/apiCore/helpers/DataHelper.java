@@ -52,6 +52,7 @@ public class DataHelper {
 				length = getIntFromString(parameter);
 				valueStr = TestObject.getTestInfo().randStringIdentifier.substring(0, length);
 			} else {
+				val = Config.getObjectValue(parameter);
 				if (val instanceof String)
 					valueStr = (String) val;
 			}
