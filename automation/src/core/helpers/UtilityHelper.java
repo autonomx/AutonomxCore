@@ -105,7 +105,9 @@ public class UtilityHelper {
 	 * @return
 	 */
 	protected static String stringNormalize(String value) {
+		value = StringUtils.normalizeSpace(value);
 		value = value.trim().replace("\n", "").replace("\r", "").replace("\"", "");
+		value = value.replaceAll("\\r|\\n", "");
 		return value;
 	}
 
@@ -117,6 +119,7 @@ public class UtilityHelper {
 	 */
 	protected static String stringRemoveLines(String value) {
 		value = value.trim().replace("\n", "").replace("\r", "");
+		value = value.replaceAll("\\r|\\n", "");
 		return value;
 	}
 
