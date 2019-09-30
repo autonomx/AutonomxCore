@@ -26,7 +26,7 @@ public class MavenCommandRunner {
 	
 	public static String MAVEN_PATH = StringUtils.EMPTY;
 	public static String MAVEN_URL = "http://apache.mirror.globo.tech/maven/maven-3/3.6.2/binaries/apache-maven-3.6.2-bin.zip";
-	public static String MAVEN_DOWNLOAD_DESTINATION = getRootDir() + "../runner/utils/maven/";
+	public static String MAVEN_DOWNLOAD_DESTINATION = getRootDir()+ ".." + File.separator + "runner" + File.separator + "utils" + File.separator + "maven" + File.separator;
 	static String MAVEN_PROPERTY = "maven.home";
 	static String MAVEN_URL_PROPERTY = "maven.url";
 
@@ -80,26 +80,36 @@ public class MavenCommandRunner {
 	 * @throws MalformedURLException 
 	 */
 	public static void downloadMavenIfNotExist() throws Exception {
-		if(!MAVEN_PATH.isEmpty()) return;
-		
+		if (!MAVEN_PATH.isEmpty())
+			return;
+
 		File mavenDestinationPath = new File(MAVEN_DOWNLOAD_DESTINATION);
-		
+
 		if (!isMavenDownloaded(mavenDestinationPath)) {
-			
-	    	System.out.println("<<Downloading maven... + MAVEN_URL +>>");
+
+			// use url from maven property if not set
+			String urlProperty = Config.getValue(MAVEN_URL_PROPERTY);
+			if (!urlProperty.isEmpty())
+				MAVEN_URL = urlProperty;
+
+			System.out.println("<<Downloading maven... " + MAVEN_URL + ">>");
 			// delete folder first
 			FileUtils.deleteDirectory(mavenDestinationPath);
-		    // create directory
+
+			// create directory
 			mavenDestinationPath.mkdir();
-		    // download
-		    String zipPath = mavenDestinationPath + "maven.zip";
-		    FileUtils.copyURLToFile(new URL(MAVEN_URL), new File(zipPath));
-		    // unzip
-		    new ZipFile(zipPath).extractAll(MAVEN_DOWNLOAD_DESTINATION);
+			// download
+			String zipPath = mavenDestinationPath.getAbsolutePath() + File.separator + "download.zip";
+			FileUtils.copyURLToFile(new URL(MAVEN_URL), new File(zipPath));
+			// unzip
+			new ZipFile(zipPath).extractAll(MAVEN_DOWNLOAD_DESTINATION);
+			FileUtils.forceDelete(new File(zipPath));
 		}
-		
+
 		// set maven home path
-		MAVEN_PATH = MAVEN_DOWNLOAD_DESTINATION + getMavenDownloadHome(mavenDestinationPath);
+		String mavenPath = MAVEN_DOWNLOAD_DESTINATION + getMavenDownloadHome(mavenDestinationPath);
+		System.out.println("Setting maven path to: " + mavenPath);
+		MAVEN_PATH = mavenPath;
 	}
 	
 	/**
@@ -111,12 +121,13 @@ public class MavenCommandRunner {
 	private static String getMavenDownloadHome(File mavenDestinationPath) {
 		String mavenHomePath = StringUtils.EMPTY;
 		File[] fileList = mavenDestinationPath.listFiles();
-		if(fileList.length == 0) return mavenHomePath;
-		
-		for(File file: fileList) {
-			if(file.getName().toLowerCase().contains("maven"))
+		if (fileList.length == 0)
+			return mavenHomePath;
+
+		for (File file : fileList) {
+			if (file.getName().toLowerCase().contains("maven"))
 				return file.getName();
-		}	
+		}
 		return mavenHomePath;
 	}
 	
@@ -127,12 +138,14 @@ public class MavenCommandRunner {
 	 */
 	private static boolean isMavenDownloaded(File mavenDestinationPath) {
 		File[] fileList = mavenDestinationPath.listFiles();
-		if(fileList == null || fileList.length == 0) return false;
-		
-		for(File file: fileList) {
-			if(file.getName().toLowerCase().contains("maven"))
-				return true;
-		}	
+		if (fileList == null || fileList.length == 0)
+			return false;
+
+		String mavenHome = getMavenDownloadHome(mavenDestinationPath);
+		File mavenPath = new File(mavenDestinationPath.getAbsolutePath() + File.separator + mavenHome + File.separator
+				+ "bin" + File.separator + "mvn");
+		if (mavenPath.exists())
+			return true;
 		return false;
 	}
 	
@@ -253,36 +266,36 @@ public class MavenCommandRunner {
 	 */
 	private static boolean runMavenInvoker(String[] args) {
 		
-		
 		ArrayList<String> goals = new ArrayList<String>();
 
 		for (int i = 0; i < args.length; i++) {
 			goals.add(args[i]);
 		}
-		if(goals.isEmpty()) goals.add("compile");
-		
-		 InvocationRequest request = new DefaultInvocationRequest();
-		 String pomLocation = getRootDir() + "pom.xml";
-	        request.setPomFile(new File(pomLocation));
-	        request.setGoals(goals);
-	        
-	        Invoker invoker = new DefaultInvoker();
-	        
-	        // get maven home path (root path of maven)
-	        File mavenFile = verifyAndGetMavenHomePath();
-	        
-	        System.out.println("runMavenInvoker: " +  MAVEN_PATH);
-	        invoker.setMavenHome(mavenFile);
-	        
-	        try {
-	            invoker.execute(request);
-	        } catch (MavenInvocationException e) {
-	        	System.out.println("<<maven invoker has failed>>");
-	            e.printStackTrace();
-	            return false;
-	        }
-	        
-	        return true;
+		if (goals.isEmpty())
+			goals.add("compile");
+
+		InvocationRequest request = new DefaultInvocationRequest();
+		String pomLocation = getRootDir() + "pom.xml";
+		request.setPomFile(new File(pomLocation));
+		request.setGoals(goals);
+
+		Invoker invoker = new DefaultInvoker();
+
+		// get maven home path (root path of maven)
+		File mavenFile = verifyAndGetMavenHomePath();
+
+		System.out.println("runMavenInvoker: " + MAVEN_PATH);
+		invoker.setMavenHome(mavenFile);
+
+		try {
+			invoker.execute(request);
+		} catch (MavenInvocationException e) {
+			System.out.println("<<maven invoker has failed>>");
+			e.printStackTrace();
+			return false;
+		}
+
+		return true;
 	}
 	
 	/**

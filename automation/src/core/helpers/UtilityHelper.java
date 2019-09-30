@@ -108,6 +108,7 @@ public class UtilityHelper {
 		value = StringUtils.normalizeSpace(value);
 		value = value.trim().replace("\n", "").replace("\r", "").replace("\"", "");
 		value = value.replaceAll("\\r|\\n", "");
+		
 		return value;
 	}
 
