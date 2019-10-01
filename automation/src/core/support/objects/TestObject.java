@@ -552,6 +552,11 @@ public class TestObject{
 		String className = testId.split("-")[0];
 		return className;
 	}
+	
+
+	public String getTestStartTime() {	
+		return this.startTime;
+	}
 
 	public TestObject withRunCount(int rerunCount) {
 		this.runCount = rerunCount;

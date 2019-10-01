@@ -1,11 +1,12 @@
 package core.apiCore.helpers;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -19,6 +20,7 @@ import core.support.configReader.Config;
 import core.support.configReader.PropertiesReader;
 import core.support.logger.TestLog;
 import core.support.objects.KeyValue;
+import core.support.objects.ServiceObject;
 import core.support.objects.TestObject;
 import io.netty.util.internal.StringUtil;
 
@@ -61,7 +63,8 @@ public class DataHelper {
 
 			if (valueStr instanceof String) {
 				source = source.replace("<@" + parameter + ">", Matcher.quoteReplacement(valueStr));
-				//TestLog.logPass("replacing value '" + parameter + "' with: " + valueStr + "");
+				// TestLog.logPass("replacing value '" + parameter + "' with: " + valueStr +
+				// "");
 			}
 		}
 		return source;
@@ -73,7 +76,7 @@ public class DataHelper {
 
 	/**
 	 * gets the map of the validation requirements
-	 * 
+	 * split by ";"
 	 * @param expected
 	 * @return
 	 */
@@ -89,18 +92,18 @@ public class DataHelper {
 		String position = "";
 		String value = "";
 		for (String keyVal : keyVals) {
-			String[] parts = keyVal.split(":", 3);
-			if (parts.length == 1) {
-				key = Helper.stringRemoveLines(parts[0]);
+			List<String> parts = splitRight(keyVal,":", 3);
+			if (parts.size() == 1) {
+				key = Helper.stringRemoveLines(parts.get(0));
 			}
-			if (parts.length == 2) { // without position
-				key = Helper.stringRemoveLines(parts[0]);
+			if (parts.size()  == 2) { // without position
+				key = Helper.stringRemoveLines(parts.get(0));
 				position = StringUtil.EMPTY_STRING;
-				value = Helper.stringRemoveLines(parts[1]);
-			} else if (parts.length == 3) { // with position
-				key = Helper.stringRemoveLines(parts[0]);
-				position = Helper.stringRemoveLines(parts[1]);
-				value = Helper.stringRemoveLines(parts[2]);
+				value = Helper.stringRemoveLines(parts.get(1));
+			} else if (parts.size()  == 3) { // with position
+				key = Helper.stringRemoveLines(parts.get(0));
+				position = Helper.stringRemoveLines(parts.get(1));
+				value = Helper.stringRemoveLines(parts.get(2));
 			}
 
 			// if there is a value
@@ -147,18 +150,34 @@ public class DataHelper {
 		return file;
 	}
 
-	public static String convertTemplateToString(String templateFilePath) throws IOException {
-		BufferedReader br = new BufferedReader(new FileReader(new File(templateFilePath)));
-		String line;
-		StringBuilder sb = new StringBuilder();
+	public static String convertTemplateToString(String templateFilePath) {
+		String xml = StringUtils.EMPTY;
+		try {
+			 xml = new String(
+				    Files.readAllBytes(new File(templateFilePath).toPath()), StandardCharsets.UTF_8);
+				System.out.println(xml.length());
 
-		while ((line = br.readLine()) != null) {
-			sb.append(line.trim());
+		} catch (IOException e1) {
+			e1.printStackTrace();
 		}
-		br.close();
-
-		return sb.toString();
+		return xml; 
 	}
+	
+    /**
+     * returns service object template file as string
+     * Template file name is from Template column in csv
+     * @param apiObject
+     * @return
+     * @throws IOException 
+     */
+    public static String getServiceObjectTemplateString(ServiceObject serviceObject) {
+    	
+        String path = DataHelper.getTemplateFile(serviceObject.getTemplateFile());
+        File file = new File(path);
+
+        return DataHelper.convertTemplateToString(file.getAbsolutePath());
+    }
+    
 
 	/**
 	 * In outputParams get the params enclosed by <$> look up their values in
@@ -187,84 +206,98 @@ public class DataHelper {
 		validateCommand(command, responseString, expectedString, StringUtils.EMPTY);
 	}
 
-    /**
+	/**
 	 * validates response against expected values
+	 * 
 	 * @param command
 	 * @param responseString
 	 * @param expectedString
 	 * @param position
 	 */
 	public static void validateCommand(String command, String responseString, String expectedString, String position) {
-	
+
 		String[] expectedArray = expectedString.split(",");
 		String[] actualArray = responseString.split(",");
 		String actualString = "";
-		
+
 		// if position has value, Then get response at position
-		if(!position.isEmpty()) {
+		if (!position.isEmpty()) {
 			int positionInt = Integer.valueOf(position);
-			expectedString = expectedArray[0]; //single item
+			expectedString = expectedArray[0]; // single item
 			boolean inBounds = (positionInt > 0) && (positionInt <= actualArray.length);
-			if(!inBounds) {
-				Helper.assertFalse("items returned are less than specified. returned: " + actualArray.length + " specified: " + positionInt );
+			if (!inBounds) {
+				Helper.assertFalse("items returned are less than specified. returned: " + actualArray.length
+						+ " specified: " + positionInt);
 			}
-				
-			actualString = actualArray[positionInt-1];
+
+			actualString = actualArray[positionInt - 1];
 		}
-		
+
 		switch (command) {
 		case "hasItems":
 			boolean val = false;
-			if(!position.isEmpty()) { // if position is provided
+			if (!position.isEmpty()) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " has item " + expectedString);
 				val = actualString.contains(expectedString);
 				Helper.assertTrue(actualString + " does not have item " + expectedString, val);
-			}else {
-				TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " has items " + Arrays.toString(expectedArray));
+			} else {
+				TestLog.logPass(
+						"verifying: " + Arrays.toString(actualArray) + " has items " + Arrays.toString(expectedArray));
 				val = Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
-				Helper.assertTrue(Arrays.toString(actualArray) + " does not have items " + Arrays.toString(expectedArray), val);
+				Helper.assertTrue(
+						Arrays.toString(actualArray) + " does not have items " + Arrays.toString(expectedArray), val);
 			}
 			break;
 		case "equalTo":
-			if(!position.isEmpty()) { // if position is provided
+			if (!position.isEmpty()) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " equals " + expectedString);
 				val = actualString.equals(expectedString);
 				Helper.assertTrue(actualString + " does not equal " + expectedString, val);
-			}
-			else {
-				TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " equals " + Arrays.toString(expectedArray));
+			} else {
+				TestLog.logPass(
+						"verifying: " + Arrays.toString(actualArray) + " equals " + Arrays.toString(expectedArray));
 				val = Arrays.equals(expectedArray, actualArray);
-				Helper.assertTrue(Arrays.toString(actualArray) + " does not equal " + Arrays.toString(expectedArray), val);
+				Helper.assertTrue(Arrays.toString(actualArray) + " does not equal " + Arrays.toString(expectedArray),
+						val);
 			}
 			break;
-		case "contains":				
-			if(!position.isEmpty()) { // if position is provided
+		case "contains":
+			if (!position.isEmpty()) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " contains " + expectedString);
 				val = actualString.contains(expectedString);
 				Helper.assertTrue(actualString + " does not contain " + expectedString, val);
-			}else {
-				TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " contains " + Arrays.toString(expectedArray));
+			} else {
+				TestLog.logPass(
+						"verifying: " + Arrays.toString(actualArray) + " contains " + Arrays.toString(expectedArray));
 				val = Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
-				Helper.assertTrue(Arrays.toString(actualArray) + " does not contain " + Arrays.toString(expectedArray), val);
+				Helper.assertTrue(Arrays.toString(actualArray) + " does not contain " + Arrays.toString(expectedArray),
+						val);
 			}
 			break;
 		case "containsInAnyOrder":
-			TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " contains any order " + Arrays.toString(expectedArray));
+			TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " contains any order "
+					+ Arrays.toString(expectedArray));
 			val = Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
-			Helper.assertTrue(Arrays.toString(actualArray) + " does not contain in any order " + Arrays.toString(expectedArray), val);
+			Helper.assertTrue(
+					Arrays.toString(actualArray) + " does not contain in any order " + Arrays.toString(expectedArray),
+					val);
 			break;
 		case "nodeSizeGreaterThan":
 			int intValue = Integer.valueOf(expectedString);
 			TestLog.logPass("verifying node with size " + actualArray.length + " greater than " + intValue);
-			Helper.assertTrue("response node size is: " + actualArray.length + " expected it to be greated than: " + intValue, actualArray.length > intValue);
+			Helper.assertTrue(
+					"response node size is: " + actualArray.length + " expected it to be greated than: " + intValue,
+					actualArray.length > intValue);
 			break;
 		case "nodeSizeExact":
 			intValue = Integer.valueOf(expectedString);
 			TestLog.logPass("verifying node with size " + actualArray.length + " equals " + intValue);
-			Helper.assertTrue("response node size is: " + actualArray.length + " expected: " + intValue, actualArray.length == intValue);
+			Helper.assertTrue("response node size is: " + actualArray.length + " expected: " + intValue,
+					actualArray.length == intValue);
 			break;
 		case "sequence":
-			TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " with sequence " + Arrays.toString(expectedArray));
+			TestLog.logPass(
+					"verifying: " + Arrays.toString(actualArray) + " with sequence " + Arrays.toString(expectedArray));
 			val = Arrays.equals(expectedArray, actualArray);
 			Helper.assertTrue(Arrays.toString(actualArray) + " does not equal " + Arrays.toString(expectedArray), val);
 			break;
@@ -280,19 +313,42 @@ public class DataHelper {
 			break;
 		}
 	}
-	
+
 	/**
 	 * converts list to string separated by ","
+	 * 
 	 * @param values
 	 * @return
 	 */
 	public static String listToString(List<String> values) {
 		String result = "";
-		for(Object val : values) {
+		for (Object val : values) {
 			String value = Objects.toString(val, "");
 			result = result + value;
-			if(values.size()>1) result+=",";
+			if (values.size() > 1)
+				result += ",";
 		}
-		return result;		
+		return result;
+	}
+	
+	public static List<String> splitRight(String string, String regex, int limit) {
+	    List<String> result = new ArrayList<String>();
+	    String[] temp = new String[0];
+	    for(int i = 1; i < limit; i++) {
+	        if(string.matches(".*"+regex+".*")) {
+	            temp = string.split(modifyRegex(regex));
+	            result.add(temp[1]);
+	            string = temp[0];
+	        }
+	    }
+	    if(temp.length>0) { 
+	        result.add(temp[0]);
+	    }
+	    Collections.reverse(result);
+	    return result;
+	}
+
+	public static String modifyRegex(String regex){
+	    return regex + "(?!.*" + regex + ".*$)";
 	}
 }

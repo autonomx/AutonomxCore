@@ -7,6 +7,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -30,7 +32,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import core.helpers.Helper;
 import core.support.logger.TestLog;
+import core.support.objects.KeyValue;
+import core.support.objects.ServiceObject;
 
 public class XmlHelper {
 	/**
@@ -65,6 +70,7 @@ public class XmlHelper {
 		Document doc = null;
 		try {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			factory.setNamespaceAware(true);
 			DocumentBuilder builder = factory.newDocumentBuilder();
 
 			doc = builder.parse(new InputSource(new StringReader(xmlStr)));
@@ -239,5 +245,122 @@ public class XmlHelper {
 			e.printStackTrace();
 		}
 		return xml;
+	}
+	
+	/**
+	 * if request body is empty, return xml template string
+	 * if request body contains xml tag, replace tag with value
+	 * eg. "soi:EquipmentID:1:equip_<@_TIME_17>"
+	 * @param serviceObject
+	 * @return
+	 */
+	public static String getRequestBodyFromXmlTemplate(ServiceObject serviceObject) {
+		String xmlFileValue = DataHelper.getServiceObjectTemplateString(serviceObject);
+        xmlFileValue = DataHelper.replaceParameters(xmlFileValue);
+        
+		if(serviceObject.getRequestBody().isEmpty()) {
+			return xmlFileValue;
+		}else {
+			return replaceRequestTagValues(serviceObject);
+		}	
+	}
+	
+	/**
+	 * replace tag value in xml string at index
+	 * @param position: starts at 1
+	 * @param tag
+	 * @param value
+	 * @return
+	 */
+	public static String replaceTagValue(String xml, String tag, String value, int position) {
+		xml = replaceGroup("<"+tag+">(.*?)<\\/"+tag+">", xml, 1, position, value);
+		return xml;
+	}
+	
+	/**
+	 * replace tag value in xml for all occurrences
+	 * @param xml
+	 * @param tag
+	 * @param value
+	 * @return
+	 */
+	public static String replaceTagValue(String xml, String tag, String value) {
+		xml = xml.replaceAll("<"+tag+">(.*?)<\\/"+tag+">", "<"+tag+">"+ value +"</"+tag+">");
+		return xml;
+	}
+
+	/**
+	 * generic replace value using regex using index
+	 * @param regex
+	 * @param source
+	 * @param groupToReplace
+	 * @param groupOccurrence
+	 * @param replacement
+	 * @return
+	 */
+	public static String replaceGroup(String regex, String source, int groupToReplace, int groupOccurrence, String replacement) {
+	   
+		if(groupOccurrence == 0) Helper.assertFalse("position starts at 1");
+		
+		Matcher m = Pattern.compile(regex).matcher(source);
+	    for (int i = 0; i < groupOccurrence; i++)
+	        if (!m.find()) return source; // pattern not met, may also throw an exception here
+	    return new StringBuilder(source).replace(m.start(groupToReplace), m.end(groupToReplace), replacement).toString();
+	}
+	
+	/**
+	 * replaces request header tag values 
+	 * eg. "soi:EquipmentID:1:<@_TIME_16>"
+	 * tag: soi:EquipmentID, position: 1, value: <@_TIME_16>
+	 * @param serviceObject
+	 * @return
+	 */
+	public static String replaceRequestTagValues(ServiceObject serviceObject) {
+		String xmlString = DataHelper.getServiceObjectTemplateString(serviceObject);
+		Helper.assertTrue("xml string is empty", !xmlString.isEmpty());
+		
+		// replace parameters
+		xmlString = DataHelper.replaceParameters(xmlString);
+		serviceObject.withRequestBody(DataHelper.replaceParameters(serviceObject.getRequestBody()));
+
+		// get key value mapping of header parameters
+		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getRequestBody());
+		for(KeyValue keyword : keywords) {
+			xmlString = replaceTagValue(xmlString, keyword.key, keyword.value.toString(), Integer.valueOf(keyword.position));
+		}
+		return xmlString;
+	}
+	
+	/**
+	 * get first matching tag value 
+	 * @param requestBody
+	 * @param tag
+	 * @return
+	 */
+	public static String getTagValue(String value, String tag) {
+		return getTagValue(value, tag, 1);
+	}
+	
+	/**
+	 * get tag value 
+	 * @param source
+	 * @param tag
+	 * @param position: starts at 1
+	 * @return
+	 */
+	public static String getTagValue(String source, String tag, int position) {
+		List<String> values = new ArrayList<String>();
+		try {
+			String patternString = "<"+tag+">(.*?)<\\/"+tag+">";
+			final Pattern pattern = Pattern.compile(patternString);
+			final Matcher matcher = pattern.matcher(source);
+			while(matcher.find()) {
+				values.add(matcher.group(1));
+		    }
+		} catch (Exception e) {
+			e.getMessage();
+		}
+		if(position == 0) Helper.assertFalse("position starts at 1");
+		return values.get(position - 1);
 	}
 }

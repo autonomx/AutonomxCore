@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -17,9 +19,6 @@ import org.apache.maven.shared.invoker.MavenInvocationException;
 
 import core.helpers.Helper;
 import core.support.configReader.Config;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 import net.lingala.zip4j.ZipFile;
 
 public class MavenCommandRunner {
