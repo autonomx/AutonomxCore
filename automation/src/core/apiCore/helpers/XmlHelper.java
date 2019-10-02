@@ -1,5 +1,6 @@
 package core.apiCore.helpers;
 
+import java.io.File;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.file.Files;
@@ -54,6 +55,8 @@ public class XmlHelper {
 			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 			transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
 			transformer.transform(new DOMSource(doc), new StreamResult(sw));
+			
+			TestLog.ConsoleLog(sw.toString());
 			return sw.toString();
 		} catch (IllegalArgumentException | TransformerException ex) {
 			throw new RuntimeException("Error converting to String", ex);
@@ -89,7 +92,8 @@ public class XmlHelper {
 	 * @return String
 	 */
 	public static String convertXmlFileToString(Path filePath) {
-		return convertDocumentToString(readFile(filePath.toString()));
+		Document document = readFile(filePath.toString());
+		return convertDocumentToString(document);
 	}
 
 	/**
@@ -152,29 +156,6 @@ public class XmlHelper {
 			TestLog.logWarning("Exception encountered for xpath value: " + xpathString, ex);
 		}
 		return null;
-	}
-
-	/**
-	 * In outputParams get the params with syntax <$> in responseBody And Then add
-	 * them to ConfigurationParams
-	 *
-	 * @param outputParams
-	 * @param responseBody
-	 */
-	public static void addOutputParamValuesToConfig(String outputParams, String responseBody) {
-
-	}
-
-	/**
-	 * Get the list of xPaths corresponding to the input XML String
-	 * 
-	 * @param xmlString
-	 * @return ArrayList
-	 */
-	public static ArrayList<String> getXPaths(String xmlString, String xpath) {
-
-		ArrayList<String> xPathList = null;
-		return xPathList;
 	}
 
 	/**
@@ -255,7 +236,8 @@ public class XmlHelper {
 	 * @return
 	 */
 	public static String getRequestBodyFromXmlTemplate(ServiceObject serviceObject) {
-		String xmlFileValue = DataHelper.getServiceObjectTemplateString(serviceObject);
+		Path templatePath = DataHelper.getTemplateFilePath(serviceObject.getTemplateFile());
+		String xmlFileValue = convertXmlFileToString(templatePath);
         xmlFileValue = DataHelper.replaceParameters(xmlFileValue);
         
 		if(serviceObject.getRequestBody().isEmpty()) {

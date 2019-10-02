@@ -298,7 +298,7 @@ public class ServiceBusInterface {
 
 		// Get request body using template And/or requestBody data column
 		if (!templateFile.isEmpty()) {
-			String templateFilePath = DataHelper.getTemplateFile(templateFile);
+			String templateFilePath = DataHelper.getTemplateFileLocation(templateFile);
 
 			// contents of templateFile become the requestBody
 			if (requestBody.isEmpty()) {

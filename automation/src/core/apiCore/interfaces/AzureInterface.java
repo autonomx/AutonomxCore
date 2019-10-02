@@ -67,7 +67,7 @@ public class AzureInterface {
 		CloudFileDirectory cloudFileDirectory = getCloudfileDirectory(apiObject);
 
 
-		String filePath = DataHelper.getTemplateFile(apiObject.getTemplateFile());
+		String filePath = DataHelper.getTemplateFileLocation(apiObject.getTemplateFile());
 	
 		// Define the path to a local file.
 		TestLog.logPass("uploading file: " + apiObject.getTemplateFile());

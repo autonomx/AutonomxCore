@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -136,11 +137,18 @@ public class DataHelper {
 		return value;
 	}
 
-	public static String getTemplateFile(String file) {
+	public static String getTemplateFileLocation(String file) {
 		String templatePath = Config.getValue(TestDataProvider.TEST_DATA_TEMPLATE_PATH);
 		String templateTestPath = PropertiesReader.getLocalRootPath() + templatePath;
 
 		return templateTestPath + file;
+	}
+	
+	public static Path getTemplateFilePath(String file) {
+		String templatePath = Config.getValue(TestDataProvider.TEST_DATA_TEMPLATE_PATH);
+		String templateTestPath = PropertiesReader.getLocalRootPath() + templatePath;
+		String fullLocation = templateTestPath + file;
+		return new File(fullLocation).toPath();
 	}
 
 	public static File getFile(String filename) {
@@ -172,7 +180,7 @@ public class DataHelper {
      */
     public static String getServiceObjectTemplateString(ServiceObject serviceObject) {
     	
-        String path = DataHelper.getTemplateFile(serviceObject.getTemplateFile());
+        String path = DataHelper.getTemplateFileLocation(serviceObject.getTemplateFile());
         File file = new File(path);
 
         return DataHelper.convertTemplateToString(file.getAbsolutePath());

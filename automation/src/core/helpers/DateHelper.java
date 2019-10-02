@@ -7,7 +7,7 @@ public class DateHelper {
 	
 	// get time in miliseconds
 	public String getTimestampMiliseconds() {
-		return new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date());
+		return new SimpleDateFormat("yyyyMMddHHmmssSSSSS").format(new Date());
 	}
 	
 	public String getTimestampSeconds() {
