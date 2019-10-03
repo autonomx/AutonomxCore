@@ -32,6 +32,9 @@ public class Authentication {
 		
 		if(apiObject == null) Helper.assertFalse("apiobject is null");
 		
+		// set proxy from config file
+		RestApiInterface.setProxy();
+		
 		// replace parameters for request body
 		apiObject.withRequestBody(DataHelper.replaceParameters(apiObject.getRequestBody()));
 

@@ -32,9 +32,12 @@ public class RestApiInterface {
 		
 		if(apiObject == null) Helper.assertFalse("apiobject is null");
 		
+		// set proxy from config
+		setProxy();
+		
 		// replace parameters for request body
 		apiObject.withRequestBody(DataHelper.replaceParameters(apiObject.getRequestBody()));
-
+		
 		// set base uri
 		setURI(apiObject);
 
@@ -66,6 +69,20 @@ public class RestApiInterface {
 			RestAssured.baseURI = Helper.stringRemoveLines(Config.getValue("api.uriPath"));
 			TestLog.logPass("request URI: " + RestAssured.baseURI + apiObject.getUriPath());
 		}
+	}
+	
+	/**
+	 * set proxy from config file
+	 */
+	public static void setProxy() {
+		String host = Config.getValue("api.proxy.host");
+		String port = Config.getValue("api.proxy.port");				
+		
+		if(host.isEmpty()) return;
+		
+		RestAssured.proxy(host);
+		if(!port.isEmpty())
+			RestAssured.proxy(port);
 	}
 
 	public static void validateResponse(Response response, ServiceObject apiObject) {
