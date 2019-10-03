@@ -111,8 +111,7 @@ Autonomx provides a complete testing platform for UI (Web, iOS, Android, Win) an
 * Define objects
 	* autonomx⁩ ▸ ⁨automation⁩ ▸ ⁨src⁩ ▸ ⁨main⁩ ▸ ⁨java⁩ ▸ ⁨module ▸ webApp ▸ user.csv
 	* We are going to use the csv file to setup our data. For more info Csv
-	
-	![alt text](https://blobscdn.gitbook.com/v0/b/gitbook-28427.appspot.com/o/assets%2F-LZhvc5eykluSdIwbEC_%2F-Lbz0m5YFq7lUruvn4Bq%2F-	Lbz18vf1jgQKNjEp4Ey%2Fimage.png?alt=media&token=6d7c7cb6-f5b8-4eab-b35d-81fae69b2fe4)
+	* ![alt text](https://blobscdn.gitbook.com/v0/b/gitbook-28427.appspot.com/o/assets%2F-LZhvc5eykluSdIwbEC_%2F-Lbz0m5YFq7lUruvn4Bq%2F-	Lbz18vf1jgQKNjEp4Ey%2Fimage.png?alt=media&token=6d7c7cb6-f5b8-4eab-b35d-81fae69b2fe4)	
 	
 
 * setup test
@@ -143,12 +142,12 @@ Autonomx provides a complete testing platform for UI (Web, iOS, Android, Win) an
 ```
 
 # Service Level Tests
- * Service level testing encompasses any backend, service, api, and database level testing
- * These tests are compromised of: request, response, and verification
- * Since these follow the same template, we have opted for using csv file to write the tests
- * 1 line 1 complete test 
- * This allows us to add lots of tests to each csv file, covering large number of permutations
  * https://docs.autonomx.io/service-level-testing
+ 	* Service level testing encompasses any backend, service, api, and database level testing
+ 	* These tests are compromised of: request, response, and verification
+ 	* Since these follow the same template, we have opted for using csv file to write the tests
+ 	* 1 line 1 complete test 
+ 	* This allows us to add lots of tests to each csv file, covering large number of permutations
  
  * Add Test cases in CSV file at apiTestData/testCases
  * Run tests using the runner at apiTestData/runner/<os>/apiRunner
