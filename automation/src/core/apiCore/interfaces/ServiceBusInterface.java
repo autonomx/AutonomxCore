@@ -31,7 +31,6 @@ import com.microsoft.azure.servicebus.primitives.ConnectionStringBuilder;
 import com.microsoft.azure.servicebus.primitives.ServiceBusException;
 
 import core.apiCore.helpers.DataHelper;
-import core.apiCore.helpers.XmlHelper;
 import core.helpers.Helper;
 import core.helpers.StopWatchHelper;
 import core.support.configReader.Config;
@@ -407,7 +406,7 @@ public class ServiceBusInterface {
 
 				if (comparePartialExpected ) {
 					isTestPass = true;
-					XmlHelper.addOutputParamValuesToConfig(outputParams, outboundQueueMsg);
+					//XmlHelper.addOutputParamValuesToConfig(outputParams, outboundQueueMsg);
 					break;
 				}
 

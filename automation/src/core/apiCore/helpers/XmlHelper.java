@@ -1,6 +1,5 @@
 package core.apiCore.helpers;
 
-import java.io.File;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.file.Files;
