@@ -111,7 +111,7 @@ Autonomx provides a complete testing platform for UI (Web, iOS, Android, Win) an
 * Define objects
 	* autonomx⁩ ▸ ⁨automation⁩ ▸ ⁨src⁩ ▸ ⁨main⁩ ▸ ⁨java⁩ ▸ ⁨module ▸ webApp ▸ user.csv
 	* We are going to use the csv file to setup our data. For more info Csv
-	* ![alt text](https://blobscdn.gitbook.com/v0/b/gitbook-28427.appspot.com/o/assets%2F-LZhvc5eykluSdIwbEC_%2F-Lbz0m5YFq7lUruvn4Bq%2F-	Lbz18vf1jgQKNjEp4Ey%2Fimage.png?alt=media&token=6d7c7cb6-f5b8-4eab-b35d-81fae69b2fe4)	
+	* ![alt text](https://blobscdn.gitbook.com/v0/b/gitbook-28427.appspot.com/o/assets%2F-LZhvc5eykluSdIwbEC_%2F-Lbz0m5YFq7lUruvn4Bq%2F-Lbz18vf1jgQKNjEp4Ey%2Fimage.png?alt=media&token=6d7c7cb6-f5b8-4eab-b35d-81fae69b2fe4)	
 	
 
 * setup test
@@ -154,4 +154,3 @@ Autonomx provides a complete testing platform for UI (Web, iOS, Android, Win) an
  * CSV files will run in parallel
  * Parallel run value can be set at automation/resources/properties.property "parallel_test_count"
  * ![alt text](https://blobscdn.gitbook.com/v0/b/gitbook-28427.appspot.com/o/assets%2F-LZhvc5eykluSdIwbEC_%2F-LcZtOaQshb5y9jBNTv4%2F-LcZtovj2NX0VVwc5weJ%2Fimage.png?alt=media&token=fc5ed2ae-8d03-4170-ab2b-ef95d4c83760)	
- * 
