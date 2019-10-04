@@ -30,8 +30,8 @@ public class EmailSendHelper {
 		final String password = email.password;
 
 		Properties props = new Properties();
-		props.put("mail.smtp.auth", email.smtpAuth);
-		props.put("mail.smtp.starttls.enable", email.smtpStarttlsEnabled);
+		props.put("mail.smtp.auth", email.smtpAuth.toString());
+		props.put("mail.smtp.starttls.enable", email.smtpStarttlsEnabled.toString());
 		props.put("mail.smtp.host", email.smtpHost);
 		props.put("mail.smtp.port", email.smtpPort);
 
