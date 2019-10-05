@@ -726,7 +726,7 @@ public class UtilityHelper {
        
 		JavascriptExecutor jsEx = (JavascriptExecutor) AbstractDriver.getWebDriver();
         EnhancedWebElement targetElement = Element.findElements(by);
-        jsEx.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", targetElement.get(index));
+        jsEx.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px dashed red;');", targetElement.get(index));
         Helper.waitForSeconds(duration);
         jsEx.executeScript("arguments[0].setAttribute('style','border: solid 2px white');", targetElement.get(index));
     }

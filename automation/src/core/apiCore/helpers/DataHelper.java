@@ -339,7 +339,8 @@ public class DataHelper {
 		return result;
 	}
 	
-	public static List<String> splitRight(String string, String regex, int limit) {
+	public static List<String> splitRight(String value, String regex, int limit) {
+		String string = value;
 	    List<String> result = new ArrayList<String>();
 	    String[] temp = new String[0];
 	    for(int i = 1; i < limit; i++) {
@@ -352,6 +353,10 @@ public class DataHelper {
 	    if(temp.length>0) { 
 	        result.add(temp[0]);
 	    }
+	    
+	    // handle single value
+	    if(value.split(":").length == 1) result.add(string);
+	 
 	    Collections.reverse(result);
 	    return result;
 	}
