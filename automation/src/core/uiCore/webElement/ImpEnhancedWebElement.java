@@ -249,11 +249,13 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	public void scrollToView_Web(int index) {
 		if (!Helper.mobile.isWebDriver()) return;
 		
+
 		// if visible in view, return
-		if(Helper.isVisibleInViewport(element)) return;
-		
+		if(Helper.isVisibleInViewport(element)) 
+			System.out.print("");
+
 		webDriver.manage().timeouts().implicitlyWait(1, TimeUnit.MILLISECONDS);
-		
+
 		WebElement element = getElement(index);
 		Actions action = new Actions(AbstractDriver.getWebDriver());
 		action.moveToElement(element);
@@ -566,6 +568,11 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		// get parent elements if applicable
 		getParentElement();
 		
+		// if  multiple element objects, we need to iterate through them quickly
+		if(this.element.elementObject.size() > 1) {
+			webDriver.manage().timeouts().implicitlyWait(1, TimeUnit.MILLISECONDS);
+		}
+		
 		for (ElementObject elementObject : this.element.elementObject) {
 			this.by = elementObject.by;
 			this.locatorType = elementObject.locatorType;
@@ -588,6 +595,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				e.getMessage();
 			}
 		}
+		webDriver.manage().timeouts().implicitlyWait(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
 		return this.current;
 	}
 	
@@ -596,6 +604,11 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		
 		// get parent elements if applicable
 		getParentElement();
+		
+		// if  multiple element objects, we need to iterate through them quickly
+		if(this.element.elementObject.size() > 1) {
+			webDriver.manage().timeouts().implicitlyWait(1, TimeUnit.MILLISECONDS);
+		}
 
 		for (ElementObject elementObject : this.element.elementObject) {
 			try {
@@ -614,6 +627,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				e.getMessage();
 			}
 		}
+		webDriver.manage().timeouts().implicitlyWait(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
 		return this.current;
 	}
 

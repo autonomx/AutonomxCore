@@ -1935,15 +1935,23 @@ public class Helper {
 	public static boolean waitForFirstElementToLoad(final EnhancedBy element1, final EnhancedBy element2) {
 		return wait.waitForFirstElementToLoad(element1, element2);
 	}
+	
+	/**
+	 * waits for element to load And refreshes the app each time to renew the dom
+	 * 
+	 * @param target
+	 */
+	public static void mobile_waitAndRefreshForElementToLoad(final EnhancedBy target, int time) {
+		 wait.mobile_waitAndRefreshForElementToLoad(target, time);
+	}
 
 	/**
 	 * waits for element to load And refreshes the app each time to renew the dom
 	 * 
 	 * @param target
-	 * @return
 	 */
-	public static boolean mobile_waitAndRefreshForElementToLoad(final EnhancedBy target) {
-		return wait.mobile_waitAndRefreshForElementToLoad(target);
+	public static void mobile_waitAndRefreshForElementToLoad(final EnhancedBy target) {
+		 wait.mobile_waitAndRefreshForElementToLoad(target);
 	}
 
 	/**
@@ -1961,7 +1969,7 @@ public class Helper {
 	public static boolean waitForElementToLoad(final EnhancedBy target, int time, int count) {
 		return wait.waitForElementToLoad(target, time, count);
 	}
-
+	
 	/**
 	 * waits for element count to increase from the originalCount Usefull When
 	 * waiting for a list to expand with additional items
@@ -1971,6 +1979,17 @@ public class Helper {
 	 */
 	public static void waitForAdditionalElementsToLoad(final EnhancedBy target, final int originalCount) {
 		wait.waitForAdditionalElementsToLoad(target, originalCount);
+	}
+
+	/**
+	 * waits for element count to increase from the originalCount Usefull When
+	 * waiting for a list to expand with additional items
+	 * 
+	 * @param target
+	 * @param originalCount
+	 */
+	public static void waitForAdditionalElementsToLoad(final EnhancedBy target, final int originalCount, int time) {
+		wait.waitForAdditionalElementsToLoad(target, originalCount, time);
 	}
 
 	/**

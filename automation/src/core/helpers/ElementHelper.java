@@ -1,11 +1,13 @@
 package core.helpers;
 
+import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Point;
 
 import core.support.logger.TestLog;
 import core.uiCore.webElement.EnhancedBy;
 import core.uiCore.webElement.EnhancedWebElement;
+import module.framework.panel.LoginPanel;
 
 /**
  * app page is parent class of different apps
@@ -77,9 +79,16 @@ public class ElementHelper {
 	 */
 	protected static void setAttribute(EnhancedBy by, int index, String attribute, String value) {
 		Helper.waitForElementToLoad(by);
-
-		EnhancedWebElement element = Element.findElements(by);
-		element.setAttribute(attribute, index, value);
+		String attributeValue = StringUtils.EMPTY;
+		int retry = 3;
+		int currentRetryCount = 0;
+		do {
+			currentRetryCount++;
+			EnhancedWebElement element = Element.findElements(by);
+			element.setAttribute(attribute, index, value);
+			attributeValue = Helper.getAttribute(by, index, attribute);
+			if(currentRetryCount > 1) Helper.waitForSeconds(0.5);
+		} while ((attributeValue == null || attributeValue.isEmpty()) && currentRetryCount <= retry);
 	}
 
 	/**

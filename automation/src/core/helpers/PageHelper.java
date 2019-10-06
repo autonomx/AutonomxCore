@@ -10,7 +10,6 @@ import org.openqa.selenium.Alert;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.remote.RemoteWebElement;
 
 import core.support.logger.TestLog;
 import core.support.objects.DriverObject;
