@@ -366,7 +366,6 @@ public class PageHelper {
 	 */
 	public void navigateToUrl(String url) {
 		AbstractDriver.getWebDriver().get(url);
-		Helper.waitForPageToLoad();
 	}
 	
 	 /**

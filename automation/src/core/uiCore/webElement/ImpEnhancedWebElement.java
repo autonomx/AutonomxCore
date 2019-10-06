@@ -199,9 +199,6 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				TestLog.ConsoleLog("click failed for element: " + elementName + ": "  + rootCause);
 			}
 		} while (!success && retry > 0);
-		
-		// wait for page to load
-		Helper.waitForPageToLoad();
 	}
 
 	@Override

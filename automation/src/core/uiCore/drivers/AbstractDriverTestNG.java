@@ -3,6 +3,7 @@ package core.uiCore.drivers;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.openqa.selenium.WebDriver;
@@ -202,8 +203,11 @@ public class AbstractDriverTestNG {
 		do {
 			try {
 				retry--;
-				// Helper.killWindowsProcess("node.exe");
 				driver = new WebDriverSetup().getWebDriverByType(driverObject);
+				
+				// set implicit Wait wait to be the minimum of our explicit wait
+				driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+				driver.manage().timeouts().pageLoadTimeout(AbstractDriver.TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
 			} catch (Exception e) {
 				if (retry > 0)
@@ -230,7 +234,6 @@ public class AbstractDriverTestNG {
 		if (!url.isEmpty()) {
 			TestLog.logPass("I am the site '" + url + "'");
 			getWebDriver().get(url);
-			Helper.waitForPageToLoad();
 		}
 	}
 

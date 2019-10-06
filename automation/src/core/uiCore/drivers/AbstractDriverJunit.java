@@ -240,7 +240,10 @@ public class AbstractDriverJunit {
 				Helper.killWindowsProcess("node.exe");
 				driver = new WebDriverSetup().getWebDriverByType(driverObject);
 
-				driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+				// set implicit Wait wait to be the minimum of our explicit wait
+				driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+				driver.manage().timeouts().pageLoadTimeout(AbstractDriver.TIMEOUT_SECONDS, TimeUnit.SECONDS);
+
 			} catch (Exception e) {
 				if (retry == 0) {
 					// print out android help
