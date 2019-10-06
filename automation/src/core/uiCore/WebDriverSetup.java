@@ -116,37 +116,37 @@ public class WebDriverSetup {
 
 		switch (browserType) {
 		case FIREFOX:
-			WebDriverManager.firefoxdriver().version(driverObject.driverVersion).setup();
+			setDriverManager(driverObject, WebDriverManager.firefoxdriver());
 			driver = new FirefoxDriver(driverObject.capabilities);
 			break;
 		case FIREFOX_HEADLESS:
-			WebDriverManager.firefoxdriver().version(driverObject.driverVersion).setup();
+			setDriverManager(driverObject, WebDriverManager.firefoxdriver());
 			FirefoxOptions firefoxOptions = new FirefoxOptions();
 			firefoxOptions.setHeadless(true);
 			driverObject.capabilities.setCapability(FirefoxOptions.FIREFOX_OPTIONS, firefoxOptions);
 			driver = new FirefoxDriver(driverObject.capabilities);
 			break;
 		case INTERNET_EXPLORER:
-			WebDriverManager.iedriver().version(driverObject.driverVersion).setup();
+			setDriverManager(driverObject, WebDriverManager.iedriver());
 			driver = new InternetExplorerDriver(driverObject.capabilities);
 			break;
 		case MICROSOFT_EDGE:
-			WebDriverManager.edgedriver().version(driverObject.driverVersion).setup();
+			setDriverManager(driverObject, WebDriverManager.edgedriver());
 			driver = new EdgeDriver(driverObject.capabilities);
 			break;
 		case CHROME:
-			WebDriverManager.chromedriver().version(driverObject.driverVersion).setup();
+			setDriverManager(driverObject, WebDriverManager.chromedriver());
 			driver = new ChromeDriver(driverObject.capabilities);
 			break;
 		case CHROME_HEADLESS:
-			WebDriverManager.chromedriver().version(driverObject.driverVersion).setup();
+			setDriverManager(driverObject, WebDriverManager.chromedriver());
 			ChromeOptions chromeOptions = new ChromeOptions();
 			chromeOptions.setHeadless(true);
 			driverObject.capabilities.setCapability(ChromeOptions.CAPABILITY, chromeOptions);
 			driver = new ChromeDriver(driverObject.capabilities);
 			break;
 		case OPERA:
-			WebDriverManager.operadriver().version(driverObject.driverVersion).setup();
+			setDriverManager(driverObject, WebDriverManager.operadriver());
 			driver = new OperaDriver(driverObject.capabilities);
 			break;
 		case SAFARI:
@@ -156,6 +156,33 @@ public class WebDriverSetup {
 			throw new IllegalStateException("Unsupported browsertype " + browserType);
 		}
 		return driver;
+	}
+	
+	/**
+	 * set driver manager options
+	 * values found in web.property config file
+	 * @param driverObject
+	 * @param manager
+	 */
+	private void setDriverManager(DriverObject driverObject, WebDriverManager manager) {
+		String proxyServer = Config.getValue("web.driver.manager.proxy.server");
+		String proxyUser = Config.getValue("web.driver.manager.proxy.user");
+		String proxyPassword = Config.getValue("web.driver.manager.proxy.password");
+		boolean isForceCache = Config.getBooleanValue("web.driver.manager.proxy.forceCache");
+		int timeout_seconds = Config.getIntValue("web.driver.manager.timeoutSeconds");
+		
+		// force cache, not checking online
+		if(isForceCache)
+			manager = manager.forceCache();
+		
+		manager.proxy(proxyServer)
+		.proxyUser(proxyUser)
+		.proxyUser(proxyPassword)
+		.version(driverObject.driverVersion)
+		.timeout(timeout_seconds)
+		.setup();
+		
+		TestLog.ConsoleLog("using driver version: " + manager.getDownloadedVersion());
 	}
 
 	public String getServerUrl() {

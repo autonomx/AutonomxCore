@@ -249,7 +249,7 @@ public class WebCapability {
 	}
 
 	public String getDriverVersion() {
-		String value = Config.getValue("web.driverVersion");
+		String value = Config.getValue("web.driver.manager.version");
 		return value;
 	}
 
