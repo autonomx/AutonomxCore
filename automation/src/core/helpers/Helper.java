@@ -388,6 +388,17 @@ public class Helper {
     }
     
     /**
+     * click point at x,y coordinates and expect and element to be present
+     * retry every 5 seconds for duration of explicit timeout
+     * @param x
+     * @param y
+     * @param expected
+     */
+    public void clickPointsAndExpect(int x ,int y, EnhancedBy expected) {
+    	click.clickPointsAndExpect(x, y, expected);
+    }
+    
+    /**
      * double click at position
      * @param x
      * @param y

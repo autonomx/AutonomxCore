@@ -334,6 +334,30 @@ public class ClickHelper extends Element {
     }
     
     /**
+     * click point at x,y coordinates and expect and element to be present
+     * retry every 5 seconds for duration of explicit timeout
+     * @param x
+     * @param y
+     * @param expected
+     */
+    public void clickPointsAndExpect(int x ,int y, EnhancedBy expected) {
+
+    	EnhancedWebElement expectedElement = null;
+		int targetWaitTimeInSeconds = 5;
+		int retry = AbstractDriver.TIMEOUT_SECONDS / targetWaitTimeInSeconds;
+
+		do {
+			retry--;
+			clickPoints(x ,y);
+			Helper.wait.waitForSeconds(0.5);
+			Helper.wait.waitForElementToLoad(expected, targetWaitTimeInSeconds);
+			expectedElement = Element.findElements(expected);
+		} while (!expectedElement.isExist() && retry > 0);
+
+		Helper.assertTrue("expected element not found", expectedElement.isExist());
+    }
+    
+    /**
      * moves mouse back to original position
      * @param x
      * @param y
