@@ -208,11 +208,10 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 
 	@Override
 	public void scrollToView(int index) {
-		if (!isExist(index)) {
+		if (isExist(index)) {
 			scrollToView_Web(index);
 			//TODO: currently disable, since scroll is only from center
 		//	mobileScroll(index);
-			resetElement();
 		}
 	}
 
@@ -240,7 +239,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 
 			TouchAction action = new TouchAction(Helper.mobile.getAndroidDriver());
 			action.press(PointOption.point(x, y)).moveTo(PointOption.point(x + 90, y)).release().perform();
-			webDriver.manage().timeouts().implicitlyWait(AbstractDriver.TIMEOUT_SECONDS, TimeUnit.SECONDS);
+			webDriver.manage().timeouts().implicitlyWait(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
 		}
 	}
 
@@ -249,10 +248,14 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	 */
 	public void scrollToView_Web(int index) {
 		if (!Helper.mobile.isWebDriver()) return;
-			
+		
+		webDriver.manage().timeouts().implicitlyWait(1, TimeUnit.MILLISECONDS);
+		
 		WebElement element = getElement(index);
 		Actions action = new Actions(AbstractDriver.getWebDriver());
 		action.moveToElement(element);
+		
+		webDriver.manage().timeouts().implicitlyWait(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
 	}
 
 	/**
@@ -267,11 +270,11 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 			isExist = isElementExist(index[0]);
 		} else {
 			isExist = isListExist();
-		}
-		webDriver.manage().timeouts().implicitlyWait(AbstractDriver.TIMEOUT_SECONDS, TimeUnit.SECONDS);
-		
+		}		
 		// reset element if no element found. 
 		if(!isExist) resetElement();
+		
+		webDriver.manage().timeouts().implicitlyWait(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
 		return isExist;
 	}
 
@@ -510,7 +513,6 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	 * @return
 	 */
 	public WebElement getElement(int index) {
-		webDriver.manage().timeouts().implicitlyWait(1, TimeUnit.MILLISECONDS);
 
 		WebElement element;
 
@@ -518,8 +520,6 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 			 element =  getElement().get(0);
 		else
 			element = getElements().get(index);
-		
-		webDriver.manage().timeouts().implicitlyWait(AbstractDriver.TIMEOUT_SECONDS, TimeUnit.SECONDS);
 		return element;
 	}
 	
@@ -559,7 +559,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	public List<WebElement> getElement() {
 		List<WebElement> elements = new ArrayList<WebElement>();
 		if (current != null && !current.isEmpty() ) return this.current;
-		
+
 		// get parent elements if applicable
 		getParentElement();
 		
@@ -635,7 +635,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 			element = elements.get(0);
 		}
 
-		webDriver.manage().timeouts().implicitlyWait(AbstractDriver.TIMEOUT_SECONDS, TimeUnit.SECONDS);
+		webDriver.manage().timeouts().implicitlyWait(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
 		return element;
 	}
 

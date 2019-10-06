@@ -206,7 +206,7 @@ public class AbstractDriverTestNG {
 				driver = new WebDriverSetup().getWebDriverByType(driverObject);
 				
 				// set implicit Wait wait to be the minimum of our explicit wait
-				driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+				driver.manage().timeouts().implicitlyWait(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
 				driver.manage().timeouts().pageLoadTimeout(AbstractDriver.TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
 			} catch (Exception e) {

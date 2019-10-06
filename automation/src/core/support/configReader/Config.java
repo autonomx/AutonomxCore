@@ -9,6 +9,8 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang.StringUtils;
+
 import core.helpers.Helper;
 import core.support.logger.TestLog;
 import core.support.objects.TestObject;
@@ -132,14 +134,14 @@ public class Config {
 	 */
 	public static String getValue(String key, boolean isFailable) {
 
-		String value = TestObject.getTestInfo().config.get(key).toString();
+		Object value = TestObject.getTestInfo().config.get(key);
 		if (value == null) {
 			 if(isFailable) Helper.assertFalse("value not found, default empty: " + key);
 		   	System.out.println("value not found, default empty: " + key);
 			 TestLog.ConsoleLogWarn("value not found, default empty: " + key);
-			value = "";
+			value = StringUtils.EMPTY;
 		}
-		List<String> items = Arrays.asList(value.split("\\s*,\\s*"));
+		List<String> items = Arrays.asList(value.toString().split("\\s*,\\s*"));
 		return items.get(0);
 	}
 	

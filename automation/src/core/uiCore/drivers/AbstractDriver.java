@@ -20,6 +20,8 @@ public class AbstractDriver {
 	 * global timeout in seconds
 	 */
 	public static final int TIMEOUT_SECONDS = CrossPlatformProperties.getGlobalTimeout();
+	public static final int TIMEOUT_IMPLICIT_SECONDS = CrossPlatformProperties.getGlobalTimeoutImplicitWait();
+
 
 	public void setupDriver(DriverObject driverObject) throws Exception {
 		if (isJunit()) {

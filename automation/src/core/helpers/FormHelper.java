@@ -135,7 +135,8 @@ public class FormHelper {
 	 */
 	private void clearField(EnhancedBy field, int index) {
 		EnhancedWebElement fieldElement = Element.findElements(field);
-	
+		Helper.waitForElementToLoad(field);
+			
 		String value = fieldElement.getText(index);
 		if(value.isEmpty()) return;
 		

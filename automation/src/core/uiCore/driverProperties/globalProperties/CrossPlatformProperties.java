@@ -13,6 +13,8 @@ public class CrossPlatformProperties {
 
 	private static String RETRY_COUNT = "global.retryCount";
 	private static String GLOBAL_TIMEOUT_SECONDS = "global.timeoutSeconds";
+	private static String GLOBAL_TIMEOUT_IMPLICIT_SECONDS = "global.timeout.implicit.Seconds";
+
 	private static String AUDIO_COMMENTARY = "report.audioCommentary";
 	private static String IS_SINGLE_SIGNIN = "global.isSingleSignIn";
 	private static String LANGUAGE = "language";
@@ -35,6 +37,10 @@ public class CrossPlatformProperties {
 
 	public static int getGlobalTimeout() {
 		return Config.getIntValue(GLOBAL_TIMEOUT_SECONDS);
+	}
+	
+	public static int getGlobalTimeoutImplicitWait() {
+		return Config.getIntValue(GLOBAL_TIMEOUT_IMPLICIT_SECONDS);
 	}
 
 	public static boolean getAudioCommentary() {
