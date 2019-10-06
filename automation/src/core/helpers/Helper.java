@@ -1726,6 +1726,16 @@ public class Helper {
     public static void quitAllCurrentTestDrivers() {
     	page.quitAllCurrentTestDrivers();
     }
+    
+    /**
+     * returns true if the element is visible in the current page
+     * only for web applications
+     * @param by
+     * @return
+     */
+    public static Boolean isVisibleInViewport(EnhancedBy by) {
+    	return page.isVisibleInViewport(by);
+    }
 
 	/**
 	 * gets specified attribute of the element

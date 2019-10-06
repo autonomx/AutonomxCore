@@ -249,6 +249,9 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	public void scrollToView_Web(int index) {
 		if (!Helper.mobile.isWebDriver()) return;
 		
+		// if visible in view, return
+		if(Helper.isVisibleInViewport(element)) return;
+		
 		webDriver.manage().timeouts().implicitlyWait(1, TimeUnit.MILLISECONDS);
 		
 		WebElement element = getElement(index);

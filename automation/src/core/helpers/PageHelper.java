@@ -8,7 +8,9 @@ import java.util.Set;
 
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.Dimension;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.remote.RemoteWebElement;
 
 import core.support.logger.TestLog;
 import core.support.objects.DriverObject;
@@ -404,5 +406,28 @@ public class PageHelper {
     public void quitAllCurrentTestDrivers() {
     	DriverObject.quitTestDrivers();
     }
-
+    
+    /**
+     * returns true if the element is visible in the current page
+     * only for web applications
+     * @param by
+     * @return
+     */
+    public Boolean isVisibleInViewport(EnhancedBy by) {
+    	  if(!Helper.isWebDriver()) return false;
+    	  
+		  EnhancedWebElement targetElement = Element.findElements(by);
+    	  return (Boolean)((JavascriptExecutor) AbstractDriver.getWebDriver()).executeScript(
+    	      "var elem = arguments[0],                 " +
+    	      "  box = elem.getBoundingClientRect(),    " +
+    	      "  cx = box.left + box.width / 2,         " +
+    	      "  cy = box.top + box.height / 2,         " +
+    	      "  e = document.elementFromPoint(cx, cy); " +
+    	      "for (; e; e = e.parentElement) {         " +
+    	      "  if (e === elem)                        " +
+    	      "    return true;                         " +
+    	      "}                                        " +
+    	      "return false;                            "
+    	      , targetElement.get(0));
+    	}
 }
