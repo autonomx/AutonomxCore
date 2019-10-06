@@ -1,6 +1,6 @@
 package core.helpers;
 
-import org.junit.Assert;
+import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
 import core.support.logger.TestLog;
@@ -14,15 +14,15 @@ public class AssertHelper {
 	 * @param value
 	 */
 	protected static void assertTrue(String message, boolean value) {
-		Assert.assertTrue(message, value);
+		Assert.assertTrue(value, message);
 	}
 
 	protected static void assertFalse(String message) {
-		Assert.assertTrue(message, false);
+		Assert.assertTrue(false, message);
 	}
 	
 	protected static void assertFalse(String message, boolean value) {
-		Assert.assertTrue(message, !value);
+		Assert.assertTrue(!value, message);
 	}
 
 	protected static void assertEquals(String expected, String actual) {

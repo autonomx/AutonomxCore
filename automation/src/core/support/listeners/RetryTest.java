@@ -105,8 +105,8 @@ public class RetryTest implements IRetryAnalyzer {
 		logError("run " + (TestObject.getTestInfo().runCount) + " failed");
 		
 		if (TestObject.getTestInfo().runCount == maxRetryCount + 1) {
-			logReport(ReportType.fail, "giving up after " + maxRetryCount + " failures", null);
-			logError("giving up after " + maxRetryCount + " failures");
+			logReport(ReportType.fail, "giving up after " + (maxRetryCount + 1) + " failures", null);
+			logError("giving up after " + (maxRetryCount + 1) + " failures");
 		}
 		
 		return maxRetryCount;

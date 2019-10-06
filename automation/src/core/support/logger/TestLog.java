@@ -202,14 +202,14 @@ public class TestLog {
 	 * @param subStep the substep node value
 	 */
 	public static void setPassSubTestStep(String subStep) {
-		if(AbstractDriver.getStep().get() == null) return;
+		if(getTestStep() == null) return;
 		testState state = TestObject.getTestState(TestObject.getTestInfo().testId);
 		if (!state.equals(testState.testMethod))
 			return;
 		
 		TestObject.getTestInfo().testSubSteps.add(subStep);
 		Markup m = MarkupHelper.createCodeBlock(subStep);
-		AbstractDriver.getStep().get().pass(m);
+		getTestStep().pass(m);
 	}
 	
 	/**
@@ -234,9 +234,9 @@ public class TestLog {
 				"</video>" ;
 		
 		if(isVideoAttached)
-			AbstractDriver.getStep().get().pass(videoLog);
+			getTestStep().pass(videoLog);
 		
-		AbstractDriver.getStep().get().pass("<a href='"+path+"'>screen recording Link</a>");		
+		getTestStep().pass("<a href='"+path+"'>screen recording Link</a>");		
 		TestObject.getTestInfo().testSubSteps.add("screen recording relative path: " + path);
 			
 	}
@@ -274,7 +274,7 @@ public class TestLog {
 	 */
 	public static void logWarning(String value, Object... args) {
 		logConsoleMessage(Priority.WARN, formatMessage(value, args));
-		AbstractDriver.getStep().get().warning(formatMessage(value, args));
+		getTestStep().warning(formatMessage(value, args));
 	}
 
 	/**
@@ -467,6 +467,10 @@ public class TestLog {
 	 */
 	private static String getTestLogPrefix() {
 		return TestObject.getTestInfo().className + "-" + TestObject.getTestInfo().testName + " - ";
+	}
+	
+	private synchronized static ExtentTest getTestStep() {
+		return AbstractDriver.getStep().get();
 	}
 
 	/**
