@@ -14,11 +14,11 @@ public class ElementActionHelper {
 	 * 
 	 * @param by
 	 */
-	protected static void hoverBy(EnhancedBy by) {
+	protected static void hoverBy(EnhancedBy by, int index) {
 
 		Actions actions = new Actions(AbstractDriver.getWebDriver());
 		EnhancedWebElement targetElement = Element.findElements(by);
-		actions.moveToElement(targetElement.get(0)).build().perform();
+		actions.moveToElement(targetElement.get(index)).build().perform();
 		Helper.waitForSeconds(0.5);
 	}
 

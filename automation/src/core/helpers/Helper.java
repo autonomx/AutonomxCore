@@ -2547,7 +2547,16 @@ public class Helper {
 	 * @param by
 	 */
 	public static void hoverBy(EnhancedBy by) {
-		ElementActionHelper.hoverBy(by);
+		ElementActionHelper.hoverBy(by, 0);
+	}
+	
+	/**
+	 * hover over element
+	 * 
+	 * @param by
+	 */
+	public static void hoverBy(EnhancedBy by, int index) {
+		ElementActionHelper.hoverBy(by, index);
 	}
 	
 	/*
