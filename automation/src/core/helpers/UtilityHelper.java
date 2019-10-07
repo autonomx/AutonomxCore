@@ -208,37 +208,35 @@ public class UtilityHelper {
 	    return results;
 	}
 	
-	private static ArrayList<String> runCommand(String... command) {
+	private static ArrayList<String> runCommand(String... cmd) {
 		ArrayList<String> results = new ArrayList<String>();
+		Process pr = null;
+		boolean success = false;
+		int retry = 3;
+		String path = CrossPlatformProperties.getPath();
+		String[] env = {"PATH=" + path };
 
-	    try {
-	        ProcessBuilder builder = new ProcessBuilder(command);
-	        // Share standard input/output/error descriptors with Java process...
-	        builder.inheritIO();
-	        // ... except standard output, so we can read it with getInputStream().
-	        builder.redirectOutput(ProcessBuilder.Redirect.PIPE);
-
-	        Process p = builder.start();
-
-	        try (BufferedReader reader =
-	            new BufferedReader(new InputStreamReader(p.getInputStream()))) {
-
-	            String line = "";
-	            while ((line = reader.readLine()) != null) {
-	            	results.add(line);
-	            }
-	        }
-
-	        p.waitFor();
-
-	    } catch (IOException | InterruptedException e) {
-			System.out.println("command:  '" + command + "' output: " + e.getMessage());
-	    }
-	    
-	    if (results.isEmpty())
-			System.out.println(
-					"command:  '" + Arrays.toString(command) + "' did not return results. please check your path at resourced -> properties -> environment.property");
-
+		do {
+			retry--;
+			try {
+				Runtime run = Runtime.getRuntime();
+				pr = run.exec(cmd, env);
+				pr.waitFor();
+				BufferedReader buf = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+				String line;
+				while ((line = buf.readLine()) != null) {
+					results.add(line);
+				}
+				success = true;
+ 			} catch (Exception e) {
+				TestLog.ConsoleLogDebug("shell command:  '" + cmd + "' output: " + e.getMessage());
+			} finally {
+				if (pr != null)
+					pr.destroy();
+			}
+		} while (!success && retry > 0);
+		if(results.isEmpty())
+			TestLog.ConsoleLogDebug("shell command:  '" + cmd + "' did not return results. please check your path: " + path);
 		return results;
 	}
 
