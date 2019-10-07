@@ -7,7 +7,6 @@ import org.openqa.selenium.Point;
 import core.support.logger.TestLog;
 import core.uiCore.webElement.EnhancedBy;
 import core.uiCore.webElement.EnhancedWebElement;
-import module.framework.panel.LoginPanel;
 
 /**
  * app page is parent class of different apps
