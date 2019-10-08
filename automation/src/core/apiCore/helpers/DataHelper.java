@@ -318,6 +318,8 @@ public class DataHelper {
 			Helper.assertTrue("value is not empty", responseString.isEmpty());
 			break;
 		default:
+			Helper.assertFalse("Command not set. Options: hasItems, equalTo,"
+					+ " contains, containsInAnyOrder, nodeSizeGreaterThan, nodeSizeExact, sequence, isNotEmpty, isEmpty. See examples for usage.");
 			break;
 		}
 	}
@@ -329,14 +331,7 @@ public class DataHelper {
 	 * @return
 	 */
 	public static String listToString(List<String> values) {
-		String result = "";
-		for (Object val : values) {
-			String value = Objects.toString(val, "");
-			result = result + value;
-			if (values.size() > 1)
-				result += ",";
-		}
-		return result;
+		return StringUtils.join(values, ",");
 	}
 	
 	public static List<String> splitRight(String value, String regex, int limit) {

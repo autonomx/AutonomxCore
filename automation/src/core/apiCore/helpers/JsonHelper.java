@@ -52,6 +52,11 @@ public class JsonHelper {
 
 		List<KeyValue> keywords = DataHelper.getValidationMap(keyValue);
 		for (KeyValue keyword : keywords) {
+			
+			// fail if value is wrong format
+			if(!keyword.value.toString().startsWith("<") || !keyword.value.toString().contains("$")|| !keyword.value.toString().endsWith(">"))
+				Helper.assertFalse("variable placement must of format <$variable>: " + keyword.value.toString());
+			
 			String key = (String) keyword.value;
 			key = key.replace("$", "").replace("<", "").replace(">", "").trim();
 			// gets json value. if list, returns string separated by comma
@@ -96,9 +101,15 @@ public class JsonHelper {
 	 */
 	public static String getJsonValue(String json, String path) {
 		String value = StringUtils.EMPTY;
-
+		List<String> values = new ArrayList<String>();
+		
 		ReadContext ctx = JsonPath.parse(json);
-		List<String> values = ctx.read("$." + path);
+		
+		try {
+			values = ctx.read("$." + path);
+		}catch(Exception e) {
+			value = ctx.read("$." + path);
+		}
 
 		if (values != null && !values.isEmpty())
 			value = DataHelper.listToString(values);
@@ -227,13 +238,17 @@ public class JsonHelper {
 	 * @param test
 	 * @return
 	 */
-	public static boolean isJSONValid(String test) {
+	public static boolean isJSONValid(String test, boolean printError) {
+		String error = StringUtils.EMPTY;
 		try {
 			new JSONObject(test);
 		} catch (JSONException ex) {
 			try {
+				error = ex.getMessage();
 				new JSONArray(test);
 			} catch (JSONException ex1) {
+				if(error.isEmpty()) error = ex1.getMessage();
+				if(printError) TestLog.ConsoleLog("Invalid Json error: " + error);
 				return false;
 			}
 		}
@@ -246,13 +261,12 @@ public class JsonHelper {
 	 * @param expectedJson
 	 * @param actualJson
 	 */
-	public static void validateByJsonBody(String expectedJson, Response response) {
-		expectedJson = Helper.stringNormalize(expectedJson);
-		if (JsonHelper.isJSONValid(expectedJson)) {
+	public static void validateByJsonBody(String expectedJson, String response) {
+		expectedJson = Helper.stringRemoveLines(expectedJson);
+		if (JsonHelper.isJSONValid(expectedJson, true)) {
 			TestLog.logPass("expected: " + Helper.stringRemoveLines(expectedJson));
-			String body = response.getBody().asString();
 			try {
-				JSONAssert.assertEquals(expectedJson, body, JSONCompareMode.LENIENT);
+				JSONAssert.assertEquals(expectedJson, response, JSONCompareMode.LENIENT);
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
@@ -260,7 +274,7 @@ public class JsonHelper {
 	}
 
 	public static boolean isValidExpectation(String expectedJson) {
-		if (JsonHelper.isJSONValid(expectedJson)) {
+		if (JsonHelper.isJSONValid(expectedJson, false)) {
 			return true;
 		}
 		expectedJson = Helper.stringNormalize(expectedJson);
@@ -279,7 +293,7 @@ public class JsonHelper {
 	 */
 	public static void validateByKeywords(String expectedJson, Response response) {
 		expectedJson = Helper.stringNormalize(expectedJson);
-		if (!JsonHelper.isJSONValid(expectedJson)) {
+		if (!JsonHelper.isJSONValid(expectedJson, false)) {
 			if (expectedJson.startsWith(DataHelper.VERIFY_JSON_PART_INDICATOR)) {
 				// get hashmap of json path And verification
 				List<KeyValue> keywords = DataHelper.getValidationMap(expectedJson);

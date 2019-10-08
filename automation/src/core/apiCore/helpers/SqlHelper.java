@@ -200,6 +200,6 @@ public class SqlHelper {
 	 */
 	public static boolean isValidJson(String expected) {
 		String value = StringUtils.substringAfter(expected, ":");
-		return JsonHelper.isJSONValid(value);
+		return JsonHelper.isJSONValid(value, false);
 	}
 }

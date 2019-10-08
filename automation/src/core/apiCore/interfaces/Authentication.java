@@ -118,7 +118,7 @@ public class Authentication {
 			String[] criteria = apiObject.getExpectedResponse().split("&&");
 			for (String criterion : criteria) {
 				Helper.assertTrue("expected is not valid format: " + criterion, JsonHelper.isValidExpectation(criterion));
-				JsonHelper.validateByJsonBody(criterion, response);
+				JsonHelper.validateByJsonBody(criterion, response.getBody().asString());
 				JsonHelper.validateByKeywords(criterion, response);
 			}
 		}
