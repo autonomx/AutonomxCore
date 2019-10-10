@@ -32,12 +32,12 @@ public class AssertHelper {
 	
 	protected static void assertEquals(boolean expected, boolean actual) {
 		TestLog.logPass("validating if expected: " + expected + " equals to actual: " + actual);
-		Assert.assertEquals(expected, actual);
+		Assert.assertEquals(actual, expected);
 	}
 
 	protected static void assertEquals(int expected, int actual) {
 		TestLog.logPass("validating if expected: " + expected + " equals to actual: " + actual);
-		Assert.assertEquals(expected, actual);
+		Assert.assertEquals(actual, expected);
 	}
 	
 	protected static void softAssertTrue(String message, boolean value) {

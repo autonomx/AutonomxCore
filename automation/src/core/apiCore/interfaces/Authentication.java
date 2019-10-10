@@ -32,6 +32,9 @@ public class Authentication {
 		
 		if(apiObject == null) Helper.assertFalse("apiobject is null");
 		
+		// set timeout from api config
+		RestApiInterface.setTimeout();
+		
 		// set proxy from config file
 		RestApiInterface.setProxy();
 		

@@ -5,6 +5,9 @@ import static io.restassured.RestAssured.given;
 import java.io.File;
 import java.util.List;
 
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.impl.client.HttpClientBuilder;
+
 import core.apiCore.helpers.DataHelper;
 import core.apiCore.helpers.JsonHelper;
 import core.helpers.Helper;
@@ -14,6 +17,7 @@ import core.support.objects.KeyValue;
 import core.support.objects.ServiceObject;
 import io.restassured.RestAssured;
 import io.restassured.authentication.AuthenticationScheme;
+import io.restassured.config.HttpClientConfig;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
@@ -32,7 +36,10 @@ public class RestApiInterface {
 		
 		if(apiObject == null) Helper.assertFalse("apiobject is null");
 		
-		// set proxy from config
+		// set timeout from api config
+		setTimeout();
+		
+		// set proxy from api config
 		setProxy();
 		
 		// replace parameters for request body
@@ -69,6 +76,30 @@ public class RestApiInterface {
 			RestAssured.baseURI = Helper.stringRemoveLines(Config.getValue("api.uriPath"));
 			TestLog.logPass("request URI: " + RestAssured.baseURI + apiObject.getUriPath());
 		}
+	}
+	
+	/**
+	 * set connection timeout in milliseconds
+	 */
+	public static void setTimeout() {
+		int connectTimeout = Config.getIntValue("api.timeout.connect");
+		int connectionRequestTimeout = Config.getIntValue("api.timeout.connection.request");
+		int socketTimeout = Config.getIntValue("api.timeout.socket");
+
+		RequestConfig requestConfig = RequestConfig.custom()
+			    .setConnectTimeout(connectTimeout)
+			    .setConnectionRequestTimeout(connectionRequestTimeout)
+			    .setSocketTimeout(socketTimeout)
+			    .build();
+
+			HttpClientConfig httpClientFactory = HttpClientConfig.httpClientConfig()
+			    .httpClientFactory(() -> HttpClientBuilder.create()
+			        .setDefaultRequestConfig(requestConfig)
+			        .build());
+
+			RestAssured.config = RestAssured
+				    .config()
+				    .httpClient(httpClientFactory);
 	}
 	
 	/**
