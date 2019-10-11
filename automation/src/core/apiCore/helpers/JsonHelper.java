@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.hamcrest.Matchers;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
-import org.skyscreamer.jsonassert.JSONAssert;
+import org.skyscreamer.jsonassert.JSONCompare;
 import org.skyscreamer.jsonassert.JSONCompareMode;
+import org.skyscreamer.jsonassert.JSONCompareResult;
 
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
@@ -208,7 +208,8 @@ public class JsonHelper {
 	 * @param jsonMap
 	 * @param response
 	 */
-	public static void validateJsonKeywords(List<KeyValue> keywords, Response response) {
+	public static List<String> validateJsonKeywords(List<KeyValue> keywords, Response response) {
+		List<String> errorMessages = new ArrayList<String>();
 		for (KeyValue keyword : keywords) {
 			String jsonPath = Helper.stringNormalize(keyword.key);
 			String expectedValue = Helper.stringNormalize((String) keyword.value);
@@ -228,8 +229,10 @@ public class JsonHelper {
 			String responseString = getJsonValue(response, jsonPath);
 
 			// validate response
-			DataHelper.validateCommand(command, responseString, expectedValue, keyword.position);
+			String errorMessage =  DataHelper.validateCommand(command, responseString, expectedValue, keyword.position);
+			errorMessages.add(errorMessage);
 		}
+		return errorMessages;
 	}
 
 	/**
@@ -260,17 +263,23 @@ public class JsonHelper {
 	 * 
 	 * @param expectedJson
 	 * @param actualJson
+	 * @return 
 	 */
-	public static void validateByJsonBody(String expectedJson, String response) {
+	public static String validateByJsonBody(String expectedJson, String response) {
 		expectedJson = Helper.stringRemoveLines(expectedJson);
 		if (JsonHelper.isJSONValid(expectedJson, true)) {
 			TestLog.logPass("expected: " + Helper.stringRemoveLines(expectedJson));
 			try {
-				JSONAssert.assertEquals(expectedJson, response, JSONCompareMode.LENIENT);
+				JSONCompareResult result = JSONCompare.compareJSON(expectedJson, response, JSONCompareMode.LENIENT);
+				 if (result.failed()) {
+					 return result.getMessage();
+				 }
+				//JSONAssert.assertEquals(expectedJson, response, JSONCompareMode.LENIENT);
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
 		}
+		return StringUtils.EMPTY;
 	}
 
 	public static boolean isValidExpectation(String expectedJson) {
@@ -291,21 +300,25 @@ public class JsonHelper {
 	 * @param expectedJson
 	 * @param response
 	 */
-	public static void validateByKeywords(String expectedJson, Response response) {
+	public static List<String> validateByKeywords(String expectedJson, Response response) {
+		List<String> errorMessages = new ArrayList<String>();
+		
 		expectedJson = Helper.stringNormalize(expectedJson);
 		if (!JsonHelper.isJSONValid(expectedJson, false)) {
 			if (expectedJson.startsWith(DataHelper.VERIFY_JSON_PART_INDICATOR)) {
 				// get hashmap of json path And verification
 				List<KeyValue> keywords = DataHelper.getValidationMap(expectedJson);
 				// validate based on keywords
-				JsonHelper.validateJsonKeywords(keywords, response);
-
+				errorMessages = JsonHelper.validateJsonKeywords(keywords, response);
+				
 				// response is not empty
 			} else if (expectedJson.startsWith("_NOT_EMPTY_")) {
-				Helper.assertTrue("response is empty", response != null);
-				response.then().body("isEmpty()", Matchers.is(false));
+				String resonseBody = response.getBody().asString();
+				if(response == null || resonseBody.isEmpty())
+					errorMessages.add("response is empty");
 			}
 		}
+		return errorMessages;
 	}
 
 	/**
@@ -313,10 +326,11 @@ public class JsonHelper {
 	 * 
 	 * @param expected
 	 * @param response
+	 * @return 
 	 */
-	public static void validateResponseBody(String expected, Response response) {
+	public static String validateResponseBody(String expected, Response response) {
 		if (!expected.startsWith(DataHelper.VERIFY_RESPONSE_BODY_INDICATOR)) {
-			return;
+			return StringUtils.EMPTY;
 		}
 		// remove the indicator _VERIFY.RESPONSE.BODY_
 		expected = removeResponseIndicator(expected);
@@ -327,7 +341,7 @@ public class JsonHelper {
 		String command = expectedArr[0].trim();
 		String expectedValue = expectedArr[1].trim();
 
-		DataHelper.validateCommand(command, actual, expectedValue, "1");
+		return DataHelper.validateCommand(command, actual, expectedValue, "1");
 
 	}
 

@@ -3,14 +3,17 @@ package core.apiCore.interfaces;
 import static io.restassured.RestAssured.given;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.commons.lang.StringUtils;
 
 import core.apiCore.helpers.DataHelper;
 import core.apiCore.helpers.JsonHelper;
 import core.helpers.Helper;
+import core.helpers.StopWatchHelper;
 import core.support.configReader.Config;
 import core.support.logger.TestLog;
 import core.support.objects.KeyValue;
@@ -18,6 +21,7 @@ import core.support.objects.ServiceObject;
 import io.restassured.RestAssured;
 import io.restassured.authentication.AuthenticationScheme;
 import io.restassured.config.HttpClientConfig;
+import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
@@ -48,11 +52,54 @@ public class RestApiInterface {
 		// set base uri
 		setURI(apiObject);
 
-		// send request And receive a response
-		Response response = evaluateRequest(apiObject);
+		// send request and evaluate response
+		Response response = evaluateRequestAndValidateResponse(apiObject);
+		
+		return response;
+	}
+	
+	/**
+	 * evaluate request and validate response
+	 * retry until validation timeout period in seconds
+	 * @param apiObject
+	 * @return
+	 */
+	public static Response evaluateRequestAndValidateResponse(ServiceObject apiObject) {
+		List<String> errorMessages = new ArrayList<String>();
+		Response response = null;
 
-		// validate the response
-		validateResponse(response, apiObject);
+		StopWatchHelper watch = StopWatchHelper.start();
+		long passedTimeInSeconds = 0;
+		
+		boolean isValidationTimeout = Config.getBooleanValue("api.timeout.validation.isEnabled");
+		int maxRetrySeconds = Config.getIntValue("api.timeout.validation.seconds");
+		int currentRetryCount = 0;
+		
+		do {
+			// send request And receive a response
+			response = evaluateRequest(apiObject);
+
+			// validate the response
+			errorMessages = validateResponse(response, apiObject);
+
+			passedTimeInSeconds = watch.time(TimeUnit.SECONDS);
+			
+			// if validation timeout is not enabled, break out of the loop
+			if(!isValidationTimeout) break;
+			
+			if(currentRetryCount > 0) {
+				Helper.waitForSeconds(1);
+				String errors = StringUtils.join(errorMessages, "\n error: ");
+				TestLog.ConsoleLog("attempt 1 failed with message: " + errors);
+				TestLog.ConsoleLog("attempt #" + (currentRetryCount + 1));
+
+			}
+			currentRetryCount++;
+			
+		} while (!errorMessages.isEmpty() && passedTimeInSeconds < maxRetrySeconds);
+
+		if (!errorMessages.isEmpty())
+			Helper.assertFalse(StringUtils.join(errorMessages, "\n error: "));
 
 		return response;
 	}
@@ -82,24 +129,12 @@ public class RestApiInterface {
 	 * set connection timeout in milliseconds
 	 */
 	public static void setTimeout() {
-		int connectTimeout = Config.getIntValue("api.timeout.connect");
-		int connectionRequestTimeout = Config.getIntValue("api.timeout.connection.request");
-		int socketTimeout = Config.getIntValue("api.timeout.socket");
+		int connectTimeout = Config.getIntValue("api.timeout.connect.seconds");
 
-		RequestConfig requestConfig = RequestConfig.custom()
-			    .setConnectTimeout(connectTimeout)
-			    .setConnectionRequestTimeout(connectionRequestTimeout)
-			    .setSocketTimeout(socketTimeout)
-			    .build();
-
-			HttpClientConfig httpClientFactory = HttpClientConfig.httpClientConfig()
-			    .httpClientFactory(() -> HttpClientBuilder.create()
-			        .setDefaultRequestConfig(requestConfig)
-			        .build());
-
-			RestAssured.config = RestAssured
-				    .config()
-				    .httpClient(httpClientFactory);
+		RestAssured.config = RestAssuredConfig.config().httpClient(HttpClientConfig.httpClientConfig().
+		        setParam("http.connection.timeout", connectTimeout * 1000).
+		        setParam("http.socket.timeout", connectTimeout * 1000).
+		        setParam("http.connection-manager.timeout", connectTimeout * 1000));
 	}
 	
 	/**
@@ -116,30 +151,44 @@ public class RestApiInterface {
 			RestAssured.proxy(port);
 	}
 
-	public static void validateResponse(Response response, ServiceObject apiObject) {
-
+	public static List<String> validateResponse(Response response, ServiceObject apiObject) {
+		
+		List<String> errorMessages = new ArrayList<String>();
+		
 		// fail test if no response is returned
-		if (response == null)
-			Helper.assertTrue("no response returned", false);
+		if (response == null) {
+			errorMessages.add("no response returned");
+			return errorMessages;
+		}
 		
 		// saves response values to config object
 		JsonHelper.saveOutboundJsonParameters(response, apiObject.getOutputParams());
 
 		// validate status code
 		if (!apiObject.getRespCodeExp().isEmpty()) {
-			TestLog.logPass("expected status code: " + apiObject.getRespCodeExp() + " response status code: "
-					+ response.getStatusCode());
-			response.then().statusCode(Integer.valueOf(apiObject.getRespCodeExp()));
-		}
+			String message = "expected status code: " + apiObject.getRespCodeExp() + " response status code: "
+					+ response.getStatusCode();
+			TestLog.logPass(message);
+			if(response.getStatusCode() != Integer.valueOf(apiObject.getRespCodeExp())) {
+				errorMessages.add(message);
+				return errorMessages;
+			}
 
-		validateExpectedValues(response, apiObject);
+		}
+		errorMessages = validateExpectedValues(response, apiObject);
+		
+		// remove all empty response strings
+		errorMessages.removeAll(Collections.singleton(""));
+		
+		return errorMessages;
 	}
 
-	public static void validateExpectedValues(Response response, ServiceObject apiObject) {
+	public static List<String> validateExpectedValues(Response response, ServiceObject apiObject) {
+		List<String> errorMessages = new ArrayList<String>();
 		// get response body as string
 		String body = response.getBody().asString();
 		TestLog.logPass("response: " + body);
-
+		
 		// validate response body against expected json string
 		if (!apiObject.getExpectedResponse().isEmpty()) {
 			apiObject.withExpectedResponse(DataHelper.replaceParameters(apiObject.getExpectedResponse()));
@@ -148,11 +197,12 @@ public class RestApiInterface {
 			String[] criteria = apiObject.getExpectedResponse().split("&&");
 			for (String criterion : criteria) {
 				Helper.assertTrue("expected is not valid format: " + criterion, JsonHelper.isValidExpectation(criterion));
-				JsonHelper.validateByJsonBody(criterion, response.getBody().asString());
-				JsonHelper.validateByKeywords(criterion, response);
-				JsonHelper.validateResponseBody(criterion, response);
+				errorMessages.add(JsonHelper.validateByJsonBody(criterion, response.getBody().asString()));
+				errorMessages.addAll(JsonHelper.validateByKeywords(criterion, response));
+				errorMessages.add(JsonHelper.validateResponseBody(criterion, response));
 			}
-		}
+		}	
+		return errorMessages;
 	}
 	
 	/**
