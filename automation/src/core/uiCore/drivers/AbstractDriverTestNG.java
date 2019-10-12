@@ -1,8 +1,6 @@
 package core.uiCore.drivers;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
@@ -38,17 +36,19 @@ public class AbstractDriverTestNG {
 	public static ExtentReports extent;
 	public static ThreadLocal<ExtentTest> step = new ThreadLocal<ExtentTest>();
 
-	public static Map<String, ExtentTest> classList = new HashMap<String, ExtentTest>();
-
 	private static ThreadLocal<WebDriver> webDriver = new ThreadLocal<WebDriver>();
+	
+	private static ThreadLocal<String> testClassname = new ThreadLocal<String>();
+
 
 	public RetryTest retry = new RetryTest();
 
 	public AbstractDriverTestNG() {
 
 	}
-
+	
 	public void setupApiDriver(ServiceObject apiObject) throws Exception {
+		apiObject.withParentClass(testClassname.get());
 		new ApiTestDriver().initTest(apiObject);
 
 		// initiallize logging
@@ -194,6 +194,7 @@ public class AbstractDriverTestNG {
 
 	private String getClassName() {
 		String className = getClass().toString().substring(getClass().toString().lastIndexOf(".") + 1);
+		testClassname.set(className);
 		return className;
 	}
 

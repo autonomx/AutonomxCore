@@ -50,6 +50,7 @@ public class ApiTestDriver {
 		// all api tests in the same class share the same config. each csv file is one
 		// class based on csv file name
 		String classname = getTestClass(apiObject);
+		classname = apiObject.getParentClass() + "-" + classname + TestObject.BEFORE_METHOD_PREFIX;
 		TestObject.initializeTest(classname);
 
 		// initialize once per test

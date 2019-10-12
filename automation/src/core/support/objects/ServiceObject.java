@@ -25,7 +25,8 @@ public class ServiceObject {
 	private String tcName = StringUtils.EMPTY;
 	private String tcIndex = StringUtils.EMPTY;
 	private String tcClass = StringUtils.EMPTY;
-
+	private String parentClass = StringUtils.EMPTY; // name of the test class. eg. ServiceTestRunner
+	
 	public ServiceObject setApiObject(String TestSuite, String TestCaseID, String RunFlag, String Description,
 			String InterfaceType, String UriPath, String ContentType, String Method, String Option,
 			String RequestHeaders, String TemplateFile, String RequestBody, String OutputParams, String RespCodeExp,
@@ -130,6 +131,15 @@ public class ServiceObject {
 	public ServiceObject withOption(String Option){
 		this.Option = Option;
 		return this;
+	}
+	
+	public ServiceObject withParentClass(String parentClass){
+		this.parentClass = parentClass;
+		return this;
+	}
+	
+	public String getParentClass(){
+		return this.parentClass;
 	}
 	
 	public String getOption(){

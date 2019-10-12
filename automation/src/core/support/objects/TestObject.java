@@ -47,6 +47,7 @@ public class TestObject{
 	public static String AFTER_SUITE_PREFIX = "-Aftersuite";
 	public static String BEFORE_CLASS_PREFIX = "-Beforeclass";
 	public static String AFTER_CLASS_PREFIX = "-Afterclass";
+	public static String BEFORE_METHOD_PREFIX = "-Beforemethod";
 	public static String DATAPROVIDER_TEST_SUFFIX = "-test";
 
 	public static final String DEFAULT_TEST = "Autonomx-default";
@@ -164,6 +165,12 @@ public class TestObject{
 	 * before suite -> before class -> test method
 	 * before suite -> before class -> after class
 	 * before suite -> after suite
+	 * 
+	 * Service test hierarchy:
+	 * before suite -> before class -> csv file name object -> csv tests
+	 * before suite -> before class -> after class
+	 * before suite -> after suite
+	 * note: before method inheritance not supported
 	 * @return 
 	 */
 	public static TestObject inheritParent(DriverObject driver, String testId) {
@@ -193,7 +200,12 @@ public class TestObject{
 		String testName = testValues[0];
 		
 		// service level tests are handled in ApiTestDriver
-		if(driver.app.equals(TEST_APP_API)) return new TestObject();
+		// except for setting inheritance of test object with csv file name from before class
+		// eg. ApiRunnerTest-UserValidation-beforemethod inherits from ApiRunnerTest-Beforeclass
+		//	UserValidation: is csv file name
+		if(driver.app.equals(TEST_APP_API) && !testId.contains(BEFORE_METHOD_PREFIX)) {
+			return new TestObject();
+		}
 		
 		// if default test, return itself. Not gaining from other test objects
 		if(testId.equals(TestObject.DEFAULT_TEST)) return new TestObject();
