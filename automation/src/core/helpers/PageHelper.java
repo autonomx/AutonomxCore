@@ -413,6 +413,16 @@ public class PageHelper {
      * @return
      */
     public Boolean isVisibleInViewport(EnhancedBy by) {
+    	return isVisibleInViewport(by, 0);
+    }
+    
+    /**
+     * returns true if the element is visible in the current page
+     * only for web applications
+     * @param by
+     * @return
+     */
+    public Boolean isVisibleInViewport(EnhancedBy by, int index) {
     	  if(!Helper.isWebDriver()) return false;
     	  
 		  EnhancedWebElement targetElement = Element.findElements(by);
@@ -427,6 +437,6 @@ public class PageHelper {
     	      "    return true;                         " +
     	      "}                                        " +
     	      "return false;                            "
-    	      , targetElement.get(0));
+    	      , targetElement.get(index));
     	}
 }

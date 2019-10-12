@@ -30,6 +30,8 @@ public class FormHelper {
 	 * @param value
 	 */
 	public void clearAndSetField(EnhancedBy field, int index, CharSequence... value) {
+		if(value.length == 0) return;
+		
 		clearField(field, index);
 		setField(field, index, value);
 	}
@@ -51,6 +53,8 @@ public class FormHelper {
 	 * @param value
 	 */
 	public void setField(EnhancedBy field, int index, CharSequence... value) {
+		if(value.length == 0) return;
+		
 		TestLog.logPass("I set field '" + field.name + "' with value '" + Arrays.toString(value) + "'");
 
 		if (!StringUtils.isBlank(value.toString())) {
@@ -83,6 +87,8 @@ public class FormHelper {
 	 * @param value
 	 */
 	public void setFieldByAction(EnhancedBy field, int index, CharSequence... value) {
+		if(value.length == 0) return;
+		
 		TestLog.logPass("I set field '" + field.name + "' with value '" + Arrays.toString(value) + "'");
 
 		if (!StringUtils.isBlank(value.toString())) {
@@ -112,6 +118,8 @@ public class FormHelper {
 	 * @param value
 	 */
 	public void setFieldByJs(EnhancedBy field, int index, CharSequence... value) {
+		if(value.length == 0) return;
+
 		TestLog.logPass("I set field '" + field.name + "' with value '" + Arrays.toString(value) + "'");
 
 		if (!StringUtils.isBlank(value.toString())) {
@@ -174,6 +182,9 @@ public class FormHelper {
 	 */
 	public void setKeyChildField(EnhancedBy parent, int parentIndex, EnhancedBy child, int childIndex,
 			CharSequence... value) {
+		
+		if(value.length == 0) return;
+
 		TestLog.logPass("I set field '" + child.name + "' with value '" + Arrays.toString(value) + "'");
 
 		if (value != null && value.length != 0) {
@@ -194,6 +205,8 @@ public class FormHelper {
 	 * @param value
 	 */
 	public void setFieldAndEnter(EnhancedBy field, CharSequence... value) {
+		if(value.length == 0) return;
+
 		setField(field, value);
 
 		pressEnterOnWeb(field);
@@ -285,6 +298,8 @@ public class FormHelper {
 	 * @param list
 	 */
 	public void selectDropDownWithDoubleClick(String option, EnhancedBy field, int index, EnhancedBy list) {
+		if(option.isEmpty()) return;
+		
 		TestLog.logPass("I select drop down option '" + option + "'");
 
 		if (option != null && !option.isEmpty()) {
@@ -305,6 +320,9 @@ public class FormHelper {
 	 *            : the list items in the drop down list
 	 */
 	public void selectDropDown(String option, EnhancedBy field, EnhancedBy list) {
+		
+		if(StringUtils.isBlank(option)) return;
+
 		TestLog.logPass("I select drop down option '" + option + "'");
 
 		if (option != null && !option.isEmpty()) {
@@ -322,11 +340,12 @@ public class FormHelper {
 	 * @param list
 	 */
 	public void selectDropDown(String option, EnhancedBy field, String field_Identifier, EnhancedBy list) {
-		if (option != null && !option.isEmpty()) {
-			Helper.list.selectListItemContainsByName(field, field_Identifier);
-			Helper.list.selectListItemEqualsByName(list, option);
+		
+		if(StringUtils.isBlank(option)) return;
 
-		}
+		Helper.list.selectListItemContainsByName(field, field_Identifier);
+		Helper.list.selectListItemEqualsByName(list, option);
+
 	}
 
 	/**
@@ -392,12 +411,11 @@ public class FormHelper {
 	 * @param index
 	 * @param list
 	 */
-	public void selectDropDown(String option, EnhancedBy field, int index, EnhancedBy list) {
+	public void selectDropDown(String option, EnhancedBy field, int index, EnhancedBy list) {		
+			if(StringUtils.isBlank(option)) return;
 
-		if (option != null && !option.isEmpty()) {
 			Helper.click.clickAndExpect(field, index, list, true);
 			Helper.list.selectListItemEqualsByName(list, option);
-		}
 	}
 
 	/**
@@ -411,13 +429,12 @@ public class FormHelper {
 	 * @param listIndex
 	 */
 	public void selectDropDown(String option, EnhancedBy field, EnhancedBy list, int listIndex) {
+			if(StringUtils.isBlank(option)) return;
 
-		if (option != null && !option.isEmpty()) {
 			Helper.click.clickAndExpect(field, list);
 			EnhancedWebElement fieldElement = Element.findElements(list);
 
 			fieldElement.sendKeys(listIndex, option);
-		}
 	}
 	/**
 	 * select drop down based on index of the drop down list eg. used for date
@@ -431,13 +448,12 @@ public class FormHelper {
 	 * @param listIndex
 	 */
 	public void selectDropDown(String option, EnhancedBy field, int index,  EnhancedBy list, int listIndex) {
+			if(StringUtils.isBlank(option)) return;
 
-		if (option != null && !option.isEmpty()) {
 			Helper.click.clickAndExpect(field, index, list);
 			EnhancedWebElement fieldElement = Element.findElements(list);
 
 			fieldElement.sendKeys(listIndex, option);
-		}
 	}
 
 	/**
@@ -447,9 +463,9 @@ public class FormHelper {
 	 * @param buttons
 	 */
 	public void selectRadioButton(String option, EnhancedBy buttons) {
-		if (option != null && !option.isEmpty()) {
-			Helper.list.selectListItemEqualsByName(buttons, option);
-		}
+		if(StringUtils.isBlank(option)) return;
+	
+		Helper.list.selectListItemEqualsByName(buttons, option);
 	}
 
 	/**

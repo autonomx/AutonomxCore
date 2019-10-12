@@ -251,8 +251,8 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		
 
 		// if visible in view, return
-		if(Helper.isVisibleInViewport(element)) 
-			System.out.print("");
+		if(Helper.isVisibleInViewport(element, index)) 
+			return;
 
 		webDriver.manage().timeouts().implicitlyWait(1, TimeUnit.MILLISECONDS);
 

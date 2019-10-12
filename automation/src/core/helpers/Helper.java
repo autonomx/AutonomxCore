@@ -1744,6 +1744,16 @@ public class Helper {
      * @param by
      * @return
      */
+    public static Boolean isVisibleInViewport(EnhancedBy by, int index) {
+    	return page.isVisibleInViewport(by, index);
+    }
+    
+    /**
+     * returns true if the element is visible in the current page
+     * only for web applications
+     * @param by
+     * @return
+     */
     public static Boolean isVisibleInViewport(EnhancedBy by) {
     	return page.isVisibleInViewport(by);
     }
