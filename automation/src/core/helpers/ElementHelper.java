@@ -77,6 +77,9 @@ public class ElementHelper {
 	 * @param value
 	 */
 	protected static void setAttribute(EnhancedBy by, int index, String attribute, String value) {
+		
+		if(StringUtils.isBlank(value)) return;
+		
 		Helper.waitForElementToLoad(by);
 		String attributeValue = StringUtils.EMPTY;
 		int retry = 3;

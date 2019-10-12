@@ -298,15 +298,13 @@ public class FormHelper {
 	 * @param list
 	 */
 	public void selectDropDownWithDoubleClick(String option, EnhancedBy field, int index, EnhancedBy list) {
-		if(option.isEmpty()) return;
+		if(StringUtils.isBlank(option)) return;
 		
 		TestLog.logPass("I select drop down option '" + option + "'");
 
-		if (option != null && !option.isEmpty()) {
 			Helper.click.clickAndWait(field, index, 0.1);
 			Helper.click.clickAndExpect(field, index, list, true);
 			Helper.list.selectListItemEqualsByName(list, option);
-		}
 	}
 
 	/**
@@ -325,10 +323,8 @@ public class FormHelper {
 
 		TestLog.logPass("I select drop down option '" + option + "'");
 
-		if (option != null && !option.isEmpty()) {
-			Helper.click.clickAndExpect(field, list);
-			Helper.list.selectListItemEqualsByName(list, option);
-		}
+		Helper.click.clickAndExpect(field, list);
+		Helper.list.selectListItemEqualsByName(list, option);
 	}
 
 	/**
