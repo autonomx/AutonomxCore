@@ -80,9 +80,7 @@ public class RestApiInterface {
 			response = evaluateRequest(apiObject);
 
 			// validate the response
-			errorMessages = validateResponse(response, apiObject);
-
-			passedTimeInSeconds = watch.time(TimeUnit.SECONDS);
+			errorMessages = validateResponse(response, apiObject);	
 			
 			// if validation timeout is not enabled, break out of the loop
 			if(!isValidationTimeout) break;
@@ -95,6 +93,8 @@ public class RestApiInterface {
 
 			}
 			currentRetryCount++;
+			
+			passedTimeInSeconds = watch.time(TimeUnit.SECONDS);
 			
 		} while (!errorMessages.isEmpty() && passedTimeInSeconds < maxRetrySeconds);
 

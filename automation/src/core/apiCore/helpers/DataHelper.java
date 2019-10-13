@@ -49,6 +49,7 @@ public class DataHelper {
 
 			if (parameter.contains("_TIME")) {
 				length = getIntFromString(parameter);
+				if(length > 19) length = 19;
 				valueStr = TestObject.getTestInfo().startTime.substring(0, length);
 			} else if (parameter.contains("_RAND")) {
 				length = getIntFromString(parameter);
@@ -59,7 +60,7 @@ public class DataHelper {
 					valueStr = (String) val;
 			}
 			if (StringUtil.isNullOrEmpty(valueStr))
-				TestLog.logWarning("parameter value not found: " + parameter);
+				TestLog.ConsoleLog("parameter value not found: " + parameter);
 
 			if (valueStr instanceof String) {
 				source = source.replace("<@" + parameter + ">", Matcher.quoteReplacement(valueStr));
