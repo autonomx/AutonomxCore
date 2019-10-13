@@ -36,7 +36,7 @@ public class TestObject{
 	// serviceTest : api tests read from csv files through apiTestRunner
 	// uiTest : non api tests
 	public static enum testType {
-		serviceTest, uiTest
+		service, uiTest
 	}
 	
 	public static enum testState {

@@ -24,14 +24,14 @@ public class ServiceObject {
 	private String TcComments = StringUtils.EMPTY;
 	private String tcName = StringUtils.EMPTY;
 	private String tcIndex = StringUtils.EMPTY;
-	private String tcClass = StringUtils.EMPTY;
+	private String testType = StringUtils.EMPTY;
 	private String parentClass = StringUtils.EMPTY; // name of the test class. eg. ServiceTestRunner
 	
 	public ServiceObject setApiObject(String TestSuite, String TestCaseID, String RunFlag, String Description,
 			String InterfaceType, String UriPath, String ContentType, String Method, String Option,
 			String RequestHeaders, String TemplateFile, String RequestBody, String OutputParams, String RespCodeExp,
 			 String PartialExpectedResponse, String TcComments,
-			String tcName, String tcIndex) {
+			String tcName, String tcIndex, String testType) {
 		this.TestSuite = TestSuite;
 		this.TestCaseID = TestCaseID;
 		this.RunFlag = RunFlag;
@@ -50,6 +50,7 @@ public class ServiceObject {
 		this.TcComments = TcComments;
 		this.tcName = tcName;
 		this.tcIndex = tcIndex;
+		this.testType = testType;
 
 		return this;
 	}
@@ -218,6 +219,10 @@ public class ServiceObject {
 		return this.tcName;
 	}
 	
+	public String getTcType(){
+		return this.testType;
+	}
+	
 	public ServiceObject withTcIndex(String tcIndex){
 		this.tcIndex = tcIndex;
 		return this;
@@ -225,15 +230,6 @@ public class ServiceObject {
 	
 	public String getTcIndex(){
 		return this.tcIndex;
-	}
-	
-	public ServiceObject withTcClass(String tcClass){
-		this.tcClass = tcClass;
-		return this;
-	}
-	
-	public String getTcClass(){
-		return this.tcClass;
 	}
 //-----------------------------------------------------------------------------------------------------------------------	
 	public static String replaceQuotes(String value) {

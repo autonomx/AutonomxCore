@@ -41,8 +41,8 @@ public class CsvReader {
 
 		List<String[]> csvList = getCsvTestListForTestRunner(csvFileName);
 		for (int i = 0; i < csvList.size(); i++) {
-			// add testname And test index
-			String[] obj = { csvFileName, String.valueOf(i) };
+			// add test name, test index, and test type 
+			String[] obj = { csvFileName, String.valueOf(i), TestObject.testType.service.name() };
 			String[] csvRow = (String[]) ArrayUtils.addAll(csvList.get(i), obj);
 
 			// for single test case selection. Both test case file And test case have to be
@@ -71,10 +71,17 @@ public class CsvReader {
 			// add parameters to ServiceObject
 			ServiceObject apiObject = new ServiceObject().setApiObject(testCase[0], testCase[1], testCase[2],
 					testCase[3], testCase[4], testCase[5], testCase[6], testCase[7], testCase[8], testCase[9],
-					testCase[10], testCase[11], testCase[12], testCase[13], testCase[14], testCase[15], "", "");
+					testCase[10], testCase[11], testCase[12], testCase[13], testCase[14], testCase[15], "", "", "");
 			apiMap.put(apiObject.getTestCaseID(), apiObject);
 		}
 		return apiMap;
+	}
+	
+	public static ServiceObject mapToApiObject(Object[] testData) {
+		return  new ServiceObject().setApiObject(testData[0].toString(), testData[1].toString(), testData[2].toString(),
+				testData[3].toString(), testData[4].toString(), testData[5].toString(), testData[6].toString(), testData[7].toString(), testData[8].toString(), testData[9].toString(),
+				testData[10].toString(), testData[11].toString(), testData[12].toString(), testData[13].toString(), testData[14].toString(), testData[15].toString(), testData[16].toString(), testData[17].toString(), testData[18].toString());
+
 	}
 
 	/**

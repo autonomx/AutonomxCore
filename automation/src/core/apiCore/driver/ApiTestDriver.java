@@ -5,6 +5,7 @@ import core.support.logger.TestLog;
 import core.support.objects.ServiceObject;
 import core.support.objects.TestObject;
 import core.support.objects.TestObject.testType;
+import core.uiCore.drivers.AbstractDriverTestNG;
 
 public class ApiTestDriver {
 	// public static ThreadLocal<Logger> log = new ThreadLocal<Logger>();
@@ -25,7 +26,16 @@ public class ApiTestDriver {
 	 */
 	public static String getTestClass(ServiceObject apiObject) {
 		String testClass = apiObject.getTcName();
-		testClass = testClass.split("\\.")[0];
+		return  getTestClass(testClass);
+	}
+	
+	/**
+	 * get test class name based on csv file name
+	 * @param csvFilename
+	 * @return
+	 */
+	public static String getTestClass(String csvFilename) {
+		String testClass = csvFilename.split("\\.")[0];
 		testClass = testClass.replace("TestCases_", "");
 		return testClass;
 	}
@@ -41,6 +51,7 @@ public class ApiTestDriver {
 	public void initTest(ServiceObject apiObject) {
 		String APP = "ServiceManager";
 
+		
 		setTestId(apiObject);
 		String testId = TestObject.currentTestId.get();
 		TestLog.removeLogUtilHandler();
@@ -61,7 +72,7 @@ public class ApiTestDriver {
 		TestObject.getTestInfo().config = TestObject.getTestInfo(classname).config;
 		TestObject.getTestInfo().testLog = TestObject.getTestInfo(classname).testLog;
 
-		TestObject.getTestInfo().type = testType.serviceTest;
+		TestObject.getTestInfo().type = testType.service;
 		TestObject.getTestInfo().app = APP;
 		TestObject.getTestInfo().testCsvFileName = apiObject.getTcName();
 
@@ -74,6 +85,7 @@ public class ApiTestDriver {
 		if (TestObject.getTestInfo().testCountInCsvFile == 0)
 			TestObject.getTestInfo().testCountInCsvFile = CsvReader.getCsvTestListForTestRunner(apiObject.getTcName())
 					.size();
+
 	}
 
 	public static boolean isTestComplete() {
@@ -94,6 +106,26 @@ public class ApiTestDriver {
 	 * @return
 	 */
 	public static boolean isRunningServiceTest() {
-		return TestObject.getTestInfo().type.equals(TestObject.testType.serviceTest);
+		return TestObject.getTestInfo().type.equals(TestObject.testType.service);
+	}
+	
+	/* is service test running
+	 * @return
+	 */
+	public static boolean isRunningServiceTest(Object[] testData) {
+		if(testData.length == 0) return false;
+		return testData[testData.length -1].equals(TestObject.testType.service.name());
+	}
+	
+	/**
+	 * set service test name based on test name specified in test data
+	 * @param testData
+	 */
+	public static void setServiceTestName(Object[] testData) {
+		if (ApiTestDriver.isRunningServiceTest(testData)) {
+			ServiceObject apiObject = CsvReader.mapToApiObject(testData);
+			String testClass = ApiTestDriver.getTestClass(apiObject.getTcName());
+			AbstractDriverTestNG.testName.set(testClass + "-" + apiObject.getTestCaseID());
+		}
 	}
 }

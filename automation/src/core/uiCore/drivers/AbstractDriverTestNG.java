@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.openqa.selenium.WebDriver;
+import org.testng.ITest;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterClass;
@@ -31,7 +32,7 @@ import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 
 @Listeners(core.support.listeners.TestListener.class)
 
-public class AbstractDriverTestNG {
+public class AbstractDriverTestNG implements ITest {
 
 	public static ExtentReports extent;
 	public static ThreadLocal<ExtentTest> step = new ThreadLocal<ExtentTest>();
@@ -39,6 +40,7 @@ public class AbstractDriverTestNG {
 	private static ThreadLocal<WebDriver> webDriver = new ThreadLocal<WebDriver>();
 	
 	private static ThreadLocal<String> testClassname = new ThreadLocal<String>();
+    public static ThreadLocal<String> testName = new ThreadLocal<>();
 
 
 	public RetryTest retry = new RetryTest();
@@ -160,13 +162,16 @@ public class AbstractDriverTestNG {
 	 * @return
 	 */
 	@BeforeMethod(alwaysRun = true)
-	public synchronized void handleTestMethodName(Method method) {
-
+	public synchronized void handleTestMethodName(Method method, Object[] testData) {
 		TestObject.setTestName(method.getName());
 		TestObject.setTestId(getClassName(), TestObject.currentTestName.get());
-		
+       
+		// set the test name for service tests based on test data values
+		ApiTestDriver.setServiceTestName(testData);
+
 		// append test invocation count to test name if data provider is running increments the invocation count
-		setAndIncremenetDataProviderTestExtention(method);
+		// not applicable to service tests
+		setAndIncremenetDataProviderTestExtention(method, testData);
 
 		// setup before class driver
 		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
@@ -179,12 +184,17 @@ public class AbstractDriverTestNG {
 	 * increments the invocation count
 	 * @param method
 	 */
-	private void setAndIncremenetDataProviderTestExtention(Method method) {
+	private void setAndIncremenetDataProviderTestExtention(Method method, Object[] testData) {
+		
+		// return if service test
+		if (ApiTestDriver.isRunningServiceTest(testData)) return;
+		
 		if (isDataProviderRunning(method)) {
 			int invocationCount = TestObject.getTestInvocationCount(TestObject.getTestId());
 			invocationCount++;
 			TestObject.setTestName(method.getName() + TestObject.DATAPROVIDER_TEST_SUFFIX + invocationCount);
 			TestObject.setTestId(getClassName(), TestObject.currentTestName.get());
+			testName.set(TestObject.getTestId());
 		}
 	}
 	
@@ -270,5 +280,13 @@ public class AbstractDriverTestNG {
 	private void letRetryKnowAboutReports() {
 
 		retry.setExtendReport(TestObject.getTestInfo().testScenerio, step.get());
+	}
+
+	@Override
+	public String getTestName() {
+		if(testName.get() == null)
+			 testName.set("");
+		return testName.get();
+
 	}
 }
