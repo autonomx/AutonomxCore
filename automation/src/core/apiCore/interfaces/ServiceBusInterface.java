@@ -478,7 +478,7 @@ public class ServiceBusInterface {
 			// Verify the outbound message from other test frameworks
             if (!outputParams.isEmpty() && (outboundQueueMsg.contains(FORM_SUBMITTED) || outboundQueueMsg.contains(HOST_FORM_SUBMITTED))) {                    
 
-				DataHelper.addOutputMessageToConfigParams(outputParams, outboundQueueMsg);
+			//	DataHelper.addOutputMessageToConfigParams(outputParams, outboundQueueMsg);
 			}
 			// Not checking anything in outbound queue, so add in small
 			// wait until host order created And also SQL DB order table updated

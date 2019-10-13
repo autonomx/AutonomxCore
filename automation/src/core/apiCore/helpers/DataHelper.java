@@ -60,7 +60,7 @@ public class DataHelper {
 					valueStr = (String) val;
 			}
 			if (StringUtil.isNullOrEmpty(valueStr))
-				TestLog.ConsoleLog("parameter value not found: " + parameter);
+				TestLog.logWarning("parameter value not found: " + parameter);
 
 			if (valueStr instanceof String) {
 				source = source.replace("<@" + parameter + ">", Matcher.quoteReplacement(valueStr));
@@ -185,23 +185,6 @@ public class DataHelper {
 
         return DataHelper.convertTemplateToString(file.getAbsolutePath());
     }
-    
-
-	/**
-	 * In outputParams get the params enclosed by <$> look up their values in
-	 * outboundMsg And Then add them to ConfigurationParams
-	 *
-	 * @param outputParams
-	 * @param outboundMsg
-	 */
-	public static void addOutputMessageToConfigParams(String outputParams, String outboundMsg) {
-
-		// Copy responseBody into the variable
-		String key = StringUtils.substringBetween(outputParams, "<$", ">");
-		Config.putValue(key, outboundMsg);
-
-		TestLog.logPass("Get Service Bus Outbound Message:{0}", Config.getValue(key));
-	}
 
 	/**
 	 * validates response against expected values
@@ -349,7 +332,7 @@ public class DataHelper {
 	    return result;
 	}
 
-	public static String modifyRegex(String regex){
+	private static String modifyRegex(String regex){
 	    return regex + "(?!.*" + regex + ".*$)";
 	}
 }

@@ -274,7 +274,6 @@ public class TestLog {
 	 */
 	public static void logWarning(String value, Object... args) {
 		logConsoleMessage(Priority.WARN, formatMessage(value, args));
-		getTestStep().warning(formatMessage(value, args));
 	}
 
 	/**
