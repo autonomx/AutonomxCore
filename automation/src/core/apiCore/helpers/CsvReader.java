@@ -21,7 +21,9 @@ import core.support.objects.ServiceObject;
 import core.support.objects.TestObject;
 
 public class CsvReader {
-
+	
+	public static int SERVICE_CSV_COLUMN_COUNT = 19;
+	public static String SERVICE_CSV_FILE_PREFIX = "TestCases_";
 	/**
 	 * gets the tests from csv file based on the current test file index
 	 * 

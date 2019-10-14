@@ -44,30 +44,36 @@ public class ServiceManager {
 
 	private static final String TEST_INTERFACE = "RESTfulAPI";
 
-	public static void TestRunner(String TestSuite, String TestCaseID, String RunFlag, String Description,
-			String InterfaceType, String UriPath, String ContentType, String Method, String Option,
-			String RequestHeaders, String TemplateFile, String RequestBody, String OutputParams, String RespCodeExp,
-			String ExpectedResponse, String TcComments,
-			String tcName, String tcIndex, String testType) throws Exception {
-
-		// add parameters to ServiceObject
-		ServiceObject apiObject = new ServiceObject().setApiObject(TestSuite, TestCaseID, RunFlag, Description, InterfaceType,
-				UriPath, ContentType, Method, Option, RequestHeaders, TemplateFile, RequestBody, OutputParams,
-				RespCodeExp, ExpectedResponse, TcComments, tcName,
-				tcIndex, testType);
-
-		// setup api driver
-		new AbstractDriverTestNG().setupApiDriver(apiObject);
-
-		switch (InterfaceType) {
-		case TEST_INTERFACE:
-			new TestInterface(apiObject);
-			break;
-		default:
-			ServiceManager.TestRunner(apiObject);
-			break;
-		}
-	}
+	public static void TestRunner(String TestSuite, String TestCaseID, String RunFlag, String Description, 
+			String InterfaceType, String UriPath, String ContentType, String Method, String Option, 
+			String RequestHeaders, String TemplateFile, String RequestBody, String OutputParams, String RespCodeExp, 
+			String ExpectedResponse, String TcComments, 
+			String tcName, String tcIndex, String testType) throws Exception { 
+	
+			// add parameters to ServiceObject 
+			ServiceObject apiObject = new ServiceObject().setApiObject(TestSuite, TestCaseID, RunFlag, Description, InterfaceType, 
+			UriPath, ContentType, Method, Option, RequestHeaders, TemplateFile, RequestBody, OutputParams, 
+			RespCodeExp, ExpectedResponse, TcComments, tcName, 
+			tcIndex, testType); 
+	
+			// setup api driver 
+			new AbstractDriverTestNG().setupApiDriver(apiObject); 
+			runInterface(apiObject); 
+	} 
+	
+	
+	public static void runInterface(ServiceObject apiObject) throws Exception { 
+	
+	
+			switch (apiObject.getInterfaceType()) {
+			case "TestInterface": 
+	  		   new TestInterface().testInterface(apiObject);
+					break; 
+			default: 
+					ServiceManager.runInterface(apiObject); 
+					break; 
+			} 
+	} 
 }
 
 	 * @param serviceMap
@@ -182,7 +188,7 @@ public class ServiceManager {
 
 				bw.newLine();
 				bw.append("		case \"" + serviceName + "\":" + " \n");
-				bw.append("  		   " + serviceName + "." + lowerCaseServiceName + "(apiObject);" + " \n");
+				bw.append("  		  new " + serviceName + "()." + lowerCaseServiceName + "(apiObject);" + " \n");
 				bw.append("				break;" + " \n");
 			}
 		}

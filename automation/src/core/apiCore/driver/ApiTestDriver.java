@@ -36,7 +36,7 @@ public class ApiTestDriver {
 	 */
 	public static String getTestClass(String csvFilename) {
 		String testClass = csvFilename.split("\\.")[0];
-		testClass = testClass.replace("TestCases_", "");
+		testClass = testClass.replace(CsvReader.SERVICE_CSV_FILE_PREFIX, "");
 		return testClass;
 	}
 
@@ -113,7 +113,8 @@ public class ApiTestDriver {
 	 * @return
 	 */
 	public static boolean isRunningServiceTest(Object[] testData) {
-		if(testData.length == 0) return false;
+		if(testData.length != CsvReader.SERVICE_CSV_COLUMN_COUNT) return false;
+		if(testData[testData.length - 1] == null) return false;
 		return testData[testData.length -1].equals(TestObject.testType.service.name());
 	}
 	
