@@ -40,7 +40,7 @@ public class AbstractDriverTestNG implements ITest {
 	private static ThreadLocal<WebDriver> webDriver = new ThreadLocal<WebDriver>();
 	
 	private static ThreadLocal<String> testClassname = new ThreadLocal<String>();
-    public static ThreadLocal<String> testName = new ThreadLocal<>();
+    public static ThreadLocal<String> testName = new ThreadLocal<String>();
 
 
 	public RetryTest retry = new RetryTest();
@@ -172,6 +172,8 @@ public class AbstractDriverTestNG implements ITest {
 		// append test invocation count to test name if data provider is running increments the invocation count
 		// not applicable to service tests
 		setAndIncremenetDataProviderTestExtention(method, testData);
+		
+		setUiTestname(method, testData);
 
 		// setup before class driver
 		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
@@ -196,6 +198,13 @@ public class AbstractDriverTestNG implements ITest {
 			TestObject.setTestId(getClassName(), TestObject.currentTestName.get());
 			testName.set(TestObject.getTestId());
 		}
+	}
+	
+	private void setUiTestname(Method method, Object[] testData) {
+		// return if service test
+		if (ApiTestDriver.isRunningServiceTest(testData)) return;
+		if (isDataProviderRunning(method)) return;
+		testName.set(TestObject.getTestId());
 	}
 	
 	private boolean isDataProviderRunning(Method method) {
