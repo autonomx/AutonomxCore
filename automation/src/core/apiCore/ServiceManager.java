@@ -2,6 +2,7 @@ package core.apiCore;
 
 import core.apiCore.interfaces.Authentication;
 import core.apiCore.interfaces.AzureInterface;
+import core.apiCore.interfaces.RabbitMqInterface;
 import core.apiCore.interfaces.RestApiInterface;
 import core.apiCore.interfaces.SqlInterface;
 import core.apiCore.interfaces.TestPrepare;
@@ -16,6 +17,8 @@ public class ServiceManager {
 	private static final String SQL_DB_INTERFACE = "SQLDB";
 
 	private static final String AZURE_INTERFACE = "AZURE";
+	private static final String RABBIT_MQ_INTERFACE = "RABBITMQ";
+
 	private static final String TEST_PREPARE_INTERFACE = "TestPrepare";
 
 	public static void TestRunner(ServiceObject apiObject) throws Exception {
@@ -25,25 +28,29 @@ public class ServiceManager {
 		runInterface(apiObject);
 	}
 	
-	public static void runInterface(ServiceObject apiObject) throws Exception {
-		switch (apiObject.getInterfaceType()) {
+	public static void runInterface(ServiceObject serviceObject) throws Exception {
+		switch (serviceObject.getInterfaceType()) {
 		case TOKEN_GENERATOR:
-			Authentication.tokenGenerator(apiObject);
+			Authentication.tokenGenerator(serviceObject);
 			break;
 		case RESTFULL_API_INTERFACE:
-			RestApiInterface.RestfullApiInterface(apiObject);
+			RestApiInterface.RestfullApiInterface(serviceObject);
 			break;
 		case SQL_DB_INTERFACE:
-			SqlInterface.DataBaseInterface(apiObject);
+			SqlInterface.DataBaseInterface(serviceObject);
 			break;
 		case AZURE_INTERFACE:
-			AzureInterface.AzureClientInterface(apiObject);
+			AzureInterface.AzureClientInterface(serviceObject);
+			break;
+		case RABBIT_MQ_INTERFACE:
+			RabbitMqInterface.testRabbitMqInterface(serviceObject);
 			break;
 		case TEST_PREPARE_INTERFACE:
-			TestPrepare.TestPrepareInterface(apiObject);
+			TestPrepare.TestPrepareInterface(serviceObject);
 			break;
 		default:
-			Helper.assertFalse("no interface found: " + apiObject.getInterfaceType());
+			Helper.assertFalse("no interface found: " + serviceObject.getInterfaceType() + ". Options:"
+					+ "Authentication, RESTfulAPI, SQLDB, RABBITMQ");
 			break;
 		}
 	}

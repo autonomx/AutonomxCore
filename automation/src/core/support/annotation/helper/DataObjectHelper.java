@@ -12,7 +12,7 @@ import core.support.configReader.PropertiesReader;
 public class DataObjectHelper {
 	
 	public static String DATA_FOLDER = "data";
-	private static String SOURCE_PATH =  PropertiesReader.getLocalRootPath() + "src" + File.separator +  "main" + File.separator + "java";
+	private static String SOURCE_PATH =  PropertiesReader.getLocalRootPath() + "src" + File.separator +  "main";
 
 	
 	/**

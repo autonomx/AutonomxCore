@@ -1,4 +1,4 @@
-[![Build Status](https://dev.azure.com/Autonomx/Autonomx/_apis/build/status/Autonomx?branchName=master)](https://dev.azure.com/unx4763/Autonomx/_build/latest?definitionId=2&branchName=master)
+[![Build Status](https://dev.azure.com/Autonomx/Autonomx/_apis/build/status/Autonomx?branchName=master)](https://dev.azure.com/autonomx/Autonomx/_build/latest?definitionId=2&branchName=master)
 
 Main Site: https://autonomx.io/
 
@@ -159,8 +159,8 @@ Autonomx provides a complete testing platform for UI (Web, iOS, Android, Win) an
  * Parallel run value can be set at automation/resources/properties.property "parallel_test_count"
   ![alt text](https://blobscdn.gitbook.com/v0/b/gitbook-28427.appspot.com/o/assets%2F-LZhvc5eykluSdIwbEC_%2F-LcZtOaQshb5y9jBNTv4%2F-LcZtovj2NX0VVwc5weJ%2Fimage.png?alt=media&token=fc5ed2ae-8d03-4170-ab2b-ef95d4c83760)   
 
-# Service UI Integration
-* https://docs.autonomx.io/service-level-testing/service-ui-integration
+# Service Code Integration
+* https://docs.autonomx.io/service-level-testing/service-code-integration
 * We can run our service test with the UI based tests
 * There are 2 methods of achieving this goal
     * Creating a service object and calling the service interface directly
@@ -199,7 +199,7 @@ Autonomx provides a complete testing platform for UI (Web, iOS, Android, Win) an
     ```
     
 # Script Runner
-* https://app.gitbook.com/@autonomx/s/autonomx/script-runner-1/installation
+* https://docs.autonomx.io/script-runner-1/installation
 * Script Server will run the test suites on a web browser
 * Script Server will run the tests defined in Test Suite 
  ![alt text](https://blobscdn.gitbook.com/v0/b/gitbook-28427.appspot.com/o/assets%2F-LZhvc5eykluSdIwbEC_%2F-LZreOiuGev2RX9keLwq%2F-LZrstTAfjFPl8M060SX%2Fimage.png?alt=media&token=211189ce-6708-4b5f-8fd6-b35ef7fb4a36)
