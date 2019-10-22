@@ -2536,6 +2536,15 @@ public class Helper {
 	 * @param absolutePath
 	 * @return
 	 */
+	public static String readFileContent(String absolutePath) {
+		return readFileContent(absolutePath);
+	}
+	
+	/**
+	 * gets file content as String
+	 * @param absolutePath
+	 * @return
+	 */
 	protected static String getFileContent(String absolutePath) {
 		return UtilityHelper.getFileContent(absolutePath);
 	}

@@ -19,7 +19,6 @@ import core.support.objects.KeyValue;
 import core.support.objects.ServiceObject;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 
-
 /**
  * @author ehsan.matean
  *
@@ -35,27 +34,23 @@ public class SqlInterface {
 	public static Connection conn = null;
 
 	/**
-	 * /* (String TestSuite, String TestCaseID, String RunFlag, String Description,
-	 * String InterfaceType, String UriPath, String ContentType, String Method,
-	 * String Option, String RequestHeaders, String TemplateFile, String
-	 * RequestBody, String OutputParams, String RespCodeExp, String
-	 * ExpectedResponse, String ExpectedResponse, String NotExpectedResponse,
-	 * String TcComments, String tcName, String tcIndex)
 	 *
-	 * interface for database api calls
+	 * interface for database calls
 	 * 
-	 * @param apiObject
+	 * @param serviceObject
 	 * @return
 	 * @throws Exception
 	 */
-	public static void DataBaseInterface(ServiceObject apiObject) throws Exception {
+	public static void DataBaseInterface(ServiceObject serviceObject) throws Exception {
+		
 		// connect to db
 		connectDb();
+		
 		// evaluate the sql query
-		ResultSet resSet = evaluateDbQuery(apiObject);
+		ResultSet resSet = evaluateDbQuery(serviceObject);
 
 		// evaluate the response
-		evaluateReponse(apiObject, resSet);
+		evaluateReponse(serviceObject, resSet);
 	}
 
 	/**
@@ -65,10 +60,10 @@ public class SqlInterface {
 	public synchronized static void connectDb() {
 		if (conn == null) {
 			try {
-				
+
 				// connect through ssh if set in api config
 				ConnectionHelper.sshConnect();
-				
+
 				// Register JDBC driver
 				String SQLDriver = Config.getValue(SQL_JDBC_DRIVER);
 				Class.forName(SQLDriver);
@@ -99,24 +94,24 @@ public class SqlInterface {
 	/**
 	 * evaluaes the sql statement
 	 * 
-	 * @param apiObject
+	 * @param serviceObject
 	 * @return
 	 * @throws Exception
 	 */
-	public static ResultSet evaluateDbQuery(ServiceObject apiObject) throws Exception {
+	public static ResultSet evaluateDbQuery(ServiceObject serviceObject) throws Exception {
 
 		// replace parameters for request body
-		apiObject.withRequestBody(DataHelper.replaceParameters(apiObject.getRequestBody()));
+		serviceObject.withRequestBody(DataHelper.replaceParameters(serviceObject.getRequestBody()));
 
 		// execute query
-		String sql = apiObject.getRequestBody();
+		String sql = serviceObject.getRequestBody();
 		TestLog.logPass("sql statement: " + sql);
 
-		PreparedStatement sqlStmt = conn.prepareStatement(sql,ResultSet.TYPE_SCROLL_INSENSITIVE, 
-                ResultSet.CONCUR_UPDATABLE);
+		PreparedStatement sqlStmt = conn.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE,
+				ResultSet.CONCUR_UPDATABLE);
 
 		// execute And wait for response if expected values are set
-		ResultSet resSet = executeAndWaitForDbResponse(sqlStmt, apiObject);
+		ResultSet resSet = executeAndWaitForDbResponse(sqlStmt, serviceObject);
 
 		return resSet;
 	}
@@ -124,14 +119,14 @@ public class SqlInterface {
 	/**
 	 * evaluate the response
 	 * 
-	 * @param apiObject
+	 * @param serviceObject
 	 * @param resSet
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	public static void evaluateReponse(ServiceObject apiObject, ResultSet resSet) throws Exception {
+	public static void evaluateReponse(ServiceObject serviceObject, ResultSet resSet) throws Exception {
 
 		// return if expected response is empty
-		if (apiObject.getExpectedResponse().isEmpty() && apiObject.getOutputParams().isEmpty())
+		if (serviceObject.getExpectedResponse().isEmpty() && serviceObject.getOutputParams().isEmpty())
 			return;
 
 		// fail test if no results returned
@@ -143,10 +138,10 @@ public class SqlInterface {
 		resSet.next();
 
 		// saves response values to config object
-		SqlHelper.saveOutboundSQLParameters(resSet, apiObject.getOutputParams());
+		SqlHelper.saveOutboundSQLParameters(resSet, serviceObject.getOutputParams());
 
 		// validate partial expected response if exists
-		validateExpectedResponse(apiObject.getExpectedResponse(), resSet);
+		validateExpectedResponse(serviceObject.getExpectedResponse(), resSet);
 
 		// Clean-up environment
 		resSet.close();
@@ -157,11 +152,11 @@ public class SqlInterface {
 	 * expected or partial expected response are empty
 	 * 
 	 * @param sqlStmt
-	 * @param apiObject
+	 * @param serviceObject
 	 * @return
 	 * @throws SQLException
 	 */
-	public static ResultSet executeAndWaitForDbResponse(PreparedStatement sqlStmt, ServiceObject apiObject)
+	public static ResultSet executeAndWaitForDbResponse(PreparedStatement sqlStmt, ServiceObject serviceObject)
 			throws SQLException {
 		int timeout = CrossPlatformProperties.getGlobalTimeout();
 		ResultSet resSet;
@@ -173,7 +168,7 @@ public class SqlInterface {
 			resSet = sqlStmt.getResultSet();
 
 			// if no response expected, do not wait for response
-			if (apiObject.getExpectedResponse().isEmpty())
+			if (serviceObject.getExpectedResponse().isEmpty())
 				return resSet;
 
 			if (resSet.isBeforeFirst()) {

@@ -38,7 +38,7 @@ import core.support.logger.TestLog;
 import core.support.objects.ServiceObject;
 import core.support.objects.TestObject;
 
-@SuppressWarnings({"unused","deprecation"})
+@SuppressWarnings({ "unused", "deprecation" })
 public class ServiceBusInterface {
 
 	public enum SBEnv {
@@ -47,7 +47,6 @@ public class ServiceBusInterface {
 
 	private static final String SERVICE_BUS_PREFIX = "SB_";
 
-	
 	private static final String CONNECTION_STR = "serviceBusConnectionString";
 	private static final String INBOUND_QUEUE = "inboundQueue";
 	private static final String OUTBOUND_TOPIC = "outboundTopic";
@@ -58,7 +57,7 @@ public class ServiceBusInterface {
 	private static final String INBOUND_SAP_QUEUE = "SapInboundQueue";
 	private static final String OUTBOUND_SAP_TOPIC = "SapOutboundTopic";
 	private static final String EVENT_TOPIC = "eventTopic";
-    private static final String HOST_FORM_SUBMITTED = "UserRequest"; 
+	private static final String HOST_FORM_SUBMITTED = "UserRequest";
 	private static final String EVENT_SUB = "eventSub";
 	private static final String DEAD_LETTER_QUEUE_SUFFIX = "/$DeadLetterQueue";
 
@@ -74,19 +73,18 @@ public class ServiceBusInterface {
 	private static final String MSG_ID_XPATH = "/Envelope/Body/Message/Header/MsgID";
 	private static final String FORM_SUBMITTED = "FormSubmitted";
 	public static final String MESSAGE_ID_PREFIX = "apiTestMsgID";
-    private static final String NO_CHECK_NEEDED = "noCheckNeeded";
+	private static final String NO_CHECK_NEEDED = "noCheckNeeded";
 
 	private IMessageReceiver receiver1 = null;
 	private IMessageReceiver receiver2 = null;
 	private IMessageReceiver receiverAlert = null;
 	private IMessageSender sender;
-	
+
 	public static Map<String, serviceBus> sbInstance = new ConcurrentHashMap<String, serviceBus>();
 
 	public static Map<IMessage, Boolean> outboundMessages = new ConcurrentHashMap<IMessage, Boolean>();
 	private static final int SERVICE_BUS_TIMEOUT_SECONDS = 120;
-	
-	
+
 	/**
 	 * getting an instance of service bus retrying And catching interrupt exceptions
 	 * from other threads
@@ -105,16 +103,12 @@ public class ServiceBusInterface {
 		Helper.assertTrue("service bus instance could not be created", servicebus.isInitiated);
 		return servicebus;
 	}
-	
-	
+
 	/**
-	 * info: SB_type_key = value
-	 * SB_DEFAULT_connectionStr = ""
-	 * SB_DEFAULT_inboundQueue = ""
-	 * SB_DEFAULT_outboundTopic = ""
-	 * SB_DEFAULT_host1 = host1
-	 * SB_DEFAULT_host2 = host2
-	 * SB_DEFAULT_host3 = alert
+	 * info: SB_type_key = value SB_DEFAULT_connectionStr = ""
+	 * SB_DEFAULT_inboundQueue = "" SB_DEFAULT_outboundTopic = "" SB_DEFAULT_host1 =
+	 * host1 SB_DEFAULT_host2 = host2 SB_DEFAULT_host3 = alert
+	 * 
 	 * @param host
 	 * @return
 	 */
@@ -127,9 +121,9 @@ public class ServiceBusInterface {
 
 		TestLog.logPass("inbound = {0}", instance.inbound);
 		TestLog.logPass("connectionStr = {0}", instance.connectionStr);
-		
+
 		instance = setSender(instance);
-		
+
 		// for each host, set receiver
 		for (String host : instance.hosts) {
 			instance.outbound = instance.outboundTopic + "/subscriptions/" + host;
@@ -138,31 +132,32 @@ public class ServiceBusInterface {
 
 			instance = setReceiver(host, instance);
 		}
-		
-		if(instance.sender != null && !instance.receivers.isEmpty())
+
+		if (instance.sender != null && !instance.receivers.isEmpty())
 			instance.isInitiated = true;
 
 		return instance;
 	}
-	
+
 	private static serviceBus setSender(serviceBus instance) {
 
 		try {
-		instance.sender = ClientFactory.createMessageSenderFromConnectionStringBuilder(
-				new ConnectionStringBuilder(instance.connectionStr, instance.inbound));
+			instance.sender = ClientFactory.createMessageSenderFromConnectionStringBuilder(
+					new ConnectionStringBuilder(instance.connectionStr, instance.inbound));
 		} catch (InterruptedException | ServiceBusException ex) {
 			TestLog.ConsoleLogWarn(ex.getMessage());
 			Thread.interrupted();
 		}
 		return instance;
 	}
-	
+
 	private static serviceBus setReceiver(String host, serviceBus instance) {
 		try {
 
-			instance.receivers.put(host, ClientFactory.createMessageReceiverFromConnectionStringBuilder(
-					new ConnectionStringBuilder(instance.connectionStr, instance.outbound),
-					ReceiveMode.RECEIVEANDDELETE));
+			instance.receivers.put(host,
+					ClientFactory.createMessageReceiverFromConnectionStringBuilder(
+							new ConnectionStringBuilder(instance.connectionStr, instance.outbound),
+							ReceiveMode.RECEIVEANDDELETE));
 
 		} catch (InterruptedException | ServiceBusException ex) {
 			TestLog.ConsoleLogWarn(ex.getMessage());
@@ -171,45 +166,43 @@ public class ServiceBusInterface {
 		}
 		return instance;
 	}
+
 	/**
-	 * info: SB_type_key = value
-	 * SB_DEFAULT_connectionStr = ""
-	 * SB_DEFAULT_inboundQueue = ""
-	 * SB_DEFAULT_outboundTopic = ""
-	 * SB_DEFAULT_host1 = host1
-	 * SB_DEFAULT_host2 = host2
-	 * SB_DEFAULT_host3 = alert
+	 * info: SB_type_key = value SB_DEFAULT_connectionStr = ""
+	 * SB_DEFAULT_inboundQueue = "" SB_DEFAULT_outboundTopic = "" SB_DEFAULT_host1 =
+	 * host1 SB_DEFAULT_host2 = host2 SB_DEFAULT_host3 = alert
 	 */
 	private void setupServiceBusInstance() {
 		serviceBus instance = null;
 		for (Entry<String, Object> entry : TestObject.getTestInfo().config.entrySet()) {
-			if(entry.getKey().contains(SERVICE_BUS_PREFIX)) {
+			if (entry.getKey().contains(SERVICE_BUS_PREFIX)) {
 				String[] values = entry.getKey().split("_");
 				String type = values[1];
 				String key = values[2];
 				String value = (String) entry.getValue();
-				
-				instance = sbInstance.get(type) == null ? new ServiceBusInterface().new serviceBus() : sbInstance.get(type);
+
+				instance = sbInstance.get(type) == null ? new ServiceBusInterface().new serviceBus()
+						: sbInstance.get(type);
 				switch (key) {
 				case "connectionStr":
 					instance.connectionStr = key;
 					break;
 				case "inboundQueue":
-					 instance.inboundQueue = key;
-					 break;
+					instance.inboundQueue = key;
+					break;
 				case "outboundTopic":
-					 instance.outboundTopic = key;
-					 break;
+					instance.outboundTopic = key;
+					break;
 				}
-				if(key.contains("host") && !value.isEmpty()) {
-				  instance.hosts.add(value);
+				if (key.contains("host") && !value.isEmpty()) {
+					instance.hosts.add(value);
 				}
-					
+
 				sbInstance.put(type, instance);
-			}	
+			}
 		}
 	}
-	
+
 	/**
 	 * Inject message to inbound queue And dequeues from outbound queue And do
 	 * comparisons
@@ -231,10 +224,11 @@ public class ServiceBusInterface {
 
 		// replace parameters
 		apiObject.withRequestBody(DataHelper.replaceParameters(apiObject.getRequestBody()));
-		apiObject.withExpectedResponse( DataHelper.replaceParameters(apiObject.getExpectedResponse()));
+		apiObject.withExpectedResponse(DataHelper.replaceParameters(apiObject.getExpectedResponse()));
 
 		// Get request body using template And/or requestBody data column
-		apiObject.withRequestBody(getRequestBodyFromTemplate(apiObject.getRequestBody(), apiObject.getTemplateFile(), apiObject.getContentType()));
+		apiObject.withRequestBody(getRequestBodyFromTemplate(apiObject.getRequestBody(), apiObject.getTemplateFile(),
+				apiObject.getContentType()));
 		apiObject.withRequestBody(DataHelper.replaceParameters(apiObject.getRequestBody()));
 
 		// get unique identifier for request body to match outbound message
@@ -244,16 +238,19 @@ public class ServiceBusInterface {
 		sendMessage(apiObject.getRequestBody(), serviceBus, msgID);
 
 		// receives And verifies the outbound message against the expected results
-		boolean isTestPass = receiveAndVerifyOutboundMessage(serviceBus, msgID, apiObject.getOption(), apiObject.getRequestBody(), apiObject.getOutputParams(),
-				 apiObject.getExpectedResponse());	
-		if(msgID.isEmpty())
-			Helper.assertTrue("correct messages not received. SB Verification test, please investigate previous test for proper outbound message", isTestPass);
+		boolean isTestPass = receiveAndVerifyOutboundMessage(serviceBus, msgID, apiObject.getOption(),
+				apiObject.getRequestBody(), apiObject.getOutputParams(), apiObject.getExpectedResponse());
+		if (msgID.isEmpty())
+			Helper.assertTrue(
+					"correct messages not received. SB Verification test, please investigate previous test for proper outbound message",
+					isTestPass);
 		Helper.assertTrue("correct messages not received", isTestPass);
 
 	}
-	
+
 	/**
 	 * generate message id if the request body is set
+	 * 
 	 * @param requestBody
 	 * @return
 	 */
@@ -261,7 +258,7 @@ public class ServiceBusInterface {
 		// get unique identifier for request body to match outbound message
 		if (!requestBody.isEmpty()) {
 			return MESSAGE_ID_PREFIX + "-" + UUID.randomUUID().toString();
-		}else {
+		} else {
 			return "";
 		}
 	}
@@ -294,35 +291,36 @@ public class ServiceBusInterface {
 	 */
 	public static String getRequestBodyFromTemplate(String requestBody, String templateFile, String contentType) {
 
-
 		// Get request body using template And/or requestBody data column
 		if (!templateFile.isEmpty()) {
 			String templateFilePath = DataHelper.getTemplateFileLocation(templateFile);
 
 			// contents of templateFile become the requestBody
 			if (requestBody.isEmpty()) {
-				//TODO: uncomment And fix
-			//	requestBody = DataObjectHelper.convertTemplateToString(templateFilePath);
+				// TODO: uncomment And fix
+				// requestBody = DataObjectHelper.convertTemplateToString(templateFilePath);
 			} else {
 				// contents of requestBody replace values in templateFile
-				//TODO: uncomment And fix
-			//	requestBody = Utils.requestBodyFromTemplateFile(templateFilePath, requestBody, contentType);
+				// TODO: uncomment And fix
+				// requestBody = Utils.requestBodyFromTemplateFile(templateFilePath,
+				// requestBody, contentType);
 			}
 		}
 		return requestBody;
 	}
-	
+
 	/**
-	 * format:
-	 *  host: Host1
-	 *  
-	 *  gets the receiver based on the host from hashmap
+	 * format: host: Host1
+	 * 
+	 * gets the receiver based on the host from hashmap
+	 * 
 	 * @param serviceBus
 	 * @param options
 	 */
 	public static IMessageReceiver getReceiver(serviceBus serviceBus, String hostSelector) {
-		if(!serviceBus.hosts.contains(hostSelector)) Helper.assertFalse("host receiver not available: " + hostSelector);
-		return serviceBus.receivers.get(hostSelector);	
+		if (!serviceBus.hosts.contains(hostSelector))
+			Helper.assertFalse("host receiver not available: " + hostSelector);
+		return serviceBus.receivers.get(hostSelector);
 	}
 
 	public static boolean receiveAndVerifyOutboundMessage(serviceBus serviceBus, String msgId, String options,
@@ -332,7 +330,7 @@ public class ServiceBusInterface {
 		CopyOnWriteArrayList<IMessage> filteredMessages = new CopyOnWriteArrayList<>();
 
 		// gets the host from the options
-		String hostSelector = DataHelper.getTagValue(options, "host");
+		String hostSelector = DataHelper.getXmlTagValue(options, "host");
 
 		IMessageReceiver receiver = getReceiver(serviceBus, hostSelector);
 
@@ -341,7 +339,7 @@ public class ServiceBusInterface {
 
 		// return pass if no response check is required by setting all 3 fields as SKIP
 		// or is empty
-		if (isNoResponseExpected(outputParams,partialExpStr)) {
+		if (isNoResponseExpected(outputParams, partialExpStr)) {
 			return true;
 		}
 
@@ -356,7 +354,7 @@ public class ServiceBusInterface {
 		StopWatchHelper watch = StopWatchHelper.start();
 		long passedTimeInSeconds = 0;
 		long lastLogged = 0;
-		int interval = 10; // log every 10 seconds 
+		int interval = 10; // log every 10 seconds
 		do {
 			lastLogged = logPerInterval(interval, watch, lastLogged);
 
@@ -364,9 +362,9 @@ public class ServiceBusInterface {
 
 			// adds to the master list of outbound messages And filters messages for the
 			// current test.
-             
+
 			filteredMessages.addAll(
-					filterOUtboundMessage(hostSelector, requestBody, partialExpStr,  msgFromOutboundQueue, msgId));
+					filterOUtboundMessage(hostSelector, requestBody, partialExpStr, msgFromOutboundQueue, msgId));
 
 			// check for empty results, if expected by the test
 			if (isEmptyResultsExpectedAndVerified(filteredMessages, partialExpStr)) {
@@ -396,17 +394,15 @@ public class ServiceBusInterface {
 					return true;
 				}
 
-		
 				// verifies first partial expected string And removes that partial message from
 				// partialExpStr
-				partialExpStr = comparePartialExpected(outboundQueueMsg, message, receiver,
-						partialExpStr);
+				partialExpStr = comparePartialExpected(outboundQueueMsg, message, receiver, partialExpStr);
 				// verifies if partialExpStr is empty
 				boolean comparePartialExpected = isPartialExpect(partialExpStr, isPartialExpStr);
 
-				if (comparePartialExpected ) {
+				if (comparePartialExpected) {
 					isTestPass = true;
-					//XmlHelper.addOutputParamValuesToConfig(outputParams, outboundQueueMsg);
+					// XmlHelper.addOutputParamValuesToConfig(outputParams, outboundQueueMsg);
 					break;
 				}
 
@@ -416,23 +412,26 @@ public class ServiceBusInterface {
 
 		// fail test if no messages are received And isTestPass is false
 		if (!isTestPass && filteredMessages.isEmpty()) {
-			if(msgId.isEmpty())
-				Helper.assertTrue("No messages received. SB verification test, please investigate previous test for proper outbound messag", false);
+			if (msgId.isEmpty())
+				Helper.assertTrue(
+						"No messages received. SB verification test, please investigate previous test for proper outbound messag",
+						false);
 			Helper.assertTrue("No messages received. msgId: " + msgId, false);
 		}
-		
+
 		int receivedMessageCount = filteredMessages.size();
-		//TODO: additional testing required for message count verification
-		//Assert.assertEquals(receivedMessageCount, expectedMessageCount,"wrong number of outbound messages received");
+		// TODO: additional testing required for message count verification
+		// Assert.assertEquals(receivedMessageCount, expectedMessageCount,"wrong number
+		// of outbound messages received");
 		return isTestPass;
 
 	}
-	
+
 	public static int getExpectedMessageCount(String partialExpStr) {
-		
-		if(!partialExpStr.isEmpty()) {
-			 String[] values = partialExpStr.split("&&");
-			 return values.length;
+
+		if (!partialExpStr.isEmpty()) {
+			String[] values = partialExpStr.split("&&");
+			return values.length;
 		}
 		return 1;
 	}
@@ -464,50 +463,47 @@ public class ServiceBusInterface {
 			if (!filteredMessages.isEmpty())
 				outboundQueueMsg = new String(filteredMessages.iterator().next().getBody());
 			Helper.assertTrue("No outbound messages should be received, But got message of length: "
-					+ String.valueOf(outboundQueueMsg.length()),
-					filteredMessages.isEmpty());
+					+ String.valueOf(outboundQueueMsg.length()), filteredMessages.isEmpty());
 			return true;
 		}
 		return false;
 	}
 
-	public static boolean isNoResponseExpected(String outboundQueueMsg, String outputParams,
-			String partialExpStr) {
+	public static boolean isNoResponseExpected(String outboundQueueMsg, String outputParams, String partialExpStr) {
 		if (noCheckNeeded(partialExpStr)) {
 			// Put outboundQueueMsg to outputParams
 			// Verify the outbound message from other test frameworks
-            if (!outputParams.isEmpty() && (outboundQueueMsg.contains(FORM_SUBMITTED) || outboundQueueMsg.contains(HOST_FORM_SUBMITTED))) {                    
+			if (!outputParams.isEmpty()
+					&& (outboundQueueMsg.contains(FORM_SUBMITTED) || outboundQueueMsg.contains(HOST_FORM_SUBMITTED))) {
 
-			//	DataHelper.addOutputMessageToConfigParams(outputParams, outboundQueueMsg);
+				// DataHelper.addOutputMessageToConfigParams(outputParams, outboundQueueMsg);
 			}
 			// Not checking anything in outbound queue, so add in small
 			// wait until host order created And also SQL DB order table updated
-            Helper.waitForSeconds(3);
+			Helper.waitForSeconds(3);
 			return true;
 		}
 		return false;
 	}
-	
-	
 
-	public static boolean isNoResponseExpected(String outputParams,String partialExpStr) {
-		if ( noCheckNeeded(partialExpStr)) {
+	public static boolean isNoResponseExpected(String outputParams, String partialExpStr) {
+		if (noCheckNeeded(partialExpStr)) {
 			Helper.waitForSeconds(10);
 			return true;
 		}
 		return false;
 	}
-	
-    /** Returns true if content is empty or contains the noCheckNeeded token
-    * 
-    * @param expStrContent
-    * @return boolean 
-    */
-   public static boolean noCheckNeeded(String expStrContent){      
-   	
-       return (StringUtils.isEmpty(expStrContent) || expStrContent.equalsIgnoreCase(Config.getValue(NO_CHECK_NEEDED)));
-   } 
 
+	/**
+	 * Returns true if content is empty or contains the noCheckNeeded token
+	 * 
+	 * @param expStrContent
+	 * @return boolean
+	 */
+	public static boolean noCheckNeeded(String expStrContent) {
+
+		return (StringUtils.isEmpty(expStrContent) || expStrContent.equalsIgnoreCase(Config.getValue(NO_CHECK_NEEDED)));
+	}
 
 	/**
 	 * filter outbound messages based on messageId, order number or useId/bu if
@@ -522,13 +518,13 @@ public class ServiceBusInterface {
 	 * @param msgId
 	 * @return
 	 */
-	public static Collection<IMessage> filterOUtboundMessage(String hostSelector, String requestBody, String partialExpStr,
-			 Collection<IMessage> msgFromOutboundQueue, String msgId) {
+	public static Collection<IMessage> filterOUtboundMessage(String hostSelector, String requestBody,
+			String partialExpStr, Collection<IMessage> msgFromOutboundQueue, String msgId) {
 
 		if (StringUtils.isEmpty(hostSelector)) {
 			hostSelector = HOST1;
 		}
-		
+
 		// filter messages for the current test
 		CopyOnWriteArrayList<IMessage> filteredMessages = new CopyOnWriteArrayList<IMessage>();
 
@@ -539,7 +535,7 @@ public class ServiceBusInterface {
 			filteredMessages = findMessages(hostSelector, msgId);
 
 			if (filteredMessages.isEmpty() && !requestBody.contains("MsgID")) {
-				TestLog.logPass("requestIdentifier: no message id" );
+				TestLog.logPass("requestIdentifier: no message id");
 				filteredMessages = findMessagesNotContaining(hostSelector, "correlationid");
 			}
 			return filteredMessages;
@@ -549,7 +545,7 @@ public class ServiceBusInterface {
 		// if request body is empty, get order number or task number from expected
 		// results
 		if (requestBody.isEmpty()) {
-			filteredMessages = FilterBasedOnIdentifierInExpectedMessages(hostSelector, "OrderNumber",  partialExpStr);
+			filteredMessages = FilterBasedOnIdentifierInExpectedMessages(hostSelector, "OrderNumber", partialExpStr);
 			if (filteredMessages.isEmpty())
 				filteredMessages = FilterBasedOnIdentifierInExpectedMessages(hostSelector, "TaskNumber", partialExpStr);
 			if (!filteredMessages.isEmpty()) {
@@ -558,23 +554,20 @@ public class ServiceBusInterface {
 			}
 		}
 
-		// if request body is empty, And no order number exists, filter based on login id
+		// if request body is empty, And no order number exists, filter based on login
+		// id
 		// And bu
-		//TODO: uncomment And fix
-/*
-		if (requestBody.isEmpty()) {
-			String userIdetifier = BusinessUnitObject.getApiUserBaseId("1");
-			String userIdentifier = "PAR_US" + userIdetifier;
-			String buIdentifier = "PAR_BU" + userIdetifier;
-			filteredMessages = findMessages(hostSelector, userIdentifier);
-			if (filteredMessages.isEmpty())
-				filteredMessages = findMessages(hostSelector, buIdentifier);
-			if (!filteredMessages.isEmpty()) {
-				TestLog.logPass("requestIdentifier: " + "User info: " + userIdentifier + " bu: " + buIdentifier);
-				return filteredMessages;
-			}
-		}
-		*/
+		// TODO: uncomment And fix
+		/*
+		 * if (requestBody.isEmpty()) { String userIdetifier =
+		 * BusinessUnitObject.getApiUserBaseId("1"); String userIdentifier = "PAR_US" +
+		 * userIdetifier; String buIdentifier = "PAR_BU" + userIdetifier;
+		 * filteredMessages = findMessages(hostSelector, userIdentifier); if
+		 * (filteredMessages.isEmpty()) filteredMessages = findMessages(hostSelector,
+		 * buIdentifier); if (!filteredMessages.isEmpty()) {
+		 * TestLog.logPass("requestIdentifier: " + "User info: " + userIdentifier +
+		 * " bu: " + buIdentifier); return filteredMessages; } }
+		 */
 		return filteredMessages;
 	}
 
@@ -587,12 +580,15 @@ public class ServiceBusInterface {
 	 */
 	public static void addMessages(String hostSelector, Collection<IMessage> msgFromOutboundQueue) {
 		for (IMessage message : msgFromOutboundQueue) {
-						
-			//TODO: not all outbound messages contain host information. need to get correct host for outbound message
-			if(hostSelector.toLowerCase().contains(HOST1.toLowerCase())) hostSelector = HOST1;
-			else if(hostSelector.toLowerCase().contains(HOST2.toLowerCase())) hostSelector = HOST2;
-			
-            message.setLabel(hostSelector);
+
+			// TODO: not all outbound messages contain host information. need to get correct
+			// host for outbound message
+			if (hostSelector.toLowerCase().contains(HOST1.toLowerCase()))
+				hostSelector = HOST1;
+			else if (hostSelector.toLowerCase().contains(HOST2.toLowerCase()))
+				hostSelector = HOST2;
+
+			message.setLabel(hostSelector);
 			outboundMessages.put(message, true);
 			TestLog.logPass("global message size in outbound list: " + outboundMessages.size());
 		}
@@ -609,14 +605,13 @@ public class ServiceBusInterface {
 	 * @param notExpStr
 	 * @return
 	 */
-	public static CopyOnWriteArrayList<IMessage> FilterBasedOnIdentifierInExpectedMessages(String hostSelector, String key, 
-			String partialExpStr) {
+	public static CopyOnWriteArrayList<IMessage> FilterBasedOnIdentifierInExpectedMessages(String hostSelector,
+			String key, String partialExpStr) {
 		String orderValue = "";
 		CopyOnWriteArrayList<IMessage> filteredMessages = new CopyOnWriteArrayList<IMessage>();
 
-		
-		 if (!partialExpStr.isEmpty())
-			orderValue = DataHelper.getTagValue(partialExpStr, key);
+		if (!partialExpStr.isEmpty())
+			orderValue = DataHelper.getXmlTagValue(partialExpStr, key);
 		if (!orderValue.isEmpty())
 			filteredMessages = findMessages(hostSelector, orderValue);
 		return filteredMessages;
@@ -630,20 +625,21 @@ public class ServiceBusInterface {
 			IMessage message = entry.getKey();
 
 			outboundQueueMsg = new String(message.getBody());
-            String messageHost = message.getLabel();
-            
+			String messageHost = message.getLabel();
+
 //            boolean isMessageFound1 = entry.getValue().equals(true) && hostSelector.equalsIgnoreCase(messageHost) && outboundQueueMsg.contains(requestIdentifier);
 //            boolean isMessageFound2 = entry.getValue().equals(true) &&  outboundQueueMsg.contains(requestIdentifier);
 //            if(isMessageFound1 != isMessageFound2) {
 //				ApiLogger.log(Level.SEVERE,"wrong message rejected : "+ hostSelector + " messageHost: " + messageHost + " requestIdentifier: " + requestIdentifier );
 //
 //            }
-            
-			if (entry.getValue().equals(true) &&  outboundQueueMsg.toLowerCase().contains(requestIdentifier.toLowerCase())) {
+
+			if (entry.getValue().equals(true)
+					&& outboundQueueMsg.toLowerCase().contains(requestIdentifier.toLowerCase())) {
 //				if(!hostSelector.equalsIgnoreCase(messageHost)) {
 //					ApiLogger.log(Level.SEVERE,"host not matching : "+ hostSelector + " messageHost: " + messageHost + " requestIdentifier: " + requestIdentifier );
 //				}
-				
+
 				filteredMessages.add(message);
 				outboundMessages.put(message, false);
 			}
@@ -659,7 +655,8 @@ public class ServiceBusInterface {
 	 * @param requestIdentifier
 	 * @return
 	 */
-	public static CopyOnWriteArrayList<IMessage> findMessagesNotContaining(String hostSelector, String requestIdentifier) {
+	public static CopyOnWriteArrayList<IMessage> findMessagesNotContaining(String hostSelector,
+			String requestIdentifier) {
 		CopyOnWriteArrayList<IMessage> filteredMessages = new CopyOnWriteArrayList<IMessage>();
 		String outboundQueueMsg;
 
@@ -667,9 +664,10 @@ public class ServiceBusInterface {
 			IMessage message = entry.getKey();
 
 			outboundQueueMsg = new String(message.getBody());
-            String messageHost = message.getLabel();
+			String messageHost = message.getLabel();
 
-			if (entry.getValue().equals(true) && !outboundQueueMsg.toLowerCase().contains(requestIdentifier.toLowerCase())) {
+			if (entry.getValue().equals(true)
+					&& !outboundQueueMsg.toLowerCase().contains(requestIdentifier.toLowerCase())) {
 				filteredMessages.add(message);
 				outboundMessages.put(message, false);
 			}
@@ -738,7 +736,7 @@ public class ServiceBusInterface {
 				else {
 					String outboundMessage = new String(message.getBody());
 					if (outboundMessage.contains(MESSAGE_ID_PREFIX)) {
-						correlationId = DataHelper.getTagValue(outboundMessage, "MsgCorrelationID");
+						correlationId = DataHelper.getXmlTagValue(outboundMessage, "MsgCorrelationID");
 						TestLog.logPass("messageId received. correlationId: " + correlationId);
 					}
 
@@ -770,8 +768,7 @@ public class ServiceBusInterface {
 			// Empty check
 			if (expStr.equalsIgnoreCase(Config.getValue(EMPTY_CHECK))) {
 				Helper.assertTrue("No outbound messages should be received, But got message of length: "
-						+ String.valueOf(outboundQueueMsg.length()),
-						outboundQueueMsg.isEmpty());
+						+ String.valueOf(outboundQueueMsg.length()), outboundQueueMsg.isEmpty());
 			} else {
 				// Assert.assertFalse(outboundQueueMsg.isEmpty(), "No messages received.");
 
@@ -833,63 +830,45 @@ public class ServiceBusInterface {
 				// need to show up for the test to pass.
 				LinkedList<String> partialExpStrList = new LinkedList<>(Arrays.asList(partialExpStr.split(AND_TOKEN)));
 				Iterator<String> expectedStringsIter = partialExpStrList.iterator();
-			
-				//TODO: uncomment And fix
-/*
-				XmlConverter saxXmlReader = XmlConverter.getInstance();
-				boolean testPassed = false;
-				ArrayList<String> failedXPaths = new ArrayList<>();
 
-				// For each expected string, see if it matches the outbound queue message.
-				// If a match is found, remove from it from the list of expected strings
-				// to check for on the next iteration And read the next message in the queue.
-				// If the outbound queue message doesn't match any expected strings, Then the
-				// test case fails.
-				// The test pass When all of the expected strings have matched to their
-				// corresonding
-				// outbound queue message.
-				String expectedString = (String) expectedStringsIter.next();
-				ArrayList<String> xPathList = saxXmlReader.getXPaths(expectedString);
-
-				// Assert.assertNotNull(xPathList, "Cannot obtain xpaths list from string: " +
-				// expectedString);
-				boolean foundMatch = true;
-				failedXPaths = new ArrayList<>();
-
-				if (xPathList == null)
-					return partialExpStr;
-
-				Iterator<String> xPathIter = xPathList.iterator();
-				while (xPathIter.hasNext()) {
-					String xpath = xPathIter.next();
-					// TEMPORARY skip test for WorkOrderNumber
-					if (xpath.startsWith(
-							"//*[local-name()='Message' And namespace-uri()='urn:soi.ventyx.com:message:V1_3'][1]/*[local-name()='Payload' And namespace-uri()='urn:soi.ventyx.com:message:V1_3'][1]/*[local-name()='WorkOrder' And namespace-uri()='urn:soi.ventyx.com:payload:V1_3'][1]/*[local-name()='WorkOrderRecord' And namespace-uri()='urn:soi.ventyx.com:payload:V1_3'][1]/*[local-name()='OrderNumber' And namespace-uri()='urn:soi.ventyx.com:payload:V1_3']")) {
-						continue;
-					}
-					HasXPathMatcher xpathMatcher = new HasXPathMatcher(xpath);
-					boolean xpathMatch = false;
-					try {
-						xpathMatch = xpathMatcher.matches(outboundQueueMsg);
-					} catch (Exception e) {
-						e.getMessage();
-					}
-					if (!xpathMatch) {
-						foundMatch = false;
-						failedXPaths.add(xpath);
-						break;
-					}
-
-				}
-
-				// If found, we remove the expected string from collection.
-				if (foundMatch) {
-					partialExpStrList.remove(expectedString);
-					expectedStringsIter = partialExpStrList.iterator();
-					return String.join("&&", partialExpStrList);
-
-				}
-				*/
+				// TODO: uncomment And fix
+				/*
+				 * XmlConverter saxXmlReader = XmlConverter.getInstance(); boolean testPassed =
+				 * false; ArrayList<String> failedXPaths = new ArrayList<>();
+				 * 
+				 * // For each expected string, see if it matches the outbound queue message. //
+				 * If a match is found, remove from it from the list of expected strings // to
+				 * check for on the next iteration And read the next message in the queue. // If
+				 * the outbound queue message doesn't match any expected strings, Then the //
+				 * test case fails. // The test pass When all of the expected strings have
+				 * matched to their // corresonding // outbound queue message. String
+				 * expectedString = (String) expectedStringsIter.next(); ArrayList<String>
+				 * xPathList = saxXmlReader.getXPaths(expectedString);
+				 * 
+				 * // Assert.assertNotNull(xPathList, "Cannot obtain xpaths list from string: "
+				 * + // expectedString); boolean foundMatch = true; failedXPaths = new
+				 * ArrayList<>();
+				 * 
+				 * if (xPathList == null) return partialExpStr;
+				 * 
+				 * Iterator<String> xPathIter = xPathList.iterator(); while
+				 * (xPathIter.hasNext()) { String xpath = xPathIter.next(); // TEMPORARY skip
+				 * test for WorkOrderNumber if (xpath.startsWith(
+				 * "//*[local-name()='Message' And namespace-uri()='urn:soi.ventyx.com:message:V1_3'][1]/*[local-name()='Payload' And namespace-uri()='urn:soi.ventyx.com:message:V1_3'][1]/*[local-name()='WorkOrder' And namespace-uri()='urn:soi.ventyx.com:payload:V1_3'][1]/*[local-name()='WorkOrderRecord' And namespace-uri()='urn:soi.ventyx.com:payload:V1_3'][1]/*[local-name()='OrderNumber' And namespace-uri()='urn:soi.ventyx.com:payload:V1_3']"
+				 * )) { continue; } HasXPathMatcher xpathMatcher = new HasXPathMatcher(xpath);
+				 * boolean xpathMatch = false; try { xpathMatch =
+				 * xpathMatcher.matches(outboundQueueMsg); } catch (Exception e) {
+				 * e.getMessage(); } if (!xpathMatch) { foundMatch = false;
+				 * failedXPaths.add(xpath); break; }
+				 * 
+				 * }
+				 * 
+				 * // If found, we remove the expected string from collection. if (foundMatch) {
+				 * partialExpStrList.remove(expectedString); expectedStringsIter =
+				 * partialExpStrList.iterator(); return String.join("&&", partialExpStrList);
+				 * 
+				 * }
+				 */
 			}
 
 		}
@@ -913,28 +892,26 @@ public class ServiceBusInterface {
 				// Assert.assertFalse(outboundQueueMsg.isEmpty(), "No messages received.");
 
 				notExpStr = DataHelper.replaceParameters(notExpStr);
-				//TODO: uncomment And fix
-/*
-				XmlConverter saxXmlReader = XmlConverter.getInstance();
-				ArrayList<String> xPathList = saxXmlReader.getXPaths(notExpStr);
-				Helper.assertTrue("Cannot obtain xpaths list from string: " + notExpStr, xPathList != null);
-				for (String xpath : xPathList) {
-
-					// TEMPORARY skip test for WorkOrderNumber
-					if (!xpath.startsWith(
-							"//*[local-name()='Message' And namespace-uri()='urn:soi.ventyx.com:message:V1_3'][1]/*[local-name()='Payload' And namespace-uri()='urn:soi.ventyx.com:message:V1_3'][1]/*[local-name()='WorkOrder' And namespace-uri()='urn:soi.ventyx.com:payload:V1_3'][1]/*[local-name()='WorkOrderRecord' And namespace-uri()='urn:soi.ventyx.com:payload:V1_3'][1]/*[local-name()='OrderNumber' And namespace-uri()='urn:soi.ventyx.com:payload:V1_3']")) {
-						assertThat(outboundQueueMsg, not(HasXPathMatcher.hasXPath(xpath)));
-					}
-				}
-				*/
+				// TODO: uncomment And fix
+				/*
+				 * XmlConverter saxXmlReader = XmlConverter.getInstance(); ArrayList<String>
+				 * xPathList = saxXmlReader.getXPaths(notExpStr);
+				 * Helper.assertTrue("Cannot obtain xpaths list from string: " + notExpStr,
+				 * xPathList != null); for (String xpath : xPathList) {
+				 * 
+				 * // TEMPORARY skip test for WorkOrderNumber if (!xpath.startsWith(
+				 * "//*[local-name()='Message' And namespace-uri()='urn:soi.ventyx.com:message:V1_3'][1]/*[local-name()='Payload' And namespace-uri()='urn:soi.ventyx.com:message:V1_3'][1]/*[local-name()='WorkOrder' And namespace-uri()='urn:soi.ventyx.com:payload:V1_3'][1]/*[local-name()='WorkOrderRecord' And namespace-uri()='urn:soi.ventyx.com:payload:V1_3'][1]/*[local-name()='OrderNumber' And namespace-uri()='urn:soi.ventyx.com:payload:V1_3']"
+				 * )) { assertThat(outboundQueueMsg, not(HasXPathMatcher.hasXPath(xpath))); } }
+				 */
 			}
-			
+
 		}
 		return false;
 	}
 
 	/**
-	 * Disabled, due to parallelization optimization. we cannot have purges in middle of test runs
+	 * Disabled, due to parallelization optimization. we cannot have purges in
+	 * middle of test runs
 	 */
 	public static void purgeQueues() {
 		TestLog.logPass("purgeServiceBusReceivers is disabled. Queued messages are not purged.");
@@ -945,10 +922,10 @@ public class ServiceBusInterface {
 	 */
 	public static void purgeOutboundQueues() {
 		TestLog.logPass("purging queue messages from service bus by types");
-		
+
 		String[] types = Config.getValue(PURGE_SB_RECEIVERS).split(",");
-		
-		for(String type : types) {
+
+		for (String type : types) {
 			purgeReceivers(sbInstance.get(type));
 		}
 	}
@@ -956,20 +933,20 @@ public class ServiceBusInterface {
 	/**
 	 * Purge the receivers.
 	 */
-	private static void purgeReceivers(serviceBus serviceBus) {	
+	private static void purgeReceivers(serviceBus serviceBus) {
 		try {
-			
-			for (Entry<String, IMessageReceiver> entry : serviceBus.receivers.entrySet()) {		
+
+			for (Entry<String, IMessageReceiver> entry : serviceBus.receivers.entrySet()) {
 				if (entry.getValue() != null) {
 					while (entry.getValue().receiveBatch(100, Duration.ofSeconds(1)) != null) {
 					}
 				}
-			}	
+			}
 		} catch (ServiceBusException | InterruptedException ex) {
 			TestLog.ConsoleLogWarn(ex.getMessage());
 		}
 	}
-	
+
 	class serviceBus {
 		boolean isInitiated = false;
 		Map<String, IMessageReceiver> receivers = new ConcurrentHashMap<String, IMessageReceiver>();
@@ -978,9 +955,8 @@ public class ServiceBusInterface {
 		String inboundQueue = "";
 		String inbound = "";
 		String outboundTopic = "";
-		String outbound = "";	
+		String outbound = "";
 		List<String> hosts = new ArrayList<String>();
-	}	
-	
+	}
 
 }

@@ -1,5 +1,6 @@
 package core.apiCore.interfaces;
 
+import java.util.List;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -10,6 +11,7 @@ import core.apiCore.helpers.XmlHelper;
 import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.logger.TestLog;
+import core.support.objects.KeyValue;
 import core.support.objects.ServiceObject;
 
 /**
@@ -21,10 +23,9 @@ public class RabbitMqInterface {
 	private static final String RABBIT_MQ_HOST = "rabbitMq.host";
 	private static final String RABBIT_MQ_VIRTUAL_HOST = "rabbitMq.virtualhost";
 	private static final String RABBIT_MQ_USER = "rabbitMq.user";
-	private static final String RABBIT_MQ_PASS = "rabbitMq.assword";
-	private static final String RABBIT_MQ_EXCHANGE = "rabbitMq.xchange";
+	private static final String RABBIT_MQ_PASS = "rabbitMq.password";
+	private static final String RABBIT_MQ_EXCHANGE = "rabbitMq.exchange";
 	private static final String RABBIT_MQ_QUEUE = "rabbitMq.defaultQueue";
-
 
 	public static Connection connection = null;
 	public static Channel channel;
@@ -32,24 +33,27 @@ public class RabbitMqInterface {
 	/**
 	 * interface for database calls
 	 * 
-	 * @param apiObject
+	 * @param serviceObject
 	 * @return
 	 * @throws Exception
 	 */
-	public static void testRabbitMqInterface(ServiceObject apiObject) throws Exception {
+	public static void testRabbitMqInterface(ServiceObject serviceObject) throws Exception {
 
 		// connect to rabbitMq
-		connectRabbitMq(apiObject);
+		connectRabbitMq(serviceObject);
+		
+		// evaluate additional options
+		evaluateOption(serviceObject);
 
 		// send message
-		sendRabbitMqMessage(apiObject);
+		sendRabbitMqMessage(serviceObject);
 	}
 
 	/**
 	 * 
 	 * @throws Exception
 	 */
-	public synchronized static void connectRabbitMq(ServiceObject apiObject) {
+	public synchronized static void connectRabbitMq(ServiceObject serviceObject) {
 		if (channel == null) {
 			try {
 				ConnectionFactory factory = new ConnectionFactory();
@@ -81,7 +85,8 @@ public class RabbitMqInterface {
 		serviceObject.withRequestBody(requestBody);
 
 		// Get request body using template and/or requestBody data column
-		requestBody = XmlHelper.getRequestBodyFromXmlTemplate(serviceObject);;
+		requestBody = XmlHelper.getRequestBodyFromXmlTemplate(serviceObject);
+
 		serviceObject.withRequestBody(requestBody);
 
 		// send message
@@ -90,6 +95,7 @@ public class RabbitMqInterface {
 
 	/**
 	 * send rabbitMq message
+	 * 
 	 * @param apiObject
 	 */
 	public static void sendMessage(ServiceObject serviceObject) {
@@ -103,7 +109,37 @@ public class RabbitMqInterface {
 			throw new RuntimeException("Could not send message. ", e);
 		}
 	}
-	
+
+	public static void evaluateOption(ServiceObject serviceObject) {
+		// if no option specified
+		if (serviceObject.getOption().isEmpty()) {
+			return;
+		}
+
+		// replace parameters for request body
+		serviceObject.withOption(DataHelper.replaceParameters(serviceObject.getOption()));
+
+		// get key value mapping of header parameters
+		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getOption());
+
+		// iterate through key value pairs for headers, separated by ";"
+		for (KeyValue keyword : keywords) {
+
+			// if additional options
+			switch (keyword.key) {
+
+			case "EXCHANGE":
+				Config.putValue(RABBIT_MQ_EXCHANGE, keyword.value);
+				break;
+			case "QUEUE":
+				Config.putValue(RABBIT_MQ_QUEUE, keyword.value);
+				break;
+			default:
+				break;
+			}
+		}
+	}
+
 	/**
 	 * close connection
 	 */

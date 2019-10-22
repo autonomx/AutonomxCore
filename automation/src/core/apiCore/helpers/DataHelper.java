@@ -115,6 +115,19 @@ public class DataHelper {
 		}
 		return keywords;
 	}
+	
+	/**
+	 * get value in between tags >value<
+	 * 
+	 * @param requestBody
+	 * @param tag
+	 * @return
+	 */
+	public static String getXmlTagValue(String value, String tag) {
+		
+		return getXmlTagValue(value, tag, ":" + tag + ">(.+?)</");
+	}
+
 
 	/**
 	 * get value in between tags >value<
@@ -123,10 +136,9 @@ public class DataHelper {
 	 * @param tag
 	 * @return
 	 */
-	public static String getTagValue(String requestBody, String tag) {
-		String value = "";
+	public static String getXmlTagValue(String requestBody, String tag, String patternString) {
+		String value = StringUtil.EMPTY_STRING;
 		try {
-			String patternString = ":" + tag + ">(.+?)</";
 			final Pattern pattern = Pattern.compile(patternString);
 			final Matcher matcher = pattern.matcher(requestBody);
 			matcher.find();
@@ -284,13 +296,19 @@ public class DataHelper {
 			val = Arrays.equals(expectedArray, actualArray);
 			if(!val) return Arrays.toString(actualArray) + " does not equal " + Arrays.toString(expectedArray);
 			break;
+		case "jsonbody":
+			TestLog.logPass(
+					"verifying response: " + responseString + " against expected: " + expectedString);
+			String error = JsonHelper.validateByJsonBody(expectedString,  responseString);
+			if(!error.isEmpty()) return error;
+			break;
 		case "isNotEmpty":
 			TestLog.logPass("verifying response for path is not empty");
-			if(responseString.isEmpty()) return "value is empty";
+			if(isEmpty(responseString)) return "value is empty";
 			break;
 		case "isEmpty":
 			TestLog.logPass("verifying response for path is empty ");
-			if(!responseString.isEmpty()) return "value is not empty";
+			if(!isEmpty(responseString)) return "value is not empty";
 			break;
 		default:
 			Helper.assertFalse("Command not set. Options: hasItems, equalTo,"
@@ -310,7 +328,38 @@ public class DataHelper {
 		return StringUtils.join(values, ",");
 	}
 	
+	/**
+	 * convert object to string
+	 * object can be array
+	 * @param values
+	 * @return
+	 */
+	public static String ObjectToString(Object values) {
+		String stringVal = values.toString();
+		stringVal = stringVal.replaceAll("[\\[\\](){}]","");
+		stringVal = stringVal.replace("\"", "");
+		return stringVal;
+	}
+	
+	/**
+	 * convert object to string
+	 * object can be array
+	 * @param values
+	 * @return
+	 */
+	public static String ObjectRemoveBrackets(Object values) {
+		String stringVal = values.toString();
+		stringVal = stringVal.replaceAll("[\\[\\]]","");
+		return stringVal;
+	}
+	
 	public static List<String> splitRight(String value, String regex, int limit) {
+		
+		 // get jason key value
+	    if(value.contains("jsonbody")) {
+	    	return getJsonKeyValue(value);
+	    }
+		
 		String string = value;
 	    List<String> result = new ArrayList<String>();
 	    String[] temp = new String[0];
@@ -326,13 +375,37 @@ public class DataHelper {
 	    }
 	    
 	    // handle single value
-	    if(value.split(":").length == 1) result.add(string);
-	 
+	    if(value.split(":").length == 1) result.add(string);  
+	  
 	    Collections.reverse(result);
 	    return result;
+	}
+	
+	/**
+	 * get json key value
+	 * eg. store.book[?(@.price < 10)]:jsonbody(["key":"value"])
+	 * becomes arraylist of size 2. 
+	 * @param value
+	 * @return
+	 */
+	private static List<String> getJsonKeyValue(String value) {
+	    List<String> result = new ArrayList<String>();
+
+		String[] valueArray = value.split(":jsonbody");
+		result.add(valueArray[0]);
+		result.add("jsonbody" + valueArray[1]);
+		return result;
 	}
 
 	private static String modifyRegex(String regex){
 	    return regex + "(?!.*" + regex + ".*$)";
+	}
+	
+	public static boolean isEmpty(String value) {
+		if(StringUtils.isBlank(value))
+			return true;
+		if(value.equals("null"))
+			return true;
+		return false;		
 	}
 }

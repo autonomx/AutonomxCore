@@ -1,7 +1,10 @@
 package core.apiCore.helpers;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
@@ -12,13 +15,20 @@ import org.skyscreamer.jsonassert.JSONCompare;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.skyscreamer.jsonassert.JSONCompareResult;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.Option;
 import com.jayway.jsonpath.ReadContext;
 
 import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.logger.TestLog;
 import core.support.objects.KeyValue;
+import core.support.objects.ServiceObject;
 import io.restassured.response.Response;
 
 public class JsonHelper {
@@ -79,15 +89,8 @@ public class JsonHelper {
 	 * @return
 	 */
 	public static String getJsonValue(Response response, String path) {
-		String value = StringUtils.EMPTY;
-		List<String> values = getJsonListValueResponse(response, path);
-
-		if (values == null || values.isEmpty()) {
-			value = getJsonStringResponse(response, path);
-		}
-
-		if (values != null && !values.isEmpty())
-			value = DataHelper.listToString(values);
+		String jsonResponse = response.getBody().asString();
+		String value = getJsonValue(jsonResponse, path);
 		return value;
 	}
 
@@ -97,23 +100,41 @@ public class JsonHelper {
 	 * 
 	 * @param path
 	 *            https://github.com/json-path/JsonPath
+	 *           
+	 *            for testing json path values:
+	 *            	http://jsonpath.herokuapp.com/
 	 * @return value string list separated by ","
 	 */
 	public static String getJsonValue(String json, String path) {
-		String value = StringUtils.EMPTY;
-		List<String> values = new ArrayList<String>();
+		String prefix = "$.";
 		
-		ReadContext ctx = JsonPath.parse(json);
+		Object values = null;
+		
+		// in case user forgets to remove prefix
+		if(path.startsWith(prefix)) 
+			path = path.replace(prefix, "");
+		
+		Configuration config = Configuration.defaultConfiguration().addOptions(Option.DEFAULT_PATH_LEAF_TO_NULL).addOptions(Option.ALWAYS_RETURN_LIST);
+
+		ReadContext ctx = JsonPath.using(config).parse(json);		
 		
 		try {
-			values = ctx.read("$." + path);
+			values = ctx.read(prefix + path);
 		}catch(Exception e) {
-			value = ctx.read("$." + path);
+			e.printStackTrace();
+			Helper.assertFalse("invalid path: '" + path + "'. see http://jsonpath.herokuapp.com to validate your path against json string. see https://github.com/json-path/JsonPath for more info.");
 		}
+		
 
-		if (values != null && !values.isEmpty())
-			value = DataHelper.listToString(values);
-		return value;
+		if(values == null)
+			Helper.assertFalse("no results returned: '" + path + "'. see http://jsonpath.herokuapp.com to validate your path against json string. see https://github.com/json-path/JsonPath for more info.");
+
+		// return json response without normalizing
+		if(isValidJsonkeyValue(values)) {
+			return values.toString();
+		}
+		
+		return DataHelper.ObjectToString(values);
 	}
 
 	/**
@@ -124,18 +145,11 @@ public class JsonHelper {
 	 * @return
 	 */
 	public static String getJsonValueFromXml(String xml, String path) {
-		String value = StringUtils.EMPTY;
 
 		// convert xml stirng to json string
 		String json = XMLToJson(xml);
-
-		// parse json string and get path value
-		ReadContext ctx = JsonPath.parse(json);
-		List<String> values = ctx.read("$." + path);
-
-		if (values != null && !values.isEmpty())
-			value = DataHelper.listToString(values);
-		return value;
+		
+		return getJsonValue(json, path);
 	}
 
 	/**
@@ -161,7 +175,7 @@ public class JsonHelper {
 		return response.getBody().asString();
 	}
 
-	private static List<String> getJsonListValueResponse(Response response, String path) {
+	public static List<String> getJsonListValueResponse(Response response, String path) {
 		List<String> values = new ArrayList<String>();
 		try {
 			values = response.jsonPath().getList(path);
@@ -176,7 +190,7 @@ public class JsonHelper {
 		return values;
 	}
 
-	private static String getJsonStringResponse(Response response, String path) {
+	public static String getJsonStringResponse(Response response, String path) {
 		String value = "";
 
 		if (response.path(path) instanceof String) {
@@ -212,7 +226,7 @@ public class JsonHelper {
 		List<String> errorMessages = new ArrayList<String>();
 		for (KeyValue keyword : keywords) {
 			String jsonPath = Helper.stringNormalize(keyword.key);
-			String expectedValue = Helper.stringNormalize((String) keyword.value);
+			String expectedValue = Helper.stringRemoveLines((String) keyword.value);
 			String command = "";
 
 			String[] expected = expectedValue.split("[\\(\\)]");
@@ -232,6 +246,9 @@ public class JsonHelper {
 			String errorMessage =  DataHelper.validateCommand(command, responseString, expectedValue, keyword.position);
 			errorMessages.add(errorMessage);
 		}
+		
+		// remove all empty response strings
+		errorMessages.removeAll(Collections.singleton(""));
 		return errorMessages;
 	}
 
@@ -303,7 +320,7 @@ public class JsonHelper {
 	public static List<String> validateByKeywords(String expectedJson, Response response) {
 		List<String> errorMessages = new ArrayList<String>();
 		
-		expectedJson = Helper.stringNormalize(expectedJson);
+		expectedJson = Helper.stringRemoveLines(expectedJson);
 		if (!JsonHelper.isJSONValid(expectedJson, false)) {
 			if (expectedJson.startsWith(DataHelper.VERIFY_JSON_PART_INDICATOR)) {
 				// get hashmap of json path And verification
@@ -361,5 +378,122 @@ public class JsonHelper {
 		}
 
 		return expected;
+	}
+	
+	/**
+	 * if request body is empty, return json template string
+	 * if request body contains @ variable tag, replace tag with value
+	 * eg. "features.feature.name:1:value_<@_TIME_19>"
+	 * @param serviceObject
+	 * @return
+	 */
+	public static String getRequestBodyFromJsonTemplate(ServiceObject serviceObject) {
+		Path templatePath = DataHelper.getTemplateFilePath(serviceObject.getTemplateFile());
+		String jsonFileValue = convertJsonFileToString(templatePath);
+        jsonFileValue = DataHelper.replaceParameters(jsonFileValue);
+        
+		if(serviceObject.getRequestBody().isEmpty()) {
+			return jsonFileValue;
+		}else {
+			return updateJsonFromRequestBody(serviceObject);
+		}	
+	}
+	
+	public static String convertJsonFileToString(Path templatePath) {
+		return Helper.readFileContent(templatePath.toString());		
+	}
+	
+	public static String updateJsonFromRequestBody(ServiceObject serviceObject) {
+		String jsonString = DataHelper.getServiceObjectTemplateString(serviceObject);
+		Helper.assertTrue("json string is empty", !jsonString.isEmpty());
+		
+		// replace parameters
+		jsonString = DataHelper.replaceParameters(jsonString);
+		serviceObject.withRequestBody(DataHelper.replaceParameters(serviceObject.getRequestBody()));
+
+		// get key value mapping of header parameters
+		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getRequestBody());
+		for(KeyValue keyword : keywords) {
+			jsonString = replaceJsonPathValue(jsonString, keyword.key, keyword.value.toString());
+		}
+		return jsonString;
+	}
+	
+	
+	/**
+	 * replace json string value based on json path
+	 * eg. path: cars.name:toyota  or cars.name:2:toyota
+	 * @param jsonString
+	 * @param path
+	 * @param value
+	 * @return
+	 */
+	public static String replaceJsonPathValue(String jsonString, String path, String value) {
+		
+		
+		DocumentContext doc = JsonPath.parse(jsonString);
+		
+		try {
+			doc.set("$."+ path, value);
+		}catch(Exception e) {
+			e.printStackTrace();	
+		}
+		
+		JsonObject jsonObj = new GsonBuilder().create().toJsonTree(doc.json()).getAsJsonObject();
+		return jsonObj.toString();
+	}
+	
+	/**
+	 * return true if json string is a json array
+	 * @param jsonString
+	 * @return
+	 */
+	public static JSONArray getJsonArray(String jsonString) {
+		try {
+			return new JSONArray(jsonString);
+		} catch (JSONException ex) {
+			ex.getMessage();		
+		}
+		return null;
+	}
+	
+	/**
+	 * return true if json string is a json o
+	 * @param jsonString
+	 * @return
+	 */
+	public static JSONObject getJsonObject(String jsonString) {
+		try {
+			return new JSONObject(jsonString);
+		} catch (JSONException ex) {
+			ex.getMessage();		
+		}
+		return null;
+	}
+	
+	/**
+	 * checks if json string is a structured json body with key value pairs, or just array list. eg:
+	 *  [{"key":"value"}] vs ["value1","value2"]
+	 * @param jsonString
+	 * @return
+	 */
+	public static boolean isValidJsonkeyValue(Object jsonObject) {
+		if(jsonObject instanceof Map)
+			jsonObject = new Gson().toJson(jsonObject, Map.class);
+		
+		String jsonString = jsonObject.toString();
+		
+		if(getJsonArray(jsonString) == null && getJsonObject(jsonString) == null)
+			return false;
+		
+		String jsonNormalized = DataHelper.ObjectToString(jsonString);
+		if(jsonNormalized.contains(":"))
+			return true;
+		return false;
+	}
+	
+	public static String updateJsonFromJasonPath(String jsonPath) {
+		return jsonPath;
+		
 	}
 }

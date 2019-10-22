@@ -26,8 +26,8 @@ public class AzureInterface {
 	 * String InterfaceType, String UriPath, String ContentType, String Method,
 	 * String Option, String RequestHeaders, String TemplateFile, String
 	 * RequestBody, String OutputParams, String RespCodeExp, String
-	 * ExpectedResponse, String ExpectedResponse, String NotExpectedResponse,
-	 * String TcComments, String tcName, String tcIndex)
+	 * ExpectedResponse, String ExpectedResponse, String NotExpectedResponse, String
+	 * TcComments, String tcName, String tcIndex)
 	 *
 	 * interface for azure storage api calls
 	 * 
@@ -66,9 +66,8 @@ public class AzureInterface {
 
 		CloudFileDirectory cloudFileDirectory = getCloudfileDirectory(apiObject);
 
-
 		String filePath = DataHelper.getTemplateFileLocation(apiObject.getTemplateFile());
-	
+
 		// Define the path to a local file.
 		TestLog.logPass("uploading file: " + apiObject.getTemplateFile());
 		CloudFile cloudFile = cloudFileDirectory.getFileReference(apiObject.getTemplateFile());

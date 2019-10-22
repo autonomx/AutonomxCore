@@ -30,7 +30,7 @@ public class ServiceObject {
 	public ServiceObject setApiObject(String TestSuite, String TestCaseID, String RunFlag, String Description,
 			String InterfaceType, String UriPath, String ContentType, String Method, String Option,
 			String RequestHeaders, String TemplateFile, String RequestBody, String OutputParams, String RespCodeExp,
-			 String PartialExpectedResponse, String TcComments,
+			 String ExpectedResponse, String TcComments,
 			String tcName, String tcIndex, String testType) {
 		this.TestSuite = TestSuite;
 		this.TestCaseID = TestCaseID;
@@ -46,7 +46,7 @@ public class ServiceObject {
 		this.RequestBody = replaceQuotes(RequestBody);
 		this.OutputParams = OutputParams;
 		this.RespCodeExp = RespCodeExp;
-		this.ExpectedResponse = replaceQuotes(PartialExpectedResponse);
+		this.ExpectedResponse = replaceQuotes(ExpectedResponse);
 		this.TcComments = TcComments;
 		this.tcName = tcName;
 		this.tcIndex = tcIndex;

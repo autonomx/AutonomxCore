@@ -479,6 +479,15 @@ public class UtilityHelper {
 	 * @param absolutePath
 	 * @return
 	 */
+	protected static String readFileContent(String absolutePath) {
+		return getFileContent(absolutePath);
+	}
+	
+	/**
+	 * gets file content as String
+	 * @param absolutePath
+	 * @return
+	 */
 	protected static String getFileContent(String absolutePath) {
 		String content = StringUtils.EMPTY;
 		File file = new File(absolutePath);
