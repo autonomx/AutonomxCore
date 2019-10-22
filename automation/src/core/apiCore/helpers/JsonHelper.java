@@ -114,7 +114,7 @@ public class JsonHelper {
 		if(path.startsWith(prefix)) 
 			path = path.replace(prefix, "");
 		
-		Configuration config = Configuration.defaultConfiguration().addOptions(Option.DEFAULT_PATH_LEAF_TO_NULL).addOptions(Option.ALWAYS_RETURN_LIST);
+		Configuration config = Configuration.defaultConfiguration().addOptions(Option.ALWAYS_RETURN_LIST);
 
 		ReadContext ctx = JsonPath.using(config).parse(json);		
 		
@@ -126,7 +126,7 @@ public class JsonHelper {
 		}
 		
 
-		if(values == null)
+		if(values == null )
 			Helper.assertFalse("no results returned: '" + path + "'. see http://jsonpath.herokuapp.com to validate your path against json string. see https://github.com/json-path/JsonPath for more info.");
 
 		// return json response without normalizing

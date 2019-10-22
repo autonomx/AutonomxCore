@@ -280,6 +280,18 @@ public class DataHelper {
 			val = Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
 			if(!val) return Arrays.toString(actualArray) + " does not contain in any order " + Arrays.toString(expectedArray);
 			break;
+		case "integerGreaterThan":
+			val = compareNumbers(actualString, expectedString, "greaterThan");
+			if(!val) return "actual: " +  actualString + " is is less than expected: " + expectedString;
+			break;
+		case "integerLessThan":
+			val = compareNumbers(actualString, expectedString, "lessThan");
+			if(!val) return "actual: " +  actualString + " is is greater than expected: " + expectedString;
+			break;
+		case "integerEqual":
+			val = compareNumbers(actualString, expectedString, "equal");
+			if(!val) return "actual: " +  actualString + " is not equal to expected: " + expectedString;
+			break;
 		case "nodeSizeGreaterThan":
 			int intValue = Integer.valueOf(expectedString);
 			TestLog.logPass("verifying node with size " + actualArray.length + " greater than " + intValue);
@@ -316,6 +328,64 @@ public class DataHelper {
 			break;
 		}
 		return StringUtil.EMPTY_STRING;
+	}
+	
+	public static boolean isGreaterThan(String value1, String value2) {
+		if(Helper.isNumeric(value1) && Helper.isNumeric(value2)) {
+			if(Integer.valueOf(value1) > Integer.valueOf(value2))
+					return true;
+		}
+		return false;
+	}
+	
+	public static boolean isLessThan(String value1, String value2) {
+		if(Helper.isNumeric(value1) && Helper.isNumeric(value2)) {
+			if(Integer.valueOf(value1) < Integer.valueOf(value2))
+					return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * compare string integer values based on comparator value
+	 * @param value1
+	 * @param value2
+	 * @param comparator
+	 * @return
+	 */
+	public static boolean compareNumbers(String value1, String value2, String comparator) {
+		if(!Helper.isNumeric(value1) && !Helper.isNumeric(value2))
+			return false;
+		
+		int val1Int = Integer.valueOf(value1);
+		int val2Int = Integer.valueOf(value2);
+		return compareNumbers(val1Int, val2Int, comparator );
+	}
+	
+	/**
+	 * compare integer values
+	 * @param value1
+	 * @param value2
+	 * @param comparator
+	 * @return
+	 */
+	public static boolean compareNumbers(int value1, int value2, String comparator) {
+					
+		switch (comparator) {
+		case "greaterThan":
+			if(value1 > value2)
+				return true;
+		break;
+		case "lessThan":
+			if(value1 < value2)
+				return true;
+			break;
+		case "equalTo":
+			if(value1 == value2)
+				return true;
+			break;
+		}	
+		return false;
 	}
 
 	/**
