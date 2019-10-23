@@ -13,6 +13,7 @@ import core.support.configReader.Config;
 import core.support.logger.TestLog;
 import core.support.objects.KeyValue;
 import core.support.objects.ServiceObject;
+import core.support.objects.TestObject;
 
 /**
  * @author ehsan.matean
@@ -24,8 +25,9 @@ public class RabbitMqInterface {
 	private static final String RABBIT_MQ_VIRTUAL_HOST = "rabbitMq.virtualhost";
 	private static final String RABBIT_MQ_USER = "rabbitMq.user";
 	private static final String RABBIT_MQ_PASS = "rabbitMq.password";
-	private static final String RABBIT_MQ_EXCHANGE = "rabbitMq.exchange";
-	private static final String RABBIT_MQ_QUEUE = "rabbitMq.defaultQueue";
+	public static final String RABBIT_MQ_EXCHANGE = "rabbitMq.exchange";
+	public static final String RABBIT_MQ_QUEUE = "rabbitMq.defaultQueue";
+	
 
 	public static Connection connection = null;
 	public static Channel channel;
@@ -111,6 +113,10 @@ public class RabbitMqInterface {
 	}
 
 	public static void evaluateOption(ServiceObject serviceObject) {
+		
+		// set default queue and exchange values. will be overwritten if values are set in csv
+		setDefaultQueueAndExchange();
+		
 		// if no option specified
 		if (serviceObject.getOption().isEmpty()) {
 			return;
@@ -122,6 +128,7 @@ public class RabbitMqInterface {
 		// get key value mapping of header parameters
 		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getOption());
 
+		
 		// iterate through key value pairs for headers, separated by ";"
 		for (KeyValue keyword : keywords) {
 
@@ -138,6 +145,17 @@ public class RabbitMqInterface {
 				break;
 			}
 		}
+	}
+	
+	/**
+	 * set default queue and exchange values
+	 */
+	private static void setDefaultQueueAndExchange() {
+
+		String defaultExchange = TestObject.getDefaultTestInfo().config.get(RABBIT_MQ_EXCHANGE).toString();
+		String defaultQueue = TestObject.getDefaultTestInfo().config.get(RABBIT_MQ_QUEUE).toString();
+		Config.putValue(RABBIT_MQ_EXCHANGE, defaultExchange);
+		Config.putValue(RABBIT_MQ_QUEUE, defaultQueue);
 	}
 
 	/**

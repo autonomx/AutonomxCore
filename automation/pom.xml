@@ -65,7 +65,7 @@
 			<url>http://artifact.autonomx.io/artifactory/libs-release-local</url>
 		</repository>
 	</distributionManagement>
-	
+
 	<repositories>
 		<repository>
 			<id>jcenter</id>
@@ -90,7 +90,7 @@
 		</repository>
 
 	</repositories>
-	
+
 
 	<dependencies>
 
@@ -181,6 +181,12 @@
 			<groupId>org.skyscreamer</groupId>
 			<artifactId>jsonassert</artifactId>
 			<version>1.5.0</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.vaadin.external.google</groupId>
+					<artifactId>android-json</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -201,12 +207,12 @@
 			<artifactId>azure-storage</artifactId>
 			<version>8.4.0</version>
 		</dependency>
-		
+
 		<!-- https://mvnrepository.com/artifact/org.apache.pdfbox/pdfbox -->
 		<dependency>
-		    <groupId>org.apache.pdfbox</groupId>
-		    <artifactId>pdfbox</artifactId>
-		    <version>2.0.16</version>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>pdfbox</artifactId>
+			<version>2.0.16</version>
 		</dependency>
 
 		<dependency>
@@ -222,11 +228,11 @@
 			<version>2.4.3</version>
 			<scope>compile</scope>
 		</dependency>
-		
+
 		<dependency>
-		    <groupId>com.beust</groupId>
-		    <artifactId>jcommander</artifactId>
-		    <version>1.78</version>
+			<groupId>com.beust</groupId>
+			<artifactId>jcommander</artifactId>
+			<version>1.78</version>
 		</dependency>
 
 		<dependency>
@@ -246,12 +252,12 @@
 			<artifactId>appium-test-extension</artifactId>
 			<version>1.5</version>
 		</dependency>
-		
+
 		<!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
 		<dependency>
-		    <groupId>org.apache.httpcomponents</groupId>
-		    <artifactId>httpclient</artifactId>
-		    <version>4.5.9</version>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.5.9</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.testng/testng -->
@@ -333,9 +339,9 @@
 		</dependency>
 
 		<dependency>
-		    <groupId>com.microsoft.azure</groupId>
-		    <artifactId>azure-servicebus</artifactId>
-		    <version>3.0.0</version>
+			<groupId>com.microsoft.azure</groupId>
+			<artifactId>azure-servicebus</artifactId>
+			<version>3.0.0</version>
 		</dependency>
 
 		<dependency>
@@ -350,47 +356,47 @@
 			<artifactId>reflections</artifactId>
 			<version>0.9.11</version>
 		</dependency>
-		
+
 		<!-- https://mvnrepository.com/artifact/com.google.auto.service/auto-service -->
 		<dependency>
-		    <groupId>com.google.auto.service</groupId>
-		    <artifactId>auto-service</artifactId>
-		    <version>1.0-rc6</version>
+			<groupId>com.google.auto.service</groupId>
+			<artifactId>auto-service</artifactId>
+			<version>1.0-rc6</version>
 		</dependency>
-		
-	<!-- screen recorder -->
+
+		<!-- screen recorder -->
 		<dependency>
-		    <groupId>com.pojosontheweb</groupId>
-		    <artifactId>monte-repack</artifactId>
-		    <version>1.0.1</version>
+			<groupId>com.pojosontheweb</groupId>
+			<artifactId>monte-repack</artifactId>
+			<version>1.0.1</version>
 		</dependency>
-		
+
 		<!-- https://mvnrepository.com/artifact/org.apache.maven.shared/maven-invoker -->
 		<dependency>
-		    <groupId>org.apache.maven.shared</groupId>
-		    <artifactId>maven-invoker</artifactId>
-		    <version>3.0.1</version>
+			<groupId>org.apache.maven.shared</groupId>
+			<artifactId>maven-invoker</artifactId>
+			<version>3.0.1</version>
 		</dependency>
-		
+
 		<!-- https://mvnrepository.com/artifact/net.lingala.zip4j/zip4j -->
 		<dependency>
-		    <groupId>net.lingala.zip4j</groupId>
-		    <artifactId>zip4j</artifactId>
-		    <version>2.1.4</version>
+			<groupId>net.lingala.zip4j</groupId>
+			<artifactId>zip4j</artifactId>
+			<version>2.1.4</version>
 		</dependency>
-		
-	<!-- https://mvnrepository.com/artifact/com.rabbitmq/amqp-client -->
+
+		<!-- https://mvnrepository.com/artifact/com.rabbitmq/amqp-client -->
 		<dependency>
-		    <groupId>com.rabbitmq</groupId>
-		    <artifactId>amqp-client</artifactId>
-		    <version>5.7.3</version>
+			<groupId>com.rabbitmq</groupId>
+			<artifactId>amqp-client</artifactId>
+			<version>5.7.3</version>
 		</dependency>
-		
-	<!-- https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients -->
+
+		<!-- https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients -->
 		<dependency>
-		    <groupId>org.apache.kafka</groupId>
-		    <artifactId>kafka-clients</artifactId>
-		    <version>2.3.0</version>
+			<groupId>org.apache.kafka</groupId>
+			<artifactId>kafka-clients</artifactId>
+			<version>2.3.0</version>
 		</dependency>
 
 	</dependencies>
