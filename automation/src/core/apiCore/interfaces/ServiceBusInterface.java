@@ -31,6 +31,7 @@ import com.microsoft.azure.servicebus.primitives.ConnectionStringBuilder;
 import com.microsoft.azure.servicebus.primitives.ServiceBusException;
 
 import core.apiCore.helpers.DataHelper;
+import core.apiCore.helpers.XmlHelper;
 import core.helpers.Helper;
 import core.helpers.StopWatchHelper;
 import core.support.configReader.Config;
@@ -330,7 +331,7 @@ public class ServiceBusInterface {
 		CopyOnWriteArrayList<IMessage> filteredMessages = new CopyOnWriteArrayList<>();
 
 		// gets the host from the options
-		String hostSelector = DataHelper.getXmlTagValue(options, "host");
+		String hostSelector = XmlHelper.getXmlTagValue(options, "host");
 
 		IMessageReceiver receiver = getReceiver(serviceBus, hostSelector);
 
@@ -611,7 +612,7 @@ public class ServiceBusInterface {
 		CopyOnWriteArrayList<IMessage> filteredMessages = new CopyOnWriteArrayList<IMessage>();
 
 		if (!partialExpStr.isEmpty())
-			orderValue = DataHelper.getXmlTagValue(partialExpStr, key);
+			orderValue = XmlHelper.getXmlTagValue(partialExpStr, key);
 		if (!orderValue.isEmpty())
 			filteredMessages = findMessages(hostSelector, orderValue);
 		return filteredMessages;
@@ -736,7 +737,7 @@ public class ServiceBusInterface {
 				else {
 					String outboundMessage = new String(message.getBody());
 					if (outboundMessage.contains(MESSAGE_ID_PREFIX)) {
-						correlationId = DataHelper.getXmlTagValue(outboundMessage, "MsgCorrelationID");
+						correlationId = XmlHelper.getXmlTagValue(outboundMessage, "MsgCorrelationID");
 						TestLog.logPass("messageId received. correlationId: " + correlationId);
 					}
 

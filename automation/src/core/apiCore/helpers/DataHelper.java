@@ -28,7 +28,9 @@ public class DataHelper {
 
 	public static final String VERIFY_JSON_PART_INDICATOR = "_VERIFY.JSON.PART_";
 	public static final String VERIFY_RESPONSE_BODY_INDICATOR = "_VERIFY.RESPONSE.BODY_";
+	public static final String VERIFY_RESPONSE_NO_EMPTY = "_NOT_EMPTY_";
 
+	
 	/**
 	 * replaces placeholder values with values from config properties replaces only
 	 * string values
@@ -42,28 +44,26 @@ public class DataHelper {
 			return source;
 
 		List<String> parameters = Helper.getValuesFromPattern(source, "<@(.+?)>");
-		String valueStr = null;
 		Object val = null;
 		int length = 0;
 		for (String parameter : parameters) {
 
 			if (parameter.contains("_TIME")) {
 				length = getIntFromString(parameter);
-				if(length > 19) length = 19;
-				valueStr = TestObject.getTestInfo().startTime.substring(0, length);
+				if (length > 19)
+					length = 19;
+				val = TestObject.getTestInfo().startTime.substring(0, length);
 			} else if (parameter.contains("_RAND")) {
 				length = getIntFromString(parameter);
-				valueStr = TestObject.getTestInfo().randStringIdentifier.substring(0, length);
+				val = TestObject.getTestInfo().randStringIdentifier.substring(0, length);
 			} else {
 				val = Config.getObjectValue(parameter);
-				if (val instanceof String)
-					valueStr = (String) val;
 			}
-			if (StringUtil.isNullOrEmpty(valueStr))
-				TestLog.logWarning("parameter value not found: " + parameter);
 
-			if (valueStr instanceof String) {
-				source = source.replace("<@" + parameter + ">", Matcher.quoteReplacement(valueStr));
+			if (val == null)
+				TestLog.logWarning("parameter value not found: " + parameter);
+			else {
+				source = source.replace("<@" + parameter + ">", Matcher.quoteReplacement(val.toString()));
 				// TestLog.logPass("replacing value '" + parameter + "' with: " + valueStr +
 				// "");
 			}
@@ -114,39 +114,6 @@ public class DataHelper {
 			}
 		}
 		return keywords;
-	}
-	
-	/**
-	 * get value in between tags >value<
-	 * 
-	 * @param requestBody
-	 * @param tag
-	 * @return
-	 */
-	public static String getXmlTagValue(String value, String tag) {
-		
-		return getXmlTagValue(value, tag, ":" + tag + ">(.+?)</");
-	}
-
-
-	/**
-	 * get value in between tags >value<
-	 * 
-	 * @param requestBody
-	 * @param tag
-	 * @return
-	 */
-	public static String getXmlTagValue(String requestBody, String tag, String patternString) {
-		String value = StringUtil.EMPTY_STRING;
-		try {
-			final Pattern pattern = Pattern.compile(patternString);
-			final Matcher matcher = pattern.matcher(requestBody);
-			matcher.find();
-			value = matcher.group(1);
-		} catch (Exception e) {
-			e.getMessage();
-		}
-		return value;
 	}
 
 	public static String getTemplateFileLocation(String file) {

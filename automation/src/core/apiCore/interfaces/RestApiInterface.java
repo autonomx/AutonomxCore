@@ -18,6 +18,7 @@ import core.support.configReader.Config;
 import core.support.logger.TestLog;
 import core.support.objects.KeyValue;
 import core.support.objects.ServiceObject;
+import core.support.objects.TestObject;
 import io.restassured.RestAssured;
 import io.restassured.authentication.AuthenticationScheme;
 import io.restassured.config.HttpClientConfig;
@@ -29,7 +30,11 @@ import io.restassured.specification.RequestSpecification;
 public class RestApiInterface {
 
 	private static final String AUTHORIZATION_HEADER = "Authorization";
+	public static final String API_TIMEOUT_VALIDATION_ENABLED = "api.timeout.validation.isEnabled";
+	public static final String API_TIMEOUT_VALIDATION_SECONDS = "api.timeout.validation.seconds";
 
+	
+	
 	/**
 	 * interface for restful API calls
 	 * 
@@ -73,8 +78,8 @@ public class RestApiInterface {
 		StopWatchHelper watch = StopWatchHelper.start();
 		long passedTimeInSeconds = 0;
 
-		boolean isValidationTimeout = Config.getBooleanValue("api.timeout.validation.isEnabled");
-		int maxRetrySeconds = Config.getIntValue("api.timeout.validation.seconds");
+		boolean isValidationTimeout = Config.getBooleanValue(API_TIMEOUT_VALIDATION_ENABLED);
+		int maxRetrySeconds = Config.getIntValue(API_TIMEOUT_VALIDATION_SECONDS);
 		int currentRetryCount = 0;
 
 		do {
@@ -91,7 +96,7 @@ public class RestApiInterface {
 			if (currentRetryCount > 0) {
 				Helper.waitForSeconds(1);
 				String errors = StringUtils.join(errorMessages, "\n error: ");
-				TestLog.ConsoleLog("attempt 1 failed with message: " + errors);
+				TestLog.ConsoleLog("attempt failed with message: " + errors);
 				TestLog.ConsoleLog("attempt #" + (currentRetryCount + 1));
 
 			}
@@ -191,7 +196,7 @@ public class RestApiInterface {
 		// get response body as string
 		String body = response.getBody().asString();
 		TestLog.logPass("response: " + body);
-
+System.out.println("2");
 		// validate response body against expected json string
 		if (!apiObject.getExpectedResponse().isEmpty()) {
 			apiObject.withExpectedResponse(DataHelper.replaceParameters(apiObject.getExpectedResponse()));
@@ -312,7 +317,10 @@ public class RestApiInterface {
 	 * @return
 	 */
 	public static RequestSpecification evaluateOption(ServiceObject serviceObject, RequestSpecification request) {
-
+		
+		// reset validation timeout. will be overwritten by option value if set
+		resetValidationTimeout();
+		
 		// if no option specified
 		if (serviceObject.getOption().isEmpty()) {
 			return request;
@@ -320,14 +328,35 @@ public class RestApiInterface {
 
 		// replace parameters for request body
 		serviceObject.withOption(DataHelper.replaceParameters(serviceObject.getOption()));
+		
+		// get key value mapping of header parameters
+		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getOption());
 
-		// if additional options
-		switch (serviceObject.getOption()) {
-		default:
-			break;
+		// iterate through key value pairs for headers, separated by ";"
+		for (KeyValue keyword : keywords) {
+
+			// if additional options
+			switch (keyword.key) {
+			case "NO_VALIDATION_TIMEOUT":
+				Config.putValue(API_TIMEOUT_VALIDATION_ENABLED, false);
+				break;
+			
+			default:
+				break;
+			}
 		}
 
 		return request;
+	}
+	
+	/**
+	 * reset validation timeout
+	 */
+	private static void resetValidationTimeout() {
+		// reset  validation timeout option
+		String defaultValidationTimeoutIsEnabled = TestObject.getDefaultTestInfo().config.get(API_TIMEOUT_VALIDATION_ENABLED).toString();
+		Config.putValue(API_TIMEOUT_VALIDATION_ENABLED, defaultValidationTimeoutIsEnabled);
+
 	}
 
 	public static Response evaluateRequest(ServiceObject serviceObject) {

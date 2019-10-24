@@ -42,7 +42,7 @@ public class RestApiHelper {
 		for (int i = 0; i < valueArray.length(); i++) {
 
 			String name = valueArray.getJSONObject(i).getString(identifier);
-			String id = valueArray.getJSONObject(i).getString(targetApiId);
+			int id = valueArray.getJSONObject(i).getInt(targetApiId);
 
 			if (name.contains(prefix)) {
 				TestLog.logPass("calling: " + targerApi + ": with identifier: " + name);

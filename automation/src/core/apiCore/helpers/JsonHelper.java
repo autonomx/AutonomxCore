@@ -121,8 +121,7 @@ public class JsonHelper {
 		try {
 			values = ctx.read(prefix + path);
 		}catch(Exception e) {
-			e.printStackTrace();
-			Helper.assertFalse("invalid path: '" + path + "'. see http://jsonpath.herokuapp.com to validate your path against json string. see https://github.com/json-path/JsonPath for more info.");
+			Helper.assertFalse("invalid path: '" + path + "'. see http://jsonpath.herokuapp.com to validate your path against json string. see https://github.com/json-path/JsonPath for more info. \n" + e.getMessage());
 		}
 		
 
@@ -255,17 +254,25 @@ public class JsonHelper {
 	/**
 	 * validates json string
 	 * 
-	 * @param test
+	 * @param value
 	 * @return
 	 */
-	public static boolean isJSONValid(String test, boolean printError) {
+	public static boolean isJSONValid(String value, boolean printError) {		
 		String error = StringUtils.EMPTY;
+		
+		// if contains keyword indicators, then return false
+		String expectedJson = Helper.stringNormalize(value);
+		if (expectedJson.startsWith(DataHelper.VERIFY_JSON_PART_INDICATOR) || expectedJson.startsWith(DataHelper.VERIFY_RESPONSE_NO_EMPTY)
+				|| expectedJson.startsWith(DataHelper.VERIFY_RESPONSE_BODY_INDICATOR)) {
+			return false;
+		}
+		
 		try {
-			new JSONObject(test);
+			new JSONObject(value);
 		} catch (JSONException ex) {
 			try {
 				error = ex.getMessage();
-				new JSONArray(test);
+				new JSONArray(value);
 			} catch (JSONException ex1) {
 				if(error.isEmpty()) error = ex1.getMessage();
 				if(printError) TestLog.ConsoleLog("Invalid Json error: " + error);

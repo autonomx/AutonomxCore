@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -202,7 +203,7 @@ public class XmlHelper {
 			NodeList nodes = (NodeList) result;
 			valueList = new ArrayList<String>();
 			for (int i = 0; i < nodes.getLength(); i++) {
-				valueList.add(nodes.item(i).getNodeValue());
+				valueList.add(nodes.item(i).getTextContent());
 			}
 		} catch (XPathExpressionException e) {
 			e.printStackTrace();
@@ -318,8 +319,8 @@ public class XmlHelper {
 	 * @param tag
 	 * @return
 	 */
-	public static String getTagValue(String value, String tag) {
-		return getTagValue(value, tag, 1);
+	public static String getXmlTagValue(String value, String tag) {
+		return getXmlTagValue(value, tag, 1);
 	}
 	
 	/**
@@ -329,7 +330,7 @@ public class XmlHelper {
 	 * @param position: starts at 1
 	 * @return
 	 */
-	public static String getTagValue(String source, String tag, int position) {
+	public static String getXmlTagValue(String source, String tag, int position) {
 		List<String> values = new ArrayList<String>();
 		try {
 			String patternString = "<"+tag+">(.*?)<\\/"+tag+">";
@@ -341,7 +342,9 @@ public class XmlHelper {
 		} catch (Exception e) {
 			e.getMessage();
 		}
-		if(position == 0) Helper.assertFalse("position starts at 1");
+		if(position == 0) Helper.assertFalse("position starts at 1. your position: " + position + ".");
+		if(values.isEmpty()) Helper.assertFalse("tag value: " + tag + " at position: " + position +  " was not found at xml: \n" + source + " \n\n");
+		if(position > values.size()) Helper.assertFalse("position is greater than response size. position: " + position + ". response size: " + values.size() + ". values: " + Arrays.toString(values.toArray()));
 		return values.get(position - 1);
 	}
 }
