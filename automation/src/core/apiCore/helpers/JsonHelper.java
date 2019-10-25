@@ -261,7 +261,7 @@ public class JsonHelper {
 			try {
 				JSONCompareResult result = JSONCompare.compareJSON(expectedJson, response, JSONCompareMode.LENIENT);
 				 if (result.failed()) {
-					 return result.getMessage();
+					 return result.getMessage() + "\n" + "see http://jsonpath.herokuapp.com to validate your path against json string. see https://github.com/json-path/JsonPath for more info. \n\n expectedJson: " +  expectedJson + "\n\n response: " + response + "\n\n";
 				 }
 				//JSONAssert.assertEquals(expectedJson, response, JSONCompareMode.LENIENT);
 			} catch (JSONException e) {

@@ -106,8 +106,11 @@ public class RestApiInterface {
 
 		} while (!errorMessages.isEmpty() && passedTimeInSeconds < maxRetrySeconds);
 
-		if (!errorMessages.isEmpty())
+		if (!errorMessages.isEmpty()) {
+			String errorString = StringUtils.join(errorMessages, "\n error: ");
+			TestLog.ConsoleLog(errorString);
 			Helper.assertFalse(StringUtils.join(errorMessages, "\n error: "));
+		}
 
 		return response;
 	}
