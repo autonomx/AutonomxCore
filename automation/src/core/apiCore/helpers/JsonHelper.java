@@ -121,7 +121,7 @@ public class JsonHelper {
 		try {
 			values = ctx.read(prefix + path);
 		}catch(Exception e) {
-			Helper.assertFalse("invalid path: '" + path + "'. see http://jsonpath.herokuapp.com to validate your path against json string. see https://github.com/json-path/JsonPath for more info. \n" + e.getMessage());
+			Helper.assertFalse("invalid path: '" + path + "' for json string: " + json + "\n. see http://jsonpath.herokuapp.com to validate your path against json string. see https://github.com/json-path/JsonPath for more info. \n" + e.getMessage());
 		}
 		
 
@@ -172,41 +172,6 @@ public class JsonHelper {
 
 	public static String getResponseValue(Response response) {
 		return response.getBody().asString();
-	}
-
-	public static List<String> getJsonListValueResponse(Response response, String path) {
-		List<String> values = new ArrayList<String>();
-		try {
-			values = response.jsonPath().getList(path);
-		} catch (Exception e) {
-			e.getMessage();
-		}
-
-		if (values == null || values.isEmpty()) {
-			// logWarn causes warning in the report
-			TestLog.ConsoleLog("path: <" + path + "> returned empty results");
-		}
-		return values;
-	}
-
-	public static String getJsonStringResponse(Response response, String path) {
-		String value = "";
-
-		if (response.path(path) instanceof String) {
-			value = response.path(path);
-		}
-
-		if (response.path(path) instanceof Integer) {
-			value = Integer.toString(response.path(path));
-
-		}
-
-		if (response.path(path) instanceof Boolean) {
-			value = Boolean.toString(response.path(path));
-		}
-		if (value == null)
-			value = "";
-		return value;
 	}
 
 	/**

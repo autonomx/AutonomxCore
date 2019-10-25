@@ -2537,7 +2537,7 @@ public class Helper {
 	 * @return
 	 */
 	public static String readFileContent(String absolutePath) {
-		return readFileContent(absolutePath);
+		return UtilityHelper.readFileContent(absolutePath);
 	}
 	
 	/**

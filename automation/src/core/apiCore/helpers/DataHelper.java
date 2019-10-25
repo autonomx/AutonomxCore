@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -375,18 +374,6 @@ public class DataHelper {
 		String stringVal = values.toString();
 		stringVal = stringVal.replaceAll("[\\[\\](){}]","");
 		stringVal = stringVal.replace("\"", "");
-		return stringVal;
-	}
-	
-	/**
-	 * convert object to string
-	 * object can be array
-	 * @param values
-	 * @return
-	 */
-	public static String ObjectRemoveBrackets(Object values) {
-		String stringVal = values.toString();
-		stringVal = stringVal.replaceAll("[\\[\\]]","");
 		return stringVal;
 	}
 	

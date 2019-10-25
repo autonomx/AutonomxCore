@@ -179,7 +179,7 @@ public class XmlHelper {
 
 	/**
 	 * get xpath value form xml string
-	 * 
+	 * test out xpath values at: https://www.freeformatter.com/xpath-tester.html#ad-output
 	 * @param xml
 	 * @param xpath
 	 * @return result list as string separated by ","
