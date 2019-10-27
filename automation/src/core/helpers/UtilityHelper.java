@@ -440,14 +440,7 @@ public class UtilityHelper {
 
 		// fail test if no csv files found
 		if (listOfFiles == null) {
-			 try {
-				throw new Exception("test files not found at path: " + directoryPath);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		//	TestLog.logDirectConsoleMessage(Priority.WARN, "test files not found at path: " + directoryPath );
-		//	return testFiles;
+			Helper.assertFalse("test files not found at path: " + directoryPath);	
 		}
 		testFiles = new ArrayList<>(Arrays.asList(listOfFiles));
 		return testFiles;

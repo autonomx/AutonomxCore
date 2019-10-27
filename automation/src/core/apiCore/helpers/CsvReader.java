@@ -17,6 +17,7 @@ import core.apiCore.TestDataProvider;
 import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.configReader.PropertiesReader;
+import core.support.objects.KeyValue;
 import core.support.objects.ServiceObject;
 import core.support.objects.TestObject;
 
@@ -24,6 +25,8 @@ public class CsvReader {
 	
 	public static int SERVICE_CSV_COLUMN_COUNT = 19;
 	public static String SERVICE_CSV_FILE_PREFIX = "TestCases_";
+	public static final String ACTION_KEY = "action";
+	
 	/**
 	 * gets the tests from csv file based on the current test file index
 	 * 
@@ -41,12 +44,18 @@ public class CsvReader {
 		// get current csv file
 		String csvFileName = CsvReader.getCsvFileFromIndex(index);
 
+		// get test rows from csv file
 		List<String[]> csvList = getCsvTestListForTestRunner(csvFileName);
-		for (int i = 0; i < csvList.size(); i++) {
+		
+		// update csv test list with action csv file values
+		List<String[]> updatedCsvList = new ArrayList<String[]>();
+		updatedCsvList.addAll(addActionCsvTests(csvList));
+		
+		for (int i = 0; i < updatedCsvList.size(); i++) {
 			// add test name, test index, and test type 
 			String[] obj = { csvFileName, String.valueOf(i), TestObject.testType.service.name() };
-			String[] csvRow = (String[]) ArrayUtils.addAll(csvList.get(i), obj);
-
+			String[] csvRow = (String[]) ArrayUtils.addAll(updatedCsvList.get(i), obj);			
+			
 			// for single test case selection. Both test case file And test case have to be
 			// set
 			String testCase = Config.getValue(TestDataProvider.TEST_CASE);
@@ -57,9 +66,38 @@ public class CsvReader {
 				return testCases;
 			}
 		}
-
 		return testCases;
 	}
+	
+	/**
+	 * update csv test list with tests from action csv files 
+	 * @param testData
+	 * @return 
+	 */
+	public static List<String[]> addActionCsvTests(List<String[]> csvList) {
+		String csvTestPath = PropertiesReader.getLocalRootPath()
+				+ Config.getValue(TestDataProvider.TEST_DATA_ACTION_PATH);
+		
+		List<String[]> updateDataList = new ArrayList<String[]>();
+		boolean hasActionKey = false;
+				
+		for(String[] dataRow : csvList) {
+			hasActionKey = false;
+			ServiceObject serviceObject = CsvReader.mapToApiObject(dataRow);
+			List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getMethod());
+			for (KeyValue keyword : keywords) {		
+				if(keyword.key.equals(ACTION_KEY)) {
+					List<String[]> tests = getCsvTestListForTestRunner(csvTestPath, keyword.value.toString());
+					updateDataList.addAll(tests);
+					hasActionKey = true;
+				}
+			}
+			if(!hasActionKey)
+				updateDataList.add(dataRow);
+		}
+		return updateDataList;
+	}
+	
 
 	/**
 	 * maps list of testcases to api object map
@@ -79,11 +117,26 @@ public class CsvReader {
 		return apiMap;
 	}
 	
+	/**
+	 * test data array to service object
+	 * @param testData
+	 * @return
+	 */
 	public static ServiceObject mapToApiObject(Object[] testData) {
+		if(testData.length == 16) {
+			return new ServiceObject().setApiObject(testData[0].toString(), testData[1].toString(), testData[2].toString(),
+					testData[3].toString(), testData[4].toString(), testData[5].toString(), testData[6].toString(), testData[7].toString(), testData[8].toString(), testData[9].toString(),
+					testData[10].toString(), testData[11].toString(), testData[12].toString(), testData[13].toString(), testData[14].toString(), testData[15].toString(), "", "", "");
+			
+		}
+		else if (testData.length == 19){
 		return  new ServiceObject().setApiObject(testData[0].toString(), testData[1].toString(), testData[2].toString(),
 				testData[3].toString(), testData[4].toString(), testData[5].toString(), testData[6].toString(), testData[7].toString(), testData[8].toString(), testData[9].toString(),
 				testData[10].toString(), testData[11].toString(), testData[12].toString(), testData[13].toString(), testData[14].toString(), testData[15].toString(), testData[16].toString(), testData[17].toString(), testData[18].toString());
 
+		}
+		Helper.assertFalse("test data length does not match requirements: " + testData.length);
+		return new ServiceObject();
 	}
 
 	/**
@@ -132,13 +185,13 @@ public class CsvReader {
 	 * @return
 	 */
 	public static String getCsvFileFromIndex(int index) {
-		ArrayList<File> testCsvList = getCsvFileList();
+		ArrayList<File> testCsvList = getTestDataCsvFileList();
 		Helper.assertTrue("test not found at index: " + index, testCsvList.size() > index);
 		return testCsvList.get(index).getName();
 	}
 
 	public static int getCsvFileCount() {
-		return getCsvFileList().size();
+		return getTestDataCsvFileList().size();
 	}
 
 	/**
@@ -146,9 +199,19 @@ public class CsvReader {
 	 * 
 	 * @return
 	 */
-	public static ArrayList<File> getCsvFileList() {
+	public static ArrayList<File> getTestDataCsvFileList() {
 		String csvTestPath = PropertiesReader.getLocalRootPath()
 				+ Config.getValue(TestDataProvider.TEST_DATA_PARALLEL_PATH);
+		return getCsvFileList(csvTestPath);
+	}
+	
+	/**
+	 * returns a list of all csv test files
+	 * 
+	 * @param csvTestPath: full path to csv directory
+	 * @return
+	 */
+	public static ArrayList<File> getCsvFileList(String csvTestPath) {
 		ArrayList<File> csvFiles = Helper.getFileListByType(csvTestPath, ".csv");
 		return csvFiles;
 	}
@@ -160,9 +223,21 @@ public class CsvReader {
 	 * @return
 	 */
 	public static int getCsvFileIndex(String fileName) {
+		String csvTestPath = PropertiesReader.getLocalRootPath()
+				+ Config.getValue(TestDataProvider.TEST_DATA_PARALLEL_PATH);
+		return getCsvFileIndex(csvTestPath, fileName);
+	}
+	
+	/**
+	 * returns the index of the file from the list of csv files
+	 * 
+	 * @param fileName
+	 * @return
+	 */
+	public static int getCsvFileIndex(String csvDir, String fileName) {
 		Helper.assertTrue("csv file is null", fileName != null);
 
-		ArrayList<File> csvFiles = getCsvFileList();
+		ArrayList<File> csvFiles = getCsvFileList(csvDir);
 
 		OptionalInt indexOpt = IntStream.range(0, csvFiles.size())
 				.filter(i -> fileName.contains(csvFiles.get(i).getName())).findFirst();
@@ -172,15 +247,30 @@ public class CsvReader {
 	}
 
 	/**
-	 * gets csv tests list for api tests
+	 * gets csv tests list for service tests
 	 * 
 	 * @param csvFile
 	 * @return
 	 */
 	public static List<String[]> getCsvTestListForTestRunner(String csvFile) {
+		String csvTestPath = PropertiesReader.getLocalRootPath()
+				+ Config.getValue(TestDataProvider.TEST_DATA_PARALLEL_PATH);
+		
+		return getCsvTestListForTestRunner(csvTestPath, csvFile);	
+	}
+	
+	/**
+	 * gets csv tests list for service tests
+	 * 
+	 * @param csvFile
+	 * @return
+	 */
+	public static List<String[]> getCsvTestListForTestRunner(String csvDir, String csvFile) {
 		List<String[]> csvList = new ArrayList<String[]>();
-		ArrayList<File> testCsvFileList = getCsvFileList();
+		ArrayList<File> testCsvFileList = getCsvFileList(csvDir);
 		int fileIndex = getFileIndex(testCsvFileList, csvFile);
+		if(fileIndex == -1)
+			Helper.assertFalse("csv file not found. csv file: " + csvFile + " at location: " + csvDir);
 		csvList = getCsvTestList(testCsvFileList.get(fileIndex));
 		return csvList;
 	}

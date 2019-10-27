@@ -141,7 +141,8 @@ public class RestApiInterface {
 	 */
 	public static void setTimeout() {
 		int connectTimeout = Config.getIntValue("api.timeout.connect.seconds");
-
+		if(connectTimeout == -1) return;
+		
 		RestAssured.config = RestAssuredConfig.config().httpClient(
 				HttpClientConfig.httpClientConfig().setParam("http.connection.timeout", connectTimeout * 1000)
 						.setParam("http.socket.timeout", connectTimeout * 1000)
