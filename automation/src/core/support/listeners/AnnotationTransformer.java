@@ -26,12 +26,14 @@ public class AnnotationTransformer implements IAnnotationTransformer {
 	public static final String THREAD_COUNT = "global.parallel_test_count";
 	public static final String API_TEST_RUNNER_PREFIX = "serviceRunner";
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void transform(ITestAnnotation annotation, Class testClass, Constructor testConstructor, Method testMethod) {
-		// setup default driver
-		TestObject.setupDefaultDriver();
 		
-		@SuppressWarnings("deprecation")
+		// setup default driver after the test is complete
+		if (TestObject.getTestInfo().isTestComplete) 
+			TestObject.setupDefaultDriver();
+		
 		IRetryAnalyzer retry = annotation.getRetryAnalyzer();
 		if (retry == null) {
 			annotation.setRetryAnalyzer(RetryTest.class);

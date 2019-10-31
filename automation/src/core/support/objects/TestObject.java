@@ -395,45 +395,6 @@ public class TestObject{
 		TestObject test = testInfo.get(testId);
 		return (test == null);
 	}
-
-	/**
-	 * resets test object after a test is complete with csv files, test is complete
-	 * When all tests in csv files have finished for api csv tests, we're reseting
-	 * the test count per csv file.
-	 * 
-	 * called on test failure And test success
-	 * @return
-	 */
-	public void resetTestObject() {
-
-		if (isTestComplete) {
-
-			// do not reset default test
-			if (testId.equals(TestObject.getDefaultTestObjectId()))
-				return;
-
-			// do not reset these values
-			String testname = TestObject.getTestInfo(testId).testName;
-			String testFileClass = TestObject.getTestInfo(testId).testFileClassName;
-			List<WebDriver> webDrivers = TestObject.getTestInfo(testId).webDriverList;
-			Logger log = TestObject.getTestInfo(testId).log;
-			boolean isTestComplete = TestObject.getTestInfo(testId).isTestComplete;
-			// after method run after test success or test failure, hence run count should not be reset
-			int runCount = TestObject.getTestInfo(testId).runCount;
-			
-			TestObject.testInfo.put(testId,
-					new TestObject().withTestId(testId)
-					.withTestName(testname)
-					.withTestFileClassName(testFileClass)
-					.withWebDriverList(webDrivers)
-					.withRunCount(runCount)
-					.withIsTestComplete(isTestComplete)
-					.withLog(log));
-
-			// populate the config with default values
-			TestObject.getTestInfo(testId).config.putAll(TestObject.getTestInfo(TestObject.DEFAULT_TEST).config);
-		}
-	}
 	
 	/**
 	 * returns the invocation count for the data provider test
@@ -614,6 +575,7 @@ public class TestObject{
 		this.app = app;
 		return this;
 	}
+	
 	public static String getDefaultTestObjectId() {
 		return TestObject.DEFAULT_TEST;
 	}

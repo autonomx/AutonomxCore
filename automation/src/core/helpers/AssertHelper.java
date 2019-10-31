@@ -14,6 +14,7 @@ public class AssertHelper {
 	 * @param value
 	 */
 	protected static void assertTrue(String message, boolean value) {
+		if(!value) TestLog.ConsoleLog("Assertion failed: " + message);
 		Assert.assertTrue(value, message);
 	}
 

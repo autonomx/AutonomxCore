@@ -48,29 +48,29 @@ public class ServiceManager {
 			String InterfaceType, String UriPath, String ContentType, String Method, String Option, 
 			String RequestHeaders, String TemplateFile, String RequestBody, String OutputParams, String RespCodeExp, 
 			String ExpectedResponse, String TcComments, 
-			String tcName, String tcIndex, String testType) throws Exception { 
+			String tcName, String tcIndex, String testType, String tcCount) throws Exception { 
 	
 			// add parameters to ServiceObject 
-			ServiceObject apiObject = new ServiceObject().setApiObject(TestSuite, TestCaseID, RunFlag, Description, InterfaceType, 
+			ServiceObject serviceObject = new ServiceObject().setServiceObject(TestSuite, TestCaseID, RunFlag, Description, InterfaceType, 
 			UriPath, ContentType, Method, Option, RequestHeaders, TemplateFile, RequestBody, OutputParams, 
 			RespCodeExp, ExpectedResponse, TcComments, tcName, 
-			tcIndex, testType); 
+			tcIndex, testType, tcCount); 
 	
 			// setup api driver 
-			new AbstractDriverTestNG().setupApiDriver(apiObject); 
-			runInterface(apiObject); 
+			new AbstractDriverTestNG().setupApiDriver(serviceObject); 
+			runInterface(serviceObject); 
 	} 
 	
 	
-	public static void runInterface(ServiceObject apiObject) throws Exception { 
+	public static void runInterface(ServiceObject serviceObject) throws Exception { 
 	
 	
-			switch (apiObject.getInterfaceType()) {
+			switch (serviceObject.getInterfaceType()) {
 			case "TestInterface": 
-	  		   new TestInterface().testInterface(apiObject);
+	  		   new TestInterface().testInterface(serviceObject);
 					break; 
 			default: 
-					ServiceManager.runInterface(apiObject); 
+					ServiceManager.runInterface(serviceObject); 
 					break; 
 			} 
 	} 
@@ -126,18 +126,18 @@ public class ServiceManager {
 				String InterfaceType, String UriPath, String ContentType, String Method, String Option, 
 				String RequestHeaders, String TemplateFile, String RequestBody, String OutputParams, String RespCodeExp, 
 				String ExpectedResponse, String TcComments, 
-				String tcName, String tcIndex, String testType) throws Exception { 
+				String tcName, String tcIndex, String testType, String tcCount) throws Exception { 
 		
 			// add parameters to ServiceObject 
-			ServiceObject apiObject = new ServiceObject().setApiObject(TestSuite, TestCaseID, RunFlag, Description, InterfaceType, 
+			ServiceObject serviceObject = new ServiceObject().setServiceObject(TestSuite, TestCaseID, RunFlag, Description, InterfaceType, 
 				UriPath, ContentType, Method, Option, RequestHeaders, TemplateFile, RequestBody, OutputParams, 
 				RespCodeExp, ExpectedResponse, TcComments, tcName, 
-				tcIndex, testType); 
+				tcIndex, testType, tcCount); 
 				
 			// setup api driver 
-			new AbstractDriverTestNG().setupApiDriver(apiObject);
+			new AbstractDriverTestNG().setupApiDriver(serviceObject);
 		
-			runInterface(apiObject);
+			runInterface(serviceObject);
 		}
 		 */
 		
@@ -145,39 +145,45 @@ public class ServiceManager {
 		bw.append("		String InterfaceType, String UriPath, String ContentType, String Method, String Option," + " \n" );
 		bw.append("		String RequestHeaders, String TemplateFile, String RequestBody, String OutputParams, String RespCodeExp," + " \n" );
 		bw.append("		String ExpectedResponse, String TcComments," + " \n" );
-		bw.append("		String tcName, String tcIndex, String testType) throws Exception {" + " \n" );
+		bw.append("		String tcName, String tcIndex, String testType, String tcCount) throws Exception {" + " \n" );
 		bw.newLine();
 		bw.append("		// add parameters to ServiceObject" + " \n" );
-		bw.append("		ServiceObject apiObject = new ServiceObject().setApiObject(TestSuite, TestCaseID, RunFlag, Description, InterfaceType," + " \n" );
+		bw.append("		ServiceObject serviceObject = new ServiceObject().setServiceObject(TestSuite, TestCaseID, RunFlag, Description, InterfaceType," + " \n" );
 		bw.append("		UriPath, ContentType, Method, Option, RequestHeaders, TemplateFile, RequestBody, OutputParams," + " \n" );
 		bw.append("		RespCodeExp, ExpectedResponse, TcComments, tcName," + " \n" );
-		bw.append("		tcIndex, testType);"+ " \n" );
+		bw.append("		tcIndex, testType, tcCount);"+ " \n" );
+		bw.newLine();
+		bw.append("		// run before each test file" + " \n");
+		bw.append("		ServiceManager.runBeforeCsv(serviceObject);" + " \n");
 		bw.newLine();
 		bw.append("		// setup api driver" + " \n");
-		bw.append("		new AbstractDriverTestNG().setupApiDriver(apiObject);" + " \n");
-		bw.append("		runInterface(apiObject);" + " \n");
+		bw.append("		new AbstractDriverTestNG().setupApiDriver(serviceObject);" + " \n");
+		bw.append("		runInterface(serviceObject);" + " \n");
+		bw.newLine();
+		bw.append("		// run after each test file" + " \n");
+		bw.append("		ServiceManager.runAfterCsv(serviceObject);" + " \n");
 		bw.append("}" + " \n");
 		bw.newLine();
 		bw.newLine();
 		
 		/**
 		 
-		 public static void runInterface(ServiceObject apiObject) throws Exception {
+		 public static void runInterface(ServiceObject serviceObject) throws Exception {
 		 
-		switch (apiObject.getInterfaceType()) {
+		switch (serviceObject.getInterfaceType()) {
 		case TEST_INTERFACE:
-			new TestInterface(apiObject);
+			new TestInterface(serviceObject);
 			break;
 		default:
-			ServiceManager.TestRunner(apiObject);
+			ServiceManager.TestRunner(serviceObject);
 			break;
 		}
 		 */
 		
-		bw.append("public static void runInterface(ServiceObject apiObject) throws Exception {" + " \n");
+		bw.append("public static void runInterface(ServiceObject serviceObject) throws Exception {" + " \n");
 		bw.newLine();
 		bw.newLine();
-		bw.append("		switch (apiObject.getInterfaceType()) {");
+		bw.append("		switch (serviceObject.getInterfaceType()) {");
 		
 		for (Entry<String, List<Element>> entry : serviceMap.entrySet()) {
 			for (Element element : entry.getValue()) {
@@ -188,13 +194,13 @@ public class ServiceManager {
 
 				bw.newLine();
 				bw.append("		case \"" + serviceName + "\":" + " \n");
-				bw.append("  		  new " + serviceName + "()." + lowerCaseServiceName + "(apiObject);" + " \n");
+				bw.append("  		  new " + serviceName + "()." + lowerCaseServiceName + "(serviceObject);" + " \n");
 				bw.append("				break;" + " \n");
 			}
 		}
 		
 		bw.append("		default:" + " \n");
-		bw.append("				ServiceManager.runInterface(apiObject);" + " \n");
+		bw.append("				ServiceManager.runInterface(serviceObject);" + " \n");
 		bw.append("				break;" + " \n");
 		bw.append("		}" + " \n");
 		

@@ -33,8 +33,12 @@ public class RestApiInterface {
 	public static final String API_TIMEOUT_VALIDATION_ENABLED = "api.timeout.validation.isEnabled";
 	public static final String API_TIMEOUT_VALIDATION_SECONDS = "api.timeout.validation.seconds";
 
-	
-	
+	private static final String INVALID_TOKEN = "INVALID_TOKEN";
+	private static final String NO_TOKEN = "NO_TOKEN";
+
+	private static final String OPTION_NO_VALIDATION_TIMEOUT = "NO_VALIDATION_TIMEOUT";
+	private static final String OPTION_WAIT_FOR_RESPONSE = "WAIT_FOR_RESPONSE";
+
 	/**
 	 * interface for restful API calls
 	 * 
@@ -141,8 +145,9 @@ public class RestApiInterface {
 	 */
 	public static void setTimeout() {
 		int connectTimeout = Config.getIntValue("api.timeout.connect.seconds");
-		if(connectTimeout == -1) return;
-		
+		if (connectTimeout == -1)
+			return;
+
 		RestAssured.config = RestAssuredConfig.config().httpClient(
 				HttpClientConfig.httpClientConfig().setParam("http.connection.timeout", connectTimeout * 1000)
 						.setParam("http.socket.timeout", connectTimeout * 1000)
@@ -197,10 +202,11 @@ public class RestApiInterface {
 
 	public static List<String> validateExpectedValues(Response response, ServiceObject apiObject) {
 		List<String> errorMessages = new ArrayList<String>();
+
 		// get response body as string
 		String body = response.getBody().asString();
 		TestLog.logPass("response: " + body);
-System.out.println("2");
+
 		// validate response body against expected json string
 		if (!apiObject.getExpectedResponse().isEmpty()) {
 			apiObject.withExpectedResponse(DataHelper.replaceParameters(apiObject.getExpectedResponse()));
@@ -208,7 +214,8 @@ System.out.println("2");
 			// separate the expected response by &&
 			String[] criteria = apiObject.getExpectedResponse().split("&&");
 			for (String criterion : criteria) {
-				Helper.assertTrue("expected is not valid format: " + criterion, JsonHelper.isValidExpectation(criterion));
+				Helper.assertTrue("expected is not valid format: " + criterion,
+						JsonHelper.isValidExpectation(criterion));
 				errorMessages.add(JsonHelper.validateByJsonBody(criterion, body));
 				errorMessages.addAll(JsonHelper.validateByKeywords(criterion, response));
 				errorMessages.add(JsonHelper.validateResponseBody(criterion, response));
@@ -253,27 +260,29 @@ System.out.println("2");
 				RestAssured.authentication = (AuthenticationScheme) Config.getObjectValue(value.replace("@", ""));
 				break;
 
-			case "INVALID_TOKEN":
+			case INVALID_TOKEN:
 				String authValue = Config.getValue(AUTHORIZATION_HEADER);
 
-				// replace authorization token with invalid if token already exists
-				if (!authValue.isEmpty() && authValue.length() > 4) {
-					authValue = authValue.substring(0, authValue.length() - 4) + "invalid";
+				// replace authorization token with random string of equal value to the token
+				if (!authValue.isEmpty()) {
+					authValue = Helper.generateRandomString(authValue.length());
 					request = given().header(AUTHORIZATION_HEADER, authValue);
 				} else
 					request = given().header(AUTHORIZATION_HEADER, "invalid");
 				break;
 
-			case "NO_TOKEN":
+			case NO_TOKEN:
 				request = given().header(AUTHORIZATION_HEADER, "");
 				break;
+
+			case AUTHORIZATION_HEADER:
+				// keep track of the token
+				Config.putValue(AUTHORIZATION_HEADER, (String) keyword.value);
+				request = given().header(keyword.key, keyword.value);
+				break;
+
 			default:
 				request = given().header(keyword.key, keyword.value);
-
-				// keep track of Authorization token
-				if (keyword.key.equals(AUTHORIZATION_HEADER)) {
-					Config.putValue(AUTHORIZATION_HEADER, (String) keyword.value);
-				}
 				break;
 			}
 		}
@@ -321,10 +330,10 @@ System.out.println("2");
 	 * @return
 	 */
 	public static RequestSpecification evaluateOption(ServiceObject serviceObject, RequestSpecification request) {
-		
+
 		// reset validation timeout. will be overwritten by option value if set
 		resetValidationTimeout();
-		
+
 		// if no option specified
 		if (serviceObject.getOption().isEmpty()) {
 			return request;
@@ -332,7 +341,7 @@ System.out.println("2");
 
 		// replace parameters for request body
 		serviceObject.withOption(DataHelper.replaceParameters(serviceObject.getOption()));
-		
+
 		// get key value mapping of header parameters
 		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getOption());
 
@@ -341,10 +350,15 @@ System.out.println("2");
 
 			// if additional options
 			switch (keyword.key) {
-			case "NO_VALIDATION_TIMEOUT":
+			case OPTION_NO_VALIDATION_TIMEOUT:
 				Config.putValue(API_TIMEOUT_VALIDATION_ENABLED, false);
 				break;
-			
+				
+			case OPTION_WAIT_FOR_RESPONSE:
+				Config.putValue(API_TIMEOUT_VALIDATION_ENABLED, true);
+				Config.putValue(API_TIMEOUT_VALIDATION_SECONDS, keyword.value);	
+				break;
+
 			default:
 				break;
 			}
@@ -352,13 +366,14 @@ System.out.println("2");
 
 		return request;
 	}
-	
+
 	/**
 	 * reset validation timeout
 	 */
 	private static void resetValidationTimeout() {
-		// reset  validation timeout option
-		String defaultValidationTimeoutIsEnabled = TestObject.getDefaultTestInfo().config.get(API_TIMEOUT_VALIDATION_ENABLED).toString();
+		// reset validation timeout option
+		String defaultValidationTimeoutIsEnabled = TestObject.getDefaultTestInfo().config
+				.get(API_TIMEOUT_VALIDATION_ENABLED).toString();
 		Config.putValue(API_TIMEOUT_VALIDATION_ENABLED, defaultValidationTimeoutIsEnabled);
 
 	}

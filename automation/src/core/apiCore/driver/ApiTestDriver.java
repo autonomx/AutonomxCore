@@ -1,5 +1,7 @@
 package core.apiCore.driver;
 
+import org.apache.commons.lang3.StringUtils;
+
 import core.apiCore.helpers.CsvReader;
 import core.support.logger.TestLog;
 import core.support.objects.ServiceObject;
@@ -10,22 +12,22 @@ import core.uiCore.drivers.AbstractDriverTestNG;
 public class ApiTestDriver {
 	// public static ThreadLocal<Logger> log = new ThreadLocal<Logger>();
 
-	public static void setTestId(ServiceObject apiObject) {
-		String csvFileName = getTestClass(apiObject);
+	public static void setTestId(ServiceObject serviceObject) {
+		String csvFileName = getTestClass(serviceObject);
 
-		TestObject.setTestName(apiObject.getTestCaseID());
-		TestObject.setTestId(csvFileName + "-" + apiObject.getTestCaseID());
+		TestObject.setTestName(serviceObject.getTestCaseID());
+		TestObject.setTestId(csvFileName + "-" + serviceObject.getTestCaseID());
 	}
 
 	/**
 	 * gets the test class based on the csv file name eg. TestCases_company has
 	 * testId = company
 	 * 
-	 * @param apiObject
+	 * @param serviceObject
 	 * @return
 	 */
-	public static String getTestClass(ServiceObject apiObject) {
-		String testClass = apiObject.getTcName();
+	public static String getTestClass(ServiceObject serviceObject) {
+		String testClass = serviceObject.getTcName();
 		return  getTestClass(testClass);
 	}
 	
@@ -35,6 +37,8 @@ public class ApiTestDriver {
 	 * @return
 	 */
 	public static String getTestClass(String csvFilename) {
+		if(StringUtils.isBlank(csvFilename)) return csvFilename;
+		
 		String testClass = csvFilename.split("\\.")[0];
 		testClass = testClass.replace(CsvReader.SERVICE_CSV_FILE_PREFIX, "");
 		return testClass;
@@ -48,11 +52,11 @@ public class ApiTestDriver {
 	 * 
 	 * @param driverObject
 	 */
-	public void initTest(ServiceObject apiObject) {
+	public void initTest(ServiceObject serviceObject) {
 		String APP = "ServiceManager";
 
 		
-		setTestId(apiObject);
+		setTestId(serviceObject);
 		String testId = TestObject.currentTestId.get();
 		TestLog.removeLogUtilHandler();
 
@@ -60,8 +64,8 @@ public class ApiTestDriver {
 		// in the test class
 		// all api tests in the same class share the same config. each csv file is one
 		// class based on csv file name
-		String classname = getTestClass(apiObject);
-		classname = apiObject.getParentClass() + "-" + classname + TestObject.BEFORE_METHOD_PREFIX;
+		String classname = getTestClass(serviceObject);
+		classname = serviceObject.getParentClass() + "-" + classname + TestObject.BEFORE_METHOD_PREFIX;
 		TestObject.initializeTest(classname);
 
 		// initialize once per test
@@ -74,23 +78,57 @@ public class ApiTestDriver {
 
 		TestObject.getTestInfo().type = testType.service;
 		TestObject.getTestInfo().app = APP;
-		TestObject.getTestInfo().testCsvFileName = apiObject.getTcName();
+		TestObject.getTestInfo().testCsvFileName = serviceObject.getTcName();
 
-		TestObject.getTestInfo().className = getTestClass(apiObject);
+		TestObject.getTestInfo().className = getTestClass(serviceObject);
 
-		TestObject.getTestInfo().testName = apiObject.getTestCaseID();
-		TestObject.getTestInfo().currentTestIndex = Integer.valueOf(apiObject.getTcIndex());
+		TestObject.getTestInfo().testName = serviceObject.getTestCaseID();
+		TestObject.getTestInfo().currentTestIndex = Integer.valueOf(serviceObject.getTcIndex());
 
-		// initialize per test run
-		if (TestObject.getTestInfo().testCountInCsvFile == 0)
-			TestObject.getTestInfo().testCountInCsvFile = CsvReader.getCsvTestListForTestRunner(apiObject.getTcName())
-					.size();
+		TestObject.getTestInfo().testCountInCsvFile = Integer.valueOf(serviceObject.getTcCount());
 
 	}
 
-	public static boolean isTestComplete() {
+	/**
+	 * returns true if all tests in current csv file are completed
+	 * @return
+	 */
+	public static boolean isCsvTestComplete() {
 		if (TestObject.getTestInfo().currentTestIndex == CsvReader.getCsvTestcount()) {
 			TestObject.getTestInfo().isTestComplete = true;
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * returns true if all tests in current csv file are completed
+	 * @return
+	 */
+	public static boolean isCsvTestComplete(ServiceObject service) {
+		if (Integer.valueOf(service.getTcIndex()) == Integer.valueOf(service.getTcCount()) -1) {
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * returns true if tests in csv file are starting
+	 * @return
+	 */
+	public static boolean isCsvTestStarted() {
+		if (TestObject.getTestInfo().currentTestIndex == 0) {
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * returns true if tests in csv file are starting
+	 * @return
+	 */
+	public static boolean isCsvTestStarted(int index) {
+		if (index == 0) {
 			return true;
 		}
 		return false;
@@ -115,7 +153,7 @@ public class ApiTestDriver {
 	public static boolean isRunningServiceTest(Object[] testData) {
 		if(testData.length != CsvReader.SERVICE_CSV_COLUMN_COUNT) return false;
 		if(testData[testData.length - 1] == null) return false;
-		return testData[testData.length -1].equals(TestObject.testType.service.name());
+		return testData[testData.length - 2].equals(TestObject.testType.service.name());
 	}
 	
 	/**
@@ -124,7 +162,7 @@ public class ApiTestDriver {
 	 */
 	public static void setServiceTestName(Object[] testData) {
 		if (ApiTestDriver.isRunningServiceTest(testData)) {
-			ServiceObject apiObject = CsvReader.mapToApiObject(testData);
+			ServiceObject apiObject = CsvReader.mapToServiceObject(testData);
 			String testClass = ApiTestDriver.getTestClass(apiObject.getTcName());
 			AbstractDriverTestNG.testName.set(testClass + "-" + apiObject.getTestCaseID());
 		}

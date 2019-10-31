@@ -273,9 +273,19 @@ public class ExtentManager {
 		 * ExtentManager.getReporter().removeTest(test);
 		 */
 		// remove suite logs
-		// TODO: find way to remove empty before suitfrom report
+		// TODO: find way to remove empty before suite from report
 		for (Entry<String, TestObject> entry : TestObject.testInfo.entrySet()) {
 			if (entry.getValue().testName.contains("Beforesuite") || entry.getValue().testName.contains("Aftersuite")) {
+				try {
+					ExtentManager.getReporter().removeTest(entry.getValue().testFeature);
+				} catch (Exception e) {
+					e.getMessage();
+				}
+			}
+		}
+		
+		for (Entry<String, TestObject> entry : TestObject.testInfo.entrySet()) {
+			if (entry.getValue().testName.contains("Beforeclass") || entry.getValue().testName.contains("Aftersuite")) {
 				try {
 					ExtentManager.getReporter().removeTest(entry.getValue().testFeature);
 				} catch (Exception e) {

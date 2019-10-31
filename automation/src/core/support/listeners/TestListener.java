@@ -157,6 +157,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		
 		// set test status to pass
 		TestObject.getTestInfo().withIsTestPass(true);
+		TestObject.getTestInfo().withIsTestComplete(true);
 
 		TestLog.Then("Test is finished successfully");
 		TestLog.printBatchLogsToConsole();
@@ -164,7 +165,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		// stop screen recording if enabled
 		ScreenRecorderHelper.stopRecording();
 
-		// if single signin is set, Then set isFirstRun to false so new driver is not
+		// if single sign in is set, Then set isFirstRun to false so new driver is not
 		// created for next test
 		if (CrossPlatformProperties.isSingleSignIn()) {
 			// driver is now available
@@ -191,6 +192,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		TestObject.getTestInfo().withIsForcedRestart(true);
 		TestObject.getTestInfo().isFirstRun = true;
 		TestObject.getTestInfo().withIsTestPass(false);
+		TestObject.getTestInfo().withIsTestComplete(true);
 		
 		// mobile device is now available again
 		DeviceManager.setDeviceAvailability(true);

@@ -26,12 +26,13 @@ public class ServiceObject {
 	private String tcIndex = StringUtils.EMPTY;
 	private String testType = StringUtils.EMPTY;
 	private String parentClass = StringUtils.EMPTY; // name of the test class. eg. ServiceTestRunner
-	
-	public ServiceObject setApiObject(String TestSuite, String TestCaseID, String RunFlag, String Description,
+	private String tcCount = StringUtils.EMPTY; // number of tests in csv file
+
+	public ServiceObject setServiceObject(String TestSuite, String TestCaseID, String RunFlag, String Description,
 			String InterfaceType, String UriPath, String ContentType, String Method, String Option,
 			String RequestHeaders, String TemplateFile, String RequestBody, String OutputParams, String RespCodeExp,
 			 String ExpectedResponse, String TcComments,
-			String tcName, String tcIndex, String testType) {
+			String tcName, String tcIndex, String testType, String tcCount) {
 		this.TestSuite = TestSuite;
 		this.TestCaseID = TestCaseID;
 		this.RunFlag = RunFlag;
@@ -51,7 +52,8 @@ public class ServiceObject {
 		this.tcName = tcName;
 		this.tcIndex = tcIndex;
 		this.testType = testType;
-
+		this.tcCount = tcCount;
+		
 		return this;
 	}
 	
@@ -230,6 +232,15 @@ public class ServiceObject {
 	
 	public String getTcIndex(){
 		return this.tcIndex;
+	}
+	
+	public ServiceObject withTcCount(String tcCount){
+		this.tcCount = tcCount;
+		return this;
+	}
+	
+	public String getTcCount(){
+		return this.tcCount;
 	}
 //-----------------------------------------------------------------------------------------------------------------------	
 	public static String replaceQuotes(String value) {
