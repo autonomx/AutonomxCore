@@ -189,7 +189,7 @@ public class JsonHelper {
 	public static List<String> validateJsonKeywords(List<KeyValue> keywords, Response response) {
 		List<String> errorMessages = new ArrayList<String>();
 		for (KeyValue keyword : keywords) {
-			String jsonPath = Helper.stringNormalize(keyword.key);
+			String jsonPath = removeSurroundingQuotes(keyword.key);
 			String expectedValue = Helper.stringRemoveLines((String) keyword.value);
 			String command = "";
 
@@ -350,6 +350,19 @@ public class JsonHelper {
 		}
 
 		return expected;
+	}
+	
+	/**
+	 * remove surrounding double quotes from the string
+	 * @param value
+	 * @return
+	 */
+	public static String removeSurroundingQuotes(String value) {
+		if (value.length() >= 2 && value.charAt(0) == '"' && value.charAt(value.length() - 1) == '"')
+		{
+			value = value.substring(1, value.length() - 1);
+		}
+		return value;
 	}
 	
 	/**

@@ -170,9 +170,10 @@ public class DataHelper {
 	 * @param command
 	 * @param responseString
 	 * @param expectedString
+	 * @return 
 	 */
-	public static void validateCommand(String command, String responseString, String expectedString) {
-		validateCommand(command, responseString, expectedString, StringUtils.EMPTY);
+	public static String validateCommand(String command, String responseString, String expectedString) {
+		return validateCommand(command, responseString, expectedString, StringUtils.EMPTY);
 	}
 
 	/**
@@ -216,6 +217,31 @@ public class DataHelper {
 				if(!val) return Arrays.toString(actualArray) + " does not have items " + Arrays.toString(expectedArray);
 			}
 			break;
+		case "notHaveItems":
+			val = false;
+			if (!position.isEmpty()) { // if position is provided
+				TestLog.logPass("verifying: " + actualString + " does not have item " + expectedString);
+				val = actualString.contains(expectedString);
+				if(!val) return actualString + " does have item " + expectedString;
+			} else {
+				TestLog.logPass(
+						"verifying: " + Arrays.toString(actualArray) + " does not have items " + Arrays.toString(expectedArray));
+				val = Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
+				if(!val) return Arrays.toString(actualArray) + " does have items " + Arrays.toString(expectedArray);
+			}
+			break;
+		case "notEqualTo":
+			if (!position.isEmpty()) { // if position is provided
+				TestLog.logPass("verifying: " + actualString + " not equals " + expectedString);
+				val = !actualString.equals(expectedString);
+				if(!val) return actualString + " does equal " + expectedString;
+			} else {
+				TestLog.logPass(
+						"verifying: " + Arrays.toString(actualArray) + " not equals " + Arrays.toString(expectedArray));
+				val = !Arrays.equals(expectedArray, actualArray);
+				if(!val) return Arrays.toString(actualArray) + " does equal " + Arrays.toString(expectedArray);
+			}
+			break;
 		case "equalTo":
 			if (!position.isEmpty()) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " equals " + expectedString);
@@ -226,6 +252,18 @@ public class DataHelper {
 						"verifying: " + Arrays.toString(actualArray) + " equals " + Arrays.toString(expectedArray));
 				val = Arrays.equals(expectedArray, actualArray);
 				if(!val) return Arrays.toString(actualArray) + " does not equal " + Arrays.toString(expectedArray);
+			}
+			break;
+		case "notContain":
+			if (!position.isEmpty()) { // if position is provided
+				TestLog.logPass("verifying: " + actualString + " does not contain " + expectedString);
+				val = !actualString.contains(expectedString);
+				if(!val) return actualString + " does contain " + expectedString;
+			} else {
+				TestLog.logPass(
+						"verifying: " + Arrays.toString(actualArray) + " does not contain " + Arrays.toString(expectedArray));
+				val = !Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
+				if(!val) return Arrays.toString(actualArray) + " does not contain " + Arrays.toString(expectedArray);
 			}
 			break;
 		case "contains":
