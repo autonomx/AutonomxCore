@@ -94,7 +94,7 @@ public class ApiTestDriver {
 	 * @return
 	 */
 	public static boolean isCsvTestComplete() {
-		if (TestObject.getTestInfo().currentTestIndex == CsvReader.getCsvTestcount()) {
+		if (TestObject.getTestInfo().currentTestIndex == TestObject.getTestInfo().testCountInCsvFile - 1) {
 			TestObject.getTestInfo().isTestComplete = true;
 			return true;
 		}

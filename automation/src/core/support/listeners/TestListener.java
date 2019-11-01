@@ -16,6 +16,7 @@ import org.testng.xml.XmlSuite.ParallelMode;
 
 import com.google.common.base.Joiner;
 
+import core.apiCore.driver.ApiTestDriver;
 import core.helpers.Helper;
 import core.helpers.ScreenRecorderHelper;
 import core.support.configReader.Config;
@@ -150,14 +151,13 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 	@Override
 	public void onTestSuccess(ITestResult iTestResult) {
-		TestObject.getTestInfo().isTestComplete = TestObject.isTestcomplete();
 
 		// sets the class name for logging before class
 		setTestClassName(iTestResult);
 		
 		// set test status to pass
 		TestObject.getTestInfo().withIsTestPass(true);
-		TestObject.getTestInfo().withIsTestComplete(true);
+		TestObject.getTestInfo().withIsTestComplete(ApiTestDriver.isCsvTestComplete());
 
 		TestLog.Then("Test is finished successfully");
 		TestLog.printBatchLogsToConsole();
@@ -181,8 +181,6 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 	@Override
 	public void onTestFailure(ITestResult iTestResult) {
 		
-		TestObject.getTestInfo().isTestComplete = TestObject.isTestcomplete();
-
 		// sets the class name for logging before class
 		setTestClassName(iTestResult);
 
@@ -192,7 +190,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		TestObject.getTestInfo().withIsForcedRestart(true);
 		TestObject.getTestInfo().isFirstRun = true;
 		TestObject.getTestInfo().withIsTestPass(false);
-		TestObject.getTestInfo().withIsTestComplete(true);
+		TestObject.getTestInfo().withIsTestComplete(ApiTestDriver.isCsvTestComplete());
 		
 		// mobile device is now available again
 		DeviceManager.setDeviceAvailability(true);

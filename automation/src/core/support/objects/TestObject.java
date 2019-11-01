@@ -418,27 +418,6 @@ public class TestObject{
 	}
 
 	/**
-	 * returns true if test is complete for csv api tests, if tests in csv file are
-	 * complete
-	 * 
-	 * @return
-	 */
-	public static boolean isTestcomplete() {
-		int currentTestIndex = TestObject.getTestInfo().currentTestIndex;
-		int testCountInCsv = TestObject.getTestInfo().testCountInCsvFile;
-
-		// no tests to run
-		if (testCountInCsv == 0)
-			return true;
-
-		if (currentTestIndex == (testCountInCsv - 1)) {
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
 	 * gets api object from api keywords each keyword is associated with a api call
 	 * use api keywords csv files for definitions
 	 * 
