@@ -2,6 +2,7 @@ package core.support.listeners;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.testng.IClassListener;
 import org.testng.IConfigurationListener;
@@ -16,6 +17,7 @@ import org.testng.xml.XmlSuite.ParallelMode;
 
 import com.google.common.base.Joiner;
 
+import core.apiCore.ServiceManager;
 import core.apiCore.driver.ApiTestDriver;
 import core.helpers.Helper;
 import core.helpers.ScreenRecorderHelper;
@@ -325,6 +327,23 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		// setup before suite driver
 		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
 		new AbstractDriverTestNG().setupWebDriver(TestObject.SUITE_NAME + TestObject.BEFORE_SUITE_PREFIX, driver);
+		
+		// run service before suite if test method is serviceRunner
+		if(isServiceSuite(suite))
+			ServiceManager.runServiceBeforeSuite();
+	}
+	
+	/**
+	 * return true if service runner method is the only method is service runner
+	 * @param suite
+	 * @return
+	 */
+	private boolean isServiceSuite(ISuite suite) {
+		List<ITestNGMethod> methods = suite.getAllMethods();
+		if(methods.size() == 0 || methods.size() > 1) return false;
+		if(methods.get(0).getMethodName().contains("serviceRunner"))
+			return true;
+		return false;
 	}
 
 	/**
@@ -351,7 +370,11 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 	public void onFinish(ISuite suite) {
 		// print out suite console logs  if batch logging is enabled
 		String testId = getSuiteName(suite.getName()) + TestObject.AFTER_SUITE_PREFIX;
-		TestLog.printBatchToConsole(testId);	
+		TestLog.printBatchToConsole(testId);
+		
+		// run service before suite if test method is serviceRunner
+		if(isServiceSuite(suite))
+			ServiceManager.runServiceAfterSuite();
 	}
 	
 	private String getSuiteName(String suitename) {

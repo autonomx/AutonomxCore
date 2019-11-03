@@ -142,6 +142,8 @@ public class ServiceObject {
 	}
 	
 	public String getParentClass(){
+		if(StringUtils.isBlank(this.parentClass))
+			return TestObject.SUITE_NAME;
 		return this.parentClass;
 	}
 	

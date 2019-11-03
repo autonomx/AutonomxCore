@@ -293,6 +293,8 @@ public class JsonHelper {
 		List<String> errorMessages = new ArrayList<String>();
 		
 		expectedJson = Helper.stringRemoveLines(expectedJson);
+		expectedJson = removeSurroundingQuotes(expectedJson);
+		
 		if (!JsonHelper.isJSONValid(expectedJson, false)) {
 			if (expectedJson.startsWith(DataHelper.VERIFY_JSON_PART_INDICATOR)) {
 				// get hashmap of json path And verification

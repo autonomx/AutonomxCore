@@ -221,7 +221,7 @@ public class DataHelper {
 			val = false;
 			if (!position.isEmpty()) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " does not have item " + expectedString);
-				val = actualString.contains(expectedString);
+				val = !actualString.contains(expectedString);
 				if(!val) return actualString + " does have item " + expectedString;
 			} else {
 				TestLog.logPass(
@@ -294,6 +294,10 @@ public class DataHelper {
 			break;
 		case "integerEqual":
 			val = compareNumbers(actualString, expectedString, "equal");
+			if(!val) return "actual: " +  actualString + " is not equal to expected: " + expectedString;
+			break;
+		case "integerNotEqual":
+			val = !compareNumbers(actualString, expectedString, "equal");
 			if(!val) return "actual: " +  actualString + " is not equal to expected: " + expectedString;
 			break;
 		case "nodeSizeGreaterThan":

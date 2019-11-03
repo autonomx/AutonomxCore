@@ -46,8 +46,8 @@ public class ApiTestDriver {
 
 	/**
 	 * initialized testInfo with testId as key runs before test adds current driver
-	 * info to test object note: each row in csv is treated as separte test, with
-	 * separte test object test logs And config are shared by test class object,
+	 * info to test object note: each row in csv is treated as separate test, with
+	 * separate test object test logs And config are shared by test class object,
 	 * which is the csv file name
 	 * 
 	 * @param driverObject
@@ -68,7 +68,7 @@ public class ApiTestDriver {
 		classname = serviceObject.getParentClass() + "-" + classname + TestObject.BEFORE_METHOD_PREFIX;
 		TestObject.initializeTest(classname);
 
-		// initialize once per test
+		// initialize once per test in csv file
 		TestObject.initializeTest(testId);
 
 		// pass the class config And logs to new test. parameters are passed from one

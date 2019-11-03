@@ -45,11 +45,15 @@ public class ServiceManager {
 	private static final String AFTER_SUITE_DIR = "afterSuite";
 
 	
-	public static void TestRunner(ServiceObject serviceObject) throws Exception {
+	public static void TestRunner(ServiceObject serviceObject)  {
 
-		// setup api driver
-		new AbstractDriverTestNG().setupApiDriver(serviceObject);
-		runInterface(serviceObject);
+		try {
+			// setup api driver
+			new AbstractDriverTestNG().setupApiDriver(serviceObject);
+			runInterface(serviceObject);
+		}catch(Exception e) {
+			Helper.assertFalse(e.getMessage());
+		}
 	}
 	
 	public static void runInterface(ServiceObject serviceObject) throws Exception {
@@ -141,16 +145,13 @@ public class ServiceManager {
 	 * @param serviceObject
 	 * @throws Exception 
 	 */
-	public static void runBeforeSuite() throws Exception {
+	public static void runServiceBeforeSuite()  {
 		
 		// run all tests in csv file
 		String csvTestPath = PropertiesReader.getLocalRootPath()
 				+ Config.getValue(TEST_BASE_PATH) + BEFORE_SUITE_DIR + File.separator;
 		
 		String beforeSuiteFile =  Config.getValue(TEST_BASE_BEFORE_SUITE);	
-		
-		// return if before suite is not set
-		if(StringUtils.isBlank(beforeSuiteFile)) return;
 		
 		// return if before suite is not set
 		if(StringUtils.isBlank(beforeSuiteFile)) return;
@@ -165,7 +166,7 @@ public class ServiceManager {
 	 * @param serviceObject
 	 * @throws Exception 
 	 */
-	public static void runAfterSuite() throws Exception {
+	public static void runServiceAfterSuite() {
 		
 		// run all tests in csv file
 		String csvTestPath = PropertiesReader.getLocalRootPath()
@@ -174,9 +175,6 @@ public class ServiceManager {
 		String afterSuiteFile =  Config.getValue(TEST_BASE_AFTER_SUITE);
 		
 		// return if after suite is not set
-		if(StringUtils.isBlank(afterSuiteFile)) return;
-		
-		// return if before suite is not set
 		if(StringUtils.isBlank(afterSuiteFile)) return;
 		
 		// run tests in csv files
@@ -191,7 +189,7 @@ public class ServiceManager {
 	 * @param parentFileName : name of the class before/after class is running for
 	 * @throws Exception
 	 */
-	public static void runServiceTestFileWithoutDataProvider(String csvTestPath, String file, String parentFileName) throws Exception {
+	public static void runServiceTestFileWithoutDataProvider(String csvTestPath, String file, String parentFileName) {
 		
 		// set test id to be prefixed by the csv it is being used for. eg. before/after class
 		String updateName = StringUtils.EMPTY;

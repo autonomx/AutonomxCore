@@ -192,6 +192,10 @@ public class TestObject{
 	 * @return 
 	 */
 	public static TestObject getTestObjectInheritence(DriverObject driver, String testId) {
+		
+		// applicable for before suite 
+		if(TestObject.testInfo.get(testId) == null) return new TestObject();
+		
 		// gets test state of test object: suite, testClass, testMethod
 		testState testObjectState = getTestState(testId);
 
