@@ -137,7 +137,6 @@ public class Config {
 		Object value = TestObject.getTestInfo().config.get(key);
 		if (value == null) {
 			 if(isFailable) Helper.assertFalse("value not found, default empty: " + key);
-		   	System.out.println("value not found, default empty: " + key);
 			 TestLog.ConsoleLogWarn("value not found, default empty: " + key);
 			value = StringUtils.EMPTY;
 		}

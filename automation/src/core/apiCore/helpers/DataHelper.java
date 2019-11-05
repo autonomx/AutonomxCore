@@ -29,6 +29,12 @@ public class DataHelper {
 	public static final String VERIFY_RESPONSE_BODY_INDICATOR = "_VERIFY.RESPONSE.BODY_";
 	public static final String VERIFY_RESPONSE_NO_EMPTY = "_NOT_EMPTY_";
 
+	public static final String[] JSON_VALIDATION_COMMANDS = { "MultipleFailureException", "WebDriverException", "GridException",
+			"SessionNotFoundException", "UnreachableBrowserException", "loginException" };
+	
+	enum JSON_COMMAND {
+		hasItems, notHaveItems, notEqualTo, equalTo, notContain, contains, containsInAnyOrder, integerGreaterThan, integerLessThan, integerEqual, integerNotEqual, nodeSizeGreaterThan, nodeSizeExact, sequence, jsonbody, isNotEmpty, isEmpty
+		}
 	
 	/**
 	 * replaces placeholder values with values from config properties replaces only
@@ -48,12 +54,12 @@ public class DataHelper {
 		for (String parameter : parameters) {
 
 			if (parameter.contains("_TIME")) {
-				length = getIntFromString(parameter);
+				length = Helper.getIntFromString(parameter);
 				if (length > 19)
 					length = 19;
 				val = TestObject.getTestInfo().startTime.substring(0, length);
 			} else if (parameter.contains("_RAND")) {
-				length = getIntFromString(parameter);
+				length = Helper.getIntFromString(parameter);
 				val = TestObject.getTestInfo().randStringIdentifier.substring(0, length);
 			} else {
 				val = Config.getObjectValue(parameter);
@@ -68,10 +74,6 @@ public class DataHelper {
 			}
 		}
 		return source;
-	}
-
-	public static int getIntFromString(String value) {
-		return Integer.parseInt(value.replaceAll("[\\D]", ""));
 	}
 
 	/**
@@ -186,6 +188,11 @@ public class DataHelper {
 	 */
 	public static String validateCommand(String command, String responseString, String expectedString, String position) {
 
+		// remove surrounding quotes
+		expectedString = Helper.removeSurroundingQuotes(expectedString);
+		command = Helper.removeSurroundingQuotes(command);
+		responseString = Helper.removeSurroundingQuotes(responseString);
+		
 		String[] expectedArray = expectedString.split(",");
 		String[] actualArray = responseString.split(",");
 		String actualString = "";
@@ -202,9 +209,15 @@ public class DataHelper {
 
 			actualString = actualArray[positionInt - 1];
 		}
+		
+	    if(getCommandFromExpectedString(command).isEmpty()) {
+	    	Helper.assertFalse("Command not set. Options: " + Arrays.asList(JSON_COMMAND.values()) + ". See examples for usage.");
+	    }
+		
+		JSON_COMMAND jsonCommand = JSON_COMMAND.valueOf(command);
 
-		switch (command) {
-		case "hasItems":
+		switch (jsonCommand) {
+		case hasItems:
 			boolean val = false;
 			if (!position.isEmpty()) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " has item " + expectedString);
@@ -217,7 +230,7 @@ public class DataHelper {
 				if(!val) return Arrays.toString(actualArray) + " does not have items " + Arrays.toString(expectedArray);
 			}
 			break;
-		case "notHaveItems":
+		case notHaveItems:
 			val = false;
 			if (!position.isEmpty()) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " does not have item " + expectedString);
@@ -230,7 +243,7 @@ public class DataHelper {
 				if(!val) return Arrays.toString(actualArray) + " does have items " + Arrays.toString(expectedArray);
 			}
 			break;
-		case "notEqualTo":
+		case notEqualTo:
 			if (!position.isEmpty()) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " not equals " + expectedString);
 				val = !actualString.equals(expectedString);
@@ -242,7 +255,7 @@ public class DataHelper {
 				if(!val) return Arrays.toString(actualArray) + " does equal " + Arrays.toString(expectedArray);
 			}
 			break;
-		case "equalTo":
+		case equalTo:
 			if (!position.isEmpty()) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " equals " + expectedString);
 				val = actualString.equals(expectedString);
@@ -254,7 +267,7 @@ public class DataHelper {
 				if(!val) return Arrays.toString(actualArray) + " does not equal " + Arrays.toString(expectedArray);
 			}
 			break;
-		case "notContain":
+		case notContain:
 			if (!position.isEmpty()) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " does not contain " + expectedString);
 				val = !actualString.contains(expectedString);
@@ -266,7 +279,7 @@ public class DataHelper {
 				if(!val) return Arrays.toString(actualArray) + " does not contain " + Arrays.toString(expectedArray);
 			}
 			break;
-		case "contains":
+		case contains:
 			if (!position.isEmpty()) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " contains " + expectedString);
 				val = actualString.contains(expectedString);
@@ -278,55 +291,55 @@ public class DataHelper {
 				if(!val) return Arrays.toString(actualArray) + " does not contain " + Arrays.toString(expectedArray);
 			}
 			break;
-		case "containsInAnyOrder":
+		case containsInAnyOrder:
 			TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " contains any order "
 					+ Arrays.toString(expectedArray));
 			val = Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
 			if(!val) return Arrays.toString(actualArray) + " does not contain in any order " + Arrays.toString(expectedArray);
 			break;
-		case "integerGreaterThan":
-			val = compareNumbers(actualString, expectedString, "greaterThan");
-			if(!val) return "actual: " +  actualString + " is is less than expected: " + expectedString;
+		case integerGreaterThan:
+			val = compareNumbers(responseString, expectedString, "greaterThan");
+			if(!val) return "actual: " +  responseString + " is is less than expected: " + expectedString;
 			break;
-		case "integerLessThan":
-			val = compareNumbers(actualString, expectedString, "lessThan");
-			if(!val) return "actual: " +  actualString + " is is greater than expected: " + expectedString;
+		case integerLessThan:
+			val = compareNumbers(responseString, expectedString, "lessThan");
+			if(!val) return "actual: " +  responseString + " is is greater than expected: " + expectedString;
 			break;
-		case "integerEqual":
-			val = compareNumbers(actualString, expectedString, "equal");
-			if(!val) return "actual: " +  actualString + " is not equal to expected: " + expectedString;
+		case integerEqual:
+			val = compareNumbers(responseString, expectedString, "equalTo");
+			if(!val) return "actual: " +  responseString + " is not equal to expected: " + expectedString;
 			break;
-		case "integerNotEqual":
-			val = !compareNumbers(actualString, expectedString, "equal");
-			if(!val) return "actual: " +  actualString + " is not equal to expected: " + expectedString;
+		case integerNotEqual:
+			val = !compareNumbers(responseString, expectedString, "equalTo");
+			if(!val) return "actual: " +  responseString + " is not equal to expected: " + expectedString;
 			break;
-		case "nodeSizeGreaterThan":
+		case nodeSizeGreaterThan:
 			int intValue = Integer.valueOf(expectedString);
 			TestLog.logPass("verifying node with size " + actualArray.length + " greater than " + intValue);
 			if(intValue >= actualArray.length) return "response node size is: " + actualArray.length + " expected it to be greated than: " + intValue;
 			break;
-		case "nodeSizeExact":
+		case nodeSizeExact:
 			intValue = Integer.valueOf(expectedString);
 			TestLog.logPass("verifying node with size " + actualArray.length + " equals " + intValue);
 			if(actualArray.length != intValue) return "response node size is: " + actualArray.length + " expected: " + intValue;
 			break;
-		case "sequence":
+		case sequence:
 			TestLog.logPass(
 					"verifying: " + Arrays.toString(actualArray) + " with sequence " + Arrays.toString(expectedArray));
 			val = Arrays.equals(expectedArray, actualArray);
 			if(!val) return Arrays.toString(actualArray) + " does not equal " + Arrays.toString(expectedArray);
 			break;
-		case "jsonbody":
+		case jsonbody:
 			TestLog.logPass(
 					"verifying response: " + responseString + " against expected: " + expectedString);
 			String error = JsonHelper.validateByJsonBody(expectedString,  responseString);
 			if(!error.isEmpty()) return error;
 			break;
-		case "isNotEmpty":
+		case isNotEmpty:
 			TestLog.logPass("verifying response for path is not empty");
 			if(isEmpty(responseString)) return "value is empty";
 			break;
-		case "isEmpty":
+		case isEmpty:
 			TestLog.logPass("verifying response for path is empty ");
 			if(!isEmpty(responseString)) return "value is not empty";
 			break;
@@ -362,12 +375,13 @@ public class DataHelper {
 	 * @return
 	 */
 	public static boolean compareNumbers(String value1, String value2, String comparator) {
-		if(!Helper.isNumeric(value1) && !Helper.isNumeric(value2))
+		if(!Helper.isIntFromString(value1) || !Helper.isIntFromString(value2))
 			return false;
 		
-		int val1Int = Integer.valueOf(value1);
-		int val2Int = Integer.valueOf(value2);
-		return compareNumbers(val1Int, val2Int, comparator );
+		double val1Double = Helper.getDoubleFromString(value1); 
+		double val2Double = Helper.getDoubleFromString(value2); 
+
+		return compareNumbers(val1Double, val2Double, comparator );
 	}
 	
 	/**
@@ -377,7 +391,7 @@ public class DataHelper {
 	 * @param comparator
 	 * @return
 	 */
-	public static boolean compareNumbers(int value1, int value2, String comparator) {
+	public static boolean compareNumbers(double value1, double value2, String comparator) {
 					
 		switch (comparator) {
 		case "greaterThan":
@@ -421,9 +435,10 @@ public class DataHelper {
 	
 	public static List<String> splitRight(String value, String regex, int limit) {
 		
-		 // get jason key value
-	    if(value.contains("jsonbody")) {
-	    	return getJsonKeyValue(value);
+		 // if json validation command, return format path:position:command or path:command
+		String command = getCommandFromExpectedString(value);
+	    if(!command.isEmpty()) {
+	    	return getJsonKeyValue(value, command);
 	    }
 		
 		String string = value;
@@ -448,18 +463,54 @@ public class DataHelper {
 	}
 	
 	/**
+	 * get the json response validation command from string
+	 * eg. soi:EquipmentID:1:notEqualTo(2019110423T11:00:00.000Z)  -> command: notEqual
+	 * 	
+	 * @param value
+	 * @return 
+	 */
+	private static String getCommandFromExpectedString(String value) {
+		for (JSON_COMMAND command : JSON_COMMAND.values()) {
+			  if(value.contains(command.name()))
+				  return command.name();
+			}
+		return StringUtils.EMPTY;
+	}
+	
+	/**
 	 * get json key value
 	 * eg. store.book[?(@.price < 10)]:jsonbody(["key":"value"])
 	 * becomes arraylist of size 2. 
+	 * eg. store.book[?(@.price < 10)]:1:jsonbody(["key":"value"])
+	 * becomes arraylist of size 3. 
 	 * @param value
 	 * @return
 	 */
-	private static List<String> getJsonKeyValue(String value) {
+	private static List<String> getJsonKeyValue(String value, String command) {
 	    List<String> result = new ArrayList<String>();
-
-		String[] valueArray = value.split(":jsonbody");
-		result.add(valueArray[0]);
-		result.add("jsonbody" + valueArray[1]);
+	    
+	    // split by command. array size 2. 1st is key position, 2nd is command
+		String[] valueArray = value.trim().split(command);
+		
+		// remove last colon. eg. soi:EquipmentID:1: becomes: soi:EquipmentID:1
+		String keyPosition = valueArray[0].trim().replaceAll(":$", "");
+		List<String> keyPositionList = splitRight(keyPosition, ":", 2);
+		
+		// if key value has position. eg: store.book[?(@.price < 10)]:1
+		if(keyPositionList.size() == 2 && Helper.isIntFromString(keyPositionList.get(1))) {
+			result.add(keyPositionList.get(0));
+			result.add(keyPositionList.get(1));
+		}else {
+			result.add(keyPosition);
+		}
+		
+		// add command. length = 1 for 'Empty' command. length = 2 for command with parameter. eg. hasItems(value)
+		if(valueArray.length == 2) {
+			result.add(command + valueArray[1]);
+		}else {
+			result.add(command);
+		}
+		
 		return result;
 	}
 

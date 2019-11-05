@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Scanner;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -826,6 +827,69 @@ public class UtilityHelper {
 	protected static String executeJsWithStringReturn(String script, Object... args) {
 		Object valueObject = executeJs(script, args);
 		String value =  (String) valueObject;
+		return value;
+	}
+	
+	/**
+	 * get numeric value from string
+	 * @param value
+	 * @param isFailOnNoInt
+	 * @return
+	 */
+	protected static int getIntFromString(String value, boolean isFailOnNoInt) {
+		double doubleVal = getDoubleFromString(value, isFailOnNoInt);
+		return (int) doubleVal;
+	}
+	
+	/**
+	 * get numeric value from string
+	 * @param value
+	 * @param isFailOnNoInt
+	 * @return
+	 */
+	protected static double getDoubleFromString(String value, boolean isFailOnNoInt) {
+		if(!isIntFromString(value)) {
+			if(isFailOnNoInt)
+				Helper.assertFalse("numeric value not found from String: " + value);
+			else
+				return -1;
+		}
+		// remove all non numeric characters
+		value = value.replaceAll("[^\\d.]", "");
+		
+	    Scanner st = new Scanner(value);
+        while (!st.hasNextDouble())
+        {
+            st.next();
+        }
+        double valueDouble = st.nextDouble();
+        st.close();
+		
+		return valueDouble;
+	}
+	
+	/**
+	 * does string have int value
+	 * @param value
+	 * @return
+	 */
+	protected static boolean isIntFromString(String value) {
+		value = value.replaceAll("[^\\d.]", "");
+		if(StringUtils.isBlank(value))
+			return false;
+		return true;
+	}
+	
+	/**
+	 * remove surrounding double quotes from the string
+	 * @param value
+	 * @return
+	 */
+	protected static String removeSurroundingQuotes(String value) {
+		if (value.length() >= 2 && value.charAt(0) == '"' && value.charAt(value.length() - 1) == '"')
+		{
+			value = value.substring(1, value.length() - 1);
+		}
 		return value;
 	}
 }

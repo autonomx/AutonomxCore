@@ -40,7 +40,7 @@ public class TestObject{
 	}
 	
 	public static enum testState {
-		suite, testClass, testMethod, apiTestMethod, defaultState
+		beforeSuite, suite, testClass, testMethod, apiTestMethod, defaultState
 	}
 	
 	public static String BEFORE_SUITE_PREFIX = "-Beforesuite";
@@ -193,15 +193,18 @@ public class TestObject{
 	 */
 	public static TestObject getTestObjectInheritence(DriverObject driver, String testId) {
 		
-		// applicable for before suite 
-		if(TestObject.testInfo.get(testId) == null) return new TestObject();
-		
 		// gets test state of test object: suite, testClass, testMethod
 		testState testObjectState = getTestState(testId);
+		
+		// before suite does not inherit
+		if(testObjectState.equals(testState.beforeSuite))
+			return new TestObject();
 
 		// name of the test to be pass inheritance
 		String[] testValues = testId.split("-");
 		String testName = testValues[0];
+		
+		testId = testId.toLowerCase();
 		
 		// service level tests are handled in ApiTestDriver
 		// except for setting inheritance of test object with csv file name from before class
@@ -212,10 +215,10 @@ public class TestObject{
 		}
 		
 		// if default test, return itself. Not gaining from other test objects
-		if(testId.equals(TestObject.DEFAULT_TEST)) return new TestObject();
+		if(testId.equals(TestObject.DEFAULT_TEST.toLowerCase())) return new TestObject();
 		
 		// if before class, inherit test object from before suite
-		if(testId.contains(BEFORE_CLASS_PREFIX))
+		if(testId.contains(BEFORE_CLASS_PREFIX.toLowerCase()))
 			return TestObject.getTestInfo(TestObject.SUITE_NAME + BEFORE_SUITE_PREFIX);
 		
 		// if before test, inherit test object from before class
@@ -223,11 +226,11 @@ public class TestObject{
 			return TestObject.getTestInfo(testName + BEFORE_CLASS_PREFIX);
 		
 		// if after class, inherit test object from before class
-		if(testId.contains(AFTER_CLASS_PREFIX))
+		if(testId.contains(AFTER_CLASS_PREFIX.toLowerCase()))
 			return TestObject.getTestInfo(testName + BEFORE_CLASS_PREFIX);
 		
 		// if after suite, inherit test object from before suite
-		if(testId.contains(AFTER_SUITE_PREFIX))
+		if(testId.contains(AFTER_SUITE_PREFIX.toLowerCase()))
 			return TestObject.getTestInfo(TestObject.SUITE_NAME + BEFORE_SUITE_PREFIX);
 
 		return new TestObject();
@@ -306,14 +309,18 @@ public class TestObject{
 	 * @return 
 	 */
 	public static testState getTestState(String testName) {
+		testName = testName.toLowerCase();
 		
-		if(testName.contains(BEFORE_SUITE_PREFIX) || testName.contains(AFTER_SUITE_PREFIX))
+		if(testName.contains(BEFORE_SUITE_PREFIX.toLowerCase()))
+			return testState.beforeSuite;
+				
+		if(testName.contains(AFTER_SUITE_PREFIX.toLowerCase()))
 				return testState.suite;
 		
-		if(testName.contains(BEFORE_CLASS_PREFIX) || testName.contains(AFTER_CLASS_PREFIX))
+		if(testName.contains(BEFORE_CLASS_PREFIX.toLowerCase()) || testName.contains(AFTER_CLASS_PREFIX.toLowerCase()))
 			return testState.testClass;
 		
-		if(testName.equals(TestObject.DEFAULT_TEST))
+		if(testName.equals(TestObject.DEFAULT_TEST.toLowerCase()))
 			return testState.defaultState;
 		
 		else

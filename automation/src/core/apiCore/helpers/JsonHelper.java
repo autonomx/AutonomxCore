@@ -189,7 +189,7 @@ public class JsonHelper {
 	public static List<String> validateJsonKeywords(List<KeyValue> keywords, Response response) {
 		List<String> errorMessages = new ArrayList<String>();
 		for (KeyValue keyword : keywords) {
-			String jsonPath = removeSurroundingQuotes(keyword.key);
+			String jsonPath = Helper.removeSurroundingQuotes(keyword.key);
 			String expectedValue = Helper.stringRemoveLines((String) keyword.value);
 			String command = "";
 
@@ -293,7 +293,7 @@ public class JsonHelper {
 		List<String> errorMessages = new ArrayList<String>();
 		
 		expectedJson = Helper.stringRemoveLines(expectedJson);
-		expectedJson = removeSurroundingQuotes(expectedJson);
+		expectedJson = Helper.removeSurroundingQuotes(expectedJson);
 		
 		if (!JsonHelper.isJSONValid(expectedJson, false)) {
 			if (expectedJson.startsWith(DataHelper.VERIFY_JSON_PART_INDICATOR)) {
@@ -352,19 +352,6 @@ public class JsonHelper {
 		}
 
 		return expected;
-	}
-	
-	/**
-	 * remove surrounding double quotes from the string
-	 * @param value
-	 * @return
-	 */
-	public static String removeSurroundingQuotes(String value) {
-		if (value.length() >= 2 && value.charAt(0) == '"' && value.charAt(value.length() - 1) == '"')
-		{
-			value = value.substring(1, value.length() - 1);
-		}
-		return value;
 	}
 	
 	/**
