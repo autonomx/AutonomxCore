@@ -52,8 +52,10 @@ public class TestObject{
 
 	public static final String DEFAULT_TEST = "Autonomx-default";
 	public static final String DEFAULT_TEST_THREAD_PREFIX = "Runner";
-
 	
+	public static final String RANDOM_STRING = "_randomString_";
+	public static final String START_TIME_STRING = "_startTimeString_";
+
 	public static final String DEFAULT_APP = "auto";
 	public static String SUITE_NAME = StringUtils.EMPTY; // suite name is global to all tests in the run
 	public static String APP_IDENTIFIER = StringUtils.EMPTY; // app name associated with test run. If suite is default, use app identifier 
@@ -98,9 +100,6 @@ public class TestObject{
 	// screen recorder for web
 	public ScreenRecorder screenRecorder = null;
 
-	public String startTime; // start time of test in milliseconds
-	public String randStringIdentifier; // random identifier for the test
-
 	public List<LogObject> testLog = new ArrayList<LogObject>();
 	public Map<String, String> languageMap = new ConcurrentHashMap<String, String>();
 	public Map<String, ServiceObject> apiMap = new ConcurrentHashMap<String, ServiceObject>();// api keywords
@@ -140,8 +139,7 @@ public class TestObject{
 			// inherits test object values from parent. eg.beforeClass from test suite. test method from before class
 			test = inheritParent(driver, testId);		
 			
-			test.withTestId(testId).withTestName(test.getTestName()).withTestStartTime(Helper.date.getTimestampMiliseconds())
-					.withApp(driver.app).withRandomStringIdentifier();
+			test.withTestId(testId).withTestName(test.getTestName());
 			TestObject.testInfo.put(testId, test);
 			
 			// initialize logging
@@ -151,6 +149,10 @@ public class TestObject{
 			// if config from inherited layer is empty ( empty for default (autonomx), and before suite )
 			if(test.config.isEmpty())
 				Config.loadConfig(testId);
+			
+			// set random string and time per test
+			Config.putValue(RANDOM_STRING, Helper.generateRandomString(30));
+			Config.putValue(START_TIME_STRING, Helper.date.getTimestampMiliseconds());
 			
 			// loads all the keywords for api references
 			CsvReader.getAllKeywords();
@@ -461,17 +463,6 @@ public class TestObject{
 		return this;
 	}
 
-	public TestObject withTestStartTime(String time) {
-		this.startTime = String.valueOf(time);
-		return this;
-	}
-
-	public TestObject withRandomStringIdentifier() {
-		String rand = Helper.generateRandomString(30);
-		this.randStringIdentifier = rand;
-		return this;
-	}
-
 	public TestObject withTestName(String testName) {
 		this.testName = testName;
 		return this;
@@ -516,11 +507,6 @@ public class TestObject{
 		return className;
 	}
 	
-
-	public String getTestStartTime() {	
-		return this.startTime;
-	}
-
 	public TestObject withRunCount(int rerunCount) {
 		this.runCount = rerunCount;
 		return this;

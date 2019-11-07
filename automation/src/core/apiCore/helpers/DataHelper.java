@@ -57,10 +57,10 @@ public class DataHelper {
 				length = Helper.getIntFromString(parameter);
 				if (length > 19)
 					length = 19;
-				val = TestObject.getTestInfo().startTime.substring(0, length);
+				val = Config.getValue(TestObject.START_TIME_STRING).substring(0, length);
 			} else if (parameter.contains("_RAND")) {
 				length = Helper.getIntFromString(parameter);
-				val = TestObject.getTestInfo().randStringIdentifier.substring(0, length);
+				val = Config.getValue(TestObject.RANDOM_STRING).substring(0, length);
 			} else {
 				val = Config.getObjectValue(parameter);
 			}
