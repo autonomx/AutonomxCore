@@ -301,7 +301,7 @@ public class DataHelper {
 		case contains:
 			if (!position.isEmpty() && positionInt > 0) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " contains " + expectedString);
-				val = actualString.contentEquals(expectedString);
+				val = actualString.contains(expectedString);
 				if(!val) return actualString + " does not contain " + expectedString;
 			} else if(!position.isEmpty() && positionInt == 0) { 
 				val = responseString.contains(expectedString);
