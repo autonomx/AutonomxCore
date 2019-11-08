@@ -123,7 +123,7 @@ public class Authentication {
 				Helper.assertTrue("expected is not valid format: " + criterion,
 						JsonHelper.isValidExpectation(criterion));
 				JsonHelper.validateByJsonBody(criterion, response.getBody().asString());
-				JsonHelper.validateByKeywords(criterion, response);
+				JsonHelper.validateByKeywords(criterion, response.getBody().asString());
 			}
 		}
 	}

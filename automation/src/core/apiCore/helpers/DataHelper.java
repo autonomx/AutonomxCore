@@ -33,7 +33,7 @@ public class DataHelper {
 			"SessionNotFoundException", "UnreachableBrowserException", "loginException" };
 	
 	enum JSON_COMMAND {
-		hasItems, notHaveItems, notEqualTo, equalTo, notContain, contains, containsInAnyOrder, integerGreaterThan, integerLessThan, integerEqual, integerNotEqual, nodeSizeGreaterThan, nodeSizeExact, sequence, jsonbody, isNotEmpty, isEmpty
+		hasItems, notHaveItems, notEqualTo, equalTo, notContain, contains, containsInAnyOrder, integerGreaterThan, integerLessThan, integerEqual, integerNotEqual, nodeSizeGreaterThan, nodeSizeExact, sequence, jsonbody, isNotEmpty, isEmpty, nodeSizeLessThan
 		}
 	
 	/**
@@ -197,9 +197,11 @@ public class DataHelper {
 		String[] actualArray = responseString.split(",");
 		String actualString = "";
 
+		int positionInt = 0;
+		
 		// if position has value, Then get response at position
-		if (!position.isEmpty()) {
-			int positionInt = Integer.valueOf(position);
+		if (!position.isEmpty() && Helper.getIntFromString(position) > 0) {
+			positionInt = Helper.getIntFromString(position);
 			expectedString = expectedArray[0]; // single item
 			boolean inBounds = (positionInt > 0) && (positionInt <= actualArray.length);
 			if (!inBounds) {
@@ -219,10 +221,13 @@ public class DataHelper {
 		switch (jsonCommand) {
 		case hasItems:
 			boolean val = false;
-			if (!position.isEmpty()) { // if position is provided
+			if (!position.isEmpty() && positionInt > 0) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " has item " + expectedString);
 				val = actualString.contains(expectedString);
 				if(!val) return actualString + " does not have item " + expectedString;
+			} else if(!position.isEmpty() && positionInt == 0) { 
+				val = responseString.contains(expectedString);
+				if(!val) return responseString + " does not have item " + expectedString;
 			} else {
 				TestLog.logPass(
 						"verifying: " + Arrays.toString(actualArray) + " has items " + Arrays.toString(expectedArray));
@@ -232,22 +237,30 @@ public class DataHelper {
 			break;
 		case notHaveItems:
 			val = false;
-			if (!position.isEmpty()) { // if position is provided
+			if (!position.isEmpty() && positionInt > 0) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " does not have item " + expectedString);
 				val = !actualString.contains(expectedString);
 				if(!val) return actualString + " does have item " + expectedString;
+				
+			} else if(!position.isEmpty() && positionInt == 0) { 
+				val = !responseString.contains(expectedString);
+				if(!val) return responseString + " does not have item " + expectedString;
+				
 			} else {
 				TestLog.logPass(
 						"verifying: " + Arrays.toString(actualArray) + " does not have items " + Arrays.toString(expectedArray));
-				val = Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
+				val = !Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
 				if(!val) return Arrays.toString(actualArray) + " does have items " + Arrays.toString(expectedArray);
 			}
 			break;
 		case notEqualTo:
-			if (!position.isEmpty()) { // if position is provided
+			if (!position.isEmpty() && positionInt > 0) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " not equals " + expectedString);
 				val = !actualString.equals(expectedString);
 				if(!val) return actualString + " does equal " + expectedString;
+			} else if(!position.isEmpty() && positionInt == 0) { 
+				val = !responseString.equals(expectedString);
+				if(!val) return responseString + " does equal " + expectedString;
 			} else {
 				TestLog.logPass(
 						"verifying: " + Arrays.toString(actualArray) + " not equals " + Arrays.toString(expectedArray));
@@ -256,10 +269,13 @@ public class DataHelper {
 			}
 			break;
 		case equalTo:
-			if (!position.isEmpty()) { // if position is provided
+			if (!position.isEmpty() && positionInt > 0) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " equals " + expectedString);
 				val = actualString.equals(expectedString);
 				if(!val) return actualString + " does not equal " + expectedString;
+			} else if(!position.isEmpty() && positionInt == 0) { 
+				val = responseString.equals(expectedString);
+				if(!val) return responseString + " does not equal " + expectedString;
 			} else {
 				TestLog.logPass(
 						"verifying: " + Arrays.toString(actualArray) + " equals " + Arrays.toString(expectedArray));
@@ -268,10 +284,13 @@ public class DataHelper {
 			}
 			break;
 		case notContain:
-			if (!position.isEmpty()) { // if position is provided
+			if (!position.isEmpty() && positionInt > 0) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " does not contain " + expectedString);
 				val = !actualString.contains(expectedString);
 				if(!val) return actualString + " does contain " + expectedString;
+			} else if(!position.isEmpty() && positionInt == 0) { 
+				val = !responseString.contains(expectedString);
+				if(!val) return responseString + " does contain " + expectedString;
 			} else {
 				TestLog.logPass(
 						"verifying: " + Arrays.toString(actualArray) + " does not contain " + Arrays.toString(expectedArray));
@@ -280,10 +299,13 @@ public class DataHelper {
 			}
 			break;
 		case contains:
-			if (!position.isEmpty()) { // if position is provided
+			if (!position.isEmpty() && positionInt > 0) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " contains " + expectedString);
-				val = actualString.contains(expectedString);
+				val = actualString.contentEquals(expectedString);
 				if(!val) return actualString + " does not contain " + expectedString;
+			} else if(!position.isEmpty() && positionInt == 0) { 
+				val = responseString.contains(expectedString);
+				if(!val) return responseString + " does not contain " + expectedString;
 			} else {
 				TestLog.logPass(
 						"verifying: " + Arrays.toString(actualArray) + " contains " + Arrays.toString(expectedArray));
@@ -317,6 +339,11 @@ public class DataHelper {
 			int intValue = Integer.valueOf(expectedString);
 			TestLog.logPass("verifying node with size " + actualArray.length + " greater than " + intValue);
 			if(intValue >= actualArray.length) return "response node size is: " + actualArray.length + " expected it to be greated than: " + intValue;
+			break;	
+		case nodeSizeLessThan:
+			intValue = Integer.valueOf(expectedString);
+			TestLog.logPass("verifying node with size " + actualArray.length + " less than " + intValue);
+			if(intValue < actualArray.length) return "response node size is: " + actualArray.length + " expected it to be greated than: " + intValue;
 			break;
 		case nodeSizeExact:
 			intValue = Integer.valueOf(expectedString);
@@ -491,6 +518,12 @@ public class DataHelper {
 	    
 	    // split by command. array size 2. 1st is key position, 2nd is command
 		String[] valueArray = value.trim().split(command);
+		
+		// if command has no parameters. eg.isEmpty, isNotEmpty
+		if(valueArray.length == 0) {
+			result.add(command);
+			return result;
+		}
 		
 		// remove last colon. eg. soi:EquipmentID:1: becomes: soi:EquipmentID:1
 		String keyPosition = valueArray[0].trim().replaceAll(":$", "");

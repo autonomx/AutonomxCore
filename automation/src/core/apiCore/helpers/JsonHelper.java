@@ -186,7 +186,7 @@ public class JsonHelper {
 	 * @param jsonMap
 	 * @param response
 	 */
-	public static List<String> validateJsonKeywords(List<KeyValue> keywords, Response response) {
+	public static List<String> validateJsonKeywords(List<KeyValue> keywords, String responseString) {
 		List<String> errorMessages = new ArrayList<String>();
 		for (KeyValue keyword : keywords) {
 			String jsonPath = Helper.removeSurroundingQuotes(keyword.key);
@@ -204,10 +204,10 @@ public class JsonHelper {
 			}
 
 			// get response string from json path (eg. data.user.id) would return "2"
-			String responseString = getJsonValue(response, jsonPath);
+			String jsonResponse = getJsonValue(responseString, jsonPath);
 
 			// validate response
-			String errorMessage =  DataHelper.validateCommand(command, responseString, expectedValue, keyword.position);
+			String errorMessage =  DataHelper.validateCommand(command, jsonResponse, expectedValue, keyword.position);
 			errorMessages.add(errorMessage);
 		}
 		
@@ -289,7 +289,7 @@ public class JsonHelper {
 	 * @param expectedJson
 	 * @param response
 	 */
-	public static List<String> validateByKeywords(String expectedJson, Response response) {
+	public static List<String> validateByKeywords(String expectedJson, String responseString) {
 		List<String> errorMessages = new ArrayList<String>();
 		
 		expectedJson = Helper.stringRemoveLines(expectedJson);
@@ -300,12 +300,11 @@ public class JsonHelper {
 				// get hashmap of json path And verification
 				List<KeyValue> keywords = DataHelper.getValidationMap(expectedJson);
 				// validate based on keywords
-				errorMessages = JsonHelper.validateJsonKeywords(keywords, response);
+				errorMessages = JsonHelper.validateJsonKeywords(keywords, responseString);
 				
 				// response is not empty
 			} else if (expectedJson.startsWith("_NOT_EMPTY_")) {
-				String resonseBody = response.getBody().asString();
-				if(response == null || resonseBody.isEmpty())
+				if(responseString.isEmpty())
 					errorMessages.add("response is empty");
 			}
 		}
@@ -319,20 +318,27 @@ public class JsonHelper {
 	 * @param response
 	 * @return 
 	 */
-	public static String validateResponseBody(String expected, Response response) {
+	public static String validateResponseBody(String expected, String responseString) {
 		if (!expected.startsWith(DataHelper.VERIFY_RESPONSE_BODY_INDICATOR)) {
 			return StringUtils.EMPTY;
 		}
 		// remove the indicator _VERIFY.RESPONSE.BODY_
 		expected = removeResponseIndicator(expected);
 
-		String actual = JsonHelper.getResponseValue(response);
 		String[] expectedArr = expected.split("[\\(\\)]");
-		// get value in between parenthesis
-		String command = expectedArr[0].trim();
-		String expectedValue = expectedArr[1].trim();
+		String expectedValue = StringUtils.EMPTY;
+		String command = StringUtils.EMPTY;
+		
+		// if the expected does not contain parameters. eg. isEmpty, isNotEmpty
+		if(expectedArr.length == 1)
+			command = expected.trim();
+		else {
+			// get value in between parenthesis
+			command = expectedArr[0].trim();
+			expectedValue = expectedArr[1].trim();
+		}
 
-		return DataHelper.validateCommand(command, actual, expectedValue, "1");
+		return DataHelper.validateCommand(command, responseString, expectedValue, "0");
 
 	}
 
