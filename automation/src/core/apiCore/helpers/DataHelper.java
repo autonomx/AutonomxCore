@@ -463,9 +463,9 @@ public class DataHelper {
 	public static List<String> splitRight(String value, String regex, int limit) {
 		
 		 // if json validation command, return format path:position:command or path:command
-		String command = getCommandFromExpectedString(value);
-	    if(!command.isEmpty()) {
-	    	return getJsonKeyValue(value, command);
+		String commandValue = getCommandFromExpectedString(value);
+	    if(!commandValue.isEmpty()) {
+	    	return getJsonKeyValue(value, commandValue);
 	    }
 		
 		String string = value;
@@ -492,15 +492,23 @@ public class DataHelper {
 	/**
 	 * get the json response validation command from string
 	 * eg. soi:EquipmentID:1:notEqualTo(2019110423T11:00:00.000Z)  -> command: notEqual
-	 * 	
+	 * 	eg. value:isEmpty  -> command: isEmpty
 	 * @param value
 	 * @return 
 	 */
 	private static String getCommandFromExpectedString(String value) {
+		String commandValue = StringUtils.EMPTY;
+		
 		for (JSON_COMMAND command : JSON_COMMAND.values()) {
-			  if(value.contains(command.name()))
-				  return command.name();
+			List<String> parameters = Helper.getValuesFromPattern(value, command + "\\(([^)]+)\\)");
+			if(!parameters.isEmpty()) {  // command(value)
+				commandValue =  command + "(" + parameters.get(0) + ")";
+				if(value.endsWith(commandValue))
+				  return commandValue;
 			}
+			else if(value.endsWith(command.name())) //isEmpty, isNotEmpty
+				return command.name();
+		}
 		return StringUtils.EMPTY;
 	}
 	
@@ -513,20 +521,15 @@ public class DataHelper {
 	 * @param value
 	 * @return
 	 */
-	private static List<String> getJsonKeyValue(String value, String command) {
+	private static List<String> getJsonKeyValue(String value, String commandValue) {
 	    List<String> result = new ArrayList<String>();
-	    
-	    // split by command. array size 2. 1st is key position, 2nd is command
-		String[] valueArray = value.trim().split(command);
+	   
 		
-		// if command has no parameters. eg.isEmpty, isNotEmpty
-		if(valueArray.length == 0) {
-			result.add(command);
-			return result;
-		}
-		
+		// remove commandValue
+		value = value.replace(commandValue, "");
+
 		// remove last colon. eg. soi:EquipmentID:1: becomes: soi:EquipmentID:1
-		String keyPosition = valueArray[0].trim().replaceAll(":$", "");
+		String keyPosition = value.trim().replaceAll(":$", "");
 		List<String> keyPositionList = splitRight(keyPosition, ":", 2);
 		
 		// if key value has position. eg: store.book[?(@.price < 10)]:1
@@ -537,12 +540,8 @@ public class DataHelper {
 			result.add(keyPosition);
 		}
 		
-		// add command. length = 1 for 'Empty' command. length = 2 for command with parameter. eg. hasItems(value)
-		if(valueArray.length == 2) {
-			result.add(command + valueArray[1]);
-		}else {
-			result.add(command);
-		}
+		// add command + value. eg. equal(value) or isEmpty
+		result.add(commandValue);
 		
 		return result;
 	}

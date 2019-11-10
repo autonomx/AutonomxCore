@@ -354,12 +354,17 @@ public class UtilityHelper {
 	 * @return
 	 */
 	protected static List<String> getValuesFromPattern(String str, String pattern) {
-		Pattern TAG_REGEX = Pattern.compile(pattern);
-
 		List<String> tagValues = new ArrayList<String>();
-		Matcher matcher = TAG_REGEX.matcher(str);
-		while (matcher.find()) {
-			tagValues.add(matcher.group(1));
+		
+		try {
+			Pattern TAG_REGEX = Pattern.compile(pattern);
+	
+			Matcher matcher = TAG_REGEX.matcher(str);
+			while (matcher.find()) {
+				tagValues.add(matcher.group(1));
+			}
+		}catch(Exception e) {
+			e.getMessage();
 		}
 		return tagValues;
 	}
