@@ -40,7 +40,7 @@ public class TestObject{
 	}
 	
 	public static enum testState {
-		beforeSuite, suite, testClass, testMethod, apiTestMethod, defaultState
+		parent, beforeSuite, suite, testClass, testMethod, apiTestMethod, defaultState
 	}
 	
 	public static String BEFORE_SUITE_PREFIX = "-Beforesuite";
@@ -48,6 +48,12 @@ public class TestObject{
 	public static String BEFORE_CLASS_PREFIX = "-Beforeclass";
 	public static String AFTER_CLASS_PREFIX = "-Afterclass";
 	public static String BEFORE_METHOD_PREFIX = "-Beforemethod";
+	public static String BEFORE_TEST_FILE_PREFIX = "-BeforeTestFile";
+	public static String AFTER_TEST_FILE_PREFIX = "-AfterTestFile";
+	public static String PARENT_PREFIX = "-Parent"; // parent object of csv file 
+
+
+
 	public static String DATAPROVIDER_TEST_SUFFIX = "-test";
 
 	public static final String DEFAULT_TEST = "Autonomx-default";
@@ -151,8 +157,8 @@ public class TestObject{
 				Config.loadConfig(testId);
 			
 			// set random string and time per test
-			Config.putValue(RANDOM_STRING, Helper.generateRandomString(30));
-			Config.putValue(START_TIME_STRING, Helper.date.getTimestampMiliseconds());
+			Config.putValue(RANDOM_STRING, Helper.generateRandomString(30), false);
+			Config.putValue(START_TIME_STRING, Helper.date.getTimestampMiliseconds(), false);
 			
 			// loads all the keywords for api references
 			CsvReader.getAllKeywords();
@@ -208,6 +214,8 @@ public class TestObject{
 		
 		testId = testId.toLowerCase();
 		
+		String testClassname = AbstractDriverTestNG.testClassname.get();
+		
 		// service level tests are handled in ApiTestDriver
 		// except for setting inheritance of test object with csv file name from before class
 		// eg. ApiRunnerTest-UserValidation-beforemethod inherits from ApiRunnerTest-Beforeclass
@@ -223,9 +231,13 @@ public class TestObject{
 		if(testId.contains(BEFORE_CLASS_PREFIX.toLowerCase()))
 			return TestObject.getTestInfo(TestObject.SUITE_NAME + BEFORE_SUITE_PREFIX);
 		
-		// if before test, inherit test object from before class
-		if(testObjectState == testState.testMethod) 
+		// if before test inherit test object from before class
+		if(testObjectState.equals(testState.testMethod))
 			return TestObject.getTestInfo(testName + BEFORE_CLASS_PREFIX);
+		
+		// if parent, inherit test object from before class
+		if(testObjectState.equals(testState.parent))
+			return TestObject.getTestInfo(testClassname + BEFORE_CLASS_PREFIX);
 		
 		// if after class, inherit test object from before class
 		if(testId.contains(AFTER_CLASS_PREFIX.toLowerCase()))
@@ -312,6 +324,9 @@ public class TestObject{
 	 */
 	public static testState getTestState(String testName) {
 		testName = testName.toLowerCase();
+		
+		if(testName.contains(PARENT_PREFIX.toLowerCase()))
+			return testState.parent;
 		
 		if(testName.contains(BEFORE_SUITE_PREFIX.toLowerCase()))
 			return testState.beforeSuite;

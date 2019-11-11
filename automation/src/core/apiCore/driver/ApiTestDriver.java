@@ -3,7 +3,6 @@ package core.apiCore.driver;
 import org.apache.commons.lang3.StringUtils;
 
 import core.apiCore.helpers.CsvReader;
-import core.helpers.Helper;
 import core.support.logger.TestLog;
 import core.support.objects.ServiceObject;
 import core.support.objects.TestObject;
@@ -29,7 +28,7 @@ public class ApiTestDriver {
 	 */
 	public static String getTestClass(ServiceObject serviceObject) {
 		String testClass = serviceObject.getTcName();
-		return  getTestClass(testClass);
+		return getTestClass(testClass);
 	}
 	
 	/**
@@ -61,16 +60,13 @@ public class ApiTestDriver {
 		String testId = TestObject.currentTestId.get();
 		TestLog.removeLogUtilHandler();
 
-		// initialize parent class for each csv file. once per csv
-		String classname = initializeParentClass(serviceObject);
-
 		// initialize once per test in csv file
 		TestObject.initializeTest(testId);
 
-		// pass the class config And logs to new test. parameters are passed from one
+		// pass the parent config And logs to new test. parameters are passed from one
 		// test to another this way
-		TestObject.getTestInfo().config = TestObject.getTestInfo(classname).config;
-		TestObject.getTestInfo().testLog = TestObject.getTestInfo(classname).testLog;
+		TestObject.getTestInfo().config = TestObject.getTestInfo(serviceObject.getParent()).config;
+		TestObject.getTestInfo().testLog = TestObject.getTestInfo(serviceObject.getParent()).testLog;
 
 		TestObject.getTestInfo().type = testType.service;
 		TestObject.getTestInfo().app = APP;
@@ -85,29 +81,29 @@ public class ApiTestDriver {
 
 	}
 	
-	/**
-	 * initialize parent class for each csv file. once per csv
-	 * @param serviceObject
-	 * @return
-	 */
-	private String initializeParentClass(ServiceObject serviceObject) {
-		// initialize class object for service test. test config is passed on to each test
-		// in the test class
-		// all api tests in the same class share the same config. each csv file is one
-		// class based on csv file name. 
-		// this is the test object for the csv file
-		String classname = getTestClass(serviceObject);
-		classname = serviceObject.getParentClass() + "-" + classname + TestObject.BEFORE_METHOD_PREFIX;
-		TestObject.initializeTest(classname);
-		
-		// set random string and time per test
-		if(TestObject.getTestInfo(classname).config.get(TestObject.RANDOM_STRING).toString().isEmpty()) {
-			TestObject.getTestInfo(classname).config.put(TestObject.RANDOM_STRING, Helper.generateRandomString(30));
-			TestObject.getTestInfo(classname).config.put(TestObject.START_TIME_STRING, Helper.date.getTimestampMiliseconds());
-		}
-		return classname;
-	}
-
+//	/**
+//	 * initialize parent class for each csv file. once per csv
+//	 * @param serviceObject
+//	 * @return
+//	 */
+//	private String initializeParentClass(ServiceObject serviceObject) {
+//		// initialize class object for service test. test config is passed on to each test
+//		// in the test class
+//		// all api tests in the same class share the same config. each csv file is one
+//		// class based on csv file name. 
+//		// this is the test object for the csv file
+//		String classname = serviceObject.getParent();
+//		//classname = serviceObject.getParentClass() + "-" + classname + TestObject.BEFORE_METHOD_PREFIX;
+//		TestObject.initializeTest(classname);
+//		
+//		// set random string and time per test
+//		if(TestObject.getTestInfo(classname).config.get(TestObject.RANDOM_STRING).toString().isEmpty()) {
+//			TestObject.getTestInfo(classname).config.put(TestObject.RANDOM_STRING, Helper.generateRandomString(30));
+//			TestObject.getTestInfo(classname).config.put(TestObject.START_TIME_STRING, Helper.date.getTimestampMiliseconds());
+//		}
+//		return classname;
+//	}
+	
 	/**
 	 * returns true if all tests in current csv file are completed
 	 * @return

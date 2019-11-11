@@ -56,7 +56,15 @@ public class ServiceManager {
 		}
 	}
 	
-	public static void runInterface(ServiceObject serviceObject) throws Exception {
+	public static void runInterface(ServiceObject serviceObject) {
+		try {
+			runCsvInterface(serviceObject);
+		} catch (Exception e) {
+			Helper.assertFalse(e.getMessage());
+		}
+	}
+	
+	public static void runCsvInterface(ServiceObject serviceObject) throws Exception {
 		switch (serviceObject.getInterfaceType()) {
 		case TOKEN_GENERATOR:
 			Authentication.tokenGenerator(serviceObject);
@@ -103,13 +111,9 @@ public class ServiceManager {
 		// return if before csv is not set
 		if(StringUtils.isBlank(beforeCsvFile)) return;
 		
-		// setup before class driver
-		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
-		String csvFileName = ApiTestDriver.getTestClass(serviceObject);
-		new AbstractDriverTestNG().setupWebDriver(csvFileName + TestObject.BEFORE_CLASS_PREFIX, driver);
-				
+		String beforeTestName = ApiTestDriver.getTestClass(serviceObject) + TestObject.BEFORE_TEST_FILE_PREFIX + "-" + ApiTestDriver.getTestClass(beforeCsvFile);
 		// run tests in csv files
-		runServiceTestFileWithoutDataProvider(csvTestPath, beforeCsvFile, serviceObject.getTcName());
+		runServiceTestFileWithoutDataProvider(csvTestPath, beforeCsvFile, beforeTestName, serviceObject.getParent());
 	}
 	
 	/**
@@ -131,13 +135,10 @@ public class ServiceManager {
 		// return if after csv is not set
 		if(StringUtils.isBlank(afterCsvFile)) return;
 		
-		// setup after class driver
-		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
-		String csvFileName = ApiTestDriver.getTestClass(serviceObject);
-		new AbstractDriverTestNG().setupWebDriver(csvFileName + TestObject.AFTER_CLASS_PREFIX, driver);
-		
+		String afterTestName = ApiTestDriver.getTestClass(serviceObject) + TestObject.AFTER_TEST_FILE_PREFIX + "-" + ApiTestDriver.getTestClass(afterCsvFile);
+
 		// run tests in csv files
-		runServiceTestFileWithoutDataProvider(csvTestPath, afterCsvFile, serviceObject.getTcName());
+		runServiceTestFileWithoutDataProvider(csvTestPath, afterCsvFile, afterTestName, serviceObject.getParent());
 	}
 	
 	/**
@@ -156,8 +157,10 @@ public class ServiceManager {
 		// return if before suite is not set
 		if(StringUtils.isBlank(beforeSuiteFile)) return;
 		
+		String beforeSuiteName = TestObject.SUITE_NAME + TestObject.BEFORE_SUITE_PREFIX + "-" + ApiTestDriver.getTestClass(beforeSuiteFile);
+
 		// run tests in csv files
-		runServiceTestFileWithoutDataProvider(csvTestPath, beforeSuiteFile, "");
+		runServiceTestFileWithoutDataProvider(csvTestPath, beforeSuiteFile, beforeSuiteName, "");
 	}
 	
 	
@@ -177,8 +180,10 @@ public class ServiceManager {
 		// return if after suite is not set
 		if(StringUtils.isBlank(afterSuiteFile)) return;
 		
+		String afterSuiteName = TestObject.SUITE_NAME + TestObject.AFTER_SUITE_PREFIX + "-" + ApiTestDriver.getTestClass(afterSuiteFile);
+		
 		// run tests in csv files
-		runServiceTestFileWithoutDataProvider(csvTestPath, afterSuiteFile, "");
+		runServiceTestFileWithoutDataProvider(csvTestPath, afterSuiteFile, afterSuiteName, "");
 	}
 	
 	/**
@@ -189,21 +194,35 @@ public class ServiceManager {
 	 * @param parentFileName : name of the class before/after class is running for
 	 * @throws Exception
 	 */
-	public static void runServiceTestFileWithoutDataProvider(String csvTestPath, String file, String parentFileName) {
+	public static void runServiceTestFileWithoutDataProvider(String csvTestPath, String file, String testname, String parent) {
 		
 		// set test id to be prefixed by the csv it is being used for. eg. before/after class
-		String updateName = StringUtils.EMPTY;
-		if(StringUtils.isNotBlank(parentFileName))
-			 updateName = ApiTestDriver.getTestClass(parentFileName) + "_" + ApiTestDriver.getTestClass(file);
-		else
-			updateName = file;
+		String updateName = testname;
 		
 		// map test list and run through the service runner
 		List<String[]> testList = CsvReader.getCsvTestListForTestRunner(csvTestPath, file);
 		List<Object[]> updateList = CsvReader.updateCsvFileFromFile(testList, updateName, "");
 		for(Object[] dataRow : updateList) {
-			ServiceObject serviceObject = CsvReader.mapToServiceObject(dataRow);
-			TestRunner(serviceObject);
+			ServiceObject testServiceObject = CsvReader.mapToServiceObject(dataRow);
+			testServiceObject.withParent(parent);
+			TestRunner(testServiceObject);
 		}
+	}
+	
+	/**
+	 * parent object is setup once per csv test file
+	 * all service tests will inherit from the parent object
+	 * parent object is used to pass data from one test to another
+	 * @param serviceObject
+	 */
+	public static void setupParentObject(ServiceObject serviceObject) {
+		// set parent object 
+		String csvFileName = ApiTestDriver.getTestClass(serviceObject); 
+		String parent = csvFileName + TestObject.PARENT_PREFIX; 
+		serviceObject.withParent(parent); 
+		
+		// setup before class driver
+		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
+		new AbstractDriverTestNG().setupWebDriver(serviceObject.getParent(), driver);
 	}
 }

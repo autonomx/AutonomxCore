@@ -259,7 +259,7 @@ public class Config {
 			items = Arrays.asList(value.split("\\s*,\\s*"));
 		return items;
 	}
-
+	
 	/**
 	 * puts key value pair in config
 	 * 
@@ -267,7 +267,18 @@ public class Config {
 	 * @param value value associated with key
 	 */
 	public static void putValue(String key, Object value) {
-		TestLog.logPass("storing in key: " + key + " value: " + value);
+		putValue(key, value, true);
+	}
+
+	/**
+	 * puts key value pair in config
+	 * 
+	 * @param key key in properties file
+	 * @param value value associated with key
+	 */
+	public static void putValue(String key, Object value, boolean isLog) {
+		if(isLog)
+			TestLog.logPass("storing in key: " + key + " value: " + value);
 		TestObject.getTestInfo().config.put(key, value);
 	}
 	
