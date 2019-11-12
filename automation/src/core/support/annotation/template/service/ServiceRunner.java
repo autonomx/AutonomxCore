@@ -12,7 +12,6 @@ import javax.tools.JavaFileObject;
 
 import org.apache.commons.lang3.StringUtils;
 
-import core.apiCore.ServiceManager;
 import core.support.annotation.helper.FileCreatorHelper;
 import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PackageHelper;

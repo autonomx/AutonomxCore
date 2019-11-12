@@ -43,6 +43,9 @@ public class ServiceManager {
 	private static final String AFTER_CLASS_DIR = "afterClass";
 	private static final String BEFORE_SUITE_DIR = "beforeSuite";
 	private static final String AFTER_SUITE_DIR = "afterSuite";
+	
+	public static final String IS_BASE_BEFORE_CLASS_COMPLETE = "api.base.before.isComplete";
+	public static final String IS_BASE_AFTER_CLASS_COMPLETE = "api.base.after.isComplete";
 
 	
 	public static void TestRunner(ServiceObject serviceObject)  {
@@ -99,8 +102,8 @@ public class ServiceManager {
 	public static void runBeforeCsv(ServiceObject serviceObject) throws Exception {
 		
 		// return if current test index is not 0
-		int testIndex = Integer.valueOf(serviceObject.getTcIndex());
-		if (!ApiTestDriver.isCsvTestStarted(testIndex)) return;
+		boolean isBeforeCsvComplete = (boolean) Config.getParentValue(IS_BASE_BEFORE_CLASS_COMPLETE);
+		if (isBeforeCsvComplete) return;
 		
 		// run all tests in csv file
 		String csvTestPath = PropertiesReader.getLocalRootPath()
@@ -114,6 +117,8 @@ public class ServiceManager {
 		String beforeTestName = ApiTestDriver.getTestClass(serviceObject) + TestObject.BEFORE_TEST_FILE_PREFIX + "-" + ApiTestDriver.getTestClass(beforeCsvFile);
 		// run tests in csv files
 		runServiceTestFileWithoutDataProvider(csvTestPath, beforeCsvFile, beforeTestName, serviceObject.getParent());
+		
+		Config.setParentValue(IS_BASE_BEFORE_CLASS_COMPLETE, true);
 	}
 	
 	/**
@@ -124,7 +129,12 @@ public class ServiceManager {
 	public static void runAfterCsv(ServiceObject serviceObject) throws Exception {
 
 		// return if current text index in csv = number of tests in test file
-		if (!ApiTestDriver.isCsvTestComplete(serviceObject)) return;
+		boolean isAfterCsvComplete = (boolean) Config.getParentValue(IS_BASE_AFTER_CLASS_COMPLETE);
+		boolean isCsvTestComplete = ApiTestDriver.isCsvTestComplete(serviceObject);
+		if (!isCsvTestComplete || isAfterCsvComplete) return;
+		
+		// is after class complete is set to true at this point, so that retry will not rerun after csv test
+		Config.setParentValue(IS_BASE_AFTER_CLASS_COMPLETE, true);
 		
 		// run all tests in csv file
 		String csvTestPath = PropertiesReader.getLocalRootPath()
@@ -224,5 +234,6 @@ public class ServiceManager {
 		// setup before class driver
 		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
 		new AbstractDriverTestNG().setupWebDriver(serviceObject.getParent(), driver);
+		TestObject.getTestInfo().serviceObject = serviceObject;
 	}
 }

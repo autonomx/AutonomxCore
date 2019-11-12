@@ -13,6 +13,7 @@ import org.openqa.selenium.WebDriver;
 
 import com.aventstack.extentreports.ExtentTest;
 
+import core.apiCore.driver.ApiTestDriver;
 import core.apiCore.helpers.CsvReader;
 import core.helpers.Helper;
 import core.support.configReader.Config;
@@ -92,6 +93,7 @@ public class TestObject{
 	public int currentTestIndex = 0; // index for tests in csv files
 	public int testCountInCsvFile = 0; // test count in csv file
 	public String testCsvFileName = StringUtils.EMPTY;
+	public ServiceObject serviceObject = null;
 
 	public Description description;
 	public Throwable caughtThrowable = null;
@@ -294,6 +296,22 @@ public class TestObject{
 			setupDefaultDriver();
 		}
 		return testInfo.get(testId);
+	}
+	
+	/**
+	 * get parent test object
+	 * parent id is unique for each csv test file in service tests
+	 * user for inheritance of config and log files
+	 * @param serviceObject
+	 * @return
+	 */
+	public static TestObject getParentTestInfo(ServiceObject serviceObject) {
+		String parent = serviceObject.getParent(); 
+		
+		if (testInfo.get(parent) == null) {
+			Helper.assertFalse("parent id not found: " + parent);
+		}
+		return testInfo.get(parent);
 	}
 	
 	public static void setupDefaultDriver() {

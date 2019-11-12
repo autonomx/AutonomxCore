@@ -10,7 +10,6 @@ import core.support.objects.TestObject.testType;
 import core.uiCore.drivers.AbstractDriverTestNG;
 
 public class ApiTestDriver {
-	// public static ThreadLocal<Logger> log = new ThreadLocal<Logger>();
 
 	public static void setTestId(ServiceObject serviceObject) {
 		String csvFileName = getTestClass(serviceObject);
@@ -78,31 +77,9 @@ public class ApiTestDriver {
 		TestObject.getTestInfo().currentTestIndex = Integer.valueOf(serviceObject.getTcIndex());
 
 		TestObject.getTestInfo().testCountInCsvFile = Integer.valueOf(serviceObject.getTcCount());
+		TestObject.getTestInfo().serviceObject = serviceObject;
 
 	}
-	
-//	/**
-//	 * initialize parent class for each csv file. once per csv
-//	 * @param serviceObject
-//	 * @return
-//	 */
-//	private String initializeParentClass(ServiceObject serviceObject) {
-//		// initialize class object for service test. test config is passed on to each test
-//		// in the test class
-//		// all api tests in the same class share the same config. each csv file is one
-//		// class based on csv file name. 
-//		// this is the test object for the csv file
-//		String classname = serviceObject.getParent();
-//		//classname = serviceObject.getParentClass() + "-" + classname + TestObject.BEFORE_METHOD_PREFIX;
-//		TestObject.initializeTest(classname);
-//		
-//		// set random string and time per test
-//		if(TestObject.getTestInfo(classname).config.get(TestObject.RANDOM_STRING).toString().isEmpty()) {
-//			TestObject.getTestInfo(classname).config.put(TestObject.RANDOM_STRING, Helper.generateRandomString(30));
-//			TestObject.getTestInfo(classname).config.put(TestObject.START_TIME_STRING, Helper.date.getTimestampMiliseconds());
-//		}
-//		return classname;
-//	}
 	
 	/**
 	 * returns true if all tests in current csv file are completed

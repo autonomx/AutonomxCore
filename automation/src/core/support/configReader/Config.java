@@ -13,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 
 import core.helpers.Helper;
 import core.support.logger.TestLog;
+import core.support.objects.ServiceObject;
 import core.support.objects.TestObject;
 
 public class Config {
@@ -285,5 +286,29 @@ public class Config {
 	public static void putValue(String key, Object value, String info) {
 		TestLog.logPass("storing in key: " + key + " value: " + info);
 		TestObject.getTestInfo().config.put(key, value);
+	}
+	
+	/**
+	 * set parent config value
+	 * @param key
+	 * @param value
+	 */
+	public static void setParentValue(String key, Object value) {
+		ServiceObject service = TestObject.getTestInfo().serviceObject;
+		TestObject.getParentTestInfo(service).config.put(key, value);
+
+	}
+	
+	/**
+	 * get parent config value
+	 * @param key
+	 * @return 
+	 * @return
+	 */
+	public static boolean getParentValue(String key) {
+		ServiceObject service = TestObject.getTestInfo().serviceObject;
+		Object value = TestObject.getParentTestInfo(service).config.get(key);
+		if(value == null) return false;
+		return (boolean) value;
 	}
 }
