@@ -29,9 +29,6 @@ public class DataHelper {
 	public static final String VERIFY_RESPONSE_BODY_INDICATOR = "_VERIFY.RESPONSE.BODY_";
 	public static final String VERIFY_RESPONSE_NO_EMPTY = "_NOT_EMPTY_";
 
-	public static final String[] JSON_VALIDATION_COMMANDS = { "MultipleFailureException", "WebDriverException", "GridException",
-			"SessionNotFoundException", "UnreachableBrowserException", "loginException" };
-	
 	enum JSON_COMMAND {
 		hasItems, notHaveItems, notEqualTo, equalTo, notContain, contains, containsInAnyOrder, integerGreaterThan, integerLessThan, integerEqual, integerNotEqual, nodeSizeGreaterThan, nodeSizeExact, sequence, jsonbody, isNotEmpty, isEmpty, nodeSizeLessThan
 		}
@@ -371,8 +368,7 @@ public class DataHelper {
 			if(!isEmpty(responseString)) return "value is not empty";
 			break;
 		default:
-			Helper.assertFalse("Command not set. Options: hasItems, equalTo,"
-					+ " contains, containsInAnyOrder, nodeSizeGreaterThan, nodeSizeExact, sequence, isNotEmpty, isEmpty. See examples for usage.");
+	    	Helper.assertFalse("Command not set. Options: " + Arrays.asList(JSON_COMMAND.values()) + ". See examples for usage.");
 			break;
 		}
 		return StringUtil.EMPTY_STRING;

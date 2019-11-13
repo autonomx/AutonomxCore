@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import core.apiCore.driver.ApiTestDriver;
 import core.apiCore.helpers.CsvReader;
+import core.apiCore.helpers.DataHelper;
 import core.apiCore.interfaces.Authentication;
 import core.apiCore.interfaces.AzureInterface;
 import core.apiCore.interfaces.RabbitMqInterface;
@@ -17,6 +18,7 @@ import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.configReader.PropertiesReader;
 import core.support.objects.DriverObject;
+import core.support.objects.KeyValue;
 import core.support.objects.ServiceObject;
 import core.support.objects.TestObject;
 import core.uiCore.driverProperties.driverType.DriverType;
@@ -30,13 +32,15 @@ public class ServiceManager {
 	private static final String AZURE_INTERFACE = "AZURE";
 	private static final String RABBIT_MQ_INTERFACE = "RABBITMQ";
 	private static final String TEST_PREPARE_INTERFACE = "TestPrepare";
+	public static final String EXTERNAL_INTERFACE = "EXTERNAL";
+
 	
 	// test file for before/after class/suite 
-	private static final String TEST_BASE_PATH = "api.base.path";
-	private static final String TEST_BASE_BEFORE_CLASS = "api.base.before.testfile";
-	private static final String TEST_BASE_AFTER_CLASS = "api.base.after.testfile";
-	private static final String TEST_BASE_BEFORE_SUITE = "api.base.before.suite";
-	private static final String TEST_BASE_AFTER_SUITE = "api.base.after.suite";
+	public static final String TEST_BASE_PATH = "api.base.path";
+	public static final String TEST_BASE_BEFORE_CLASS = "api.base.before.testfile";
+	public static final String TEST_BASE_AFTER_CLASS = "api.base.after.testfile";
+	public static final String TEST_BASE_BEFORE_SUITE = "api.base.before.suite";
+	public static final String TEST_BASE_AFTER_SUITE = "api.base.after.suite";
 	
 	// before/after class/suite directories
 	private static final String BEFORE_CLASS_DIR = "beforeClass";
@@ -46,6 +50,10 @@ public class ServiceManager {
 	
 	public static final String IS_BASE_BEFORE_CLASS_COMPLETE = "api.base.before.isComplete";
 	public static final String IS_BASE_AFTER_CLASS_COMPLETE = "api.base.after.isComplete";
+
+	// csv file method keys
+	public static final String BEFORE_CSV_FILE = "beforeCsvFile";
+	public static final String AFTER_CSV_FILE = "afterCsvFile";
 
 	
 	public static void TestRunner(ServiceObject serviceObject)  {
@@ -87,6 +95,10 @@ public class ServiceManager {
 		case TEST_PREPARE_INTERFACE:
 			TestPrepare.TestPrepareInterface(serviceObject);
 			break;
+		case EXTERNAL_INTERFACE:
+			// handled based on method key. no actual interface
+			// action: adds csv tests to existing tests at CsvReader.getTestCasesFromCsvFile() method
+			break;
 		default:
 			Helper.assertFalse("no interface found: " + serviceObject.getInterfaceType() + ". Options:"
 					+ "Authentication, RESTfulAPI, SQLDB, RABBITMQ");
@@ -100,6 +112,8 @@ public class ServiceManager {
 	 * @throws Exception 
 	 */
 	public static void runBeforeCsv(ServiceObject serviceObject) throws Exception {
+		
+		
 		
 		// return if current test index is not 0
 		boolean isBeforeCsvComplete = (boolean) Config.getParentValue(IS_BASE_BEFORE_CLASS_COMPLETE);
@@ -119,6 +133,34 @@ public class ServiceManager {
 		runServiceTestFileWithoutDataProvider(csvTestPath, beforeCsvFile, beforeTestName, serviceObject.getParent());
 		
 		Config.setParentValue(IS_BASE_BEFORE_CLASS_COMPLETE, true);
+	}
+	
+	public static void setTestBaseOverride(ServiceObject serviceObject) {
+		
+		// only for external interface
+		if(!serviceObject.getInterfaceType().equals(EXTERNAL_INTERFACE)) return;
+		
+		
+		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getMethod());
+
+		for (KeyValue keyword : keywords) {	
+			
+			// if not valid file, set filename to empty
+			if(!CsvReader.isValidTestFileType(keyword.value.toString()))
+				keyword.value = StringUtils.EMPTY;
+			
+			switch (keyword.key) {
+			case BEFORE_CSV_FILE:
+				Config.putValue(TEST_BASE_BEFORE_CLASS, keyword.value.toString());
+				break;
+			case AFTER_CSV_FILE:
+				Config.putValue(TEST_BASE_AFTER_CLASS, keyword.value.toString());
+				break;
+			default:
+				break;
+			}
+			
+		}
 	}
 	
 	/**

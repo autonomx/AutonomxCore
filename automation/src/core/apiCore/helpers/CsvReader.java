@@ -28,6 +28,10 @@ public class CsvReader {
 	public static String SERVICE_CSV_FILE_PREFIX = "TestCases_";
 	public static final String ACTION_KEY = "action";
 	
+	enum VALID_TEST_FILE_TYPES {
+		 csv
+		}
+	
 	/**
 	 * gets the tests from csv file based on the current test file index
 	 * 
@@ -99,6 +103,11 @@ public class CsvReader {
 			hasActionKey = false;
 			ServiceObject serviceObject = CsvReader.mapToServiceObject(dataRow);
 			List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getMethod());
+			String runFlag = serviceObject.getRunFlag();
+			
+			// move to next row if run flag is not Y
+			if(!runFlag.equals("Y")) break;
+			
 			for (KeyValue keyword : keywords) {		
 				if(keyword.key.equals(ACTION_KEY)) {
 					List<String[]> tests = getCsvTestListForTestRunner(csvTestPath, keyword.value.toString());
@@ -349,5 +358,18 @@ public class CsvReader {
 	public static int getCsvTestcount() {
 
 		return getCsvTestListForTestRunner(TestObject.getTestInfo().testCsvFileName).size();
+	}
+	
+	/**
+	 * returns if file is valid service test type
+	 * @param filename
+	 * @return
+	 */
+	public static boolean isValidTestFileType(String filename) {
+		for (VALID_TEST_FILE_TYPES types : VALID_TEST_FILE_TYPES.values()) {
+			  if(filename.endsWith(types.name()))
+				  return true;
+			}
+		return false;
 	}
 }

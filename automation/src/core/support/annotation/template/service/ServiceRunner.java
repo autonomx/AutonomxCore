@@ -136,6 +136,9 @@ public class ServiceManager {
 				tcIndex, testType, tcCount); 
 				
 			ServiceManager.setupParentObject(serviceObject);
+			
+			// set test base override
+			ServiceManager.setTestBaseOverride(serviceObject);
 				
 			// run before each test file 
 			ServiceManager.runBeforeCsv(serviceObject); 
@@ -163,6 +166,9 @@ public class ServiceManager {
 		bw.newLine();
 		bw.append("		// set parent object" + " \n");
 		bw.append("		ServiceManager.setupParentObject(serviceObject);" + " \n");
+		bw.newLine();
+		bw.append("		// set test base override" + " \n");
+		bw.append("		ServiceManager.setTestBaseOverride(serviceObject);" + " \n");
 		bw.newLine();
 		bw.append("		// run before each test file" + " \n");
 		bw.append("		ServiceManager.runBeforeCsv(serviceObject);" + " \n");
