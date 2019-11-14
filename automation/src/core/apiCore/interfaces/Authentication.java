@@ -3,7 +3,9 @@ package core.apiCore.interfaces;
 import static io.restassured.RestAssured.given;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -18,7 +20,8 @@ import io.restassured.specification.RequestSpecification;
 
 public class Authentication {
 
-	public static final String AUTHENTICATION_SCHEME = "auth";
+	public static final String BASIC_AUTHORIZATION = "BASIC";
+
 
 	/**
 	 * interface for restful api calls
@@ -92,10 +95,15 @@ public class Authentication {
 		TestLog.logPass("authentication type: " + Helper.stringRemoveLines(apiObject.getOption()));
 
 		switch (apiObject.getOption()) {
-		case "BASIC":
+		case BASIC_AUTHORIZATION:
 			String username = parameterMap.get("username");
 			String password = parameterMap.get("password");
-			RestAssured.authentication = RestAssured.basic(username, password);
+			List<String> credentials = new ArrayList<String>();
+			credentials.add(username);
+			credentials.add(password);
+			
+			// store basic request in config
+			Config.putValue(BASIC_AUTHORIZATION, credentials);
 			break;
 		case "OAUTH2":
 			username = parameterMap.get("username");

@@ -5,6 +5,7 @@ import static io.restassured.RestAssured.given;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -249,6 +250,7 @@ public class RestApiInterface {
 	 * @param serviceObject
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public static RequestSpecification evaluateRequestHeaders(ServiceObject serviceObject, RequestSpecification request) {
 
 		// if no RequestHeaders specified
@@ -267,12 +269,11 @@ public class RestApiInterface {
 
 			// if additional request headers
 			switch (keyword.key) {
-			case Authentication.AUTHENTICATION_SCHEME:
-				String value = (String) keyword.value;
-				value = value.replace("$", "").replace("<", "").replace(">", "").trim();
-				RestAssured.authentication = (AuthenticationScheme) Config.getObjectValue(value.replace("@", ""));
+			case Authentication.BASIC_AUTHORIZATION:
+				ArrayList<String> basicRequest = (ArrayList<String>) Config.getObjectValue(Authentication.BASIC_AUTHORIZATION);
+				if(basicRequest.size() == 0) Helper.assertFalse("basic request info not found: " + Arrays.toString(basicRequest.toArray()));
+				request = request.auth().basic(basicRequest.get(0), basicRequest.get(1));
 				break;
-
 			case INVALID_TOKEN:
 				String authValue = Config.getValue(AUTHORIZATION_HEADER);
 
