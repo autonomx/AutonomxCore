@@ -43,12 +43,12 @@ public class RestApiInterface {
 	/**
 	 * interface for restful API calls
 	 * 
-	 * @param apiObject
+	 * @param serviceObject
 	 * @return
 	 */
-	public static Response RestfullApiInterface(ServiceObject apiObject) {
+	public static Response RestfullApiInterface(ServiceObject serviceObject) {
 
-		if (apiObject == null)
+		if (serviceObject == null)
 			Helper.assertFalse("apiobject is null");
 
 		// set timeout from api config
@@ -58,13 +58,13 @@ public class RestApiInterface {
 		setProxy();
 
 		// replace parameters for request body
-		apiObject.withRequestBody(DataHelper.replaceParameters(apiObject.getRequestBody()));
+		serviceObject.withRequestBody(DataHelper.replaceParameters(serviceObject.getRequestBody()));
 
 		// set base uri
-		setURI(apiObject);
+		RequestSpecification request = setURI(serviceObject);
 
 		// send request and evaluate response
-		Response response = evaluateRequestAndValidateResponse(apiObject);
+		Response response = evaluateRequestAndValidateResponse(serviceObject, request);
 
 		return response;
 	}
@@ -73,10 +73,10 @@ public class RestApiInterface {
 	 * evaluate request and validate response retry until validation timeout period
 	 * in seconds
 	 * 
-	 * @param apiObject
+	 * @param serviceObject
 	 * @return
 	 */
-	public static Response evaluateRequestAndValidateResponse(ServiceObject apiObject) {
+	public static Response evaluateRequestAndValidateResponse(ServiceObject serviceObject, RequestSpecification request) {
 		List<String> errorMessages = new ArrayList<String>();
 		Response response = null;
 
@@ -89,10 +89,10 @@ public class RestApiInterface {
 
 		do {
 			// send request And receive a response
-			response = evaluateRequest(apiObject);
+			response = evaluateRequest(serviceObject, request);
 
 			// validate the response
-			errorMessages = validateResponse(response, apiObject);
+			errorMessages = validateResponse(response, serviceObject);
 
 			// if validation timeout is not enabled, break out of the loop
 			if (!isValidationTimeout)
@@ -122,16 +122,20 @@ public class RestApiInterface {
 
 	/**
 	 * sets base uri for api call
+	 * @return 
 	 */
-	public static void setURI(ServiceObject serviceObject) {
+	public static RequestSpecification setURI(ServiceObject serviceObject) {
 		String url = StringUtils.EMPTY;
 		
-		// replace place holder values for uri
+		// set request
+		RequestSpecification request = given();
+		
+		// replace place holder values for URI
 		serviceObject.withUriPath(DataHelper.replaceParameters(serviceObject.getUriPath()));
 		serviceObject.withUriPath(Helper.stringRemoveLines(serviceObject.getUriPath()));
 		
-		// if uri is full path, Then set base uri as whats provided in csv file
-		// else use baseURI from properties as base uri And extend it with csv file uri
+		// if URI is full path, Then set base URI as what's provided in CSV file
+		// else use baseURI from properties as base URI And extend it with CSV file URI
 		// path
 		if (serviceObject.getUriPath().startsWith("http")) {
 			url = serviceObject.getUriPath();
@@ -144,9 +148,11 @@ public class RestApiInterface {
 		URL aURL = Helper.convertToUrl(url);
 		TestLog.logPass("request URL: " + aURL.toString());
 		
-		RestAssured.baseURI  = aURL.getProtocol() + "://" + aURL.getHost();
-		RestAssured.port = aURL.getPort();
-		RestAssured.basePath = aURL.getPath();
+		request.baseUri(aURL.getProtocol() + "://" + aURL.getHost());
+		request.port(aURL.getPort());
+		request.basePath(aURL.getPath());
+		
+		return request;
 	}
 	
 	/**
@@ -178,7 +184,7 @@ public class RestApiInterface {
 			RestAssured.proxy(port);
 	}
 
-	public static List<String> validateResponse(Response response, ServiceObject apiObject) {
+	public static List<String> validateResponse(Response response, ServiceObject serviceObject) {
 
 		List<String> errorMessages = new ArrayList<String>();
 
@@ -189,39 +195,39 @@ public class RestApiInterface {
 		}
 
 		// saves response values to config object
-		JsonHelper.saveOutboundJsonParameters(response, apiObject.getOutputParams());
+		JsonHelper.saveOutboundJsonParameters(response, serviceObject.getOutputParams());
 
 		// validate status code
-		if (!apiObject.getRespCodeExp().isEmpty()) {
-			String message = "expected status code: " + apiObject.getRespCodeExp() + " response status code: "
+		if (!serviceObject.getRespCodeExp().isEmpty()) {
+			String message = "expected status code: " + serviceObject.getRespCodeExp() + " response status code: "
 					+ response.getStatusCode();
 			TestLog.logPass(message);
-			if (response.getStatusCode() != Integer.valueOf(apiObject.getRespCodeExp())) {
+			if (response.getStatusCode() != Integer.valueOf(serviceObject.getRespCodeExp())) {
 				errorMessages.add(message);
 				return errorMessages;
 			}
 
 		}
 		String responseString = JsonHelper.getResponseValue(response);
-		errorMessages = validateExpectedValues(responseString, apiObject);
+		errorMessages = validateExpectedValues(responseString, serviceObject);
 
 		// remove all empty response strings
 		errorMessages.removeAll(Collections.singleton(""));
 		return errorMessages;
 	}
 
-	public static List<String> validateExpectedValues(String responseString, ServiceObject apiObject) {
+	public static List<String> validateExpectedValues(String responseString, ServiceObject serviceObject) {
 		List<String> errorMessages = new ArrayList<String>();
 
 		// get response body as string
 		TestLog.logPass("response: " + responseString);
 
 		// validate response body against expected json string
-		if (!apiObject.getExpectedResponse().isEmpty()) {
-			apiObject.withExpectedResponse(DataHelper.replaceParameters(apiObject.getExpectedResponse()));
+		if (!serviceObject.getExpectedResponse().isEmpty()) {
+			serviceObject.withExpectedResponse(DataHelper.replaceParameters(serviceObject.getExpectedResponse()));
 
 			// separate the expected response by &&
-			String[] criteria = apiObject.getExpectedResponse().split("&&");
+			String[] criteria = serviceObject.getExpectedResponse().split("&&");
 			for (String criterion : criteria) {
 				Helper.assertTrue("expected is not valid format: " + criterion,
 						JsonHelper.isValidExpectation(criterion));
@@ -240,23 +246,21 @@ public class RestApiInterface {
 	 * based on key value, separated by ";" Invalid token: if authorization token
 	 * exists, replace last values with "invalid", else set to "invalid"
 	 * 
-	 * @param apiObject
+	 * @param serviceObject
 	 * @return
 	 */
-	public static RequestSpecification evaluateRequestHeaders(ServiceObject apiObject) {
-		// set request
-		RequestSpecification request = given();
+	public static RequestSpecification evaluateRequestHeaders(ServiceObject serviceObject, RequestSpecification request) {
 
 		// if no RequestHeaders specified
-		if (apiObject.getRequestHeaders().isEmpty()) {
+		if (serviceObject.getRequestHeaders().isEmpty()) {
 			return request;
 		}
 
 		// replace parameters for request body
-		apiObject.withRequestHeaders(DataHelper.replaceParameters(apiObject.getRequestHeaders()));
+		serviceObject.withRequestHeaders(DataHelper.replaceParameters(serviceObject.getRequestHeaders()));
 
 		// get key value mapping of header parameters
-		List<KeyValue> keywords = DataHelper.getValidationMap(apiObject.getRequestHeaders());
+		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getRequestHeaders());
 
 		// iterate through key value pairs for headers, separated by ";"
 		for (KeyValue keyword : keywords) {
@@ -275,23 +279,22 @@ public class RestApiInterface {
 				// replace authorization token with random string of equal value to the token
 				if (!authValue.isEmpty()) {
 					authValue = Helper.generateRandomString(authValue.length());
-					request = given().header(AUTHORIZATION_HEADER, authValue);
+					request = request.given().header(AUTHORIZATION_HEADER, authValue);
 				} else
-					request = given().header(AUTHORIZATION_HEADER, "invalid");
+					request = request.given().header(AUTHORIZATION_HEADER, "invalid");
 				break;
 
 			case NO_TOKEN:
-				request = given().header(AUTHORIZATION_HEADER, "");
+				request = request.given().header(AUTHORIZATION_HEADER, "");
 				break;
 
 			case AUTHORIZATION_HEADER:
 				// keep track of the token
 				Config.putValue(AUTHORIZATION_HEADER, (String) keyword.value);
-				request = given().header(keyword.key, keyword.value);
+				request = request.given().header(keyword.key, keyword.value);
 				break;
-
 			default:
-				request = given().header(keyword.key, keyword.value);
+				request = request.given().header(keyword.key, keyword.value);
 				break;
 			}
 		}
@@ -322,19 +325,19 @@ public class RestApiInterface {
 		return request;
 	}
 
-	public static RequestSpecification evaluateRequestBody(ServiceObject apiObject, RequestSpecification request) {
-		if (apiObject.getRequestBody().isEmpty())
+	public static RequestSpecification evaluateRequestBody(ServiceObject serviceObject, RequestSpecification request) {
+		if (serviceObject.getRequestBody().isEmpty())
 			return request;
 
 		// set content type
-		request = request.contentType(apiObject.getContentType());
+		request = request.contentType(serviceObject.getContentType());
 
 		// set form data
-		if (apiObject.getContentType().contains("form")) {
+		if (serviceObject.getContentType().contains("form")) {
 			request = request.config(RestAssured.config().encoderConfig(io.restassured.config.EncoderConfig
 					.encoderConfig().encodeContentTypeAs("multipart/form-data", ContentType.TEXT)));
 
-			String[] formData = apiObject.getRequestBody().split(",");
+			String[] formData = serviceObject.getRequestBody().split(",");
 			for (String data : formData) {
 				String[] keyValue = data.split(":");
 				if (keyValue.length == 3) {
@@ -353,7 +356,7 @@ public class RestApiInterface {
 		}
 
 		// if json data type
-		return request.body(apiObject.getRequestBody());
+		return request.body(serviceObject.getRequestBody());
 	}
 
 	/**
@@ -411,11 +414,11 @@ public class RestApiInterface {
 
 	}
 
-	public static Response evaluateRequest(ServiceObject serviceObject) {
+	public static Response evaluateRequest(ServiceObject serviceObject, RequestSpecification request) {
 		Response response = null;
 
 		// set request header
-		RequestSpecification request = evaluateRequestHeaders(serviceObject);
+		request = evaluateRequestHeaders(serviceObject, request);
 		
 		request = evaluateQueryParameters(serviceObject, request);
 
