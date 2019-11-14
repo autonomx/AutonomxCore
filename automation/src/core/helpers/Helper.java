@@ -3,6 +3,7 @@ package core.helpers;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -2341,6 +2342,15 @@ public class Helper {
 	 */
 	public static String removeSurroundingQuotes(String value) {
 		return UtilityHelper.removeSurroundingQuotes(value);
+	}
+	
+	/**
+	 * converts url string to url object
+	 * @param url
+	 * @return
+	 */
+	public static URL convertToUrl(String url) {
+		return UtilityHelper.convertToUrl(url);
 	}
 	
 	/**

@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -907,5 +909,22 @@ public class UtilityHelper {
 			value = value.substring(1, value.length() - 1);
 		}
 		return value;
+	}
+	
+	/**
+	 * converts url string to url object
+	 * @param url
+	 * @return
+	 */
+	protected static URL convertToUrl(String url) {
+		URL aURL = null;
+		
+		try {
+			aURL = new URL(url);
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+			Helper.assertFalse(e.getMessage());
+		}
+		return aURL;
 	}
 }

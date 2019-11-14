@@ -3,6 +3,7 @@ package core.apiCore.interfaces;
 import static io.restassured.RestAssured.given;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -122,24 +123,35 @@ public class RestApiInterface {
 	/**
 	 * sets base uri for api call
 	 */
-	public static void setURI(ServiceObject apiObject) {
-
+	public static void setURI(ServiceObject serviceObject) {
+		String url = StringUtils.EMPTY;
+		
 		// replace place holder values for uri
-		apiObject.withUriPath(DataHelper.replaceParameters(apiObject.getUriPath()));
-		apiObject.withUriPath(Helper.stringRemoveLines(apiObject.getUriPath()));
+		serviceObject.withUriPath(DataHelper.replaceParameters(serviceObject.getUriPath()));
+		serviceObject.withUriPath(Helper.stringRemoveLines(serviceObject.getUriPath()));
+		
 		// if uri is full path, Then set base uri as whats provided in csv file
 		// else use baseURI from properties as base uri And extend it with csv file uri
 		// path
-		if (apiObject.getUriPath().startsWith("http")) {
-			RestAssured.baseURI = apiObject.getUriPath();
-			apiObject.withUriPath("");
-
+		if (serviceObject.getUriPath().startsWith("http")) {
+			url = serviceObject.getUriPath();
 		} else {
-			RestAssured.baseURI = Helper.stringRemoveLines(Config.getValue("api.uriPath"));
-			TestLog.logPass("request URI: " + RestAssured.baseURI + apiObject.getUriPath());
+			url = Helper.stringRemoveLines(Config.getValue("api.uriPath")) + serviceObject.getUriPath();
 		}
+		// keep track of full URL 
+		serviceObject.withUriPath(url);
+		
+		URL aURL = Helper.convertToUrl(url);
+		TestLog.logPass("request URL: " + aURL.toString());
+		
+		RestAssured.baseURI  = aURL.getProtocol() + "://" + aURL.getHost();
+		RestAssured.port = aURL.getPort();
+		RestAssured.basePath = aURL.getPath();
+		
+		
+		
 	}
-
+	
 	/**
 	 * set connection timeout in milliseconds
 	 */
@@ -288,6 +300,30 @@ public class RestApiInterface {
 		}
 		return request;
 	}
+	
+	/**
+	 * evaluate query parameters
+	 * format: "name=key=value&key2=value2"
+	 * @param serviceObject
+	 * @param request
+	 * @return
+	 */
+	public static RequestSpecification evaluateQueryParameters(ServiceObject serviceObject, RequestSpecification request) {
+		URL aURL = Helper.convertToUrl(serviceObject.getUriPath());
+		
+		if(StringUtils.isBlank(aURL.getQuery())) return request;
+		
+		String[] queryParameters = aURL.getQuery().split("&");
+		
+		if(queryParameters.length == 0) Helper.assertFalse("query parameters are wrong format: " + aURL.getQuery() + ". should be \"key=value&key2=value2\"" );
+		
+		for(String queryParameter : queryParameters) {
+			String[] query = queryParameter.split("=");
+			if(query.length == 0) Helper.assertFalse("query parameters are wrong format: " + aURL.getQuery() + ". should be \"key=value&key2=value2\"" );
+			request = request.given().queryParam(query[0], query[1]);
+		}
+		return request;
+	}
 
 	public static RequestSpecification evaluateRequestBody(ServiceObject apiObject, RequestSpecification request) {
 		if (apiObject.getRequestBody().isEmpty())
@@ -383,6 +419,8 @@ public class RestApiInterface {
 
 		// set request header
 		RequestSpecification request = evaluateRequestHeaders(serviceObject);
+		
+		request = evaluateQueryParameters(serviceObject, request);
 
 		// set request body
 		request = evaluateRequestBody(serviceObject, request);
@@ -395,25 +433,25 @@ public class RestApiInterface {
 
 		switch (serviceObject.getMethod()) {
 		case "POST":
-			response = request.when().post(serviceObject.getUriPath());
+			response = request.when().post();
 			break;
 		case "PUT":
-			response = request.when().put(serviceObject.getUriPath());
+			response = request.when().put();
 			break;
 		case "PATCH":
-			response = request.when().patch(serviceObject.getUriPath());
+			response = request.when().patch();
 			break;
 		case "DELETE":
-			response = request.when().delete(serviceObject.getUriPath());
+			response = request.when().delete();
 			break;
 		case "GET":
-			response = request.when().get(serviceObject.getUriPath());
+			response = request.when().get();
 			break;
 		case "OPTIONS":
-			response = request.when().options(serviceObject.getUriPath());
+			response = request.when().options();
 			break;
 		case "HEAD":
-			response = request.when().head(serviceObject.getUriPath());
+			response = request.when().head();
 			break;
 		default:
 			Helper.assertTrue("request type not found", false);
