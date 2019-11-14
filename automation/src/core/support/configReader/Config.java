@@ -13,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 
 import core.helpers.Helper;
 import core.support.logger.TestLog;
+import core.support.objects.ServiceObject;
 import core.support.objects.TestObject;
 
 public class Config {
@@ -137,7 +138,6 @@ public class Config {
 		Object value = TestObject.getTestInfo().config.get(key);
 		if (value == null) {
 			 if(isFailable) Helper.assertFalse("value not found, default empty: " + key);
-		   	System.out.println("value not found, default empty: " + key);
 			 TestLog.ConsoleLogWarn("value not found, default empty: " + key);
 			value = StringUtils.EMPTY;
 		}
@@ -260,7 +260,7 @@ public class Config {
 			items = Arrays.asList(value.split("\\s*,\\s*"));
 		return items;
 	}
-
+	
 	/**
 	 * puts key value pair in config
 	 * 
@@ -268,12 +268,47 @@ public class Config {
 	 * @param value value associated with key
 	 */
 	public static void putValue(String key, Object value) {
-		TestLog.logPass("storing in key: " + key + " value: " + value);
+		putValue(key, value, true);
+	}
+
+	/**
+	 * puts key value pair in config
+	 * 
+	 * @param key key in properties file
+	 * @param value value associated with key
+	 */
+	public static void putValue(String key, Object value, boolean isLog) {
+		if(isLog)
+			TestLog.logPass("storing in key: " + key + " value: " + value);
 		TestObject.getTestInfo().config.put(key, value);
 	}
 	
 	public static void putValue(String key, Object value, String info) {
 		TestLog.logPass("storing in key: " + key + " value: " + info);
 		TestObject.getTestInfo().config.put(key, value);
+	}
+	
+	/**
+	 * set parent config value
+	 * @param key
+	 * @param value
+	 */
+	public static void setParentValue(String key, Object value) {
+		ServiceObject service = TestObject.getTestInfo().serviceObject;
+		TestObject.getParentTestInfo(service).config.put(key, value);
+
+	}
+	
+	/**
+	 * get parent config value
+	 * @param key
+	 * @return 
+	 * @return
+	 */
+	public static boolean getParentValue(String key) {
+		ServiceObject service = TestObject.getTestInfo().serviceObject;
+		Object value = TestObject.getParentTestInfo(service).config.get(key);
+		if(value == null) return false;
+		return (boolean) value;
 	}
 }

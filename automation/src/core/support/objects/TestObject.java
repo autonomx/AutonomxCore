@@ -40,7 +40,7 @@ public class TestObject{
 	}
 	
 	public static enum testState {
-		suite, testClass, testMethod, apiTestMethod, defaultState
+		parent, beforeSuite, suite, testClass, testMethod, apiTestMethod, defaultState
 	}
 	
 	public static String BEFORE_SUITE_PREFIX = "-Beforesuite";
@@ -48,12 +48,20 @@ public class TestObject{
 	public static String BEFORE_CLASS_PREFIX = "-Beforeclass";
 	public static String AFTER_CLASS_PREFIX = "-Afterclass";
 	public static String BEFORE_METHOD_PREFIX = "-Beforemethod";
+	public static String BEFORE_TEST_FILE_PREFIX = "-BeforeTestFile";
+	public static String AFTER_TEST_FILE_PREFIX = "-AfterTestFile";
+	public static String PARENT_PREFIX = "-Parent"; // parent object of csv file 
+
+
+
 	public static String DATAPROVIDER_TEST_SUFFIX = "-test";
 
 	public static final String DEFAULT_TEST = "Autonomx-default";
 	public static final String DEFAULT_TEST_THREAD_PREFIX = "Runner";
-
 	
+	public static final String RANDOM_STRING = "_randomString_";
+	public static final String START_TIME_STRING = "_startTimeString_";
+
 	public static final String DEFAULT_APP = "auto";
 	public static String SUITE_NAME = StringUtils.EMPTY; // suite name is global to all tests in the run
 	public static String APP_IDENTIFIER = StringUtils.EMPTY; // app name associated with test run. If suite is default, use app identifier 
@@ -84,6 +92,7 @@ public class TestObject{
 	public int currentTestIndex = 0; // index for tests in csv files
 	public int testCountInCsvFile = 0; // test count in csv file
 	public String testCsvFileName = StringUtils.EMPTY;
+	public ServiceObject serviceObject = null;
 
 	public Description description;
 	public Throwable caughtThrowable = null;
@@ -97,9 +106,6 @@ public class TestObject{
 	
 	// screen recorder for web
 	public ScreenRecorder screenRecorder = null;
-
-	public String startTime; // start time of test in milliseconds
-	public String randStringIdentifier; // random identifier for the test
 
 	public List<LogObject> testLog = new ArrayList<LogObject>();
 	public Map<String, String> languageMap = new ConcurrentHashMap<String, String>();
@@ -140,8 +146,7 @@ public class TestObject{
 			// inherits test object values from parent. eg.beforeClass from test suite. test method from before class
 			test = inheritParent(driver, testId);		
 			
-			test.withTestId(testId).withTestName(test.getTestName()).withTestStartTime(Helper.date.getTimestampMiliseconds())
-					.withApp(driver.app).withRandomStringIdentifier();
+			test.withTestId(testId).withTestName(test.getTestName());
 			TestObject.testInfo.put(testId, test);
 			
 			// initialize logging
@@ -151,6 +156,10 @@ public class TestObject{
 			// if config from inherited layer is empty ( empty for default (autonomx), and before suite )
 			if(test.config.isEmpty())
 				Config.loadConfig(testId);
+			
+			// set random string and time per test
+			Config.putValue(RANDOM_STRING, Helper.generateRandomString(30), false);
+			Config.putValue(START_TIME_STRING, Helper.date.getTimestampMiliseconds(), false);
 			
 			// loads all the keywords for api references
 			CsvReader.getAllKeywords();
@@ -193,15 +202,20 @@ public class TestObject{
 	 */
 	public static TestObject getTestObjectInheritence(DriverObject driver, String testId) {
 		
-		// applicable for before suite 
-		if(TestObject.testInfo.get(testId) == null) return new TestObject();
-		
 		// gets test state of test object: suite, testClass, testMethod
 		testState testObjectState = getTestState(testId);
+		
+		// before suite does not inherit
+		if(testObjectState.equals(testState.beforeSuite))
+			return new TestObject();
 
 		// name of the test to be pass inheritance
 		String[] testValues = testId.split("-");
 		String testName = testValues[0];
+		
+		testId = testId.toLowerCase();
+		
+		String testClassname = AbstractDriverTestNG.testClassname.get();
 		
 		// service level tests are handled in ApiTestDriver
 		// except for setting inheritance of test object with csv file name from before class
@@ -212,22 +226,26 @@ public class TestObject{
 		}
 		
 		// if default test, return itself. Not gaining from other test objects
-		if(testId.equals(TestObject.DEFAULT_TEST)) return new TestObject();
+		if(testId.equals(TestObject.DEFAULT_TEST.toLowerCase())) return new TestObject();
 		
 		// if before class, inherit test object from before suite
-		if(testId.contains(BEFORE_CLASS_PREFIX))
+		if(testId.contains(BEFORE_CLASS_PREFIX.toLowerCase()))
 			return TestObject.getTestInfo(TestObject.SUITE_NAME + BEFORE_SUITE_PREFIX);
 		
-		// if before test, inherit test object from before class
-		if(testObjectState == testState.testMethod) 
+		// if before test inherit test object from before class
+		if(testObjectState.equals(testState.testMethod))
 			return TestObject.getTestInfo(testName + BEFORE_CLASS_PREFIX);
 		
+		// if parent, inherit test object from before class
+		if(testObjectState.equals(testState.parent))
+			return TestObject.getTestInfo(testClassname + BEFORE_CLASS_PREFIX);
+		
 		// if after class, inherit test object from before class
-		if(testId.contains(AFTER_CLASS_PREFIX))
+		if(testId.contains(AFTER_CLASS_PREFIX.toLowerCase()))
 			return TestObject.getTestInfo(testName + BEFORE_CLASS_PREFIX);
 		
 		// if after suite, inherit test object from before suite
-		if(testId.contains(AFTER_SUITE_PREFIX))
+		if(testId.contains(AFTER_SUITE_PREFIX.toLowerCase()))
 			return TestObject.getTestInfo(TestObject.SUITE_NAME + BEFORE_SUITE_PREFIX);
 
 		return new TestObject();
@@ -279,6 +297,22 @@ public class TestObject{
 		return testInfo.get(testId);
 	}
 	
+	/**
+	 * get parent test object
+	 * parent id is unique for each csv test file in service tests
+	 * user for inheritance of config and log files
+	 * @param serviceObject
+	 * @return
+	 */
+	public static TestObject getParentTestInfo(ServiceObject serviceObject) {
+		String parent = serviceObject.getParent(); 
+		
+		if (testInfo.get(parent) == null) {
+			Helper.assertFalse("parent id not found: " + parent);
+		}
+		return testInfo.get(parent);
+	}
+	
 	public static void setupDefaultDriver() {
 		
 		DriverObject driver = new DriverObject().withDriverType(DriverType.API).withApp(TestObject.DEFAULT_TEST);
@@ -306,14 +340,21 @@ public class TestObject{
 	 * @return 
 	 */
 	public static testState getTestState(String testName) {
+		testName = testName.toLowerCase();
 		
-		if(testName.contains(BEFORE_SUITE_PREFIX) || testName.contains(AFTER_SUITE_PREFIX))
+		if(testName.contains(PARENT_PREFIX.toLowerCase()))
+			return testState.parent;
+		
+		if(testName.contains(BEFORE_SUITE_PREFIX.toLowerCase()))
+			return testState.beforeSuite;
+				
+		if(testName.contains(AFTER_SUITE_PREFIX.toLowerCase()))
 				return testState.suite;
 		
-		if(testName.contains(BEFORE_CLASS_PREFIX) || testName.contains(AFTER_CLASS_PREFIX))
+		if(testName.contains(BEFORE_CLASS_PREFIX.toLowerCase()) || testName.contains(AFTER_CLASS_PREFIX.toLowerCase()))
 			return testState.testClass;
 		
-		if(testName.equals(TestObject.DEFAULT_TEST))
+		if(testName.equals(TestObject.DEFAULT_TEST.toLowerCase()))
 			return testState.defaultState;
 		
 		else
@@ -454,17 +495,6 @@ public class TestObject{
 		return this;
 	}
 
-	public TestObject withTestStartTime(String time) {
-		this.startTime = String.valueOf(time);
-		return this;
-	}
-
-	public TestObject withRandomStringIdentifier() {
-		String rand = Helper.generateRandomString(30);
-		this.randStringIdentifier = rand;
-		return this;
-	}
-
 	public TestObject withTestName(String testName) {
 		this.testName = testName;
 		return this;
@@ -509,11 +539,6 @@ public class TestObject{
 		return className;
 	}
 	
-
-	public String getTestStartTime() {	
-		return this.startTime;
-	}
-
 	public TestObject withRunCount(int rerunCount) {
 		this.runCount = rerunCount;
 		return this;

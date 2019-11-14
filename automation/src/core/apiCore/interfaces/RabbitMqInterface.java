@@ -68,6 +68,7 @@ public class RabbitMqInterface {
 				channel = connection.createChannel();
 				Helper.waitForSeconds(1);
 			} catch (Exception e) {
+				e.printStackTrace();
 				TestLog.ConsoleLog("Connection failed: " + e.getMessage());
 				throw new RuntimeException("Could not connect. ", e);
 			}

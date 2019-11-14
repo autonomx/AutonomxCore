@@ -193,19 +193,19 @@ public class RestApiInterface {
 			}
 
 		}
-		errorMessages = validateExpectedValues(response, apiObject);
+		String responseString = JsonHelper.getResponseValue(response);
+		errorMessages = validateExpectedValues(responseString, apiObject);
 
 		// remove all empty response strings
 		errorMessages.removeAll(Collections.singleton(""));
 		return errorMessages;
 	}
 
-	public static List<String> validateExpectedValues(Response response, ServiceObject apiObject) {
+	public static List<String> validateExpectedValues(String responseString, ServiceObject apiObject) {
 		List<String> errorMessages = new ArrayList<String>();
 
 		// get response body as string
-		String body = response.getBody().asString();
-		TestLog.logPass("response: " + body);
+		TestLog.logPass("response: " + responseString);
 
 		// validate response body against expected json string
 		if (!apiObject.getExpectedResponse().isEmpty()) {
@@ -216,9 +216,9 @@ public class RestApiInterface {
 			for (String criterion : criteria) {
 				Helper.assertTrue("expected is not valid format: " + criterion,
 						JsonHelper.isValidExpectation(criterion));
-				errorMessages.add(JsonHelper.validateByJsonBody(criterion, body));
-				errorMessages.addAll(JsonHelper.validateByKeywords(criterion, response));
-				errorMessages.add(JsonHelper.validateResponseBody(criterion, response));
+				errorMessages.add(JsonHelper.validateByJsonBody(criterion, responseString));
+				errorMessages.addAll(JsonHelper.validateByKeywords(criterion, responseString));
+				errorMessages.add(JsonHelper.validateResponseBody(criterion, responseString));
 			}
 		}
 		// remove all empty response strings

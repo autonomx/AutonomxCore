@@ -86,6 +86,7 @@ public class SqlInterface {
 				Helper.wait.waitForSeconds(1);
 			} catch (Exception e) {
 				TestLog.logPass("sql connection failed: " + e.getMessage());
+				e.printStackTrace();
 				Helper.assertTrue("sql connection failed", false);
 			}
 		}

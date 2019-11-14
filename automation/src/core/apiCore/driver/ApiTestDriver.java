@@ -10,7 +10,6 @@ import core.support.objects.TestObject.testType;
 import core.uiCore.drivers.AbstractDriverTestNG;
 
 public class ApiTestDriver {
-	// public static ThreadLocal<Logger> log = new ThreadLocal<Logger>();
 
 	public static void setTestId(ServiceObject serviceObject) {
 		String csvFileName = getTestClass(serviceObject);
@@ -28,7 +27,7 @@ public class ApiTestDriver {
 	 */
 	public static String getTestClass(ServiceObject serviceObject) {
 		String testClass = serviceObject.getTcName();
-		return  getTestClass(testClass);
+		return getTestClass(testClass);
 	}
 	
 	/**
@@ -60,21 +59,13 @@ public class ApiTestDriver {
 		String testId = TestObject.currentTestId.get();
 		TestLog.removeLogUtilHandler();
 
-		// initialize class object for api test. test config is passed on to each test
-		// in the test class
-		// all api tests in the same class share the same config. each csv file is one
-		// class based on csv file name
-		String classname = getTestClass(serviceObject);
-		classname = serviceObject.getParentClass() + "-" + classname + TestObject.BEFORE_METHOD_PREFIX;
-		TestObject.initializeTest(classname);
-
 		// initialize once per test in csv file
 		TestObject.initializeTest(testId);
 
-		// pass the class config And logs to new test. parameters are passed from one
+		// pass the parent config And logs to new test. parameters are passed from one
 		// test to another this way
-		TestObject.getTestInfo().config = TestObject.getTestInfo(classname).config;
-		TestObject.getTestInfo().testLog = TestObject.getTestInfo(classname).testLog;
+		TestObject.getTestInfo().config = TestObject.getTestInfo(serviceObject.getParent()).config;
+		TestObject.getTestInfo().testLog = TestObject.getTestInfo(serviceObject.getParent()).testLog;
 
 		TestObject.getTestInfo().type = testType.service;
 		TestObject.getTestInfo().app = APP;
@@ -86,9 +77,10 @@ public class ApiTestDriver {
 		TestObject.getTestInfo().currentTestIndex = Integer.valueOf(serviceObject.getTcIndex());
 
 		TestObject.getTestInfo().testCountInCsvFile = Integer.valueOf(serviceObject.getTcCount());
+		TestObject.getTestInfo().serviceObject = serviceObject;
 
 	}
-
+	
 	/**
 	 * returns true if all tests in current csv file are completed
 	 * @return

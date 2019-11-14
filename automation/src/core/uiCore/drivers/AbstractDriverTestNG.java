@@ -39,7 +39,7 @@ public class AbstractDriverTestNG implements ITest {
 
 	private static ThreadLocal<WebDriver> webDriver = new ThreadLocal<WebDriver>();
 	
-	private static ThreadLocal<String> testClassname = new ThreadLocal<String>();
+	public static ThreadLocal<String> testClassname = new ThreadLocal<String>();
     public static ThreadLocal<String> testName = new ThreadLocal<String>();
 
 
@@ -50,7 +50,6 @@ public class AbstractDriverTestNG implements ITest {
 	}
 	
 	public void setupApiDriver(ServiceObject apiObject) throws Exception {
-		apiObject.withParentClass(testClassname.get());
 		new ApiTestDriver().initTest(apiObject);
 
 		// initiallize logging

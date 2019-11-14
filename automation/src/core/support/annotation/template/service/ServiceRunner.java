@@ -102,6 +102,7 @@ public class ServiceManager {
 		bw.newLine();
 		bw.newLine();
 		
+		
 		bw.append("import core.support.objects.ServiceObject;"+ "\n");
 		bw.append("import core.uiCore.drivers.AbstractDriverTestNG;"+ "\n");
 		bw.append("import core.apiCore.ServiceManager;"+ "\n");
@@ -134,10 +135,20 @@ public class ServiceManager {
 				RespCodeExp, ExpectedResponse, TcComments, tcName, 
 				tcIndex, testType, tcCount); 
 				
+			ServiceManager.setupParentObject(serviceObject);
+			
+			// set test base override
+			ServiceManager.setTestBaseOverride(serviceObject);
+				
+			// run before each test file 
+			ServiceManager.runBeforeCsv(serviceObject); 
+	
 			// setup api driver 
-			new AbstractDriverTestNG().setupApiDriver(serviceObject);
-		
-			runInterface(serviceObject);
+			new AbstractDriverTestNG().setupApiDriver(serviceObject); 
+			runInterface(serviceObject); 
+	
+			// run after each test file 
+			ServiceManager.runAfterCsv(serviceObject); 
 		}
 		 */
 		
@@ -152,6 +163,12 @@ public class ServiceManager {
 		bw.append("		UriPath, ContentType, Method, Option, RequestHeaders, TemplateFile, RequestBody, OutputParams," + " \n" );
 		bw.append("		RespCodeExp, ExpectedResponse, TcComments, tcName," + " \n" );
 		bw.append("		tcIndex, testType, tcCount);"+ " \n" );
+		bw.newLine();
+		bw.append("		// set parent object" + " \n");
+		bw.append("		ServiceManager.setupParentObject(serviceObject);" + " \n");
+		bw.newLine();
+		bw.append("		// set test base override" + " \n");
+		bw.append("		ServiceManager.setTestBaseOverride(serviceObject);" + " \n");
 		bw.newLine();
 		bw.append("		// run before each test file" + " \n");
 		bw.append("		ServiceManager.runBeforeCsv(serviceObject);" + " \n");

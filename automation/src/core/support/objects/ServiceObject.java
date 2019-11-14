@@ -25,7 +25,7 @@ public class ServiceObject {
 	private String tcName = StringUtils.EMPTY;
 	private String tcIndex = StringUtils.EMPTY;
 	private String testType = StringUtils.EMPTY;
-	private String parentClass = StringUtils.EMPTY; // name of the test class. eg. ServiceTestRunner
+	private String parent = StringUtils.EMPTY; // name of the parent object to inherit from
 	private String tcCount = StringUtils.EMPTY; // number of tests in csv file
 
 	public ServiceObject setServiceObject(String TestSuite, String TestCaseID, String RunFlag, String Description,
@@ -136,15 +136,15 @@ public class ServiceObject {
 		return this;
 	}
 	
-	public ServiceObject withParentClass(String parentClass){
-		this.parentClass = parentClass;
+	public ServiceObject withParent(String parent){
+		this.parent = parent;
 		return this;
 	}
 	
-	public String getParentClass(){
-		if(StringUtils.isBlank(this.parentClass))
-			return TestObject.SUITE_NAME;
-		return this.parentClass;
+	public String getParent(){
+		if(StringUtils.isBlank(this.parent))
+			return TestObject.DEFAULT_TEST;
+		return this.parent;
 	}
 	
 	public String getOption(){

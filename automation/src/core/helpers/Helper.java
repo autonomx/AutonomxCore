@@ -2284,6 +2284,65 @@ public class Helper {
 	public static String executeJsWithStringReturn(String script, Object... args) {
 		return UtilityHelper.executeJsWithStringReturn(script, args);
 	}
+	
+	/**
+	 * get numeric value from string
+	 * @param value
+	 * @param isFailOnNoInt
+	 * @return
+	 */
+	public static int getIntFromString(String value) {
+		return UtilityHelper.getIntFromString(value, false);
+		
+	}
+	
+	/**
+	 * get numeric value from string
+	 * @param value
+	 * @param isFailOnNoInt
+	 * @return
+	 */
+	public static int getIntFromString(String value, boolean isFailOnNoInt) {
+		return UtilityHelper.getIntFromString(value, isFailOnNoInt);
+	}
+	
+	/**
+	 * get int value from string
+	 * @param value
+	 * @param isFailOnNoInt
+	 * @return
+	 */
+	public static double getDoubleFromString(String value) {
+		return UtilityHelper.getDoubleFromString(value, false);
+	}
+	
+	/**
+	 * does string have int value
+	 * @param value
+	 * @return
+	 */
+	public static boolean isIntFromString(String value) {
+		return UtilityHelper.isIntFromString(value);
+	}
+	
+	/**
+	 * remove surrounding double quotes from the string
+	 * @param value
+	 * @return
+	 */
+	public static String removeSurroundingQuotes(String value) {
+		return UtilityHelper.removeSurroundingQuotes(value);
+	}
+	
+	/**
+	 * get numeric value from string 
+	 * @param value
+	 * @param isFailOnNoInt
+	 * @return
+	 */
+	public static double getDoubleFromString(String value, boolean isFailOnNoInt) {
+		return UtilityHelper.getDoubleFromString(value, isFailOnNoInt);
+	}
 
 	/**
 	 * normalizes string removes space, new line chars
