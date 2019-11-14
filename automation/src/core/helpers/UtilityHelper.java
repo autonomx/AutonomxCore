@@ -34,6 +34,7 @@ import javax.imageio.ImageIO;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.OutputType;
@@ -853,7 +854,7 @@ public class UtilityHelper {
 	 * @return
 	 */
 	protected static double getDoubleFromString(String value, boolean isFailOnNoInt) {
-		if(!isIntFromString(value)) {
+		if(!isStringContainNumber(value)) {
 			if(isFailOnNoInt)
 				Helper.assertFalse("numeric value not found from String: " + value);
 			else
@@ -874,11 +875,21 @@ public class UtilityHelper {
 	}
 	
 	/**
+	 * does string have only numeric value
+	 * @param value
+	 * @return
+	 */
+	protected static boolean isStringContainOnlyNumber(String value) {
+		boolean isNumb = NumberUtils.isCreatable(value);
+		return isNumb;
+	}
+	
+	/**
 	 * does string have int value
 	 * @param value
 	 * @return
 	 */
-	protected static boolean isIntFromString(String value) {
+	protected static boolean isStringContainNumber(String value) {
 		value = value.replaceAll("[^\\d.]", "");
 		if(StringUtils.isBlank(value))
 			return false;

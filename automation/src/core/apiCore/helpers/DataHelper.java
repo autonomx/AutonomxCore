@@ -398,7 +398,7 @@ public class DataHelper {
 	 * @return
 	 */
 	public static boolean compareNumbers(String value1, String value2, String comparator) {
-		if(!Helper.isIntFromString(value1) || !Helper.isIntFromString(value2))
+		if(!Helper.isStringContainNumber(value1) || !Helper.isStringContainNumber(value2))
 			return false;
 		
 		double val1Double = Helper.getDoubleFromString(value1); 
@@ -529,7 +529,7 @@ public class DataHelper {
 		List<String> keyPositionList = splitRight(keyPosition, ":", 2);
 		
 		// if key value has position. eg: store.book[?(@.price < 10)]:1
-		if(keyPositionList.size() == 2 && Helper.isIntFromString(keyPositionList.get(1))) {
+		if(keyPositionList.size() == 2 && Helper.isStringContainOnlyNumber(keyPositionList.get(1))) {
 			result.add(keyPositionList.get(0));
 			result.add(keyPositionList.get(1));
 		}else {

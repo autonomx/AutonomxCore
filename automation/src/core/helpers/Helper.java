@@ -2317,12 +2317,21 @@ public class Helper {
 	}
 	
 	/**
-	 * does string have int value
+	 * does string have only numeric value
 	 * @param value
 	 * @return
 	 */
-	public static boolean isIntFromString(String value) {
-		return UtilityHelper.isIntFromString(value);
+	public static boolean isStringContainOnlyNumber(String value) {
+		return UtilityHelper.isStringContainOnlyNumber(value);
+	}
+	
+	/**
+	 * does string have numeric value
+	 * @param value
+	 * @return
+	 */
+	public static boolean isStringContainNumber(String value) {
+		return UtilityHelper.isStringContainNumber(value);
 	}
 	
 	/**
