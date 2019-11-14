@@ -147,9 +147,6 @@ public class RestApiInterface {
 		RestAssured.baseURI  = aURL.getProtocol() + "://" + aURL.getHost();
 		RestAssured.port = aURL.getPort();
 		RestAssured.basePath = aURL.getPath();
-		
-		
-		
 	}
 	
 	/**
