@@ -22,7 +22,6 @@ import core.support.objects.KeyValue;
 import core.support.objects.ServiceObject;
 import core.support.objects.TestObject;
 import io.restassured.RestAssured;
-import io.restassured.authentication.AuthenticationScheme;
 import io.restassured.config.HttpClientConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;

@@ -203,6 +203,7 @@ public class JsonHelper {
 				expectedValue = "";
 			}
 
+			TestLog.ConsoleLog("command: " + command  + "json path: " + jsonPath);
 			// get response string from json path (eg. data.user.id) would return "2"
 			String jsonResponse = getJsonValue(responseString, jsonPath);
 
@@ -257,6 +258,9 @@ public class JsonHelper {
 	public static String validateByJsonBody(String expectedJson, String response) {
 		expectedJson = Helper.stringRemoveLines(expectedJson);
 		if (JsonHelper.isJSONValid(expectedJson, true)) {
+			if(StringUtils.isBlank(response)) 
+				Helper.assertFalse("response is empty, please re-evaluate your json path");
+			
 			TestLog.logPass("expected: " + Helper.stringRemoveLines(expectedJson));
 			try {
 				JSONCompareResult result = JSONCompare.compareJSON(expectedJson, response, JSONCompareMode.LENIENT);

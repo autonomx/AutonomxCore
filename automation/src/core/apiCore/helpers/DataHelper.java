@@ -355,7 +355,7 @@ public class DataHelper {
 			break;
 		case jsonbody:
 			TestLog.logPass(
-					"verifying response: " + responseString + " against expected: " + expectedString);
+					"verifying response: \n" + responseString + "\n against expected: \n" + expectedString);
 			String error = JsonHelper.validateByJsonBody(expectedString,  responseString);
 			if(!error.isEmpty()) return error;
 			break;
