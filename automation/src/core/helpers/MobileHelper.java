@@ -1,6 +1,5 @@
 package core.helpers;
 
-import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
@@ -26,14 +25,15 @@ import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.MultiTouchAction;
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
-import io.appium.java_client.android.AndroidKeyCode;
+import io.appium.java_client.android.nativekey.AndroidKey;
+import io.appium.java_client.android.nativekey.KeyEvent;
 import io.appium.java_client.imagecomparison.OccurrenceMatchingResult;
 import io.appium.java_client.ios.IOSDriver;
 import io.appium.java_client.touch.LongPressOptions;
 import io.appium.java_client.touch.WaitOptions;
 import io.appium.java_client.touch.offset.PointOption;
 
-@SuppressWarnings({ "rawtypes", "deprecation" , "unchecked"})
+@SuppressWarnings({ "rawtypes", "unchecked"})
 public class MobileHelper {
 	
 	public enum DIRECTION {
@@ -88,7 +88,7 @@ public class MobileHelper {
 
 	public void pressEnterOnAndroid() {
 		if (isAndroid()) {
-			getAndroidDriver().pressKeyCode(KeyEvent.VK_ENTER);
+			getAndroidDriver().pressKey(new KeyEvent(AndroidKey.ENTER));
 		}
 	}
 
@@ -582,16 +582,16 @@ public class MobileHelper {
 	}
 
 	public void mobile_takePicture() {
-		getAndroidDriver().pressKeyCode(AndroidKeyCode.KEYCODE_CAMERA);
+		getAndroidDriver().pressKey(new KeyEvent(AndroidKey.CAMERA));
+
 	}
 
 	public void mobile_keyCode(int code) {
-		getAndroidDriver().pressKeyCode(code);
-
+		getAndroidDriver().pressKey(new KeyEvent(AndroidKey.BACK));
 	}
 
 	public void mobile_backButton() {
-		getAndroidDriver().pressKeyCode(AndroidKeyCode.BACK);
+		getAndroidDriver().pressKey(new KeyEvent(AndroidKey.BACK));
 	}
 
 	public void tapAtCenterLeft() {
