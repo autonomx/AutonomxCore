@@ -48,13 +48,13 @@ public class ServiceManager {
 			String InterfaceType, String UriPath, String ContentType, String Method, String Option, 
 			String RequestHeaders, String TemplateFile, String RequestBody, String OutputParams, String RespCodeExp, 
 			String ExpectedResponse, String TcComments, 
-			String tcName, String tcIndex, String testType, String tcCount) throws Exception { 
+			String tcName, String tcIndex, String testType) throws Exception { 
 	
 			// add parameters to ServiceObject 
 			ServiceObject serviceObject = new ServiceObject().setServiceObject(TestSuite, TestCaseID, RunFlag, Description, InterfaceType, 
 			UriPath, ContentType, Method, Option, RequestHeaders, TemplateFile, RequestBody, OutputParams, 
 			RespCodeExp, ExpectedResponse, TcComments, tcName, 
-			tcIndex, testType, tcCount); 
+			tcIndex, testType); 
 	
 			// setup api driver 
 			new AbstractDriverTestNG().setupApiDriver(serviceObject); 
@@ -127,13 +127,13 @@ public class ServiceManager {
 				String InterfaceType, String UriPath, String ContentType, String Method, String Option, 
 				String RequestHeaders, String TemplateFile, String RequestBody, String OutputParams, String RespCodeExp, 
 				String ExpectedResponse, String TcComments, 
-				String tcName, String tcIndex, String testType, String tcCount) throws Exception { 
+				String tcName, String tcIndex, String testType) throws Exception { 
 		
 			// add parameters to ServiceObject 
 			ServiceObject serviceObject = new ServiceObject().setServiceObject(TestSuite, TestCaseID, RunFlag, Description, InterfaceType, 
 				UriPath, ContentType, Method, Option, RequestHeaders, TemplateFile, RequestBody, OutputParams, 
 				RespCodeExp, ExpectedResponse, TcComments, tcName, 
-				tcIndex, testType, tcCount); 
+				tcIndex, testType); 
 				
 			ServiceManager.setupParentObject(serviceObject);
 			
@@ -156,13 +156,13 @@ public class ServiceManager {
 		bw.append("		String InterfaceType, String UriPath, String ContentType, String Method, String Option," + " \n" );
 		bw.append("		String RequestHeaders, String TemplateFile, String RequestBody, String OutputParams, String RespCodeExp," + " \n" );
 		bw.append("		String ExpectedResponse, String TcComments," + " \n" );
-		bw.append("		String tcName, String tcIndex, String testType, String tcCount) throws Exception {" + " \n" );
+		bw.append("		String tcName, String tcIndex, String testType) throws Exception {" + " \n" );
 		bw.newLine();
 		bw.append("		// add parameters to ServiceObject" + " \n" );
 		bw.append("		ServiceObject serviceObject = new ServiceObject().setServiceObject(TestSuite, TestCaseID, RunFlag, Description, InterfaceType," + " \n" );
 		bw.append("		UriPath, ContentType, Method, Option, RequestHeaders, TemplateFile, RequestBody, OutputParams," + " \n" );
 		bw.append("		RespCodeExp, ExpectedResponse, TcComments, tcName," + " \n" );
-		bw.append("		tcIndex, testType, tcCount);"+ " \n" );
+		bw.append("		tcIndex, testType);"+ " \n" );
 		bw.newLine();
 		bw.append("		// set parent object" + " \n");
 		bw.append("		ServiceManager.setupParentObject(serviceObject);" + " \n");

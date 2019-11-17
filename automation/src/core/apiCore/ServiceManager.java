@@ -268,6 +268,7 @@ public class ServiceManager {
 	 * @param serviceObject
 	 */
 	public static void setupParentObject(ServiceObject serviceObject) {
+		
 		// set parent object 
 		String csvFileName = ApiTestDriver.getTestClass(serviceObject); 
 		String parent = csvFileName + TestObject.PARENT_PREFIX; 
@@ -276,6 +277,7 @@ public class ServiceManager {
 		// setup before class driver
 		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
 		new AbstractDriverTestNG().setupWebDriver(serviceObject.getParent(), driver);
+		
 		TestObject.getTestInfo().serviceObject = serviceObject;
 	}
 }

@@ -3,7 +3,6 @@ package core.apiCore.helpers;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
@@ -24,7 +23,7 @@ import core.support.objects.TestObject;
 
 public class CsvReader {
 	
-	public static int SERVICE_CSV_COLUMN_COUNT = 20;
+	public static int SERVICE_CSV_COLUMN_COUNT = 19;
 	public static String SERVICE_CSV_FILE_PREFIX = "TestCases_";
 	public static final String ACTION_KEY = "action";
 	
@@ -71,7 +70,7 @@ public class CsvReader {
 		
 		for (int i = 0; i < csvList.size(); i++) {
 			// add test name, test index, and test type 
-			String[] obj = { csvFileName, String.valueOf(i), TestObject.testType.service.name(), String.valueOf(csvList.size())};
+			String[] obj = { csvFileName, String.valueOf(i) + ":" + String.valueOf(csvList.size()), TestObject.testType.service.name()};
 			String[] csvRow = (String[]) ArrayUtils.addAll(csvList.get(i), obj);			
 			
 			// for single test case selection. Both test case file And test case have to be
@@ -144,21 +143,7 @@ public class CsvReader {
 	 * @return
 	 */
 	public static ServiceObject mapToServiceObject(Object[] testData) {
-		if(testData.length == 16) {
-			return new ServiceObject().setServiceObject(testData[0].toString(), testData[1].toString(), testData[2].toString(),
-					testData[3].toString(), testData[4].toString(), testData[5].toString(), testData[6].toString(), testData[7].toString(), testData[8].toString(), testData[9].toString(),
-					testData[10].toString(), testData[11].toString(), testData[12].toString(), testData[13].toString(), testData[14].toString(), testData[15].toString(), "", "", "", "");
-			
-		}
-		else if (testData.length == 20){
-		return  new ServiceObject().setServiceObject(testData[0].toString(), testData[1].toString(), testData[2].toString(),
-				testData[3].toString(), testData[4].toString(), testData[5].toString(), testData[6].toString(), testData[7].toString(), testData[8].toString(), testData[9].toString(),
-				testData[10].toString(), testData[11].toString(), testData[12].toString(), testData[13].toString(), testData[14].toString(), testData[15].toString(), testData[16].toString(), testData[17].toString(), testData[18].toString(), testData[19].toString());
-
-		}
-		
-		Helper.assertFalse("test data length does not match requirements: " + testData.length + " test data: " + Arrays.toString(testData) );
-		return new ServiceObject();
+		return new ServiceObject().setServiceObject(testData);
 	}
 
 	/**

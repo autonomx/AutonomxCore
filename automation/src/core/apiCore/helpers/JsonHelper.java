@@ -286,9 +286,20 @@ public class JsonHelper {
 		}
 		return false;
 	}
+	
+	/**
+	 * validates json response against keywords
+	 * 
+	 * @param expectedJson
+	 * @param response
+	 */
+	public static List<String> validateByKeywords(String expectedJson, Response response) {
+		String responseString = JsonHelper.getResponseValue(response);
+		return validateByKeywords(expectedJson, responseString);
+	}
 
 	/**
-	 * validates json response against hamcrest keywords
+	 * validates json response against keywords
 	 * 
 	 * @param expectedJson
 	 * @param response
@@ -313,6 +324,19 @@ public class JsonHelper {
 			}
 		}
 		return errorMessages;
+	}
+	
+	/**
+	 * validates response body this is validating the response body as text
+	 * 
+	 * @param expected
+	 * @param response
+	 * @return 
+	 */
+	public static String validateResponseBody(String expected, Response response) {
+		String responseString = JsonHelper.getResponseValue(response);
+		return validateResponseBody(expected, responseString);
+		
 	}
 
 	/**

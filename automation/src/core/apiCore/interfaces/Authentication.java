@@ -21,6 +21,7 @@ import io.restassured.specification.RequestSpecification;
 public class Authentication {
 
 	public static final String BASIC_AUTHORIZATION = "BASIC";
+	public static final String AUTHENTICATION_SCHEME = "AUTHENTICATION_SCHEME";
 
 
 	/**

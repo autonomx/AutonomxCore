@@ -61,11 +61,11 @@ public class ApiTestDriver {
 
 		// initialize once per test in csv file
 		TestObject.initializeTest(testId);
-
+		
 		// pass the parent config And logs to new test. parameters are passed from one
 		// test to another this way
-		TestObject.getTestInfo().config = TestObject.getTestInfo(serviceObject.getParent()).config;
-		TestObject.getTestInfo().testLog = TestObject.getTestInfo(serviceObject.getParent()).testLog;
+		TestObject.getTestInfo().config = getParentTestObject(serviceObject).config;
+		TestObject.getTestInfo().testLog = getParentTestObject(serviceObject).testLog;
 
 		TestObject.getTestInfo().type = testType.service;
 		TestObject.getTestInfo().app = APP;
@@ -75,10 +75,15 @@ public class ApiTestDriver {
 
 		TestObject.getTestInfo().testName = serviceObject.getTestCaseID();
 		TestObject.getTestInfo().currentTestIndex = Integer.valueOf(serviceObject.getTcIndex());
-
+		
+		// set testCount
 		TestObject.getTestInfo().testCountInCsvFile = Integer.valueOf(serviceObject.getTcCount());
+		
 		TestObject.getTestInfo().serviceObject = serviceObject;
-
+	}
+	
+	public static TestObject getParentTestObject(ServiceObject serviceObject) {
+		return TestObject.getTestInfo(serviceObject.getParent());
 	}
 	
 	/**
@@ -98,7 +103,7 @@ public class ApiTestDriver {
 	 * @return
 	 */
 	public static boolean isCsvTestComplete(ServiceObject service) {
-		if (Integer.valueOf(service.getTcIndex()) == Integer.valueOf(service.getTcCount()) -1) {
+		if (Integer.valueOf(service.getTcIndex()) == Integer.valueOf(service.getTcCount()) - 1) {
 			return true;
 		}
 		return false;
@@ -145,7 +150,8 @@ public class ApiTestDriver {
 	public static boolean isRunningServiceTest(Object[] testData) {
 		if(testData.length != CsvReader.SERVICE_CSV_COLUMN_COUNT) return false;
 		if(testData[testData.length - 1] == null) return false;
-		return testData[testData.length - 2].equals(TestObject.testType.service.name());
+		ServiceObject ServiceObject = CsvReader.mapToServiceObject(testData); 
+		return ServiceObject.getTcType().equals(TestObject.testType.service.name());
 	}
 	
 	/**
