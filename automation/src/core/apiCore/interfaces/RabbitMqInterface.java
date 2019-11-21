@@ -1,7 +1,10 @@
 package core.apiCore.interfaces;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -104,13 +107,48 @@ public class RabbitMqInterface {
 	public static void sendMessage(ServiceObject serviceObject) {
 		TestLog.ConsoleLog("rabbitMq request body: " + serviceObject.getRequestBody());
 
+        // set basic properties
+        BasicProperties props = evaluateRequestHeaders(serviceObject);
+		
 		String exchange = Config.getValue(RABBIT_MQ_EXCHANGE);
 		String queueName = Config.getValue(RABBIT_MQ_QUEUE);
 		try {
-			channel.basicPublish(exchange, queueName, null, serviceObject.getRequestBody().getBytes());
+			channel.basicPublish(exchange, queueName, props, serviceObject.getRequestBody().getBytes());
 		} catch (Exception e) {
 			throw new RuntimeException("Could not send message. ", e);
 		}
+	}
+	
+	public static BasicProperties evaluateRequestHeaders(ServiceObject serviceObject) {
+
+		// if no RequestHeaders specified
+		if (serviceObject.getRequestHeaders().isEmpty()) {
+			return new BasicProperties();
+		}
+
+		// replace parameters for request body
+		serviceObject.withRequestHeaders(DataHelper.replaceParameters(serviceObject.getRequestHeaders()));
+
+		BasicProperties props = new BasicProperties();
+		Map<String,Object>  map = new HashMap<String,Object>(); 
+	
+		// get key value mapping of header parameters
+		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getRequestHeaders());
+		
+		// iterate through key value pairs for headers, separated by ";"
+		for (KeyValue keyword : keywords) {
+
+			// if additional request headers
+			switch (keyword.key) {
+
+			default:
+				map.put(keyword.key, keyword.value);
+				break;
+			}
+		}
+		
+		props = props.builder().headers(map).build();
+		return props;
 	}
 
 	public static void evaluateOption(ServiceObject serviceObject) {
@@ -134,12 +172,12 @@ public class RabbitMqInterface {
 		for (KeyValue keyword : keywords) {
 
 			// if additional options
-			switch (keyword.key) {
+			switch (keyword.key.toLowerCase()) {
 
-			case "EXCHANGE":
+			case "exchange":
 				Config.putValue(RABBIT_MQ_EXCHANGE, keyword.value);
 				break;
-			case "QUEUE":
+			case "queue":
 				Config.putValue(RABBIT_MQ_QUEUE, keyword.value);
 				break;
 			default:

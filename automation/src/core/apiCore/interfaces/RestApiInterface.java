@@ -313,7 +313,7 @@ public class RestApiInterface {
 		
 		if(StringUtils.isBlank(aURL.getQuery())) return request;
 		
-		String[] queryParameters = aURL.getQuery().split("&");
+		String[] queryParameters = aURL.getQuery().split("(&&)|(&)");
 		
 		if(queryParameters.length == 0) Helper.assertFalse("query parameters are wrong format: " + aURL.getQuery() + ". should be \"key=value&key2=value2\"" );
 		
