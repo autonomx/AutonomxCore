@@ -30,9 +30,9 @@ public class Authentication {
 	 * @param apiObject
 	 * @return
 	 */
-	public static void tokenGenerator(ServiceObject apiObject) {
+	public static void tokenGenerator(ServiceObject serviceObject) {
 
-		if (apiObject == null)
+		if (serviceObject == null)
 			Helper.assertFalse("apiobject is null");
 
 		// set timeout from api config
@@ -41,14 +41,14 @@ public class Authentication {
 		// set proxy from config file
 		RestApiInterface.setProxy();
 
-		// replace parameters for request body
-		apiObject.withRequestBody(DataHelper.replaceParameters(apiObject.getRequestBody()));
+		// replace parameters for request body, including template file (json, xml, or other)
+		serviceObject.withRequestBody(DataHelper.getRequestBodyIncludingTemplate(serviceObject));
 
 		// set base uri
-		setURI(apiObject);
+		setURI(serviceObject);
 
 		// send request And receive a response
-		evaluateRequest(apiObject);
+		evaluateRequest(serviceObject);
 	}
 
 	/**

@@ -101,8 +101,8 @@ public class SqlInterface {
 	 */
 	public static ResultSet evaluateDbQuery(ServiceObject serviceObject) throws Exception {
 
-		// replace parameters for request body
-		serviceObject.withRequestBody(DataHelper.replaceParameters(serviceObject.getRequestBody()));
+		// replace parameters for request body, including template file (json, xml, or other)
+		serviceObject.withRequestBody(DataHelper.getRequestBodyIncludingTemplate(serviceObject));
 
 		// execute query
 		String sql = serviceObject.getRequestBody();

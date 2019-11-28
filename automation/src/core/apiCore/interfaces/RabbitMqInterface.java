@@ -126,8 +126,8 @@ public class RabbitMqInterface {
 			return new BasicProperties();
 		}
 
-		// replace parameters for request body
-		serviceObject.withRequestHeaders(DataHelper.replaceParameters(serviceObject.getRequestHeaders()));
+		// replace parameters for request body, including template file (json, xml, or other)
+		serviceObject.withRequestBody(DataHelper.getRequestBodyIncludingTemplate(serviceObject));
 
 		BasicProperties props = new BasicProperties();
 		Map<String,Object>  map = new HashMap<String,Object>(); 

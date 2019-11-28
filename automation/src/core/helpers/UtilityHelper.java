@@ -494,9 +494,9 @@ public class UtilityHelper {
 		String content = StringUtils.EMPTY;
 		File file = new File(absolutePath);
 		
-		// return empty if file does not exist
+		// fail if file does not exist
 		if(!file.exists())
-			return content;
+			Helper.assertFalse("file not found at path: " + absolutePath);
 		
 		try {
 			content = new String(Files.readAllBytes(Paths.get(absolutePath)));

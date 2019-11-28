@@ -57,8 +57,8 @@ public class RestApiInterface {
 		// set proxy from api config
 		setProxy();
 
-		// replace parameters for request body
-		serviceObject.withRequestBody(DataHelper.replaceParameters(serviceObject.getRequestBody()));
+		// replace parameters for request body, including template file (json, xml, or other)
+		serviceObject.withRequestBody(DataHelper.getRequestBodyIncludingTemplate(serviceObject));
 
 		// set base uri
 		RequestSpecification request = setURI(serviceObject);

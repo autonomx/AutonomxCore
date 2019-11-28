@@ -391,13 +391,18 @@ public class JsonHelper {
 	/**
 	 * if request body is empty, return json template string
 	 * if request body contains @ variable tag, replace tag with value
+	 * format for request body: json path:position:value or json path:vlaue
 	 * eg. "features.feature.name:1:value_<@_TIME_19>"
 	 * @param serviceObject
 	 * @return
 	 */
 	public static String getRequestBodyFromJsonTemplate(ServiceObject serviceObject) {
+		
+		// return empty string if not json template
+		if(!isJsonFile(serviceObject.getTemplateFile())) return StringUtils.EMPTY;
+		
 		Path templatePath = DataHelper.getTemplateFilePath(serviceObject.getTemplateFile());
-		String jsonFileValue = convertJsonFileToString(templatePath);
+		String jsonFileValue = DataHelper.convertFileToString(templatePath);
         jsonFileValue = DataHelper.replaceParameters(jsonFileValue);
         
 		if(serviceObject.getRequestBody().isEmpty()) {
@@ -405,6 +410,17 @@ public class JsonHelper {
 		}else {
 			return updateJsonFromRequestBody(serviceObject);
 		}	
+	}
+	
+	/**
+	 * return true if file is json file
+	 * @param filename
+	 * @return
+	 */
+	public static boolean isJsonFile(String filename) {
+		if(filename.toLowerCase().endsWith("json"))
+				return true;
+		return false;
 	}
 	
 	public static String convertJsonFileToString(Path templatePath) {

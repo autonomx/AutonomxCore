@@ -2,8 +2,6 @@ package core.apiCore.helpers;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -135,19 +133,6 @@ public class DataHelper {
 		return file;
 	}
 
-	public static String convertTemplateToString(String templateFilePath) {
-		String xml = StringUtils.EMPTY;
-		try {
-			 xml = new String(
-				    Files.readAllBytes(new File(templateFilePath).toPath()), StandardCharsets.UTF_8);
-				System.out.println(xml.length());
-
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-		return xml; 
-	}
-	
     /**
      * returns service object template file as string
      * Template file name is from Template column in csv
@@ -157,10 +142,8 @@ public class DataHelper {
      */
     public static String getServiceObjectTemplateString(ServiceObject serviceObject) {
     	
-        String path = DataHelper.getTemplateFileLocation(serviceObject.getTemplateFile());
-        File file = new File(path);
-
-        return DataHelper.convertTemplateToString(file.getAbsolutePath());
+        Path templatePath = DataHelper.getTemplateFilePath(serviceObject.getTemplateFile());
+		return  DataHelper.convertFileToString(templatePath);
     }
 
 	/**
@@ -552,5 +535,59 @@ public class DataHelper {
 		if(value.equals("null"))
 			return true;
 		return false;		
+	}
+	
+	/**
+	 * get request body from template file: json, xml, other
+	 * json template:
+	 * 		- if request body is set, replace value in template with format:
+	 * 		- request body: json path:position:value or json path:vlaue
+	 * 		- eg. "features.feature.name:1:value_<@_TIME_19>" 
+	 * xml template:
+	 * 		- if request body is set, replace value in template with format:
+	 * 		- request body: tag:position:value   or tag:value
+	 * 		- eg. "soi:EquipmentID:1:equip_<@_TIME_17>"
+	 * other file type:
+	 * 		- return as string
+	 * if no template set:
+	 * 		- return request body
+	 * 
+	 * @param serviceObject
+	 * @return
+	 */
+	public static String getRequestBodyIncludingTemplate(ServiceObject serviceObject) {
+		
+		// replace request body parameters
+		serviceObject.withRequestBody(replaceParameters(serviceObject.getRequestBody()));
+		
+		// if json template file
+		if(JsonHelper.isJsonFile(serviceObject.getTemplateFile()))
+			return JsonHelper.getRequestBodyFromJsonTemplate(serviceObject);
+		
+		// if xml template file
+		if(XmlHelper.isXmlFile(serviceObject.getTemplateFile()))
+			return XmlHelper.getRequestBodyFromXmlTemplate(serviceObject);
+		
+		// if other type of file
+		if(!serviceObject.getTemplateFile().isEmpty()) {
+			Path templatePath = DataHelper.getTemplateFilePath(serviceObject.getTemplateFile());
+			return convertFileToString(templatePath);
+		}
+		
+		// if no template, return request body
+		return serviceObject.getRequestBody();
+	}
+	
+	/**
+	 * get file content as text
+	 * replaces parameters using syntax <@variable> from value in config
+	 * @param templatePath
+	 * @return
+	 */
+	public static String convertFileToString(Path templatePath) {
+		String content = Helper.readFileContent(templatePath.toString());
+		
+		// replace content paramters
+		return replaceParameters(content);
 	}
 }

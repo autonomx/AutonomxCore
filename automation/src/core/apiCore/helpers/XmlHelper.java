@@ -347,4 +347,15 @@ public class XmlHelper {
 		if(position > values.size()) Helper.assertFalse("position is greater than response size. position: " + position + ". response size: " + values.size() + ". values: " + Arrays.toString(values.toArray()));
 		return values.get(position - 1);
 	}
+	
+	/**
+	 * return true if file is xml file
+	 * @param filename
+	 * @return
+	 */
+	public static boolean isXmlFile(String filename) {
+		if(filename.toLowerCase().endsWith("xml"))
+				return true;
+		return false;
+	}
 }
