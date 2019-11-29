@@ -10,7 +10,6 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
 import core.apiCore.helpers.DataHelper;
-import core.apiCore.helpers.XmlHelper;
 import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.logger.TestLog;
@@ -49,6 +48,9 @@ public class RabbitMqInterface {
 		
 		// evaluate additional options
 		evaluateOption(serviceObject);
+		
+		// replace parameters for request body, including template file (json, xml, or other)
+		serviceObject.withRequestBody(DataHelper.getRequestBodyIncludingTemplate(serviceObject));
 
 		// send message
 		sendRabbitMqMessage(serviceObject);
@@ -79,32 +81,11 @@ public class RabbitMqInterface {
 	}
 
 	/**
-	 * 
-	 * @param apiObject
-	 * @return
-	 * @throws Exception
-	 */
-	public static void sendRabbitMqMessage(ServiceObject serviceObject) throws Exception {
-
-		// replace parameters for request body
-		String requestBody = DataHelper.replaceParameters(serviceObject.getRequestBody());
-		serviceObject.withRequestBody(requestBody);
-
-		// Get request body using template and/or requestBody data column
-		requestBody = XmlHelper.getRequestBodyFromXmlTemplate(serviceObject);
-
-		serviceObject.withRequestBody(requestBody);
-
-		// send message
-		sendMessage(serviceObject);
-	}
-
-	/**
 	 * send rabbitMq message
 	 * 
 	 * @param apiObject
 	 */
-	public static void sendMessage(ServiceObject serviceObject) {
+	public static void sendRabbitMqMessage(ServiceObject serviceObject) {
 		TestLog.ConsoleLog("rabbitMq request body: " + serviceObject.getRequestBody());
 
         // set basic properties
@@ -125,9 +106,6 @@ public class RabbitMqInterface {
 		if (serviceObject.getRequestHeaders().isEmpty()) {
 			return new BasicProperties();
 		}
-
-		// replace parameters for request body, including template file (json, xml, or other)
-		serviceObject.withRequestBody(DataHelper.getRequestBodyIncludingTemplate(serviceObject));
 
 		BasicProperties props = new BasicProperties();
 		Map<String,Object>  map = new HashMap<String,Object>(); 
@@ -161,7 +139,7 @@ public class RabbitMqInterface {
 			return;
 		}
 
-		// replace parameters for request body
+		// replace parameters for  options
 		serviceObject.withOption(DataHelper.replaceParameters(serviceObject.getOption()));
 
 		// get key value mapping of header parameters
