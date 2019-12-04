@@ -1,8 +1,10 @@
 package core.apiCore.interfaces;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -15,6 +17,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
+import org.apache.kafka.common.serialization.StringSerializer;
 
 import core.apiCore.helpers.DataHelper;
 import core.apiCore.helpers.MessageQueueHelper;
@@ -38,8 +41,7 @@ public class KafkaInterface {
 
 	
 
-	private static KafkaProducer<byte[], byte[]> producer;
-	public static Map<ConsumerRecord<Long, String>, Boolean> outboundMessages = new ConcurrentHashMap<ConsumerRecord<Long, String>, Boolean>();
+	public static Map<ConsumerRecord<String, String>, Boolean> outboundMessages = new ConcurrentHashMap<ConsumerRecord<String, String>, Boolean>();
 
 	/**
 	 * interface for database calls
@@ -49,9 +51,6 @@ public class KafkaInterface {
 	 * @throws Exception
 	 */
 	public static void testKafkaInterface(ServiceObject serviceObject) throws Exception {
-
-		// connect to producer
-		setupProducer(serviceObject);
 		
 		// replace parameters for request body, including template file (json, xml, or other)
 		serviceObject.withRequestBody(DataHelper.getRequestBodyIncludingTemplate(serviceObject));
@@ -63,23 +62,7 @@ public class KafkaInterface {
 		sendKafkaMessage(serviceObject, messageId);
 		
 		// receive messages
-		getConsumerMessages(messageId);
-	}
-
-	/**
-	 * setup producer
-	 * @throws Exception
-	 */
-	public synchronized static void setupProducer(ServiceObject apiObject) {
-
-		Properties properties = new Properties();
-		properties.put("bootstrap.servers", Config.getValue(KAFKA_SERVER_URL));
-		//properties.put("client.id", Config.getValue(KAFKA_CLIENT_ID));
-		properties.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-		properties.put("value.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer");
-		properties.put("retries", "3");
-
-		producer = new KafkaProducer<byte[], byte[]>(properties);
+		getAndValidateMessages(serviceObject, messageId);
 	}
 
 	/**
@@ -91,13 +74,24 @@ public class KafkaInterface {
 		
 		// return if request is empty
 		if(serviceObject.getRequestBody().isEmpty()) return;
+		
+		KafkaProducer<String, String> producer = null;
 
 		String messageBody = serviceObject.getRequestBody();
 		try {
 			
-			final ProducerRecord<byte[], byte[]> record =
-                    new ProducerRecord<>(Config.getValue(KFAKA_TOPIC), messageId.getBytes(),
-                    		messageBody.getBytes());
+			Properties properties = new Properties();
+			properties.put("bootstrap.servers", Config.getValue(KAFKA_SERVER_URL));
+			//properties.put("client.id", Config.getValue(KAFKA_CLIENT_ID));
+			properties.put("key.serializer", StringSerializer.class);
+			properties.put("value.serializer", StringSerializer.class);
+			properties.put("retries", "3");
+
+			producer = new KafkaProducer<String, String>(properties);
+			
+			final ProducerRecord<String, String> record =
+                    new ProducerRecord<>(Config.getValue(KFAKA_TOPIC), messageId.toString(),
+                    		messageBody);
 			
 			
 			RecordMetadata metadata = producer.send(record).get();
@@ -110,13 +104,80 @@ public class KafkaInterface {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		producer.close();
 
 		TestLog.ConsoleLog("Sent message: " + serviceObject.getRequestBody());
 	}
 	
 	/**
-	 * gets message from outbound queue
-	 * Adds messages to ouboutMessage hashmap
+	 * 1) gets messages, adds them to the outboundMessages
+	 * 2) filters based on the message key
+	 * 3) validates based on expected response requirements
+	 * @param messageId
+	 */
+	public static void getAndValidateMessages(ServiceObject serviceObject, String messageId) {
+		
+		CopyOnWriteArrayList<ConsumerRecord<String, String>> filteredMessages = new CopyOnWriteArrayList<>();
+
+		// kafka will run for maxRetrySeconds to retrieve matching outbound message
+		int maxRetrySeconds = Config.getIntValue(KAFKA_TIMEOUT_SECONDS);
+		StopWatchHelper watch = StopWatchHelper.start();
+		long passedTimeInSeconds = 0;
+		long lastLogged = 0;
+		int interval = 10; // log every 10 seconds
+		
+		do {
+			lastLogged = MessageQueueHelper.logPerInterval(interval, watch, lastLogged);
+
+			// gets messages and stores them in outboundMessages hashmap
+			getOutboundMessages();
+			
+			// filters based on message id
+			filteredMessages.addAll(filterOUtboundMessage(messageId));
+
+			printMessage();
+		} while (passedTimeInSeconds < maxRetrySeconds);
+	}
+	
+	/**
+	 * @return 
+	 * 
+	 */
+	public static List<String> validateMessages(ServiceObject serviceObject, CopyOnWriteArrayList<ConsumerRecord<String, String>> filteredMessages) {
+		List<String> errorMessages = new ArrayList<String>();
+		
+		
+		String expectedResponse = serviceObject.getExpectedResponse();
+		List<String> messageList = getMessageList(filteredMessages);
+		
+		// validate expected message count against received messages
+		errorMessages.add(MessageQueueHelper.validateExpectedMessageCount(expectedResponse, messageList));
+		if(!errorMessages.isEmpty()) return errorMessages;
+		
+		
+		
+		
+		return errorMessages;
+	}
+	
+	
+	/**
+	 * inserts kafka messages to array list of strings
+	 * @param filteredMessages
+	 * @return
+	 */
+	public static List<String> getMessageList(CopyOnWriteArrayList<ConsumerRecord<String, String>> filteredMessages){
+		List<String> messages = new ArrayList<String>();
+		for(ConsumerRecord<String, String> message : filteredMessages) {
+			messages.add(message.value());
+		}
+		
+		return messages;
+	}
+	
+	/**
+	 * gets message from outbound queue Adds messages to ouboutMessage hashmap
 	 * 
 	 * @param receiver
 	 * @return
@@ -129,47 +190,39 @@ public class KafkaInterface {
 		props.put("enable.auto.commit", "true");
 		props.put("auto.commit.interval.ms", "1000");
 		props.put("session.timeout.ms", "30000");
-		props.put("key.deserializer","org.apache.kafka.common.serialization.StringDeserializer");  
-		props.put("value.deserializer","org.apache.kafka.common.serialization.StringDeserializer");
-		
+		props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+		props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+
 		KafkaConsumer consumer = new KafkaConsumer(props);
-        consumer.subscribe(Collections.singletonList(Config.getValue(KFAKA_TOPIC)));
-        
-		final ConsumerRecords<Long, String> consumerRecords =
-                 consumer.poll(Duration.ofMillis(10));
-		
-		consumerRecords.forEach(record -> {
-			TestLog.logPass("Consumer Record:(%d, %s, %d, %d)\n",
-                    record.key(), record.value(),
-                    record.partition(), record.offset());
-            outboundMessages.put(record, true);
-            TestLog.logPass("global message size in outbound list: " + outboundMessages.size());
-        });
-        consumer.commitAsync();
-        consumer.close();
-	}
+		consumer.subscribe(Collections.singletonList(Config.getValue(KFAKA_TOPIC)));
 
-	public static void getConsumerMessages(String messageId) {
+		final int giveUp = 2;
+		int noRecordsCount = 0;
+		ConsumerRecords<String, String> consumerRecords = null;
 		
-		CopyOnWriteArrayList<ConsumerRecord<Long, String>> filteredMessages = new CopyOnWriteArrayList<>();
-
-		// kafka will run for maxRetrySeconds to retrieve matching outbound message
-		int maxRetrySeconds = Config.getIntValue(KAFKA_TIMEOUT_SECONDS);
-		StopWatchHelper watch = StopWatchHelper.start();
-		long passedTimeInSeconds = 0;
-		long lastLogged = 0;
-		int interval = 10; // log every 10 seconds
 		do {
-			lastLogged = MessageQueueHelper.logPerInterval(interval, watch, lastLogged);
+			if (!outboundMessages.isEmpty())
+				break;
+			TestLog.ConsoleLog("attempt: " + noRecordsCount);
+			consumerRecords = consumer.poll(Duration.ofMillis(1000));
 
-			getOutboundMessages();
-			
-			filteredMessages.addAll(
-					filterOUtboundMessage(messageId));
+			if (consumerRecords.count() == 0) {
+				noRecordsCount++;
+				continue;
+			}
 
+			consumerRecords.forEach(record -> {
+				TestLog.logPass("Consumer Record: key: " + record.key() + ", value: " + record.value() + ", partition: "
+						+ record.partition() + ", offset: " + record.offset());
+				outboundMessages.put(record, true);
 
-			printMessage();
-		} while (passedTimeInSeconds < 3);
+				TestLog.logPass("global message size in outbound list: " + outboundMessages.size());
+			});
+
+			consumer.commitAsync();
+		} while (consumerRecords.isEmpty() && noRecordsCount < giveUp);
+
+		consumer.close();
 	}
 	
 	/**
@@ -177,11 +230,11 @@ public class KafkaInterface {
 	 * @param msgId
 	 * @return
 	 */
-	public static Collection<ConsumerRecord<Long, String>> filterOUtboundMessage(String messageId) {
+	public static Collection<ConsumerRecord<String, String>> filterOUtboundMessage(String messageId) {
 
 		
 		// filter messages for the current test
-		CopyOnWriteArrayList<ConsumerRecord<Long, String>> filteredMessages = new CopyOnWriteArrayList<ConsumerRecord<Long, String>>();
+		CopyOnWriteArrayList<ConsumerRecord<String, String>> filteredMessages = new CopyOnWriteArrayList<ConsumerRecord<String, String>>();
 		filteredMessages.addAll(findMessagesBasedOnMessageId(messageId));
 
 		return filteredMessages;
@@ -192,15 +245,15 @@ public class KafkaInterface {
 	 * @param messageId
 	 * @return
 	 */
-	public static CopyOnWriteArrayList<ConsumerRecord<Long, String>> findMessagesBasedOnMessageId(String messageId) {
-		CopyOnWriteArrayList<ConsumerRecord<Long, String>> filteredMessages = new CopyOnWriteArrayList<ConsumerRecord<Long, String>>();
+	public static CopyOnWriteArrayList<ConsumerRecord<String, String>> findMessagesBasedOnMessageId(String messageId) {
+		CopyOnWriteArrayList<ConsumerRecord<String, String>> filteredMessages = new CopyOnWriteArrayList<ConsumerRecord<String, String>>();
 
-		for (Entry<ConsumerRecord<Long, String>, Boolean> entry : outboundMessages.entrySet()) {
-			ConsumerRecord<Long, String> message = entry.getKey();
+		for (Entry<ConsumerRecord<String, String>, Boolean> entry : outboundMessages.entrySet()) {
+			ConsumerRecord<String, String> message = entry.getKey();
 
 			
 			if (entry.getValue().equals(true)
-					&& message.toString().contains(messageId)) {
+					&& message.key().contains(messageId)) {
 
 
 				filteredMessages.add(message);
@@ -212,16 +265,9 @@ public class KafkaInterface {
 	}
 	 
 	 public static void printMessage() {
-		 for (Entry<ConsumerRecord<Long, String>, Boolean> entry : outboundMessages.entrySet()) {
+		 for (Entry<ConsumerRecord<String, String>, Boolean> entry : outboundMessages.entrySet()) {
 				String message = entry.getKey().value();
 				TestLog.ConsoleLog("outbound messages: " + message);
 		 }
 	 }
-
-	/**
-	 * close connection
-	 */
-	public static void closeConnection() {
-		producer.close();
-	}
 }

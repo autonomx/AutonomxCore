@@ -3,6 +3,9 @@ package core.apiCore.helpers;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -44,31 +47,59 @@ public class DataHelper {
 			return source;
 
 		List<String> parameters = Helper.getValuesFromPattern(source, "<@(.+?)>");
-		Object val = null;
+		Object value = null;
 		int length = 0;
+		Instant newTime = null;
 		for (String parameter : parameters) {
-
-			if (parameter.contains("_TIME")) {
+			if (parameter.contains("_TIME_MS_")) {
+				length = Helper.getIntFromString(parameter.split("[+-]")[0]);
+				if (length > 17) length = 17;
+				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING_MS));			
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")
+						.withZone(ZoneId.of("UTC"));
+				value = formatter.format(newTime).substring(0, length);	
+			}else if (parameter.contains("_TIME_ISO_")) {
+				length = Helper.getIntFromString(parameter.split("[+-]")[0]);
+				if (length > 24) length = 24;
+				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING_ISO));
+				value = newTime.toString().substring(0, length);
+			}else if (parameter.contains("_TIME")) {
+				length = Helper.getIntFromString(parameter.split("[+-]")[0]);
+				if (length > 17) length = 17;
+				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING_MS));
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")
+						.withZone(ZoneId.of("UTC"));
+				value = formatter.format(newTime).substring(0, length);	
+			}else if (parameter.contains("_RAND")) {
 				length = Helper.getIntFromString(parameter);
-				if (length > 19)
-					length = 19;
-				val = Config.getValue(TestObject.START_TIME_STRING).substring(0, length);
-			} else if (parameter.contains("_RAND")) {
-				length = Helper.getIntFromString(parameter);
-				val = Config.getValue(TestObject.RANDOM_STRING).substring(0, length);
+				value = Config.getValue(TestObject.RANDOM_STRING).substring(0, length);
+			} else if (parameter.contains("_XML")) {
+				// syntax:e.g. <@_XML:ID:1> will be replaced by 2
+				String[] valueArray = parameter.split(":");
+				int index = 0;
+				String tag = valueArray[1];
+				if (valueArray.length == 3) // if has index value
+					index = Integer.valueOf(parameter.split(":")[2]);
+				value = XmlHelper.getXmlTagValue(source, tag, index + 1);
 			} else {
-				val = Config.getObjectValue(parameter);
+				value = Config.getObjectValue(parameter.replace("@", ""));
 			}
-
-			if (val == null)
+			if (value == null)
 				TestLog.logWarning("parameter value not found: " + parameter);
 			else {
-				source = source.replace("<@" + parameter + ">", Matcher.quoteReplacement(val.toString()));
-				// TestLog.logPass("replacing value '" + parameter + "' with: " + valueStr +
-				// "");
+				TestLog.ConsoleLog("replacing value " + parameter + "  with: " +  value);
+				source = source.replace("<@" + parameter + ">", Matcher.quoteReplacement(value.toString()));
 			}
 		}
+
 		return source;
+	}
+	
+	public static Instant getTime(String parameter, String timeString) {
+		Instant time = Instant.parse(timeString);
+		Instant newTime = time;
+
+		return newTime;
 	}
 
 	/**

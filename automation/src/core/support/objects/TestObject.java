@@ -61,6 +61,10 @@ public class TestObject{
 	
 	public static final String RANDOM_STRING = "_randomString_";
 	public static final String START_TIME_STRING = "_startTimeString_";
+	public static final String START_TIME_STRING_MS = "_startTimeStringMS_";
+	public static final String START_TIME_STRING_ISO = "_startTimeStringISO_";
+
+
 
 	public static final String DEFAULT_APP = "auto";
 	public static String SUITE_NAME = StringUtils.EMPTY; // suite name is global to all tests in the run
@@ -159,8 +163,10 @@ public class TestObject{
 			
 			// set random string and time per test
 			Config.putValue(RANDOM_STRING, Helper.generateRandomString(30), false);
-			Config.putValue(START_TIME_STRING, Helper.date.getTimestampMiliseconds(), false);
-			
+			Config.putValue(START_TIME_STRING, Helper.date.getTimeInstance(), false);
+			Config.putValue(START_TIME_STRING_MS, Helper.date.getTimeInstance(), false);
+			Config.putValue(START_TIME_STRING_ISO, Helper.date.getTimeISOInstant(), false);
+
 			// loads all the keywords for api references
 			CsvReader.getAllKeywords();
 

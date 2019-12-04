@@ -206,8 +206,8 @@ public class RestApiInterface {
 				errorMessages.add(message);
 				return errorMessages;
 			}
-
 		}
+		
 		String responseString = JsonHelper.getResponseValue(response);
 		errorMessages = validateExpectedValues(responseString, serviceObject);
 
