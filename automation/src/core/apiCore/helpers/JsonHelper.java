@@ -520,4 +520,29 @@ public class JsonHelper {
 		return jsonPath;
 		
 	}
+	
+	public static List<String> validateExpectedValues(String responseString, ServiceObject serviceObject) {
+		List<String> errorMessages = new ArrayList<String>();
+
+		// get response body as string
+		TestLog.logPass("response: " + responseString);
+
+		// validate response body against expected json string
+		if (!serviceObject.getExpectedResponse().isEmpty()) {
+			serviceObject.withExpectedResponse(DataHelper.replaceParameters(serviceObject.getExpectedResponse()));
+
+			// separate the expected response by &&
+			String[] criteria = serviceObject.getExpectedResponse().split("&&");
+			for (String criterion : criteria) {
+				Helper.assertTrue("expected is not valid format: " + criterion,
+						JsonHelper.isValidExpectation(criterion));
+				errorMessages.add(JsonHelper.validateByJsonBody(criterion, responseString));
+				errorMessages.addAll(JsonHelper.validateByKeywords(criterion, responseString));
+				errorMessages.add(JsonHelper.validateResponseBody(criterion, responseString));
+			}
+		}
+		// remove all empty response strings
+		errorMessages.removeAll(Collections.singleton(""));
+		return errorMessages;
+	}
 }
