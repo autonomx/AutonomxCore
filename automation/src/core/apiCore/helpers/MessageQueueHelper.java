@@ -1,13 +1,14 @@
 package core.apiCore.helpers;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.http.util.TextUtils;
 
-import com.google.common.base.Splitter;
 import com.microsoft.azure.servicebus.primitives.StringUtil;
 
 import core.helpers.Helper;
@@ -43,10 +44,13 @@ public class MessageQueueHelper {
 	 * @param lastLogged
 	 * @return
 	 */
-	public static long logPerInterval(int interval, StopWatchHelper watch, long lastLogged) {
+	public static long logPerInterval(int interval, StopWatchHelper watch, long lastLogged, int receivedMessageCount) {
 		long passedTimeInSeconds = watch.time(TimeUnit.SECONDS);
 		if (passedTimeInSeconds > interval && passedTimeInSeconds - lastLogged > interval) {
 			TestLog.logPass("waiting: " + watch.time(TimeUnit.SECONDS) + " seconds");
+			TestLog.logPass("received: " + receivedMessageCount + " relavent message(s)");
+
+			Helper.waitForSeconds(1);
 			lastLogged = passedTimeInSeconds;
 		}
 		return lastLogged;
@@ -58,17 +62,18 @@ public class MessageQueueHelper {
 	 * @param filteredMessages
 	 * @return
 	 */
-	public static String validateExpectedMessageCount(String request, List<String> filteredMessages) {
-		String errorMessage = StringUtils.EMPTY;
+	public static List<String> validateExpectedMessageCount(String request, List<String> filteredMessages) {
+		List<String> errorMessages = new ArrayList<String>();
+		
+		if(filteredMessages.isEmpty()) {
+			errorMessages.add("no messages received");
+			return errorMessages;
+		}
 		
 		int expectedMessageCount = 1;
 		
-		// remove all space
-		request = request.replaceAll("\\s+","");
-		Map<String, String> params = Splitter
-			    .on(",")
-			    .withKeyValueSeparator(":")
-			    .split(request);
+		// get a map of key values in request
+		Map<String, String> params = getKeyValueFromString(request, ";" , ":");
 		
 		// get expected message count if set
 		if(params.containsKey(EXPECTED_MESSAGE_COUNT))
@@ -80,11 +85,36 @@ public class MessageQueueHelper {
 		int actualMessageCount = filteredMessages.size();
 		
 		// compare expected with actual message count
+		//TestLog.logPass("verifying message count: " + "Response message count received " + filteredMessages.size() + " out of " + expectedMessageCount + " expected messages");
 		if(expectedMessageCount != actualMessageCount) {
-			errorMessage = "Response received " + filteredMessages.size() + " out of " + expectedMessageCount + ".\n Missing messages: \n";
-			errorMessage =  errorMessage + String.join("\n", filteredMessages);
+			String errorMessage = "Response received " + filteredMessages.size() + " out of " + expectedMessageCount + ".\n Received messages: \n";
+			errorMessages.add(errorMessage + String.join("\n ", filteredMessages));
 		}
-		return errorMessage;
+		return errorMessages;
+	}
+	
+	/**
+	 * separated based on key value if key value exists
+	 * eg. key:value; key1:value1
+	 * @param value
+	 * @param entriesSeparator eg. ";"
+	 * @param separator eg ":"
+	 * @return 
+	 */
+	public static Map<String, String> getKeyValueFromString(String value, String entriesSeparator, String separator) {
+		Map<String, String> map = new HashMap<String, String>();
+		
+		// remove all spaces
+		value = value.replaceAll("\\s+","");
+		
+		String[] entries = value.split(entriesSeparator);
+		for(String entry : entries) {
+			if (!TextUtils.isEmpty(entry) && entry.contains(separator)) {
+	            String[] keyValue = entry.split(separator);
+	            map.put(keyValue[0], keyValue[1]);
+	        }
+		}
+		return map;
 	}
 
 }

@@ -237,6 +237,7 @@ public class DataHelper {
 				val = actualString.contains(expectedString);
 				if(!val) return actualString + " does not have item " + expectedString;
 			} else if(!position.isEmpty() && positionInt == 0) { 
+				TestLog.logPass("verifying: " + responseString + " has item " + expectedString);
 				val = responseString.contains(expectedString);
 				if(!val) return responseString + " does not have item " + expectedString;
 			} else {
@@ -254,6 +255,7 @@ public class DataHelper {
 				if(!val) return actualString + " does have item " + expectedString;
 				
 			} else if(!position.isEmpty() && positionInt == 0) { 
+				TestLog.logPass("verifying: " + responseString + " does not have item " + expectedString);
 				val = !responseString.contains(expectedString);
 				if(!val) return responseString + " does not have item " + expectedString;
 				
@@ -270,6 +272,7 @@ public class DataHelper {
 				val = !actualString.equals(expectedString);
 				if(!val) return actualString + " does equal " + expectedString;
 			} else if(!position.isEmpty() && positionInt == 0) { 
+				TestLog.logPass("verifying: " + responseString + " not equals " + expectedString);
 				val = !responseString.equals(expectedString);
 				if(!val) return responseString + " does equal " + expectedString;
 			} else {
@@ -285,6 +288,7 @@ public class DataHelper {
 				val = actualString.equals(expectedString);
 				if(!val) return actualString + " does not equal " + expectedString;
 			} else if(!position.isEmpty() && positionInt == 0) { 
+				TestLog.logPass("verifying: " + responseString + " equals " + expectedString);
 				val = responseString.equals(expectedString);
 				if(!val) return responseString + " does not equal " + expectedString;
 			} else {
@@ -300,6 +304,7 @@ public class DataHelper {
 				val = !actualString.contains(expectedString);
 				if(!val) return actualString + " does contain " + expectedString;
 			} else if(!position.isEmpty() && positionInt == 0) { 
+				TestLog.logPass("verifying: " + expectedString + " does not contain " + expectedString);
 				val = !responseString.contains(expectedString);
 				if(!val) return responseString + " does contain " + expectedString;
 			} else {
@@ -315,6 +320,7 @@ public class DataHelper {
 				val = actualString.contains(expectedString);
 				if(!val) return actualString + " does not contain " + expectedString;
 			} else if(!position.isEmpty() && positionInt == 0) { 
+				TestLog.logPass("verifying: '" + responseString + "' contains " + expectedString);
 				val = responseString.contains(expectedString);
 				if(!val) return responseString + " does not contain " + expectedString;
 			} else {

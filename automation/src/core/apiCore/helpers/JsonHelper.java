@@ -347,6 +347,9 @@ public class JsonHelper {
 	 * @return 
 	 */
 	public static String validateResponseBody(String expected, String responseString) {
+		expected = Helper.stringRemoveLines(expected);
+		expected = Helper.removeSurroundingQuotes(expected);
+		
 		if (!expected.startsWith(DataHelper.VERIFY_RESPONSE_BODY_INDICATOR)) {
 			return StringUtils.EMPTY;
 		}
@@ -521,6 +524,57 @@ public class JsonHelper {
 		
 	}
 	
+	public static List<String> validateExpectedValues2(List<String> responseValues, ServiceObject serviceObject) {
+		
+		List<String> errorMessages = new ArrayList<String>();
+		// get response body as string
+		TestLog.logPass("received response messages: " + String.join(System.lineSeparator(), responseValues));
+
+		// validate response body against expected json string
+		if (!serviceObject.getExpectedResponse().isEmpty()) {
+			serviceObject.withExpectedResponse(DataHelper.replaceParameters(serviceObject.getExpectedResponse()));
+
+			// separate the expected response by &&
+			String[] criteria = serviceObject.getExpectedResponse().split("&&");
+			for (String criterion : criteria) {
+				if(!JsonHelper.isValidExpectation(criterion))
+					continue;
+				
+				errorMessages = validateExpectedResponse(criterion, responseValues);
+			}
+		}
+		// remove all empty response strings
+		errorMessages.removeAll(Collections.singleton(""));
+		return errorMessages;
+	}
+	
+	/**
+	 * validates expected requirement against response strings
+	 * @param criterion
+	 * @param responseString
+	 * @return
+	 */
+	public static List<String> validateExpectedResponse(String criterion, List<String> responseString) {
+		List<String> errorMessages = new ArrayList<String>();
+		for(int i = 0; i < responseString.size(); i++) {
+			errorMessages = new ArrayList<String>();
+			
+			errorMessages.add(JsonHelper.validateByJsonBody(criterion, responseString.get(i)));
+			errorMessages.addAll(JsonHelper.validateByKeywords(criterion, responseString.get(i)));
+			errorMessages.add(JsonHelper.validateResponseBody(criterion, responseString.get(i)));
+			
+			// if no errors, then validation passed, no need to validate against other responses
+			if(errorMessages.isEmpty()) break;
+			
+			if(i > 0 &&i == responseString.size() && !errorMessages.isEmpty()) {
+				errorMessages = new ArrayList<String>();
+				errorMessages.add("expected requirement: " + criterion + " not met by the responses: " + String.join(System.lineSeparator(), responseString));
+				
+			}
+		}
+		return errorMessages;
+	}
+	
 	public static List<String> validateExpectedValues(String responseString, ServiceObject serviceObject) {
 		List<String> errorMessages = new ArrayList<String>();
 
@@ -542,7 +596,13 @@ public class JsonHelper {
 			}
 		}
 		// remove all empty response strings
-		errorMessages.removeAll(Collections.singleton(""));
+		arrayRemoveAllEmptyString(errorMessages);
+		
 		return errorMessages;
+	}
+	
+	public static List<String> arrayRemoveAllEmptyString(List<String> list){
+		 list.removeAll(Collections.singleton(""));
+		 return list;
 	}
 }

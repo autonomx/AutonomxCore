@@ -10,7 +10,9 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -20,7 +22,9 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.StringSerializer;
 
 import core.apiCore.helpers.DataHelper;
+import core.apiCore.helpers.JsonHelper;
 import core.apiCore.helpers.MessageQueueHelper;
+import core.helpers.Helper;
 import core.helpers.StopWatchHelper;
 import core.support.configReader.Config;
 import core.support.logger.TestLog;
@@ -62,7 +66,7 @@ public class KafkaInterface {
 		sendKafkaMessage(serviceObject, messageId);
 		
 		// receive messages
-		getAndValidateMessages(serviceObject, messageId);
+		receiveAndValidateMessages(serviceObject, messageId);
 	}
 
 	/**
@@ -116,10 +120,11 @@ public class KafkaInterface {
 	 * 3) validates based on expected response requirements
 	 * @param messageId
 	 */
-	public static void getAndValidateMessages(ServiceObject serviceObject, String messageId) {
+	public static void receiveAndValidateMessages(ServiceObject serviceObject, String messageId) {
 		
 		CopyOnWriteArrayList<ConsumerRecord<String, String>> filteredMessages = new CopyOnWriteArrayList<>();
-
+		List<String> errorMessages = new ArrayList<String>();
+		
 		// kafka will run for maxRetrySeconds to retrieve matching outbound message
 		int maxRetrySeconds = Config.getIntValue(KAFKA_TIMEOUT_SECONDS);
 		StopWatchHelper watch = StopWatchHelper.start();
@@ -128,16 +133,32 @@ public class KafkaInterface {
 		int interval = 10; // log every 10 seconds
 		
 		do {
-			lastLogged = MessageQueueHelper.logPerInterval(interval, watch, lastLogged);
+			lastLogged = MessageQueueHelper.logPerInterval(interval, watch, lastLogged, filteredMessages.size());
 
 			// gets messages and stores them in outboundMessages hashmap
 			getOutboundMessages();
 			
 			// filters based on message id
-			filteredMessages.addAll(filterOUtboundMessage(messageId));
+			filteredMessages.addAll(filterOutboundMessage(messageId));
+			
+			// validate message count
+			errorMessages = MessageQueueHelper.validateExpectedMessageCount(serviceObject.getExpectedResponse(), getMessageList(filteredMessages));
+			
+			// validates messages. At this point we have received all the relavent messages. no need to retry
+			if(errorMessages.isEmpty()) {
+				errorMessages = validateMessages(serviceObject, filteredMessages);
+				break;
+			}
 
-			printMessage();
-		} while (passedTimeInSeconds < maxRetrySeconds);
+			passedTimeInSeconds = watch.time(TimeUnit.SECONDS);
+			
+		} while (!errorMessages.isEmpty() && passedTimeInSeconds < maxRetrySeconds);
+		
+		if (!errorMessages.isEmpty()) {
+			String errorString = StringUtils.join(errorMessages, "\n error: ");
+			TestLog.ConsoleLog(errorString);
+			Helper.assertFalse(StringUtils.join(errorMessages, "\n error: "));
+		}
 	}
 	
 	/**
@@ -145,22 +166,20 @@ public class KafkaInterface {
 	 * 
 	 */
 	public static List<String> validateMessages(ServiceObject serviceObject, CopyOnWriteArrayList<ConsumerRecord<String, String>> filteredMessages) {
+		
 		List<String> errorMessages = new ArrayList<String>();
+		if(filteredMessages.isEmpty()) {
+			errorMessages.add("no messages received");
+			return errorMessages;
+		}
 		
-		
-		String expectedResponse = serviceObject.getExpectedResponse();
 		List<String> messageList = getMessageList(filteredMessages);
 		
-		// validate expected message count against received messages
-		errorMessages.add(MessageQueueHelper.validateExpectedMessageCount(expectedResponse, messageList));
-		if(!errorMessages.isEmpty()) return errorMessages;
-		
-		
+		errorMessages = JsonHelper.validateExpectedValues2(messageList, serviceObject);
 		
 		
 		return errorMessages;
 	}
-	
 	
 	/**
 	 * inserts kafka messages to array list of strings
@@ -196,7 +215,7 @@ public class KafkaInterface {
 		KafkaConsumer consumer = new KafkaConsumer(props);
 		consumer.subscribe(Collections.singletonList(Config.getValue(KFAKA_TOPIC)));
 
-		final int giveUp = 2;
+		final int giveUp = 5;
 		int noRecordsCount = 0;
 		ConsumerRecords<String, String> consumerRecords = null;
 		
@@ -211,14 +230,13 @@ public class KafkaInterface {
 				continue;
 			}
 
+			// print all received message on this thread
 			consumerRecords.forEach(record -> {
-				TestLog.logPass("Consumer Record: key: " + record.key() + ", value: " + record.value() + ", partition: "
+				TestLog.logPass("received consumer record: key: " + record.key() + ", value: " + record.value() + ", partition: "
 						+ record.partition() + ", offset: " + record.offset());
 				outboundMessages.put(record, true);
-
-				TestLog.logPass("global message size in outbound list: " + outboundMessages.size());
 			});
-
+			TestLog.logPass("global message size in outbound list: " + outboundMessages.size());
 			consumer.commitAsync();
 		} while (consumerRecords.isEmpty() && noRecordsCount < giveUp);
 
@@ -230,7 +248,7 @@ public class KafkaInterface {
 	 * @param msgId
 	 * @return
 	 */
-	public static Collection<ConsumerRecord<String, String>> filterOUtboundMessage(String messageId) {
+	public static Collection<ConsumerRecord<String, String>> filterOutboundMessage(String messageId) {
 
 		
 		// filter messages for the current test
