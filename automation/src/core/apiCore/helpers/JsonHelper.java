@@ -281,7 +281,9 @@ public class JsonHelper {
 		}
 		expectedJson = Helper.stringNormalize(expectedJson);
 		if (expectedJson.startsWith(DataHelper.VERIFY_JSON_PART_INDICATOR) || expectedJson.startsWith("_NOT_EMPTY_")
-				|| expectedJson.startsWith(DataHelper.VERIFY_RESPONSE_BODY_INDICATOR)) {
+				|| expectedJson.startsWith(DataHelper.VERIFY_RESPONSE_BODY_INDICATOR)
+				|| expectedJson.startsWith(DataHelper.VERIFY_HEADER_PART_INDICATOR)
+				|| expectedJson.startsWith(DataHelper.VERIFY_TOPIC_PART_INDICATOR)) {
 			return true;
 		}
 		return false;
@@ -350,9 +352,12 @@ public class JsonHelper {
 		expected = Helper.stringRemoveLines(expected);
 		expected = Helper.removeSurroundingQuotes(expected);
 		
-		if (!expected.startsWith(DataHelper.VERIFY_RESPONSE_BODY_INDICATOR)) {
+		if (!expected.startsWith(DataHelper.VERIFY_RESPONSE_BODY_INDICATOR)
+				&& !expected.startsWith(DataHelper.VERIFY_HEADER_PART_INDICATOR)
+				&& !expected.startsWith(DataHelper.VERIFY_TOPIC_PART_INDICATOR)) {
 			return StringUtils.EMPTY;
 		}
+		
 		// remove the indicator _VERIFY.RESPONSE.BODY_
 		expected = removeResponseIndicator(expected);
 
@@ -383,6 +388,9 @@ public class JsonHelper {
 		List<String> indicator = new ArrayList<String>();
 		indicator.add(DataHelper.VERIFY_RESPONSE_BODY_INDICATOR);
 		indicator.add(DataHelper.VERIFY_JSON_PART_INDICATOR);
+		indicator.add(DataHelper.VERIFY_HEADER_PART_INDICATOR);
+		indicator.add(DataHelper.VERIFY_TOPIC_PART_INDICATOR);
+
 
 		for (String value : indicator) {
 			expected = expected.replace(value, "");
@@ -524,18 +532,18 @@ public class JsonHelper {
 		
 	}
 	
-	public static List<String> validateExpectedValues2(List<String> responseValues, ServiceObject serviceObject) {
+	public static List<String> validateExpectedValues2(List<String> responseValues, String expectedResponse) {
 		
 		List<String> errorMessages = new ArrayList<String>();
 		// get response body as string
 		TestLog.logPass("received response messages: " + String.join(System.lineSeparator(), responseValues));
 
 		// validate response body against expected json string
-		if (!serviceObject.getExpectedResponse().isEmpty()) {
-			serviceObject.withExpectedResponse(DataHelper.replaceParameters(serviceObject.getExpectedResponse()));
+		if (!expectedResponse.isEmpty()) {
+			expectedResponse = DataHelper.replaceParameters(expectedResponse);
 
 			// separate the expected response by &&
-			String[] criteria = serviceObject.getExpectedResponse().split("&&");
+			String[] criteria = expectedResponse.split("&&");
 			for (String criterion : criteria) {
 				if(!JsonHelper.isValidExpectation(criterion))
 					continue;
@@ -566,7 +574,7 @@ public class JsonHelper {
 			// if no errors, then validation passed, no need to validate against other responses
 			if(errorMessages.isEmpty()) break;
 			
-			if(i > 0 &&i == responseString.size() && !errorMessages.isEmpty()) {
+			if(i > 0 && i == responseString.size() && !errorMessages.isEmpty()) {
 				errorMessages = new ArrayList<String>();
 				errorMessages.add("expected requirement: " + criterion + " not met by the responses: " + String.join(System.lineSeparator(), responseString));
 				

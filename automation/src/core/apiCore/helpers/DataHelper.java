@@ -29,6 +29,8 @@ public class DataHelper {
 	public static final String VERIFY_JSON_PART_INDICATOR = "_VERIFY.JSON.PART_";
 	public static final String VERIFY_RESPONSE_BODY_INDICATOR = "_VERIFY.RESPONSE.BODY_";
 	public static final String VERIFY_RESPONSE_NO_EMPTY = "_NOT_EMPTY_";
+	public static final String VERIFY_HEADER_PART_INDICATOR = "_VERIFY.HEADER.PART_";
+	public static final String VERIFY_TOPIC_PART_INDICATOR = "_VERIFY.TOPIC.PART_";
 
 	enum JSON_COMMAND {
 		hasItems, notHaveItems, notEqualTo, equalTo, notContain, contains, containsInAnyOrder, integerGreaterThan, integerLessThan, integerEqual, integerNotEqual, nodeSizeGreaterThan, nodeSizeExact, sequence, jsonbody, isNotEmpty, isEmpty, nodeSizeLessThan
@@ -626,5 +628,43 @@ public class DataHelper {
 		
 		// replace content paramters
 		return replaceParameters(content);
+	}
+
+	/**
+	 * remove section from expected response separated by &&
+	 * the section will start with the identifier. eg. _VERIFY.RESPONSE.BODY_ 
+	 * @param section
+	 * @param expectedResponse
+	 * @return
+	 */
+	public static String removeSectionFromExpectedResponse(String section, String expectedResponse) {
+		String[] criteria = expectedResponse.split("&&");
+		List<String> newResponse = new ArrayList<String>();
+		for (String criterion : criteria) {
+			criterion = Helper.removeSurroundingQuotes(criterion);
+			if (!criterion.trim().startsWith(section)){
+				newResponse.add(criterion);
+			}
+		}
+		return String.join("&&", newResponse);
+	}
+	
+	/**
+	 * get section from expected response separated by &&
+	 * the section will start with the identifier. eg. _VERIFY.RESPONSE.BODY_ 
+	 * @param section
+	 * @param expectedResponse
+	 * @return
+	 */
+	public static String getSectionFromExpectedResponse(String section, String expectedResponse) {
+		String[] criteria = expectedResponse.split("&&");
+		List<String> newResponse = new ArrayList<String>();
+		for (String criterion : criteria) {
+			criterion = Helper.removeSurroundingQuotes(criterion);
+			if (criterion.trim().startsWith(section)){
+				newResponse.add(criterion);
+			}
+		}
+		return String.join("&&", newResponse);
 	}
 }

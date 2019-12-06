@@ -19,6 +19,8 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
+import org.apache.kafka.common.header.Header;
+import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.StringSerializer;
 
 import core.apiCore.helpers.DataHelper;
@@ -144,7 +146,7 @@ public class KafkaInterface {
 			// validate message count
 			errorMessages = MessageQueueHelper.validateExpectedMessageCount(serviceObject.getExpectedResponse(), getMessageList(filteredMessages));
 			
-			// validates messages. At this point we have received all the relavent messages. no need to retry
+			// validates messages. At this point we have received all the relevant messages. no need to retry
 			if(errorMessages.isEmpty()) {
 				errorMessages = validateMessages(serviceObject, filteredMessages);
 				break;
@@ -174,11 +176,50 @@ public class KafkaInterface {
 		}
 		
 		List<String> messageList = getMessageList(filteredMessages);
+		List<String> headerList = getHeaderList(filteredMessages);
+		List<String> topicList = getTopicList(filteredMessages);
+
+		// separate expected response to each section we want to validate: messageBody, header, topic
+		String expectedMessage = DataHelper.removeSectionFromExpectedResponse(DataHelper.VERIFY_HEADER_PART_INDICATOR,serviceObject.getExpectedResponse());
+		expectedMessage = DataHelper.removeSectionFromExpectedResponse(DataHelper.VERIFY_TOPIC_PART_INDICATOR,serviceObject.getExpectedResponse());
+		String expectedHeader = DataHelper.getSectionFromExpectedResponse(DataHelper.VERIFY_HEADER_PART_INDICATOR,serviceObject.getExpectedResponse());
+		String expectedTopic = DataHelper.getSectionFromExpectedResponse(DataHelper.VERIFY_TOPIC_PART_INDICATOR,serviceObject.getExpectedResponse());
+
 		
-		errorMessages = JsonHelper.validateExpectedValues2(messageList, serviceObject);
-		
+		errorMessages = JsonHelper.validateExpectedValues2(messageList, expectedMessage);
+		errorMessages = JsonHelper.validateExpectedValues2(headerList, expectedHeader);
+		errorMessages = JsonHelper.validateExpectedValues2(topicList, expectedTopic);
+
 		
 		return errorMessages;
+	}
+	
+	/**
+	 * inserts kafka topics to array list of strings
+	 * @param filteredMessages
+	 * @return
+	 */
+	public static List<String> getTopicList(CopyOnWriteArrayList<ConsumerRecord<String, String>> filteredMessages){
+		List<String> topics = new ArrayList<String>();
+		for(ConsumerRecord<String, String> record : filteredMessages) {
+			topics.add(record.topic().toString());
+		}
+		return topics;
+	}
+	
+	/**
+	 * inserts kafka headers to array list of strings
+	 * @param filteredMessages
+	 * @return
+	 */
+	public static List<String> getHeaderList(CopyOnWriteArrayList<ConsumerRecord<String, String>> filteredMessages){
+		List<String> headers = new ArrayList<String>();
+		for(ConsumerRecord<String, String> record : filteredMessages) {
+			for(Header header: record.headers()) {
+				headers.add(header.value().toString());
+			}
+		}
+		return headers;
 	}
 	
 	/**
@@ -191,7 +232,6 @@ public class KafkaInterface {
 		for(ConsumerRecord<String, String> message : filteredMessages) {
 			messages.add(message.value());
 		}
-		
 		return messages;
 	}
 	
@@ -222,7 +262,7 @@ public class KafkaInterface {
 		do {
 			if (!outboundMessages.isEmpty())
 				break;
-			TestLog.ConsoleLog("attempt: " + noRecordsCount);
+			//TestLog.ConsoleLog("attempt: " + noRecordsCount);
 			consumerRecords = consumer.poll(Duration.ofMillis(1000));
 
 			if (consumerRecords.count() == 0) {

@@ -58,6 +58,7 @@ public class MessageQueueHelper {
 	
 	/**
 	 * validate expected message count from received message
+	 * format: EXPECTED_MESSAGE_COUNT:1;
 	 * @param request
 	 * @param filteredMessages
 	 * @return
