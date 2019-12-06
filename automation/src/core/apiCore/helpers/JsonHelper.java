@@ -464,9 +464,13 @@ public class JsonHelper {
 	 * @return
 	 */
 	public static String replaceJsonPathValue(String jsonString, String path, String value) {
-		
-		
+				
 		DocumentContext doc = JsonPath.parse(jsonString);
+		String prefix = "$.";
+		
+		// in case user forgets to remove prefix
+		if(path.startsWith(prefix)) 
+			path = path.replace(prefix, "");
 		
 		try {
 			doc.set("$."+ path, value);
@@ -525,11 +529,6 @@ public class JsonHelper {
 		if(jsonNormalized.contains(":"))
 			return true;
 		return false;
-	}
-	
-	public static String updateJsonFromJasonPath(String jsonPath) {
-		return jsonPath;
-		
 	}
 	
 	public static List<String> validateExpectedValues2(List<String> responseValues, String expectedResponse) {

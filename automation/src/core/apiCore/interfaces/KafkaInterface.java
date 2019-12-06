@@ -181,7 +181,7 @@ public class KafkaInterface {
 
 		// separate expected response to each section we want to validate: messageBody, header, topic
 		String expectedMessage = DataHelper.removeSectionFromExpectedResponse(DataHelper.VERIFY_HEADER_PART_INDICATOR,serviceObject.getExpectedResponse());
-		expectedMessage = DataHelper.removeSectionFromExpectedResponse(DataHelper.VERIFY_TOPIC_PART_INDICATOR,serviceObject.getExpectedResponse());
+		expectedMessage = DataHelper.removeSectionFromExpectedResponse(DataHelper.VERIFY_TOPIC_PART_INDICATOR, expectedMessage);
 		String expectedHeader = DataHelper.getSectionFromExpectedResponse(DataHelper.VERIFY_HEADER_PART_INDICATOR,serviceObject.getExpectedResponse());
 		String expectedTopic = DataHelper.getSectionFromExpectedResponse(DataHelper.VERIFY_TOPIC_PART_INDICATOR,serviceObject.getExpectedResponse());
 
