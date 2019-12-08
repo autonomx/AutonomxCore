@@ -32,11 +32,13 @@ public class DataHelper {
 	public static final String VERIFY_HEADER_PART_INDICATOR = "_VERIFY.HEADER.PART_";
 	public static final String VERIFY_TOPIC_PART_INDICATOR = "_VERIFY.TOPIC.PART_";
 	public static final String EXPECTED_MESSAGE_COUNT = "EXPECTED_MESSAGE_COUNT";
-	
+
 	enum JSON_COMMAND {
-		hasItems, notHaveItems, notEqualTo, equalTo, notContain, contains, containsInAnyOrder, integerGreaterThan, integerLessThan, integerEqual, integerNotEqual, nodeSizeGreaterThan, nodeSizeExact, sequence, jsonbody, isNotEmpty, isEmpty, nodeSizeLessThan
-		}
-	
+		hasItems, notHaveItems, notEqualTo, equalTo, notContain, contains, containsInAnyOrder, integerGreaterThan,
+		integerLessThan, integerEqual, integerNotEqual, nodeSizeGreaterThan, nodeSizeExact, sequence, jsonbody,
+		isNotEmpty, isEmpty, nodeSizeLessThan
+	}
+
 	/**
 	 * replaces placeholder values with values from config properties replaces only
 	 * string values
@@ -56,24 +58,27 @@ public class DataHelper {
 		for (String parameter : parameters) {
 			if (parameter.contains("_TIME_MS_")) {
 				length = Helper.getIntFromString(parameter.split("[+-]")[0]);
-				if (length > 17) length = 17;
-				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING_MS));			
-				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")
-						.withZone(ZoneId.of("UTC"));
-				value = formatter.format(newTime).substring(0, length);	
-			}else if (parameter.contains("_TIME_ISO_")) {
-				length = Helper.getIntFromString(parameter.split("[+-]")[0]);
-				if (length > 24) length = 24;
-				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING_ISO));
-				value = newTime.toString().substring(0, length);
-			}else if (parameter.contains("_TIME")) {
-				length = Helper.getIntFromString(parameter.split("[+-]")[0]);
-				if (length > 17) length = 17;
+				if (length > 17)
+					length = 17;
 				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING_MS));
 				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")
 						.withZone(ZoneId.of("UTC"));
-				value = formatter.format(newTime).substring(0, length);	
-			}else if (parameter.contains("_RAND")) {
+				value = formatter.format(newTime).substring(0, length);
+			} else if (parameter.contains("_TIME_ISO_")) {
+				length = Helper.getIntFromString(parameter.split("[+-]")[0]);
+				if (length > 24)
+					length = 24;
+				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING_ISO));
+				value = newTime.toString().substring(0, length);
+			} else if (parameter.contains("_TIME")) {
+				length = Helper.getIntFromString(parameter.split("[+-]")[0]);
+				if (length > 17)
+					length = 17;
+				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING_MS));
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")
+						.withZone(ZoneId.of("UTC"));
+				value = formatter.format(newTime).substring(0, length);
+			} else if (parameter.contains("_RAND")) {
 				length = Helper.getIntFromString(parameter);
 				value = Config.getValue(TestObject.RANDOM_STRING).substring(0, length);
 			} else if (parameter.contains("_XML")) {
@@ -90,14 +95,14 @@ public class DataHelper {
 			if (value == null)
 				TestLog.logWarning("parameter value not found: " + parameter);
 			else {
-				TestLog.ConsoleLog("replacing value " + parameter + "  with: " +  value);
+				TestLog.ConsoleLog("replacing value " + parameter + "  with: " + value);
 				source = source.replace("<@" + parameter + ">", Matcher.quoteReplacement(value.toString()));
 			}
 		}
 
 		return source;
 	}
-	
+
 	public static Instant getTime(String parameter, String timeString) {
 		Instant time = Instant.parse(timeString);
 		Instant newTime = time;
@@ -106,8 +111,8 @@ public class DataHelper {
 	}
 
 	/**
-	 * gets the map of the validation requirements
-	 * split by ";"
+	 * gets the map of the validation requirements split by ";"
+	 * 
 	 * @param expected
 	 * @return
 	 */
@@ -123,15 +128,15 @@ public class DataHelper {
 		String position = "";
 		String value = "";
 		for (String keyVal : keyVals) {
-			List<String> parts = splitRight(keyVal,":", 3);
+			List<String> parts = splitRight(keyVal, ":", 3);
 			if (parts.size() == 1) {
 				key = Helper.stringRemoveLines(parts.get(0));
 			}
-			if (parts.size()  == 2) { // without position
+			if (parts.size() == 2) { // without position
 				key = Helper.stringRemoveLines(parts.get(0));
 				position = StringUtil.EMPTY_STRING;
 				value = Helper.stringRemoveLines(parts.get(1));
-			} else if (parts.size()  == 3) { // with position
+			} else if (parts.size() == 3) { // with position
 				key = Helper.stringRemoveLines(parts.get(0));
 				position = Helper.stringRemoveLines(parts.get(1));
 				value = Helper.stringRemoveLines(parts.get(2));
@@ -152,7 +157,7 @@ public class DataHelper {
 
 		return templateTestPath + file;
 	}
-	
+
 	public static Path getTemplateFilePath(String file) {
 		String templatePath = Config.getValue(TestDataProvider.TEST_DATA_TEMPLATE_PATH);
 		String templateTestPath = PropertiesReader.getLocalRootPath() + templatePath;
@@ -167,18 +172,19 @@ public class DataHelper {
 		return file;
 	}
 
-    /**
-     * returns service object template file as string
-     * Template file name is from Template column in csv
-     * @param apiObject
-     * @return
-     * @throws IOException 
-     */
-    public static String getServiceObjectTemplateString(ServiceObject serviceObject) {
-    	
-        Path templatePath = DataHelper.getTemplateFilePath(serviceObject.getTemplateFile());
-		return  DataHelper.convertFileToString(templatePath);
-    }
+	/**
+	 * returns service object template file as string Template file name is from
+	 * Template column in csv
+	 * 
+	 * @param apiObject
+	 * @return
+	 * @throws IOException
+	 */
+	public static String getServiceObjectTemplateString(ServiceObject serviceObject) {
+
+		Path templatePath = DataHelper.getTemplateFilePath(serviceObject.getTemplateFile());
+		return DataHelper.convertFileToString(templatePath);
+	}
 
 	/**
 	 * validates response against expected values
@@ -186,7 +192,7 @@ public class DataHelper {
 	 * @param command
 	 * @param responseString
 	 * @param expectedString
-	 * @return 
+	 * @return
 	 */
 	public static String validateCommand(String command, String responseString, String expectedString) {
 		return validateCommand(command, responseString, expectedString, StringUtils.EMPTY);
@@ -200,19 +206,20 @@ public class DataHelper {
 	 * @param expectedString
 	 * @param position
 	 */
-	public static String validateCommand(String command, String responseString, String expectedString, String position) {
+	public static String validateCommand(String command, String responseString, String expectedString,
+			String position) {
 
 		// remove surrounding quotes
 		expectedString = Helper.removeSurroundingQuotes(expectedString);
 		command = Helper.removeSurroundingQuotes(command);
 		responseString = Helper.removeSurroundingQuotes(responseString);
-		
+
 		String[] expectedArray = expectedString.split(",");
 		String[] actualArray = responseString.split(",");
 		String actualString = "";
 
 		int positionInt = 0;
-		
+
 		// if position has value, Then get response at position
 		if (!position.isEmpty() && Helper.getIntFromString(position) > 0) {
 			positionInt = Helper.getIntFromString(position);
@@ -225,11 +232,12 @@ public class DataHelper {
 
 			actualString = actualArray[positionInt - 1];
 		}
-		
-	    if(getCommandFromExpectedString(command).isEmpty()) {
-	    	Helper.assertFalse("Command not set. Options: " + Arrays.asList(JSON_COMMAND.values()) + ". See examples for usage.");
-	    }
-		
+
+		if (getCommandFromExpectedString(command).isEmpty()) {
+			Helper.assertFalse(
+					"Command not set. Options: " + Arrays.asList(JSON_COMMAND.values()) + ". See examples for usage.");
+		}
+
 		JSON_COMMAND jsonCommand = JSON_COMMAND.valueOf(command);
 
 		switch (jsonCommand) {
@@ -238,16 +246,19 @@ public class DataHelper {
 			if (!position.isEmpty() && positionInt > 0) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " has item " + expectedString);
 				val = actualString.contains(expectedString);
-				if(!val) return actualString + " does not have item " + expectedString;
-			} else if(!position.isEmpty() && positionInt == 0) { 
+				if (!val)
+					return actualString + " does not have item " + expectedString;
+			} else if (!position.isEmpty() && positionInt == 0) {
 				TestLog.logPass("verifying: " + responseString + " has item " + expectedString);
 				val = responseString.contains(expectedString);
-				if(!val) return responseString + " does not have item " + expectedString;
+				if (!val)
+					return responseString + " does not have item " + expectedString;
 			} else {
 				TestLog.logPass(
 						"verifying: " + Arrays.toString(actualArray) + " has items " + Arrays.toString(expectedArray));
 				val = Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
-				if(!val) return Arrays.toString(actualArray) + " does not have items " + Arrays.toString(expectedArray);
+				if (!val)
+					return Arrays.toString(actualArray) + " does not have items " + Arrays.toString(expectedArray);
 			}
 			break;
 		case notHaveItems:
@@ -255,204 +266,234 @@ public class DataHelper {
 			if (!position.isEmpty() && positionInt > 0) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " does not have item " + expectedString);
 				val = !actualString.contains(expectedString);
-				if(!val) return actualString + " does have item " + expectedString;
-				
-			} else if(!position.isEmpty() && positionInt == 0) { 
+				if (!val)
+					return actualString + " does have item " + expectedString;
+
+			} else if (!position.isEmpty() && positionInt == 0) {
 				TestLog.logPass("verifying: " + responseString + " does not have item " + expectedString);
 				val = !responseString.contains(expectedString);
-				if(!val) return responseString + " does not have item " + expectedString;
-				
+				if (!val)
+					return responseString + " does not have item " + expectedString;
+
 			} else {
-				TestLog.logPass(
-						"verifying: " + Arrays.toString(actualArray) + " does not have items " + Arrays.toString(expectedArray));
+				TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " does not have items "
+						+ Arrays.toString(expectedArray));
 				val = !Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
-				if(!val) return Arrays.toString(actualArray) + " does have items " + Arrays.toString(expectedArray);
+				if (!val)
+					return Arrays.toString(actualArray) + " does have items " + Arrays.toString(expectedArray);
 			}
 			break;
 		case notEqualTo:
 			if (!position.isEmpty() && positionInt > 0) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " not equals " + expectedString);
 				val = !actualString.equals(expectedString);
-				if(!val) return actualString + " does equal " + expectedString;
-			} else if(!position.isEmpty() && positionInt == 0) { 
+				if (!val)
+					return actualString + " does equal " + expectedString;
+			} else if (!position.isEmpty() && positionInt == 0) {
 				TestLog.logPass("verifying: " + responseString + " not equals " + expectedString);
 				val = !responseString.equals(expectedString);
-				if(!val) return responseString + " does equal " + expectedString;
+				if (!val)
+					return responseString + " does equal " + expectedString;
 			} else {
 				TestLog.logPass(
 						"verifying: " + Arrays.toString(actualArray) + " not equals " + Arrays.toString(expectedArray));
 				val = !Arrays.equals(expectedArray, actualArray);
-				if(!val) return Arrays.toString(actualArray) + " does equal " + Arrays.toString(expectedArray);
+				if (!val)
+					return Arrays.toString(actualArray) + " does equal " + Arrays.toString(expectedArray);
 			}
 			break;
 		case equalTo:
 			if (!position.isEmpty() && positionInt > 0) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " equals " + expectedString);
 				val = actualString.equals(expectedString);
-				if(!val) return actualString + " does not equal " + expectedString;
-			} else if(!position.isEmpty() && positionInt == 0) { 
+				if (!val)
+					return actualString + " does not equal " + expectedString;
+			} else if (!position.isEmpty() && positionInt == 0) {
 				TestLog.logPass("verifying: " + responseString + " equals " + expectedString);
 				val = responseString.equals(expectedString);
-				if(!val) return responseString + " does not equal " + expectedString;
+				if (!val)
+					return responseString + " does not equal " + expectedString;
 			} else {
 				TestLog.logPass(
 						"verifying: " + Arrays.toString(actualArray) + " equals " + Arrays.toString(expectedArray));
 				val = Arrays.equals(expectedArray, actualArray);
-				if(!val) return Arrays.toString(actualArray) + " does not equal " + Arrays.toString(expectedArray);
+				if (!val)
+					return Arrays.toString(actualArray) + " does not equal " + Arrays.toString(expectedArray);
 			}
 			break;
 		case notContain:
 			if (!position.isEmpty() && positionInt > 0) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " does not contain " + expectedString);
 				val = !actualString.contains(expectedString);
-				if(!val) return actualString + " does contain " + expectedString;
-			} else if(!position.isEmpty() && positionInt == 0) { 
+				if (!val)
+					return actualString + " does contain " + expectedString;
+			} else if (!position.isEmpty() && positionInt == 0) {
 				TestLog.logPass("verifying: " + expectedString + " does not contain " + expectedString);
 				val = !responseString.contains(expectedString);
-				if(!val) return responseString + " does contain " + expectedString;
+				if (!val)
+					return responseString + " does contain " + expectedString;
 			} else {
-				TestLog.logPass(
-						"verifying: " + Arrays.toString(actualArray) + " does not contain " + Arrays.toString(expectedArray));
+				TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " does not contain "
+						+ Arrays.toString(expectedArray));
 				val = !Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
-				if(!val) return Arrays.toString(actualArray) + " does not contain " + Arrays.toString(expectedArray);
+				if (!val)
+					return Arrays.toString(actualArray) + " does not contain " + Arrays.toString(expectedArray);
 			}
 			break;
 		case contains:
 			if (!position.isEmpty() && positionInt > 0) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " contains " + expectedString);
 				val = actualString.contains(expectedString);
-				if(!val) return actualString + " does not contain " + expectedString;
-			} else if(!position.isEmpty() && positionInt == 0) { 
+				if (!val)
+					return actualString + " does not contain " + expectedString;
+			} else if (!position.isEmpty() && positionInt == 0) {
 				TestLog.logPass("verifying: '" + responseString + "' contains " + expectedString);
 				val = responseString.contains(expectedString);
-				if(!val) return responseString + " does not contain " + expectedString;
+				if (!val)
+					return responseString + " does not contain " + expectedString;
 			} else {
 				TestLog.logPass(
 						"verifying: " + Arrays.toString(actualArray) + " contains " + Arrays.toString(expectedArray));
 				val = Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
-				if(!val) return Arrays.toString(actualArray) + " does not contain " + Arrays.toString(expectedArray);
+				if (!val)
+					return Arrays.toString(actualArray) + " does not contain " + Arrays.toString(expectedArray);
 			}
 			break;
 		case containsInAnyOrder:
 			TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " contains any order "
 					+ Arrays.toString(expectedArray));
 			val = Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
-			if(!val) return Arrays.toString(actualArray) + " does not contain in any order " + Arrays.toString(expectedArray);
+			if (!val)
+				return Arrays.toString(actualArray) + " does not contain in any order "
+						+ Arrays.toString(expectedArray);
 			break;
 		case integerGreaterThan:
 			val = compareNumbers(responseString, expectedString, "greaterThan");
-			if(!val) return "actual: " +  responseString + " is is less than expected: " + expectedString;
+			if (!val)
+				return "actual: " + responseString + " is is less than expected: " + expectedString;
 			break;
 		case integerLessThan:
 			val = compareNumbers(responseString, expectedString, "lessThan");
-			if(!val) return "actual: " +  responseString + " is is greater than expected: " + expectedString;
+			if (!val)
+				return "actual: " + responseString + " is is greater than expected: " + expectedString;
 			break;
 		case integerEqual:
 			val = compareNumbers(responseString, expectedString, "equalTo");
-			if(!val) return "actual: " +  responseString + " is not equal to expected: " + expectedString;
+			if (!val)
+				return "actual: " + responseString + " is not equal to expected: " + expectedString;
 			break;
 		case integerNotEqual:
 			val = !compareNumbers(responseString, expectedString, "equalTo");
-			if(!val) return "actual: " +  responseString + " is not equal to expected: " + expectedString;
+			if (!val)
+				return "actual: " + responseString + " is not equal to expected: " + expectedString;
 			break;
 		case nodeSizeGreaterThan:
 			int intValue = Integer.valueOf(expectedString);
 			TestLog.logPass("verifying node with size " + actualArray.length + " greater than " + intValue);
-			if(intValue >= actualArray.length) return "response node size is: " + actualArray.length + " expected it to be greated than: " + intValue;
-			break;	
+			if (intValue >= actualArray.length)
+				return "response node size is: " + actualArray.length + " expected it to be greated than: " + intValue;
+			break;
 		case nodeSizeLessThan:
 			intValue = Integer.valueOf(expectedString);
 			TestLog.logPass("verifying node with size " + actualArray.length + " less than " + intValue);
-			if(intValue < actualArray.length) return "response node size is: " + actualArray.length + " expected it to be greated than: " + intValue;
+			if (intValue < actualArray.length)
+				return "response node size is: " + actualArray.length + " expected it to be greated than: " + intValue;
 			break;
 		case nodeSizeExact:
 			intValue = Integer.valueOf(expectedString);
 			TestLog.logPass("verifying node with size " + actualArray.length + " equals " + intValue);
-			if(actualArray.length != intValue) return "response node size is: " + actualArray.length + " expected: " + intValue;
+			if (actualArray.length != intValue)
+				return "response node size is: " + actualArray.length + " expected: " + intValue;
 			break;
 		case sequence:
 			TestLog.logPass(
 					"verifying: " + Arrays.toString(actualArray) + " with sequence " + Arrays.toString(expectedArray));
 			val = Arrays.equals(expectedArray, actualArray);
-			if(!val) return Arrays.toString(actualArray) + " does not equal " + Arrays.toString(expectedArray);
+			if (!val)
+				return Arrays.toString(actualArray) + " does not equal " + Arrays.toString(expectedArray);
 			break;
 		case jsonbody:
-			TestLog.logPass(
-					"verifying response: \n" + responseString + "\n against expected: \n" + expectedString);
-			String error = JsonHelper.validateByJsonBody(expectedString,  responseString);
-			if(!error.isEmpty()) return error;
+			TestLog.logPass("verifying response: \n" + responseString + "\n against expected: \n" + expectedString);
+			String error = JsonHelper.validateByJsonBody(expectedString, responseString);
+			if (!error.isEmpty())
+				return error;
 			break;
 		case isNotEmpty:
 			TestLog.logPass("verifying response for path is not empty");
-			if(isEmpty(responseString)) return "value is empty";
+			if (isEmpty(responseString))
+				return "value is empty";
 			break;
 		case isEmpty:
 			TestLog.logPass("verifying response for path is empty ");
-			if(!isEmpty(responseString)) return "value is not empty";
+			if (!isEmpty(responseString))
+				return "value is not empty";
 			break;
 		default:
-	    	Helper.assertFalse("Command not set. Options: " + Arrays.asList(JSON_COMMAND.values()) + ". See examples for usage.");
+			Helper.assertFalse(
+					"Command not set. Options: " + Arrays.asList(JSON_COMMAND.values()) + ". See examples for usage.");
 			break;
 		}
 		return StringUtil.EMPTY_STRING;
 	}
-	
+
 	public static boolean isGreaterThan(String value1, String value2) {
-		if(Helper.isNumeric(value1) && Helper.isNumeric(value2)) {
-			if(Integer.valueOf(value1) > Integer.valueOf(value2))
-					return true;
+		if (Helper.isNumeric(value1) && Helper.isNumeric(value2)) {
+			if (Integer.valueOf(value1) > Integer.valueOf(value2))
+				return true;
 		}
 		return false;
 	}
-	
+
 	public static boolean isLessThan(String value1, String value2) {
-		if(Helper.isNumeric(value1) && Helper.isNumeric(value2)) {
-			if(Integer.valueOf(value1) < Integer.valueOf(value2))
-					return true;
+		if (Helper.isNumeric(value1) && Helper.isNumeric(value2)) {
+			if (Integer.valueOf(value1) < Integer.valueOf(value2))
+				return true;
 		}
 		return false;
 	}
-	
+
 	/**
 	 * compare string integer values based on comparator value
+	 * 
 	 * @param value1
 	 * @param value2
 	 * @param comparator
 	 * @return
 	 */
 	public static boolean compareNumbers(String value1, String value2, String comparator) {
-		if(!Helper.isStringContainNumber(value1) || !Helper.isStringContainNumber(value2))
+		if (!Helper.isStringContainNumber(value1) || !Helper.isStringContainNumber(value2))
 			return false;
-		
-		double val1Double = Helper.getDoubleFromString(value1); 
-		double val2Double = Helper.getDoubleFromString(value2); 
 
-		return compareNumbers(val1Double, val2Double, comparator );
+		double val1Double = Helper.getDoubleFromString(value1);
+		double val2Double = Helper.getDoubleFromString(value2);
+
+		return compareNumbers(val1Double, val2Double, comparator);
 	}
-	
+
 	/**
 	 * compare integer values
+	 * 
 	 * @param value1
 	 * @param value2
 	 * @param comparator
 	 * @return
 	 */
 	public static boolean compareNumbers(double value1, double value2, String comparator) {
-					
+
 		switch (comparator) {
 		case "greaterThan":
-			if(value1 > value2)
+			if (value1 > value2)
 				return true;
-		break;
+			break;
 		case "lessThan":
-			if(value1 < value2)
+			if (value1 < value2)
 				return true;
 			break;
 		case "equalTo":
-			if(value1 == value2)
+			if (value1 == value2)
 				return true;
 			break;
-		}	
+		}
 		return false;
 	}
 
@@ -465,175 +506,171 @@ public class DataHelper {
 	public static String listToString(List<String> values) {
 		return StringUtils.join(values, ",");
 	}
-	
+
 	/**
-	 * convert object to string
-	 * object can be array
+	 * convert object to string object can be array
+	 * 
 	 * @param values
 	 * @return
 	 */
 	public static String ObjectToString(Object values) {
 		String stringVal = values.toString();
-		stringVal = stringVal.replaceAll("[\\[\\](){}]","");
+		stringVal = stringVal.replaceAll("[\\[\\](){}]", "");
 		stringVal = stringVal.replace("\"", "");
 		return stringVal;
 	}
-	
+
 	public static List<String> splitRight(String value, String regex, int limit) {
-		
-		 // if json validation command, return format path:position:command or path:command
+
+		// if json validation command, return format path:position:command or
+		// path:command
 		String commandValue = getCommandFromExpectedString(value);
-	    if(!commandValue.isEmpty()) {
-	    	return getJsonKeyValue(value, commandValue);
-	    }
-		
+		if (!commandValue.isEmpty()) {
+			return getJsonKeyValue(value, commandValue);
+		}
+
 		String string = value;
-	    List<String> result = new ArrayList<String>();
-	    String[] temp = new String[0];
-	    for(int i = 1; i < limit; i++) {
-	        if(string.matches(".*"+regex+".*")) {
-	            temp = string.split(modifyRegex(regex));
-	            result.add(temp[1]);
-	            string = temp[0];
-	        }
-	    }
-	    if(temp.length>0) { 
-	        result.add(temp[0]);
-	    }
-	    
-	    // handle single value
-	    if(value.split(":").length == 1) result.add(string);  
-	  
-	    Collections.reverse(result);
-	    return result;
+		List<String> result = new ArrayList<String>();
+		String[] temp = new String[0];
+		for (int i = 1; i < limit; i++) {
+			if (string.matches(".*" + regex + ".*")) {
+				temp = string.split(modifyRegex(regex));
+				result.add(temp[1]);
+				string = temp[0];
+			}
+		}
+		if (temp.length > 0) {
+			result.add(temp[0]);
+		}
+
+		// handle single value
+		if (value.split(":").length == 1)
+			result.add(string);
+
+		Collections.reverse(result);
+		return result;
 	}
-	
+
 	/**
-	 * get the json response validation command from string
-	 * eg. soi:EquipmentID:1:notEqualTo(2019110423T11:00:00.000Z)  -> command: notEqual
-	 * 	eg. value:isEmpty  -> command: isEmpty
+	 * get the json response validation command from string eg.
+	 * soi:EquipmentID:1:notEqualTo(2019110423T11:00:00.000Z) -> command: notEqual
+	 * eg. value:isEmpty -> command: isEmpty
+	 * 
 	 * @param value
-	 * @return 
+	 * @return
 	 */
 	private static String getCommandFromExpectedString(String value) {
 		String commandValue = StringUtils.EMPTY;
-		
+
 		for (JSON_COMMAND command : JSON_COMMAND.values()) {
 			List<String> parameters = Helper.getValuesFromPattern(value, command + "\\(([^)]+)\\)");
-			if(!parameters.isEmpty()) {  // command(value)
-				commandValue =  command + "(" + parameters.get(0) + ")";
-				if(value.endsWith(commandValue))
-				  return commandValue;
-			}
-			else if(value.endsWith(command.name())) //isEmpty, isNotEmpty
+			if (!parameters.isEmpty()) { // command(value)
+				commandValue = command + "(" + parameters.get(0) + ")";
+				if (value.endsWith(commandValue))
+					return commandValue;
+			} else if (value.endsWith(command.name())) // isEmpty, isNotEmpty
 				return command.name();
 		}
 		return StringUtils.EMPTY;
 	}
-	
+
 	/**
-	 * get json key value
-	 * eg. store.book[?(@.price < 10)]:jsonbody(["key":"value"])
-	 * becomes arraylist of size 2. 
-	 * eg. store.book[?(@.price < 10)]:1:jsonbody(["key":"value"])
-	 * becomes arraylist of size 3. 
+	 * get json key value eg. store.book[?(@.price < 10)]:jsonbody(["key":"value"])
+	 * becomes arraylist of size 2. eg. store.book[?(@.price <
+	 * 10)]:1:jsonbody(["key":"value"]) becomes arraylist of size 3.
+	 * 
 	 * @param value
 	 * @return
 	 */
 	private static List<String> getJsonKeyValue(String value, String commandValue) {
-	    List<String> result = new ArrayList<String>();
-	   
-		
+		List<String> result = new ArrayList<String>();
+
 		// remove commandValue
 		value = value.replace(commandValue, "");
 
 		// remove last colon. eg. soi:EquipmentID:1: becomes: soi:EquipmentID:1
 		String keyPosition = value.trim().replaceAll(":$", "");
 		List<String> keyPositionList = splitRight(keyPosition, ":", 2);
-		
+
 		// if key value has position. eg: store.book[?(@.price < 10)]:1
-		if(keyPositionList.size() == 2 && Helper.isStringContainOnlyNumber(keyPositionList.get(1))) {
+		if (keyPositionList.size() == 2 && Helper.isStringContainOnlyNumber(keyPositionList.get(1))) {
 			result.add(keyPositionList.get(0));
 			result.add(keyPositionList.get(1));
-		}else {
+		} else {
 			result.add(keyPosition);
 		}
-		
+
 		// add command + value. eg. equal(value) or isEmpty
 		result.add(commandValue);
-		
+
 		return result;
 	}
 
-	private static String modifyRegex(String regex){
-	    return regex + "(?!.*" + regex + ".*$)";
+	private static String modifyRegex(String regex) {
+		return regex + "(?!.*" + regex + ".*$)";
 	}
-	
+
 	public static boolean isEmpty(String value) {
-		if(StringUtils.isBlank(value))
+		if (StringUtils.isBlank(value))
 			return true;
-		if(value.equals("null"))
+		if (value.equals("null"))
 			return true;
-		return false;		
+		return false;
 	}
-	
+
 	/**
-	 * get request body from template file: json, xml, other
-	 * json template:
-	 * 		- if request body is set, replace value in template with format:
-	 * 		- request body: json path:position:value or json path:vlaue
-	 * 		- eg. "features.feature.name:1:value_<@_TIME_19>" 
-	 * xml template:
-	 * 		- if request body is set, replace value in template with format:
-	 * 		- request body: tag:position:value   or tag:value
-	 * 		- eg. "soi:EquipmentID:1:equip_<@_TIME_17>"
-	 * other file type:
-	 * 		- return as string
-	 * if no template set:
-	 * 		- return request body
+	 * get request body from template file: json, xml, other json template: - if
+	 * request body is set, replace value in template with format: - request body:
+	 * json path:position:value or json path:vlaue - eg.
+	 * "features.feature.name:1:value_<@_TIME_19>" xml template: - if request body
+	 * is set, replace value in template with format: - request body:
+	 * tag:position:value or tag:value - eg. "soi:EquipmentID:1:equip_<@_TIME_17>"
+	 * other file type: - return as string if no template set: - return request body
 	 * 
 	 * @param serviceObject
 	 * @return
 	 */
 	public static String getRequestBodyIncludingTemplate(ServiceObject serviceObject) {
-		
+
 		// replace request body parameters
 		serviceObject.withRequestBody(replaceParameters(serviceObject.getRequestBody()));
-		
+
 		// if json template file
-		if(JsonHelper.isJsonFile(serviceObject.getTemplateFile()))
+		if (JsonHelper.isJsonFile(serviceObject.getTemplateFile()))
 			return JsonHelper.getRequestBodyFromJsonTemplate(serviceObject);
-		
+
 		// if xml template file
-		if(XmlHelper.isXmlFile(serviceObject.getTemplateFile()))
+		if (XmlHelper.isXmlFile(serviceObject.getTemplateFile()))
 			return XmlHelper.getRequestBodyFromXmlTemplate(serviceObject);
-		
+
 		// if other type of file
-		if(!serviceObject.getTemplateFile().isEmpty()) {
+		if (!serviceObject.getTemplateFile().isEmpty()) {
 			Path templatePath = DataHelper.getTemplateFilePath(serviceObject.getTemplateFile());
 			return convertFileToString(templatePath);
 		}
-		
+
 		// if no template, return request body
 		return serviceObject.getRequestBody();
 	}
-	
+
 	/**
-	 * get file content as text
-	 * replaces parameters using syntax <@variable> from value in config
+	 * get file content as text replaces parameters using syntax <@variable> from
+	 * value in config
+	 * 
 	 * @param templatePath
 	 * @return
 	 */
 	public static String convertFileToString(Path templatePath) {
 		String content = Helper.readFileContent(templatePath.toString());
-		
+
 		// replace content paramters
 		return replaceParameters(content);
 	}
 
 	/**
-	 * remove section from expected response separated by &&
-	 * the section will start with the identifier. eg. _VERIFY.RESPONSE.BODY_ 
+	 * remove section from expected response separated by && the section will start
+	 * with the identifier. eg. _VERIFY.RESPONSE.BODY_
+	 * 
 	 * @param section
 	 * @param expectedResponse
 	 * @return
@@ -643,16 +680,17 @@ public class DataHelper {
 		List<String> newResponse = new ArrayList<String>();
 		for (String criterion : criteria) {
 			criterion = Helper.removeSurroundingQuotes(criterion);
-			if (!criterion.trim().startsWith(section)){
+			if (!criterion.trim().startsWith(section)) {
 				newResponse.add(criterion);
 			}
 		}
 		return String.join("&&", newResponse);
 	}
-	
+
 	/**
-	 * get section from expected response separated by &&
-	 * the section will start with the identifier. eg. _VERIFY.RESPONSE.BODY_ 
+	 * get section from expected response separated by && the section will start
+	 * with the identifier. eg. _VERIFY.RESPONSE.BODY_
+	 * 
 	 * @param section
 	 * @param expectedResponse
 	 * @return
@@ -662,80 +700,89 @@ public class DataHelper {
 		List<String> newResponse = new ArrayList<String>();
 		for (String criterion : criteria) {
 			criterion = Helper.removeSurroundingQuotes(criterion);
-			if (criterion.trim().startsWith(section)){
+			if (criterion.trim().startsWith(section)) {
 				newResponse.add(criterion);
 			}
 		}
 		return String.join("&&", newResponse);
 	}
-	
+
 	/**
 	 * validates expected values (xml, json, text, or jsonpath keywords
+	 * 
 	 * @param responseValues
 	 * @param expectedResponse
 	 * @return
 	 */
 	public static List<String> validateExpectedValues(List<String> responseValues, String expectedResponse) {
-		
+
 		List<String> errorMessages = new ArrayList<String>();
+
+		if (expectedResponse.isEmpty())
+			return errorMessages;
+
 		// get response body as string
 		TestLog.logPass("received response messages: " + String.join(System.lineSeparator(), responseValues));
 
 		// validate response body against expected json string
-		if (!expectedResponse.isEmpty()) {
-			expectedResponse = DataHelper.replaceParameters(expectedResponse);
+		expectedResponse = DataHelper.replaceParameters(expectedResponse);
 
-			// separate the expected response by &&
-			String[] criteria = expectedResponse.split("&&");
-			for (String criterion : criteria) {
-				Helper.assertTrue("expected response is not valid: " + criterion, isValidExpectation(criterion));
-				
-				// convert xml string to json for validation
-				if(XmlHelper.isValidXmlString(criterion))
-					criterion = JsonHelper.XMLToJson(criterion);
+		// separate the expected response by &&
+		String[] criteria = expectedResponse.split("&&");
+		for (String criterion : criteria) {
+			Helper.assertTrue("expected response is not valid: " + criterion, isValidExpectation(criterion));
 
-				errorMessages = validateExpectedResponse(criterion, responseValues);
-			}
+			// convert xml string to json for validation
+			if (XmlHelper.isValidXmlString(criterion))
+				criterion = JsonHelper.XMLToJson(criterion);
+
+			errorMessages = validateExpectedResponse(criterion, responseValues);
 		}
 		// remove all empty response strings
 		errorMessages.removeAll(Collections.singleton(""));
 		return errorMessages;
 	}
-	
+
 	/**
 	 * validates expected requirement against response strings
+	 * 
 	 * @param criterion
 	 * @param responseString
 	 * @return
 	 */
 	public static List<String> validateExpectedResponse(String criterion, List<String> responseString) {
 		List<String> errorMessages = new ArrayList<String>();
-		for(int i = 0; i < responseString.size(); i++) {
+		for (int i = 0; i < responseString.size(); i++) {
 			errorMessages = new ArrayList<String>();
-			
+
 			// if response is xml, convert to json for validation
-			if(XmlHelper.isValidXmlString(responseString.get(i)))
+			if (XmlHelper.isValidXmlString(responseString.get(i)))
 				responseString.set(i, JsonHelper.XMLToJson(responseString.get(i)));
-			
+
 			errorMessages.add(JsonHelper.validateByJsonBody(criterion, responseString.get(i)));
 			errorMessages.addAll(JsonHelper.validateByKeywords(criterion, responseString.get(i)));
 			errorMessages.add(JsonHelper.validateResponseBody(criterion, responseString.get(i)));
 			errorMessages.addAll(MessageQueueHelper.validateExpectedMessageCount(criterion, responseString));
-			
-			 // if no errors, then validation passed, no need to validate against other responses
-			if(errorMessages.isEmpty()) break;
-			
-			if(i > 0 && i == responseString.size() && !errorMessages.isEmpty()) {
+
+			// if no errors, then validation passed, no need to validate against other
+			// responses
+			if (errorMessages.isEmpty())
+				break;
+
+			if (i > 0 && i == responseString.size() && !errorMessages.isEmpty()) {
 				errorMessages = new ArrayList<String>();
-				errorMessages.add("expected requirement: " + criterion + " not met by the responses: " + String.join(System.lineSeparator(), responseString));
-				
+				errorMessages.add("expected requirement: " + criterion + " not met by the responses: "
+						+ String.join(System.lineSeparator(), responseString));
+
 			}
 		}
 		return errorMessages;
 	}
-	
+
 	/**
-	 * validates if expected value is valid: json, xml or starts with valid indicator
+	 * validates if expected value is valid: json, xml or starts with valid
+	 * indicator
+	 * 
 	 * @param expectedValue
 	 * @return
 	 */
@@ -743,10 +790,10 @@ public class DataHelper {
 		if (JsonHelper.isJSONValid(expectedValue, false)) {
 			return true;
 		}
-		
-		if(XmlHelper.isValidXmlString(expectedValue))
+
+		if (XmlHelper.isValidXmlString(expectedValue))
 			return true;
-		
+
 		expectedValue = Helper.stringNormalize(expectedValue);
 		if (expectedValue.startsWith(DataHelper.VERIFY_JSON_PART_INDICATOR) || expectedValue.startsWith("_NOT_EMPTY_")
 				|| expectedValue.startsWith(DataHelper.VERIFY_RESPONSE_BODY_INDICATOR)

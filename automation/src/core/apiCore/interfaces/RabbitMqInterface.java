@@ -29,7 +29,6 @@ public class RabbitMqInterface {
 	private static final String RABBIT_MQ_PASS = "rabbitMq.password";
 	public static final String RABBIT_MQ_EXCHANGE = "rabbitMq.exchange";
 	public static final String RABBIT_MQ_QUEUE = "rabbitMq.defaultQueue";
-	
 
 	public static Connection connection = null;
 	public static Channel channel;
@@ -45,11 +44,12 @@ public class RabbitMqInterface {
 
 		// connect to rabbitMq
 		connectRabbitMq(serviceObject);
-		
+
 		// evaluate additional options
 		evaluateOption(serviceObject);
-		
-		// replace parameters for request body, including template file (json, xml, or other)
+
+		// replace parameters for request body, including template file (json, xml, or
+		// other)
 		serviceObject.withRequestBody(DataHelper.getRequestBodyIncludingTemplate(serviceObject));
 
 		// send message
@@ -88,9 +88,9 @@ public class RabbitMqInterface {
 	public static void sendRabbitMqMessage(ServiceObject serviceObject) {
 		TestLog.ConsoleLog("rabbitMq request body: " + serviceObject.getRequestBody());
 
-        // set basic properties
-        BasicProperties props = evaluateRequestHeaders(serviceObject);
-		
+		// set basic properties
+		BasicProperties props = evaluateRequestHeaders(serviceObject);
+
 		String exchange = Config.getValue(RABBIT_MQ_EXCHANGE);
 		String queueName = Config.getValue(RABBIT_MQ_QUEUE);
 		try {
@@ -99,7 +99,7 @@ public class RabbitMqInterface {
 			throw new RuntimeException("Could not send message. ", e);
 		}
 	}
-	
+
 	public static BasicProperties evaluateRequestHeaders(ServiceObject serviceObject) {
 
 		// if no RequestHeaders specified
@@ -108,11 +108,11 @@ public class RabbitMqInterface {
 		}
 
 		BasicProperties props = new BasicProperties();
-		Map<String,Object>  map = new HashMap<String,Object>(); 
-	
+		Map<String, Object> map = new HashMap<String, Object>();
+
 		// get key value mapping of header parameters
 		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getRequestHeaders());
-		
+
 		// iterate through key value pairs for headers, separated by ";"
 		for (KeyValue keyword : keywords) {
 
@@ -124,28 +124,28 @@ public class RabbitMqInterface {
 				break;
 			}
 		}
-		
+
 		props = props.builder().headers(map).build();
 		return props;
 	}
 
 	public static void evaluateOption(ServiceObject serviceObject) {
-		
-		// set default queue and exchange values. will be overwritten if values are set in csv
+
+		// set default queue and exchange values. will be overwritten if values are set
+		// in csv
 		setDefaultQueueAndExchange();
-		
+
 		// if no option specified
 		if (serviceObject.getOption().isEmpty()) {
 			return;
 		}
 
-		// replace parameters for  options
+		// replace parameters for options
 		serviceObject.withOption(DataHelper.replaceParameters(serviceObject.getOption()));
 
 		// get key value mapping of header parameters
 		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getOption());
 
-		
 		// iterate through key value pairs for headers, separated by ";"
 		for (KeyValue keyword : keywords) {
 
@@ -163,7 +163,7 @@ public class RabbitMqInterface {
 			}
 		}
 	}
-	
+
 	/**
 	 * set default queue and exchange values
 	 */
