@@ -31,7 +31,8 @@ public class DataHelper {
 	public static final String VERIFY_RESPONSE_NO_EMPTY = "_NOT_EMPTY_";
 	public static final String VERIFY_HEADER_PART_INDICATOR = "_VERIFY.HEADER.PART_";
 	public static final String VERIFY_TOPIC_PART_INDICATOR = "_VERIFY.TOPIC.PART_";
-
+	public static final String EXPECTED_MESSAGE_COUNT = "EXPECTED_MESSAGE_COUNT";
+	
 	enum JSON_COMMAND {
 		hasItems, notHaveItems, notEqualTo, equalTo, notContain, contains, containsInAnyOrder, integerGreaterThan, integerLessThan, integerEqual, integerNotEqual, nodeSizeGreaterThan, nodeSizeExact, sequence, jsonbody, isNotEmpty, isEmpty, nodeSizeLessThan
 		}
@@ -666,5 +667,94 @@ public class DataHelper {
 			}
 		}
 		return String.join("&&", newResponse);
+	}
+	
+	/**
+	 * validates expected values (xml, json, text, or jsonpath keywords
+	 * @param responseValues
+	 * @param expectedResponse
+	 * @return
+	 */
+	public static List<String> validateExpectedValues(List<String> responseValues, String expectedResponse) {
+		
+		List<String> errorMessages = new ArrayList<String>();
+		// get response body as string
+		TestLog.logPass("received response messages: " + String.join(System.lineSeparator(), responseValues));
+
+		// validate response body against expected json string
+		if (!expectedResponse.isEmpty()) {
+			expectedResponse = DataHelper.replaceParameters(expectedResponse);
+
+			// separate the expected response by &&
+			String[] criteria = expectedResponse.split("&&");
+			for (String criterion : criteria) {
+				Helper.assertTrue("expected response is not valid: " + criterion, isValidExpectation(criterion));
+				
+				// convert xml string to json for validation
+				if(XmlHelper.isValidXmlString(criterion))
+					criterion = JsonHelper.XMLToJson(criterion);
+
+				errorMessages = validateExpectedResponse(criterion, responseValues);
+			}
+		}
+		// remove all empty response strings
+		errorMessages.removeAll(Collections.singleton(""));
+		return errorMessages;
+	}
+	
+	/**
+	 * validates expected requirement against response strings
+	 * @param criterion
+	 * @param responseString
+	 * @return
+	 */
+	public static List<String> validateExpectedResponse(String criterion, List<String> responseString) {
+		List<String> errorMessages = new ArrayList<String>();
+		for(int i = 0; i < responseString.size(); i++) {
+			errorMessages = new ArrayList<String>();
+			
+			// if response is xml, convert to json for validation
+			if(XmlHelper.isValidXmlString(responseString.get(i)))
+				responseString.set(i, JsonHelper.XMLToJson(responseString.get(i)));
+			
+			errorMessages.add(JsonHelper.validateByJsonBody(criterion, responseString.get(i)));
+			errorMessages.addAll(JsonHelper.validateByKeywords(criterion, responseString.get(i)));
+			errorMessages.add(JsonHelper.validateResponseBody(criterion, responseString.get(i)));
+			errorMessages.addAll(MessageQueueHelper.validateExpectedMessageCount(criterion, responseString));
+			
+			 // if no errors, then validation passed, no need to validate against other responses
+			if(errorMessages.isEmpty()) break;
+			
+			if(i > 0 && i == responseString.size() && !errorMessages.isEmpty()) {
+				errorMessages = new ArrayList<String>();
+				errorMessages.add("expected requirement: " + criterion + " not met by the responses: " + String.join(System.lineSeparator(), responseString));
+				
+			}
+		}
+		return errorMessages;
+	}
+	
+	/**
+	 * validates if expected value is valid: json, xml or starts with valid indicator
+	 * @param expectedValue
+	 * @return
+	 */
+	public static boolean isValidExpectation(String expectedValue) {
+		if (JsonHelper.isJSONValid(expectedValue, false)) {
+			return true;
+		}
+		
+		if(XmlHelper.isValidXmlString(expectedValue))
+			return true;
+		
+		expectedValue = Helper.stringNormalize(expectedValue);
+		if (expectedValue.startsWith(DataHelper.VERIFY_JSON_PART_INDICATOR) || expectedValue.startsWith("_NOT_EMPTY_")
+				|| expectedValue.startsWith(DataHelper.VERIFY_RESPONSE_BODY_INDICATOR)
+				|| expectedValue.startsWith(DataHelper.VERIFY_HEADER_PART_INDICATOR)
+				|| expectedValue.startsWith(DataHelper.EXPECTED_MESSAGE_COUNT)
+				|| expectedValue.startsWith(DataHelper.VERIFY_TOPIC_PART_INDICATOR)) {
+			return true;
+		}
+		return false;
 	}
 }

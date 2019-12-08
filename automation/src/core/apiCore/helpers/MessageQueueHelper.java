@@ -18,8 +18,6 @@ import core.support.objects.ServiceObject;
 
 public class MessageQueueHelper {
 	
-	public static final String EXPECTED_MESSAGE_COUNT = "EXPECTED_MESSAGE_COUNT";
-	
 	/**
 	 * generate message id if the request body is set
 	 * 
@@ -75,11 +73,11 @@ public class MessageQueueHelper {
 		
 		// get a map of key values in request
 		Map<String, String> params = getKeyValueFromString(request, ";" , ":");
-		
+		 
 		// get expected message count if set
-		if(params.containsKey(EXPECTED_MESSAGE_COUNT))
+		if(params.containsKey(DataHelper.EXPECTED_MESSAGE_COUNT))
 		{
-			expectedMessageCount =  Helper.getIntFromString(params.get(EXPECTED_MESSAGE_COUNT), true);
+			expectedMessageCount =  Helper.getIntFromString(params.get(DataHelper.EXPECTED_MESSAGE_COUNT), true);
 		}
 		
 		// get actual message count 

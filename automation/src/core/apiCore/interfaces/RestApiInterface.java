@@ -209,7 +209,9 @@ public class RestApiInterface {
 		}
 		
 		String responseString = JsonHelper.getResponseValue(response);
-		errorMessages = JsonHelper.validateExpectedValues(responseString, serviceObject);
+		List<String> responses = new ArrayList<String>();
+		responses.add(responseString);
+		errorMessages = DataHelper.validateExpectedValues(responses, serviceObject.getExpectedResponse());
 
 		// remove all empty response strings
 		errorMessages.removeAll(Collections.singleton(""));

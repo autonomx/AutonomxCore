@@ -257,7 +257,7 @@ public class JsonHelper {
 	 */
 	public static String validateByJsonBody(String expectedJson, String response) {
 		expectedJson = Helper.stringRemoveLines(expectedJson);
-		if (JsonHelper.isJSONValid(expectedJson, true)) {
+		if (JsonHelper.isJSONValid(expectedJson, false)) {
 			if(StringUtils.isBlank(response)) 
 				Helper.assertFalse("response is empty, please re-evaluate your json path");
 			
@@ -270,25 +270,13 @@ public class JsonHelper {
 				//JSONAssert.assertEquals(expectedJson, response, JSONCompareMode.LENIENT);
 			} catch (JSONException e) {
 				e.printStackTrace();
+				return e.getMessage() + "\n" + "see http://jsonpath.herokuapp.com to validate your path against json string. see https://github.com/json-path/JsonPath for more info. \n\n expectedJson: " +  expectedJson + "\n\n response: " + response + "\n\n";
+
 			}
 		}
 		return StringUtils.EMPTY;
 	}
 
-	public static boolean isValidExpectation(String expectedJson) {
-		if (JsonHelper.isJSONValid(expectedJson, false)) {
-			return true;
-		}
-		expectedJson = Helper.stringNormalize(expectedJson);
-		if (expectedJson.startsWith(DataHelper.VERIFY_JSON_PART_INDICATOR) || expectedJson.startsWith("_NOT_EMPTY_")
-				|| expectedJson.startsWith(DataHelper.VERIFY_RESPONSE_BODY_INDICATOR)
-				|| expectedJson.startsWith(DataHelper.VERIFY_HEADER_PART_INDICATOR)
-				|| expectedJson.startsWith(DataHelper.VERIFY_TOPIC_PART_INDICATOR)) {
-			return true;
-		}
-		return false;
-	}
-	
 	/**
 	 * validates json response against keywords
 	 * 
@@ -529,83 +517,6 @@ public class JsonHelper {
 		if(jsonNormalized.contains(":"))
 			return true;
 		return false;
-	}
-	
-	public static List<String> validateExpectedValues2(List<String> responseValues, String expectedResponse) {
-		
-		List<String> errorMessages = new ArrayList<String>();
-		// get response body as string
-		TestLog.logPass("received response messages: " + String.join(System.lineSeparator(), responseValues));
-
-		// validate response body against expected json string
-		if (!expectedResponse.isEmpty()) {
-			expectedResponse = DataHelper.replaceParameters(expectedResponse);
-
-			// separate the expected response by &&
-			String[] criteria = expectedResponse.split("&&");
-			for (String criterion : criteria) {
-				if(!JsonHelper.isValidExpectation(criterion))
-					continue;
-				
-				errorMessages = validateExpectedResponse(criterion, responseValues);
-			}
-		}
-		// remove all empty response strings
-		errorMessages.removeAll(Collections.singleton(""));
-		return errorMessages;
-	}
-	
-	/**
-	 * validates expected requirement against response strings
-	 * @param criterion
-	 * @param responseString
-	 * @return
-	 */
-	public static List<String> validateExpectedResponse(String criterion, List<String> responseString) {
-		List<String> errorMessages = new ArrayList<String>();
-		for(int i = 0; i < responseString.size(); i++) {
-			errorMessages = new ArrayList<String>();
-			
-			errorMessages.add(JsonHelper.validateByJsonBody(criterion, responseString.get(i)));
-			errorMessages.addAll(JsonHelper.validateByKeywords(criterion, responseString.get(i)));
-			errorMessages.add(JsonHelper.validateResponseBody(criterion, responseString.get(i)));
-			
-			// if no errors, then validation passed, no need to validate against other responses
-			if(errorMessages.isEmpty()) break;
-			
-			if(i > 0 && i == responseString.size() && !errorMessages.isEmpty()) {
-				errorMessages = new ArrayList<String>();
-				errorMessages.add("expected requirement: " + criterion + " not met by the responses: " + String.join(System.lineSeparator(), responseString));
-				
-			}
-		}
-		return errorMessages;
-	}
-	
-	public static List<String> validateExpectedValues(String responseString, ServiceObject serviceObject) {
-		List<String> errorMessages = new ArrayList<String>();
-
-		// get response body as string
-		TestLog.logPass("response: " + responseString);
-
-		// validate response body against expected json string
-		if (!serviceObject.getExpectedResponse().isEmpty()) {
-			serviceObject.withExpectedResponse(DataHelper.replaceParameters(serviceObject.getExpectedResponse()));
-
-			// separate the expected response by &&
-			String[] criteria = serviceObject.getExpectedResponse().split("&&");
-			for (String criterion : criteria) {
-				Helper.assertTrue("expected is not valid format: " + criterion,
-						JsonHelper.isValidExpectation(criterion));
-				errorMessages.add(JsonHelper.validateByJsonBody(criterion, responseString));
-				errorMessages.addAll(JsonHelper.validateByKeywords(criterion, responseString));
-				errorMessages.add(JsonHelper.validateResponseBody(criterion, responseString));
-			}
-		}
-		// remove all empty response strings
-		arrayRemoveAllEmptyString(errorMessages);
-		
-		return errorMessages;
 	}
 	
 	public static List<String> arrayRemoveAllEmptyString(List<String> list){

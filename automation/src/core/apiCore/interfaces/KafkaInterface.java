@@ -20,11 +20,9 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.header.Header;
-import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.StringSerializer;
 
 import core.apiCore.helpers.DataHelper;
-import core.apiCore.helpers.JsonHelper;
 import core.apiCore.helpers.MessageQueueHelper;
 import core.helpers.Helper;
 import core.helpers.StopWatchHelper;
@@ -144,11 +142,13 @@ public class KafkaInterface {
 			filteredMessages.addAll(filterOutboundMessage(messageId));
 			
 			// validate message count
-			errorMessages = MessageQueueHelper.validateExpectedMessageCount(serviceObject.getExpectedResponse(), getMessageList(filteredMessages));
+			String expectedMessageCount = DataHelper.getSectionFromExpectedResponse(DataHelper.EXPECTED_MESSAGE_COUNT,serviceObject.getExpectedResponse());
+			errorMessages = DataHelper.validateExpectedValues(getMessageList(filteredMessages), expectedMessageCount);
+			
 			
 			// validates messages. At this point we have received all the relevant messages. no need to retry
 			if(errorMessages.isEmpty()) {
-				errorMessages = validateMessages(serviceObject, filteredMessages);
+				errorMessages.addAll((validateMessages(serviceObject, filteredMessages)));
 				break;
 			}
 
@@ -186,9 +186,9 @@ public class KafkaInterface {
 		String expectedTopic = DataHelper.getSectionFromExpectedResponse(DataHelper.VERIFY_TOPIC_PART_INDICATOR,serviceObject.getExpectedResponse());
 
 		
-		errorMessages = JsonHelper.validateExpectedValues2(messageList, expectedMessage);
-		errorMessages = JsonHelper.validateExpectedValues2(headerList, expectedHeader);
-		errorMessages = JsonHelper.validateExpectedValues2(topicList, expectedTopic);
+		errorMessages = DataHelper.validateExpectedValues(messageList, expectedMessage);
+		errorMessages.addAll(DataHelper.validateExpectedValues(headerList, expectedHeader));
+		errorMessages.addAll(DataHelper.validateExpectedValues(topicList, expectedTopic));
 
 		
 		return errorMessages;
