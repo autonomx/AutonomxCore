@@ -113,7 +113,7 @@ public class ServiceBusInterface {
 		message.setTimeToLive(Duration.ofMinutes(2));
 		TestLog.logPass("Message sending: Id = " + message.getMessageId() + "\n message: " + message);
 		tasks.add(sendClient.sendAsync(message).thenRunAsync(() -> {
-			System.out.printf("\n\tMessage acknowledged: Id = %s", message.getMessageId());
+			System.out.printf("Message acknowledged: Id = " + message.getMessageId());
 		}));
 
 		return CompletableFuture.allOf(tasks.toArray(new CompletableFuture<?>[tasks.size()]));
