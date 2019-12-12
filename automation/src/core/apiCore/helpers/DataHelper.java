@@ -58,12 +58,17 @@ public class DataHelper {
 		for (String parameter : parameters) {
 			if (parameter.contains("_TIME_MS_")) {
 				length = Helper.getIntFromString(parameter.split("[+-]")[0]);
-				if (length > 17)
-					length = 17;
-				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING_MS));
-				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")
-						.withZone(ZoneId.of("UTC"));
-				value = formatter.format(newTime).substring(0, length);
+				if (length > 13) length = 13;
+				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING_MS));			
+				String timeMs = String.valueOf(newTime.toEpochMilli());
+				value = timeMs.substring(0, length);
+			}if (parameter.contains("_TIME_STRING_")) {
+					length = Helper.getIntFromString(parameter.split("[+-]")[0]);
+					if (length > 17) length = 17;
+					newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING_MS));			
+					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")
+							.withZone(ZoneId.of("UTC"));
+					value = formatter.format(newTime).substring(0, length);
 			} else if (parameter.contains("_TIME_ISO_")) {
 				length = Helper.getIntFromString(parameter.split("[+-]")[0]);
 				if (length > 24)
@@ -721,14 +726,16 @@ public class DataHelper {
 		if (expectedResponse.isEmpty())
 			return errorMessages;
 
-		// get response body as string
-		TestLog.logPass("received response messages: " + String.join(System.lineSeparator(), responseValues));
-
 		// validate response body against expected json string
 		expectedResponse = DataHelper.replaceParameters(expectedResponse);
 
 		// separate the expected response by &&
 		String[] criteria = expectedResponse.split("&&");
+		
+		// get response body as string
+		TestLog.logPass("received response: " + String.join(System.lineSeparator(), responseValues));
+
+		
 		for (String criterion : criteria) {
 			Helper.assertTrue("expected response is not valid: " + criterion, isValidExpectation(criterion));
 
@@ -762,7 +769,6 @@ public class DataHelper {
 			errorMessages.add(JsonHelper.validateByJsonBody(criterion, responseString.get(i)));
 			errorMessages.addAll(JsonHelper.validateByKeywords(criterion, responseString.get(i)));
 			errorMessages.add(JsonHelper.validateResponseBody(criterion, responseString.get(i)));
-			errorMessages.addAll(MessageQueueHelper.validateExpectedMessageCount(criterion, responseString));
 
 			// if no errors, then validation passed, no need to validate against other
 			// responses

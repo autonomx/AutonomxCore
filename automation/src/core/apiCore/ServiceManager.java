@@ -10,8 +10,10 @@ import core.apiCore.helpers.CsvReader;
 import core.apiCore.helpers.DataHelper;
 import core.apiCore.interfaces.Authentication;
 import core.apiCore.interfaces.AzureInterface;
+import core.apiCore.interfaces.KafkaInterface;
 import core.apiCore.interfaces.RabbitMqInterface;
 import core.apiCore.interfaces.RestApiInterface;
+import core.apiCore.interfaces.ServiceBusInterface;
 import core.apiCore.interfaces.SqlInterface;
 import core.apiCore.interfaces.TestPrepare;
 import core.helpers.Helper;
@@ -31,6 +33,8 @@ public class ServiceManager {
 	private static final String SQL_DB_INTERFACE = "SQLDB";
 	private static final String AZURE_INTERFACE = "AZURE";
 	private static final String RABBIT_MQ_INTERFACE = "RABBITMQ";
+	private static final String KAFKA_INTERFACE = "KAFKA";
+	private static final String SERVICEBUS_INTERFACE = "SERVICEBUS";
 	private static final String TEST_PREPARE_INTERFACE = "TestPrepare";
 	public static final String EXTERNAL_INTERFACE = "EXTERNAL";
 
@@ -91,6 +95,12 @@ public class ServiceManager {
 			break;
 		case RABBIT_MQ_INTERFACE:
 			RabbitMqInterface.testRabbitMqInterface(serviceObject);
+			break;
+		case KAFKA_INTERFACE:
+			KafkaInterface.testKafkaInterface(serviceObject);
+			break;
+		case SERVICEBUS_INTERFACE:
+			ServiceBusInterface.testServicebusInterface(serviceObject);
 			break;
 		case TEST_PREPARE_INTERFACE:
 			TestPrepare.TestPrepareInterface(serviceObject);

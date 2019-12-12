@@ -1,5 +1,6 @@
 package core.apiCore.interfaces;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,12 +9,16 @@ import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.DeliverCallback;
 
 import core.apiCore.helpers.DataHelper;
+import core.apiCore.helpers.MessageQueueHelper;
 import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.logger.TestLog;
 import core.support.objects.KeyValue;
+import core.support.objects.MessageObject;
+import core.support.objects.MessageObject.messageType;
 import core.support.objects.ServiceObject;
 import core.support.objects.TestObject;
 
@@ -23,16 +28,19 @@ import core.support.objects.TestObject;
  */
 public class RabbitMqInterface {
 
-	private static final String RABBIT_MQ_HOST = "rabbitMq.host";
-	private static final String RABBIT_MQ_VIRTUAL_HOST = "rabbitMq.virtualhost";
-	private static final String RABBIT_MQ_USER = "rabbitMq.user";
-	private static final String RABBIT_MQ_PASS = "rabbitMq.password";
+	public static final String RABBIT_MQ_HOST = "rabbitMq.host";
+	public static final String RABBIT_MQ_VIRTUAL_HOST = "rabbitMq.virtualhost";
+	public static final String RABBIT_MQ_USER = "rabbitMq.user";
+	public static final String RABBIT_MQ_PASS = "rabbitMq.password";
 	public static final String RABBIT_MQ_EXCHANGE = "rabbitMq.exchange";
+	public static final String RABBIT_MQ_EXCHANGE_TYPE = "rabbitMq.exchange.type";
+
 	public static final String RABBIT_MQ_QUEUE = "rabbitMq.defaultQueue";
+	public static final String RABBIT_MQ_MESSAGE_ID_PREFIX = "rabbitMq.msgId.prefix";
 
 	public static Connection connection = null;
 	public static Channel channel;
-
+	
 	/**
 	 * interface for database calls
 	 * 
@@ -52,8 +60,15 @@ public class RabbitMqInterface {
 		// other)
 		serviceObject.withRequestBody(DataHelper.getRequestBodyIncludingTemplate(serviceObject));
 
+		// generate message id
+		String messageId = MessageQueueHelper.generateMessageId(serviceObject, Config.getValue(RABBIT_MQ_MESSAGE_ID_PREFIX));
+		
 		// send message
-		sendRabbitMqMessage(serviceObject);
+		sendRabbitMqMessage(serviceObject, messageId);
+		
+		// receive messages
+		Method getOutboundMessages = RabbitMqInterface.class.getMethod("getOutboundMessages");
+		MessageQueueHelper.receiveAndValidateMessages(serviceObject, messageId, getOutboundMessages);
 	}
 
 	/**
@@ -65,9 +80,17 @@ public class RabbitMqInterface {
 			try {
 				ConnectionFactory factory = new ConnectionFactory();
 				factory.setHost(Config.getValue(RABBIT_MQ_HOST));
-				factory.setUsername(Config.getValue(RABBIT_MQ_USER));
-				factory.setPassword(Config.getValue(RABBIT_MQ_PASS));
-				factory.setVirtualHost(Config.getValue(RABBIT_MQ_VIRTUAL_HOST));
+				
+				String username = Config.getValue(RABBIT_MQ_USER);
+				String password = Config.getValue(RABBIT_MQ_PASS);
+				String virtualHost = Config.getValue(RABBIT_MQ_VIRTUAL_HOST);
+				
+				if(!username.isEmpty())
+					factory.setUsername(Config.getValue(RABBIT_MQ_USER));
+				if(!password.isEmpty())
+					factory.setPassword(Config.getValue(RABBIT_MQ_PASS));
+				if(!virtualHost.isEmpty())
+					factory.setVirtualHost(Config.getValue(RABBIT_MQ_VIRTUAL_HOST));
 
 				connection = factory.newConnection();
 				channel = connection.createChannel();
@@ -85,11 +108,12 @@ public class RabbitMqInterface {
 	 * 
 	 * @param apiObject
 	 */
-	public static void sendRabbitMqMessage(ServiceObject serviceObject) {
+	public static void sendRabbitMqMessage(ServiceObject serviceObject, String messageId) {
 		TestLog.ConsoleLog("rabbitMq request body: " + serviceObject.getRequestBody());
 
 		// set basic properties
 		BasicProperties props = evaluateRequestHeaders(serviceObject);
+		props = props.builder().correlationId(messageId).messageId(messageId).build();
 
 		String exchange = Config.getValue(RABBIT_MQ_EXCHANGE);
 		String queueName = Config.getValue(RABBIT_MQ_QUEUE);
@@ -186,4 +210,53 @@ public class RabbitMqInterface {
 			e.printStackTrace();
 		}
 	}
+	
+	
+	/**
+	 * gets message from outbound queue Adds messages to ouboutMessage hashmap
+	 * 
+	 * @param receiver
+	 * @return
+	 * @throws Exception 
+	 */
+	public static void getOutboundMessages() throws Exception {
+		ConnectionFactory factory = new ConnectionFactory();
+	    factory.setHost(Config.getValue(RABBIT_MQ_HOST));
+	    Connection connection = factory.newConnection();
+	    Channel channel = connection.createChannel();
+
+		String queueName = Config.getValue(RABBIT_MQ_QUEUE);
+	    channel.queueDeclare(queueName, true, false, false, null);
+	    
+		String exchangeName = Config.getValue(RABBIT_MQ_EXCHANGE);
+		String exchangeType = Config.getValue(RABBIT_MQ_EXCHANGE_TYPE);
+
+		if(!exchangeType.isEmpty())
+			channel.exchangeDeclare(exchangeName, exchangeType);
+		if(!exchangeName.isEmpty()) 
+			channel.queueBind(queueName, exchangeName, "");
+
+		 try {
+		    DeliverCallback deliverCallback = (consumerTag, delivery) -> {
+		    	String messageString = new String(delivery.getBody(), "UTF-8");
+		    	
+		    	 MessageObject message = new MessageObject()
+		    			 .withMessageType(messageType.RABBITMQ)
+		    			 .withMessageId(delivery.getProperties().getMessageId())
+		    			 .withCorrelationId(delivery.getProperties().getCorrelationId())
+		    			 .withMessage(messageString);
+		        
+		        TestLog.logPass("Received messageId '" + message.getMessageId() + "\n with message content: " + message.getMessage());
+		        MessageObject.outboundMessages.put(message, true);
+		    };
+		    channel.basicConsume(queueName, true, deliverCallback, consumerTag -> { });
+		 } catch (Exception e) {
+		        TestLog.ConsoleLog("Exception while getting messages from Rabbit ", e);
+		   }
+		 
+		 Helper.waitForSeconds(3);
+	      channel.close();
+	      connection.close();
+	}
+
 }

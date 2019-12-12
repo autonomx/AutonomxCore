@@ -1,34 +1,29 @@
 package core.apiCore.interfaces;
 
+import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.serialization.StringSerializer;
 
 import core.apiCore.helpers.DataHelper;
 import core.apiCore.helpers.MessageQueueHelper;
-import core.helpers.Helper;
-import core.helpers.StopWatchHelper;
 import core.support.configReader.Config;
 import core.support.logger.TestLog;
 import core.support.objects.KeyValue;
+import core.support.objects.MessageObject;
+import core.support.objects.MessageObject.messageType;
 import core.support.objects.ServiceObject;
 import core.support.objects.TestObject;
 
@@ -43,7 +38,7 @@ public class KafkaInterface {
 	public static final String KFAKA_TOPIC = "kafka.topic";
 	public static final String KAFKA_TIMEOUT_SECONDS = "kafka.timeout.seconds";
 
-	public static final String MESSAGE_ID_PREFIX = "kafkaTestMsgID";
+	public static final String KAFKA_MESSAGE_ID_PREFIX = "kafka.msgId.prefix";
 
 	public static Map<ConsumerRecord<String, String>, Boolean> outboundMessages = new ConcurrentHashMap<ConsumerRecord<String, String>, Boolean>();
 
@@ -61,13 +56,14 @@ public class KafkaInterface {
 		serviceObject.withRequestBody(DataHelper.getRequestBodyIncludingTemplate(serviceObject));
 
 		// generate message id
-		String messageId = MessageQueueHelper.generateMessageId(serviceObject, MESSAGE_ID_PREFIX);
+		String messageId = MessageQueueHelper.generateMessageId(serviceObject, Config.getValue(KAFKA_MESSAGE_ID_PREFIX));
 
 		// send message
 		sendKafkaMessage(serviceObject, messageId);
 
 		// receive messages
-		receiveAndValidateMessages(serviceObject, messageId);
+		Method getOutboundMessages = KafkaInterface.class.getMethod("getOutboundMessages");
+		MessageQueueHelper.receiveAndValidateMessages(serviceObject, messageId, getOutboundMessages);
 	}
 
 	/**
@@ -98,10 +94,9 @@ public class KafkaInterface {
 			final ProducerRecord<String, String> record = new ProducerRecord<>(Config.getValue(KFAKA_TOPIC),
 					messageId.toString(), messageBody);
 
-			RecordMetadata metadata = producer.send(record).get();
+			producer.send(record).get();
 
-			TestLog.ConsoleLog("sent record(key=%s value=%s) " + "meta(partition=%d, offset=%d)\n", record.key(),
-					record.value(), metadata.partition(), metadata.offset());
+			TestLog.logPass("sent messageId : " +  messageId + "\n message : " + messageBody);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -110,135 +105,6 @@ public class KafkaInterface {
 		producer.close();
 
 		TestLog.ConsoleLog("Sent message: " + serviceObject.getRequestBody());
-	}
-
-	/**
-	 * 1) gets messages, adds them to the outboundMessages 2) filters based on the
-	 * message key 3) validates based on expected response requirements
-	 * 
-	 * @param messageId
-	 */
-	public static void receiveAndValidateMessages(ServiceObject serviceObject, String messageId) {
-
-		CopyOnWriteArrayList<ConsumerRecord<String, String>> filteredMessages = new CopyOnWriteArrayList<>();
-		List<String> errorMessages = new ArrayList<String>();
-
-		// kafka will run for maxRetrySeconds to retrieve matching outbound message
-		int maxRetrySeconds = Config.getIntValue(KAFKA_TIMEOUT_SECONDS);
-		StopWatchHelper watch = StopWatchHelper.start();
-		long passedTimeInSeconds = 0;
-		long lastLogged = 0;
-		int interval = 10; // log every 10 seconds
-
-		do {
-			lastLogged = MessageQueueHelper.logPerInterval(interval, watch, lastLogged, filteredMessages.size());
-
-			// gets messages and stores them in outboundMessages hashmap
-			getOutboundMessages();
-
-			// filters based on message id
-			filteredMessages.addAll(filterOutboundMessage(messageId));
-
-			// validate message count
-			String expectedMessageCount = DataHelper.getSectionFromExpectedResponse(DataHelper.EXPECTED_MESSAGE_COUNT,
-					serviceObject.getExpectedResponse());
-			errorMessages = DataHelper.validateExpectedValues(getMessageList(filteredMessages), expectedMessageCount);
-
-			// validates messages. At this point we have received all the relevant messages.
-			// no need to retry
-			if (errorMessages.isEmpty()) {
-				errorMessages.addAll((validateMessages(serviceObject, filteredMessages)));
-				break;
-			}
-
-			passedTimeInSeconds = watch.time(TimeUnit.SECONDS);
-
-		} while (!errorMessages.isEmpty() && passedTimeInSeconds < maxRetrySeconds);
-
-		if (!errorMessages.isEmpty()) {
-			String errorString = StringUtils.join(errorMessages, "\n error: ");
-			TestLog.ConsoleLog(errorString);
-			Helper.assertFalse(StringUtils.join(errorMessages, "\n error: "));
-		}
-	}
-
-	/**
-	 * @return
-	 * 
-	 */
-	public static List<String> validateMessages(ServiceObject serviceObject,
-			CopyOnWriteArrayList<ConsumerRecord<String, String>> filteredMessages) {
-
-		List<String> errorMessages = new ArrayList<String>();
-		if (filteredMessages.isEmpty()) {
-			errorMessages.add("no messages received");
-			return errorMessages;
-		}
-
-		List<String> messageList = getMessageList(filteredMessages);
-		List<String> headerList = getHeaderList(filteredMessages);
-		List<String> topicList = getTopicList(filteredMessages);
-
-		// separate expected response to each section we want to validate: messageBody,
-		// header, topic
-		String expectedMessage = DataHelper.removeSectionFromExpectedResponse(DataHelper.VERIFY_HEADER_PART_INDICATOR,
-				serviceObject.getExpectedResponse());
-		expectedMessage = DataHelper.removeSectionFromExpectedResponse(DataHelper.VERIFY_TOPIC_PART_INDICATOR,
-				expectedMessage);
-		String expectedHeader = DataHelper.getSectionFromExpectedResponse(DataHelper.VERIFY_HEADER_PART_INDICATOR,
-				serviceObject.getExpectedResponse());
-		String expectedTopic = DataHelper.getSectionFromExpectedResponse(DataHelper.VERIFY_TOPIC_PART_INDICATOR,
-				serviceObject.getExpectedResponse());
-
-		errorMessages = DataHelper.validateExpectedValues(messageList, expectedMessage);
-		errorMessages.addAll(DataHelper.validateExpectedValues(headerList, expectedHeader));
-		errorMessages.addAll(DataHelper.validateExpectedValues(topicList, expectedTopic));
-
-		return errorMessages;
-	}
-
-	/**
-	 * inserts kafka topics to array list of strings
-	 * 
-	 * @param filteredMessages
-	 * @return
-	 */
-	public static List<String> getTopicList(CopyOnWriteArrayList<ConsumerRecord<String, String>> filteredMessages) {
-		List<String> topics = new ArrayList<String>();
-		for (ConsumerRecord<String, String> record : filteredMessages) {
-			topics.add(record.topic().toString());
-		}
-		return topics;
-	}
-
-	/**
-	 * inserts kafka headers to array list of strings
-	 * 
-	 * @param filteredMessages
-	 * @return
-	 */
-	public static List<String> getHeaderList(CopyOnWriteArrayList<ConsumerRecord<String, String>> filteredMessages) {
-		List<String> headers = new ArrayList<String>();
-		for (ConsumerRecord<String, String> record : filteredMessages) {
-			for (Header header : record.headers()) {
-				headers.add(header.value().toString());
-			}
-		}
-		return headers;
-	}
-
-	/**
-	 * inserts kafka messages to array list of strings
-	 * 
-	 * @param filteredMessages
-	 * @return
-	 */
-	public static List<String> getMessageList(CopyOnWriteArrayList<ConsumerRecord<String, String>> filteredMessages) {
-		List<String> messages = new ArrayList<String>();
-		for (ConsumerRecord<String, String> message : filteredMessages) {
-			messages.add(message.value());
-		}
-		return messages;
 	}
 
 	/**
@@ -266,8 +132,6 @@ public class KafkaInterface {
 		ConsumerRecords<String, String> consumerRecords = null;
 
 		do {
-			if (!outboundMessages.isEmpty())
-				break;
 			// TestLog.ConsoleLog("attempt: " + noRecordsCount);
 			consumerRecords = consumer.poll(Duration.ofMillis(1000));
 
@@ -276,61 +140,29 @@ public class KafkaInterface {
 				continue;
 			}
 
-			// print all received message on this thread
+			// add received message on this thread to outboundMessages
 			consumerRecords.forEach(record -> {
-				TestLog.logPass("received consumer record: key: " + record.key() + ", value: " + record.value()
-						+ ", partition: " + record.partition() + ", offset: " + record.offset());
-				outboundMessages.put(record, true);
+				
+				List<String> headers = new ArrayList<String>();
+				for (Header header : record.headers()) {
+					headers.add(header.value().toString());
+				}
+
+		    	 MessageObject message = new MessageObject()
+		    			 .withMessageType(messageType.KAFKA)
+		    			 .withMessageId(record.key())
+		    			 .withMessage(record.value())
+		    			 .withTopic(record.topic())
+		    			 .withHeader(headers);
+		        
+		        TestLog.logPass("Received messageId '" + message.getMessageId() + "\n with message content: " + message.getMessage());
+		        MessageObject.outboundMessages.put(message, true);
 			});
 			TestLog.logPass("global message size in outbound list: " + outboundMessages.size());
 			consumer.commitAsync();
 		} while (consumerRecords.isEmpty() && noRecordsCount < giveUp);
 
 		consumer.close();
-	}
-
-	/**
-	 * filter outbound message based on messageId
-	 * 
-	 * @param msgId
-	 * @return
-	 */
-	public static Collection<ConsumerRecord<String, String>> filterOutboundMessage(String messageId) {
-
-		// filter messages for the current test
-		CopyOnWriteArrayList<ConsumerRecord<String, String>> filteredMessages = new CopyOnWriteArrayList<ConsumerRecord<String, String>>();
-		filteredMessages.addAll(findMessagesBasedOnMessageId(messageId));
-
-		return filteredMessages;
-	}
-
-	/**
-	 * find message based on record id
-	 * 
-	 * @param messageId
-	 * @return
-	 */
-	public static CopyOnWriteArrayList<ConsumerRecord<String, String>> findMessagesBasedOnMessageId(String messageId) {
-		CopyOnWriteArrayList<ConsumerRecord<String, String>> filteredMessages = new CopyOnWriteArrayList<ConsumerRecord<String, String>>();
-
-		for (Entry<ConsumerRecord<String, String>, Boolean> entry : outboundMessages.entrySet()) {
-			ConsumerRecord<String, String> message = entry.getKey();
-
-			if (entry.getValue().equals(true) && message.key().contains(messageId)) {
-
-				filteredMessages.add(message);
-				outboundMessages.put(message, false);
-			}
-		}
-
-		return filteredMessages;
-	}
-
-	public static void printMessage() {
-		for (Entry<ConsumerRecord<String, String>, Boolean> entry : outboundMessages.entrySet()) {
-			String message = entry.getKey().value();
-			TestLog.ConsoleLog("outbound messages: " + message);
-		}
 	}
 
 	public static void evaluateOption(ServiceObject serviceObject) {
