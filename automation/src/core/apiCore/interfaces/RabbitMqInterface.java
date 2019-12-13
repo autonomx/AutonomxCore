@@ -27,15 +27,15 @@ import core.support.objects.TestObject;
  */
 public class RabbitMqInterface {
 
-	public static final String RABBIT_MQ_HOST = "rabbitMq.host";
-	public static final String RABBIT_MQ_VIRTUAL_HOST = "rabbitMq.virtualhost";
-	public static final String RABBIT_MQ_USER = "rabbitMq.user";
-	public static final String RABBIT_MQ_PASS = "rabbitMq.password";
-	public static final String RABBIT_MQ_EXCHANGE = "rabbitMq.exchange";
-	public static final String RABBIT_MQ_EXCHANGE_TYPE = "rabbitMq.exchange.type";
+	public static final String RABBIT_MQ_HOST = "rabbitMQ.host";
+	public static final String RABBIT_MQ_VIRTUAL_HOST = "rabbitMQ.virtualhost";
+	public static final String RABBIT_MQ_USER = "rabbitMQ.user";
+	public static final String RABBIT_MQ_PASS = "rabbitMQ.password";
+	public static final String RABBIT_MQ_EXCHANGE = "rabbitMQ.exchange";
+	public static final String RABBIT_MQ_EXCHANGE_TYPE = "rabbitMQ.exchange.type";
 
-	public static final String RABBIT_MQ_QUEUE = "rabbitMq.defaultQueue";
-	public static final String RABBIT_MQ_MESSAGE_ID_PREFIX = "rabbitMq.msgId.prefix";
+	public static final String RABBIT_MQ_QUEUE = "rabbitMQ.defaultQueue";
+	public static final String RABBIT_MQ_MESSAGE_ID_PREFIX = "rabbitMQ.msgId.prefix";
 
 	public static Connection connection = null;
 	public static Channel channel;

@@ -1,6 +1,5 @@
 package core.apiCore.interfaces;
 
-import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,7 +33,7 @@ import core.support.objects.TestObject;
 public class KafkaInterface {
 
 	public static final String KAFKA_SERVER_URL = "kafka.bootstrap.servers";
-	public static final String KAFKA_CLIENT_ID = "kafka.client.id";
+	public static final String KAFKA_CLIENT_ID = "kafka.clientId";
 	public static final String KFAKA_TOPIC = "kafka.topic";
 	public static final String KAFKA_TIMEOUT_SECONDS = "kafka.timeout.seconds";
 
@@ -62,7 +61,6 @@ public class KafkaInterface {
 		sendKafkaMessage(serviceObject, messageId);
 
 		// receive messages
-		Method getOutboundMessages = KafkaInterface.class.getMethod("getOutboundMessages");
 		MessageQueueHelper.receiveAndValidateMessages(serviceObject, messageId, messageType.KAFKA);
 	}
 
