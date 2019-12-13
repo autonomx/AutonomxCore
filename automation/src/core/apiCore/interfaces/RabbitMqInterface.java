@@ -1,6 +1,5 @@
 package core.apiCore.interfaces;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,8 +66,7 @@ public class RabbitMqInterface {
 		sendRabbitMqMessage(serviceObject, messageId);
 		
 		// receive messages
-		Method getOutboundMessages = RabbitMqInterface.class.getMethod("getOutboundMessages");
-		MessageQueueHelper.receiveAndValidateMessages(serviceObject, messageId, getOutboundMessages);
+		MessageQueueHelper.receiveAndValidateMessages(serviceObject, messageId, messageType.RABBITMQ);
 	}
 
 	/**
@@ -220,11 +218,6 @@ public class RabbitMqInterface {
 	 * @throws Exception 
 	 */
 	public static void getOutboundMessages() throws Exception {
-		ConnectionFactory factory = new ConnectionFactory();
-	    factory.setHost(Config.getValue(RABBIT_MQ_HOST));
-	    Connection connection = factory.newConnection();
-	    Channel channel = connection.createChannel();
-
 		String queueName = Config.getValue(RABBIT_MQ_QUEUE);
 	    channel.queueDeclare(queueName, true, false, false, null);
 	    

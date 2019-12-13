@@ -772,6 +772,7 @@ public class DataHelper {
 
 			// if no errors, then validation passed, no need to validate against other
 			// responses
+			errorMessages.removeAll(Collections.singleton(""));
 			if (errorMessages.isEmpty())
 				break;
 

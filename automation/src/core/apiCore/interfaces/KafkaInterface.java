@@ -63,7 +63,7 @@ public class KafkaInterface {
 
 		// receive messages
 		Method getOutboundMessages = KafkaInterface.class.getMethod("getOutboundMessages");
-		MessageQueueHelper.receiveAndValidateMessages(serviceObject, messageId, getOutboundMessages);
+		MessageQueueHelper.receiveAndValidateMessages(serviceObject, messageId, messageType.KAFKA);
 	}
 
 	/**

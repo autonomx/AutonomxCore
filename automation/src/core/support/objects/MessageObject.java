@@ -9,7 +9,7 @@ import com.microsoft.azure.servicebus.primitives.StringUtil;
 
 public class MessageObject {
 	
-	public enum messageType { KAFKA, RABBITMQ, SERVICEBUS }
+	public enum messageType { KAFKA, RABBITMQ, SERVICEBUS, TEST }
 
 	public messageType messageType = null;
 	public String message = StringUtil.EMPTY;

@@ -1,6 +1,5 @@
 package core.apiCore.interfaces;
 
-import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,8 +68,7 @@ public class ServiceBusInterface {
 		sendServiceBusMessage(serviceObject, messageId);
 
 		// receive messages
-		Method getOutboundMessages = ServiceBusInterface.class.getMethod("getOutboundMessages");
-		MessageQueueHelper.receiveAndValidateMessages(serviceObject, messageId, getOutboundMessages);
+		MessageQueueHelper.receiveAndValidateMessages(serviceObject, messageId, messageType.SERVICEBUS);
 	}
 
 	/**

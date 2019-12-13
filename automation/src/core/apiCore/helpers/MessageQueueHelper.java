@@ -1,6 +1,5 @@
 package core.apiCore.helpers;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -16,11 +15,15 @@ import org.apache.http.util.TextUtils;
 
 import com.microsoft.azure.servicebus.primitives.StringUtil;
 
+import core.apiCore.interfaces.KafkaInterface;
+import core.apiCore.interfaces.RabbitMqInterface;
+import core.apiCore.interfaces.ServiceBusInterface;
 import core.helpers.Helper;
 import core.helpers.StopWatchHelper;
 import core.support.configReader.Config;
 import core.support.logger.TestLog;
 import core.support.objects.MessageObject;
+import core.support.objects.MessageObject.messageType;
 import core.support.objects.ServiceObject;
 
 public class MessageQueueHelper {
@@ -155,7 +158,7 @@ public class MessageQueueHelper {
 	 * @param msgId
 	 * @return
 	 */
-	public static Collection<MessageObject> filterOutboundMessage(String messageId) {
+	public static CopyOnWriteArrayList<MessageObject> filterOutboundMessage(String messageId) {
 
 		// filter messages for the current test
 		CopyOnWriteArrayList<MessageObject> filteredMessages = new CopyOnWriteArrayList<MessageObject>();
@@ -174,12 +177,12 @@ public class MessageQueueHelper {
 	 * @param messageId
 	 * @throws Exception 
 	 */
-	public static void receiveAndValidateMessages(ServiceObject serviceObject, String messageId, Method getOutboundMessages) throws Exception {
+	public static void receiveAndValidateMessages(ServiceObject serviceObject, String messageId, messageType messageType) throws Exception {
 
 		CopyOnWriteArrayList<MessageObject> filteredMessages = new CopyOnWriteArrayList<>();
 		List<String> errorMessages = new ArrayList<String>();
 
-		// kafka will run for maxRetrySeconds to retrieve matching outbound message
+		// message queue will run for maxRetrySeconds to retrieve matching outbound message
 		int maxRetrySeconds = Config.getIntValue(MQ_TIMEOUT_SECONDS);
 		StopWatchHelper watch = StopWatchHelper.start();
 		long passedTimeInSeconds = 0;
@@ -190,7 +193,7 @@ public class MessageQueueHelper {
 			lastLogged = MessageQueueHelper.logPerInterval(interval, watch, lastLogged, filteredMessages.size());
 
 			// gets messages and stores them in outboundMessages hashmap
-			getOutboundMessages.invoke(null);
+			getOutboundMessages(messageType);
 
 			// filters based on message id
 			filteredMessages.addAll(MessageQueueHelper.filterOutboundMessage(messageId));
@@ -214,6 +217,24 @@ public class MessageQueueHelper {
 			TestLog.ConsoleLog(errorString);
 			Helper.assertFalse(StringUtils.join(errorMessages, "\n error: "));
 		}
+	}
+	
+	public static void getOutboundMessages(messageType messageType) throws Exception {
+		switch(messageType) {
+		  case KAFKA:
+		    KafkaInterface.getOutboundMessages();
+		    break;
+		  case RABBITMQ:
+		    RabbitMqInterface.getOutboundMessages();
+		    break;
+		  case SERVICEBUS:
+			    ServiceBusInterface.getOutboundMessages();
+			    break;
+		  case TEST:
+			    break;
+		  default:
+		}
+		
 	}
 	
 	/**
@@ -295,6 +316,8 @@ public class MessageQueueHelper {
 		String expectedMessage = DataHelper.removeSectionFromExpectedResponse(DataHelper.VERIFY_HEADER_PART_INDICATOR,
 				serviceObject.getExpectedResponse());
 		expectedMessage = DataHelper.removeSectionFromExpectedResponse(DataHelper.VERIFY_TOPIC_PART_INDICATOR,
+				expectedMessage);
+		expectedMessage = DataHelper.removeSectionFromExpectedResponse(DataHelper.EXPECTED_MESSAGE_COUNT,
 				expectedMessage);
 		String expectedHeader = DataHelper.getSectionFromExpectedResponse(DataHelper.VERIFY_HEADER_PART_INDICATOR,
 				serviceObject.getExpectedResponse());
