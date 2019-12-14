@@ -112,6 +112,7 @@ public class RestApiInterface {
 		} while (!errorMessages.isEmpty() && passedTimeInSeconds < maxRetrySeconds);
 
 		if (!errorMessages.isEmpty()) {
+			TestLog.ConsoleLog("Validation failed after: " +  passedTimeInSeconds + " seconds");
 			String errorString = StringUtils.join(errorMessages, "\n error: ");
 			TestLog.ConsoleLog(errorString);
 			Helper.assertFalse(StringUtils.join(errorMessages, "\n error: "));

@@ -118,7 +118,7 @@ public class ServiceObject {
 	}
 	
 	public String getRunFlag(){
-		return this.RunFlag;
+		return this.RunFlag.trim();
 	}
 	
 	public ServiceObject withDescription(String Description){
@@ -183,7 +183,7 @@ public class ServiceObject {
 	}
 	
 	public String getOption(){
-		return this.Option;
+		return this.Option.trim();
 	}
 	
 	public ServiceObject withRequestHeaders(String RequestHeaders){
@@ -201,7 +201,7 @@ public class ServiceObject {
 	}
 	
 	public String getTemplateFile(){
-		return this.TemplateFile;
+		return this.TemplateFile.trim();
 	}
 	
 	public ServiceObject withRequestBody(String RequestBody){
@@ -228,7 +228,7 @@ public class ServiceObject {
 	}
 	
 	public String getRespCodeExp(){
-		return this.RespCodeExp;
+		return this.RespCodeExp.trim();
 	}
 	
 	public ServiceObject withExpectedResponse(String ExpectedResponse){
@@ -250,12 +250,12 @@ public class ServiceObject {
 	}
 	
 	public ServiceObject withTcName(String tcName){
-		this.tcName = tcName;
+		this.tcName = tcName.trim();
 		return this;
 	}
 	
 	public String getTcName(){
-		return this.tcName;
+		return this.tcName.trim();
 	}
 	
 	public String getTcType(){

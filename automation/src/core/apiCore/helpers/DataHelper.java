@@ -157,21 +157,21 @@ public class DataHelper {
 	}
 
 	public static String getTemplateFileLocation(String file) {
-		String templatePath = Config.getValue(TestDataProvider.TEST_DATA_TEMPLATE_PATH);
+		String templatePath = Config.getValue(TestDataProvider.TEST_DATA_TEMPLATE_PATH).trim();
 		String templateTestPath = PropertiesReader.getLocalRootPath() + templatePath;
 
 		return templateTestPath + file;
 	}
 
 	public static Path getTemplateFilePath(String file) {
-		String templatePath = Config.getValue(TestDataProvider.TEST_DATA_TEMPLATE_PATH);
+		String templatePath = Config.getValue(TestDataProvider.TEST_DATA_TEMPLATE_PATH).trim();
 		String templateTestPath = PropertiesReader.getLocalRootPath() + templatePath;
 		String fullLocation = templateTestPath + file;
 		return new File(fullLocation).toPath();
 	}
 
 	public static File getFile(String filename) {
-		String templatePath = Config.getValue(TestDataProvider.TEST_DATA_TEMPLATE_PATH);
+		String templatePath = Config.getValue(TestDataProvider.TEST_DATA_TEMPLATE_PATH).trim();
 		String templateTestPath = PropertiesReader.getLocalRootPath() + templatePath;
 		File file = new File(templateTestPath + filename);
 		return file;
@@ -637,25 +637,31 @@ public class DataHelper {
 	 */
 	public static String getRequestBodyIncludingTemplate(ServiceObject serviceObject) {
 
+		String requestbody = StringUtils.EMPTY;
+		
 		// replace request body parameters
 		serviceObject.withRequestBody(replaceParameters(serviceObject.getRequestBody()));
 
 		// if json template file
 		if (JsonHelper.isJsonFile(serviceObject.getTemplateFile()))
-			return JsonHelper.getRequestBodyFromJsonTemplate(serviceObject);
+			requestbody = JsonHelper.getRequestBodyFromJsonTemplate(serviceObject);
 
 		// if xml template file
 		if (XmlHelper.isXmlFile(serviceObject.getTemplateFile()))
-			return XmlHelper.getRequestBodyFromXmlTemplate(serviceObject);
+			requestbody = XmlHelper.getRequestBodyFromXmlTemplate(serviceObject);
 
 		// if other type of file
 		if (!serviceObject.getTemplateFile().isEmpty()) {
 			Path templatePath = DataHelper.getTemplateFilePath(serviceObject.getTemplateFile());
-			return convertFileToString(templatePath);
+			requestbody = convertFileToString(templatePath);
 		}
 
 		// if no template, return request body
-		return serviceObject.getRequestBody();
+		if(requestbody.isEmpty())
+			requestbody = serviceObject.getRequestBody();
+		
+		TestLog.ConsoleLog("request: " + requestbody);
+		return requestbody;
 	}
 
 	/**

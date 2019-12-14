@@ -59,7 +59,6 @@ public class XmlHelper {
 			transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
 			transformer.transform(new DOMSource(doc), new StreamResult(sw));
 			
-			TestLog.ConsoleLog(sw.toString());
 			return sw.toString();
 		} catch (IllegalArgumentException | TransformerException ex) {
 			throw new RuntimeException("Error converting to String", ex);

@@ -28,6 +28,7 @@ import core.support.objects.TestObject;
 public class RabbitMqInterface {
 
 	public static final String RABBIT_MQ_HOST = "rabbitMQ.host";
+	public static final String RABBIT_MQ_PORT = "rabbitMQ.port";
 	public static final String RABBIT_MQ_VIRTUAL_HOST = "rabbitMQ.virtualhost";
 	public static final String RABBIT_MQ_USER = "rabbitMQ.user";
 	public static final String RABBIT_MQ_PASS = "rabbitMQ.password";
@@ -77,16 +78,18 @@ public class RabbitMqInterface {
 		if (channel == null) {
 			try {
 				ConnectionFactory factory = new ConnectionFactory();
-				factory.setHost(Config.getValue(RABBIT_MQ_HOST));
-				
+				int port = Config.getIntValue(RABBIT_MQ_PORT);
 				String username = Config.getValue(RABBIT_MQ_USER);
 				String password = Config.getValue(RABBIT_MQ_PASS);
 				String virtualHost = Config.getValue(RABBIT_MQ_VIRTUAL_HOST);
 				
+				factory.setHost(Config.getValue(RABBIT_MQ_HOST));
+				if(port != -1)
+					factory.setPort(port);	
 				if(!username.isEmpty())
 					factory.setUsername(Config.getValue(RABBIT_MQ_USER));
 				if(!password.isEmpty())
-					factory.setPassword(Config.getValue(RABBIT_MQ_PASS));
+					factory.setPassword(Config.getValue(RABBIT_MQ_PASS));	
 				if(!virtualHost.isEmpty())
 					factory.setVirtualHost(Config.getValue(RABBIT_MQ_VIRTUAL_HOST));
 
@@ -248,8 +251,6 @@ public class RabbitMqInterface {
 		   }
 		 
 		 Helper.waitForSeconds(3);
-	      channel.close();
-	      connection.close();
 	}
 
 }
