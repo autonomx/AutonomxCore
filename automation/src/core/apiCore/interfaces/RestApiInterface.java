@@ -49,7 +49,7 @@ public class RestApiInterface {
 	public static Response RestfullApiInterface(ServiceObject serviceObject) {
 
 		if (serviceObject == null)
-			Helper.assertFalse("apiobject is null");
+			Helper.assertFalse("service object is null");
 
 		// set timeout from api config
 		setTimeout();

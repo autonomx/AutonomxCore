@@ -305,7 +305,6 @@ public class XmlHelper {
 		
 		// replace parameters
 		xmlString = DataHelper.replaceParameters(xmlString);
-		serviceObject.withRequestBody(DataHelper.replaceParameters(serviceObject.getRequestBody()));
 
 		// get key value mapping of header parameters
 		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getRequestBody());

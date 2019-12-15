@@ -432,7 +432,6 @@ public class JsonHelper {
 		
 		// replace parameters
 		jsonString = DataHelper.replaceParameters(jsonString);
-		serviceObject.withRequestBody(DataHelper.replaceParameters(serviceObject.getRequestBody()));
 
 		// get key value mapping of header parameters
 		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getRequestBody());

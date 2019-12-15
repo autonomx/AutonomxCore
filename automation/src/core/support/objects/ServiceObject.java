@@ -136,7 +136,7 @@ public class ServiceObject {
 	}
 	
 	public String getInterfaceType(){
-		return this.InterfaceType;
+		return this.InterfaceType.trim();
 	}
 	
 	public ServiceObject withUriPath(String UriPath){
@@ -145,7 +145,7 @@ public class ServiceObject {
 	}
 	
 	public String getUriPath(){
-		return this.UriPath;
+		return this.UriPath.trim();
 	}
 	
 	public ServiceObject withContentType(String ContentType){
@@ -154,7 +154,7 @@ public class ServiceObject {
 	}
 	
 	public String getContentType(){
-		return this.ContentType;
+		return this.ContentType.trim();
 	}
 	
 	public ServiceObject withMethod(String Method){

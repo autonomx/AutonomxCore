@@ -638,27 +638,27 @@ public class DataHelper {
 	public static String getRequestBodyIncludingTemplate(ServiceObject serviceObject) {
 
 		String requestbody = StringUtils.EMPTY;
-		
-		// replace request body parameters
-		serviceObject.withRequestBody(replaceParameters(serviceObject.getRequestBody()));
 
 		// if json template file
-		if (JsonHelper.isJsonFile(serviceObject.getTemplateFile()))
+		if (JsonHelper.isJsonFile(serviceObject.getTemplateFile())) {
 			requestbody = JsonHelper.getRequestBodyFromJsonTemplate(serviceObject);
 
 		// if xml template file
-		if (XmlHelper.isXmlFile(serviceObject.getTemplateFile()))
+		}else if (XmlHelper.isXmlFile(serviceObject.getTemplateFile())) {
 			requestbody = XmlHelper.getRequestBodyFromXmlTemplate(serviceObject);
 
 		// if other type of file
-		if (!serviceObject.getTemplateFile().isEmpty()) {
+		}else if (!serviceObject.getTemplateFile().isEmpty()) {
 			Path templatePath = DataHelper.getTemplateFilePath(serviceObject.getTemplateFile());
 			requestbody = convertFileToString(templatePath);
-		}
+		
 
 		// if no template, return request body
-		if(requestbody.isEmpty())
+		}else if(requestbody.isEmpty())
 			requestbody = serviceObject.getRequestBody();
+		
+		// replace request body parameters
+		requestbody = replaceParameters(requestbody);
 		
 		TestLog.ConsoleLog("request: " + requestbody);
 		return requestbody;
@@ -674,7 +674,7 @@ public class DataHelper {
 	public static String convertFileToString(Path templatePath) {
 		String content = Helper.readFileContent(templatePath.toString());
 
-		// replace content paramters
+		// replace content parameters
 		return replaceParameters(content);
 	}
 
