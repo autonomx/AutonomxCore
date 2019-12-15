@@ -228,7 +228,7 @@ public class RabbitMqInterface {
 	 * @return
 	 * @throws Exception 
 	 */
-	public static void getOutboundMessages2() throws Exception {
+	public static void getOutboundMessages() throws Exception {
 		String queueName = Config.getValue(RABBIT_MQ_QUEUE);
 		boolean queueDurable = Config.getBooleanValue(RABBIT_MQ_QUEUE_DURABLE);
 
@@ -252,15 +252,13 @@ public class RabbitMqInterface {
 		    			 .withCorrelationId(delivery.getProperties().getCorrelationId())
 		    			 .withMessage(messageString);
 		        
-		        TestLog.logPass("Received messageId '" + message.getMessageId() + "\n with message content: " + message.getMessage());
+		        TestLog.logPass("Received message with Id '" + message.getMessageId());
 		        MessageObject.outboundMessages.put(message, true);
 		    };
 		    channel.basicConsume(queueName, true, deliverCallback, consumerTag -> { });
 		 } catch (Exception e) {
 		        TestLog.ConsoleLog("Exception while getting messages from Rabbit ", e);
-		   }
-		 
-		 Helper.waitForSeconds(3);
+		   }	 
 	}
 
 }

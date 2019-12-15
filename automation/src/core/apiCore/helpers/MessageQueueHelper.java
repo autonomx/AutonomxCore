@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
@@ -137,8 +138,9 @@ public class MessageQueueHelper {
 		CopyOnWriteArrayList<MessageObject> filteredMessages = new CopyOnWriteArrayList<MessageObject>();
 
 		for (Entry<MessageObject, Boolean> entry : MessageObject.outboundMessages.entrySet()) {
-			String receivedMessageId = entry.getKey().getMessageId();
-			String receivedCorrelationId = entry.getKey().getCorrelationId();
+			String receivedMessageId = Optional.ofNullable(entry.getKey().getMessageId()).orElse("");
+			String receivedCorrelationId =  Optional.ofNullable(entry.getKey().getCorrelationId()).orElse("");
+			
 
 			boolean isMessageMatch = receivedMessageId.contains(messageId) || receivedCorrelationId.contains(messageId);
 			if (entry.getValue().equals(true) && isMessageMatch) {
@@ -203,6 +205,7 @@ public class MessageQueueHelper {
 			// validates messages. At this point we have received all the relevant messages.
 			// no need to retry
 			if (errorMessages.isEmpty()) {
+				printAllFilteredMessages(filteredMessages);
 				errorMessages.addAll((validateMessages(serviceObject, filteredMessages)));
 				break;
 			}
@@ -246,6 +249,15 @@ public class MessageQueueHelper {
 			Boolean messageAvailable = entry.getValue();
 
 			TestLog.ConsoleLog("received messagesId: '" + messageId + "'. was message read: " + !messageAvailable );
+		}
+	}
+	
+	public static void printAllFilteredMessages(CopyOnWriteArrayList<MessageObject> filteredMessages) {
+		TestLog.ConsoleLog("Printing All relavent received messages");
+		for (MessageObject message : filteredMessages) {
+			String messageId = message.getMessageId();
+			String messageContent = message.getMessage();
+			TestLog.logPass("received messagesId: '" + messageId + "' with message content: \n" +  messageContent );
 		}
 	}
 	
