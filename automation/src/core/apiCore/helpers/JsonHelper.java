@@ -257,7 +257,7 @@ public class JsonHelper {
 	 */
 	public static String validateByJsonBody(String expectedJson, String response) {
 		expectedJson = Helper.stringRemoveLines(expectedJson);
-		if (JsonHelper.isJSONValid(expectedJson, true)) {
+		if (JsonHelper.isJSONValid(expectedJson, false)) {
 			if(StringUtils.isBlank(response)) 
 				Helper.assertFalse("response is empty, please re-evaluate your json path");
 			
@@ -270,23 +270,13 @@ public class JsonHelper {
 				//JSONAssert.assertEquals(expectedJson, response, JSONCompareMode.LENIENT);
 			} catch (JSONException e) {
 				e.printStackTrace();
+				return e.getMessage() + "\n" + "see http://jsonpath.herokuapp.com to validate your path against json string. see https://github.com/json-path/JsonPath for more info. \n\n expectedJson: " +  expectedJson + "\n\n response: " + response + "\n\n";
+
 			}
 		}
 		return StringUtils.EMPTY;
 	}
 
-	public static boolean isValidExpectation(String expectedJson) {
-		if (JsonHelper.isJSONValid(expectedJson, false)) {
-			return true;
-		}
-		expectedJson = Helper.stringNormalize(expectedJson);
-		if (expectedJson.startsWith(DataHelper.VERIFY_JSON_PART_INDICATOR) || expectedJson.startsWith("_NOT_EMPTY_")
-				|| expectedJson.startsWith(DataHelper.VERIFY_RESPONSE_BODY_INDICATOR)) {
-			return true;
-		}
-		return false;
-	}
-	
 	/**
 	 * validates json response against keywords
 	 * 
@@ -347,9 +337,15 @@ public class JsonHelper {
 	 * @return 
 	 */
 	public static String validateResponseBody(String expected, String responseString) {
-		if (!expected.startsWith(DataHelper.VERIFY_RESPONSE_BODY_INDICATOR)) {
+		expected = Helper.stringRemoveLines(expected);
+		expected = Helper.removeSurroundingQuotes(expected);
+		
+		if (!expected.startsWith(DataHelper.VERIFY_RESPONSE_BODY_INDICATOR)
+				&& !expected.startsWith(DataHelper.VERIFY_HEADER_PART_INDICATOR)
+				&& !expected.startsWith(DataHelper.VERIFY_TOPIC_PART_INDICATOR)) {
 			return StringUtils.EMPTY;
 		}
+		
 		// remove the indicator _VERIFY.RESPONSE.BODY_
 		expected = removeResponseIndicator(expected);
 
@@ -380,6 +376,9 @@ public class JsonHelper {
 		List<String> indicator = new ArrayList<String>();
 		indicator.add(DataHelper.VERIFY_RESPONSE_BODY_INDICATOR);
 		indicator.add(DataHelper.VERIFY_JSON_PART_INDICATOR);
+		indicator.add(DataHelper.VERIFY_HEADER_PART_INDICATOR);
+		indicator.add(DataHelper.VERIFY_TOPIC_PART_INDICATOR);
+
 
 		for (String value : indicator) {
 			expected = expected.replace(value, "");
@@ -433,7 +432,6 @@ public class JsonHelper {
 		
 		// replace parameters
 		jsonString = DataHelper.replaceParameters(jsonString);
-		serviceObject.withRequestBody(DataHelper.replaceParameters(serviceObject.getRequestBody()));
 
 		// get key value mapping of header parameters
 		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getRequestBody());
@@ -453,9 +451,13 @@ public class JsonHelper {
 	 * @return
 	 */
 	public static String replaceJsonPathValue(String jsonString, String path, String value) {
-		
-		
+				
 		DocumentContext doc = JsonPath.parse(jsonString);
+		String prefix = "$.";
+		
+		// in case user forgets to remove prefix
+		if(path.startsWith(prefix)) 
+			path = path.replace(prefix, "");
 		
 		try {
 			doc.set("$."+ path, value);
@@ -516,8 +518,8 @@ public class JsonHelper {
 		return false;
 	}
 	
-	public static String updateJsonFromJasonPath(String jsonPath) {
-		return jsonPath;
-		
+	public static List<String> arrayRemoveAllEmptyString(List<String> list){
+		 list.removeAll(Collections.singleton(""));
+		 return list;
 	}
 }

@@ -49,7 +49,7 @@ public class RestApiInterface {
 	public static Response RestfullApiInterface(ServiceObject serviceObject) {
 
 		if (serviceObject == null)
-			Helper.assertFalse("apiobject is null");
+			Helper.assertFalse("service object is null");
 
 		// set timeout from api config
 		setTimeout();
@@ -112,6 +112,7 @@ public class RestApiInterface {
 		} while (!errorMessages.isEmpty() && passedTimeInSeconds < maxRetrySeconds);
 
 		if (!errorMessages.isEmpty()) {
+			TestLog.ConsoleLog("Validation failed after: " +  passedTimeInSeconds + " seconds");
 			String errorString = StringUtils.join(errorMessages, "\n error: ");
 			TestLog.ConsoleLog(errorString);
 			Helper.assertFalse(StringUtils.join(errorMessages, "\n error: "));
@@ -206,36 +207,13 @@ public class RestApiInterface {
 				errorMessages.add(message);
 				return errorMessages;
 			}
-
 		}
+		
 		String responseString = JsonHelper.getResponseValue(response);
-		errorMessages = validateExpectedValues(responseString, serviceObject);
+		List<String> responses = new ArrayList<String>();
+		responses.add(responseString);
+		errorMessages = DataHelper.validateExpectedValues(responses, serviceObject.getExpectedResponse());
 
-		// remove all empty response strings
-		errorMessages.removeAll(Collections.singleton(""));
-		return errorMessages;
-	}
-
-	public static List<String> validateExpectedValues(String responseString, ServiceObject serviceObject) {
-		List<String> errorMessages = new ArrayList<String>();
-
-		// get response body as string
-		TestLog.logPass("response: " + responseString);
-
-		// validate response body against expected json string
-		if (!serviceObject.getExpectedResponse().isEmpty()) {
-			serviceObject.withExpectedResponse(DataHelper.replaceParameters(serviceObject.getExpectedResponse()));
-
-			// separate the expected response by &&
-			String[] criteria = serviceObject.getExpectedResponse().split("&&");
-			for (String criterion : criteria) {
-				Helper.assertTrue("expected is not valid format: " + criterion,
-						JsonHelper.isValidExpectation(criterion));
-				errorMessages.add(JsonHelper.validateByJsonBody(criterion, responseString));
-				errorMessages.addAll(JsonHelper.validateByKeywords(criterion, responseString));
-				errorMessages.add(JsonHelper.validateResponseBody(criterion, responseString));
-			}
-		}
 		// remove all empty response strings
 		errorMessages.removeAll(Collections.singleton(""));
 		return errorMessages;

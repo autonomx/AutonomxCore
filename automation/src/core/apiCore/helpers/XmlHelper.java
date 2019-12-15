@@ -31,7 +31,10 @@ import org.json.JSONObject;
 import org.json.XML;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
+import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 import core.helpers.Helper;
 import core.support.logger.TestLog;
@@ -56,7 +59,6 @@ public class XmlHelper {
 			transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
 			transformer.transform(new DOMSource(doc), new StreamResult(sw));
 			
-			TestLog.ConsoleLog(sw.toString());
 			return sw.toString();
 		} catch (IllegalArgumentException | TransformerException ex) {
 			throw new RuntimeException("Error converting to String", ex);
@@ -303,7 +305,6 @@ public class XmlHelper {
 		
 		// replace parameters
 		xmlString = DataHelper.replaceParameters(xmlString);
-		serviceObject.withRequestBody(DataHelper.replaceParameters(serviceObject.getRequestBody()));
 
 		// get key value mapping of header parameters
 		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getRequestBody());
@@ -357,5 +358,32 @@ public class XmlHelper {
 		if(filename.toLowerCase().endsWith("xml"))
 				return true;
 		return false;
+	}
+	
+	/**
+	 * validates if xml string is valid xml
+	 * @param xmlString
+	 * @return
+	 */
+	public static boolean isValidXmlString(String xmlString) {
+		try {
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			dbFactory.setValidating(false);
+			dbFactory.setSchema(null);
+			
+			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			dBuilder.setErrorHandler(new ErrorHandler() {
+				@Override
+				public void warning(SAXParseException exception) throws SAXException {}
+				@Override
+				public void error(SAXParseException exception) throws SAXException {}
+				@Override
+				public void fatalError(SAXParseException exception) throws SAXException {			}
+	        });
+			dBuilder.parse(new InputSource(new StringReader(xmlString)));
+			return true;
+		} catch (Exception e) {
+		    return false;
+		}
 	}
 }
