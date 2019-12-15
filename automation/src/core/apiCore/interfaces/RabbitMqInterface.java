@@ -36,6 +36,10 @@ public class RabbitMqInterface {
 	public static final String RABBIT_MQ_EXCHANGE_TYPE = "rabbitMQ.exchange.type";
 
 	public static final String RABBIT_MQ_QUEUE = "rabbitMQ.defaultQueue";
+	public static final String RABBIT_MQ_QUEUE_DURABLE = "rabbitMQ.Queue.durable";
+
+	
+	
 	public static final String RABBIT_MQ_MESSAGE_ID_PREFIX = "rabbitMQ.msgId.prefix";
 
 	public static Connection connection = null;
@@ -118,7 +122,12 @@ public class RabbitMqInterface {
 
 		String exchange = Config.getValue(RABBIT_MQ_EXCHANGE);
 		String queueName = Config.getValue(RABBIT_MQ_QUEUE);
+		String exchangeType = Config.getValue(RABBIT_MQ_EXCHANGE_TYPE);
+		
 		try {
+			if(!exchangeType.isEmpty())
+				channel.exchangeDeclare(exchange, exchangeType);
+			
 			channel.basicPublish(exchange, queueName, props, serviceObject.getRequestBody().getBytes());
 		} catch (Exception e) {
 			throw new RuntimeException("Could not send message. ", e);
@@ -212,7 +221,6 @@ public class RabbitMqInterface {
 		}
 	}
 	
-	
 	/**
 	 * gets message from outbound queue Adds messages to ouboutMessage hashmap
 	 * 
@@ -220,9 +228,11 @@ public class RabbitMqInterface {
 	 * @return
 	 * @throws Exception 
 	 */
-	public static void getOutboundMessages() throws Exception {
+	public static void getOutboundMessages2() throws Exception {
 		String queueName = Config.getValue(RABBIT_MQ_QUEUE);
-	    channel.queueDeclare(queueName, true, false, false, null);
+		boolean queueDurable = Config.getBooleanValue(RABBIT_MQ_QUEUE_DURABLE);
+
+	    channel.queueDeclare(queueName, queueDurable, false, false, null);
 	    
 		String exchangeName = Config.getValue(RABBIT_MQ_EXCHANGE);
 		String exchangeType = Config.getValue(RABBIT_MQ_EXCHANGE_TYPE);
