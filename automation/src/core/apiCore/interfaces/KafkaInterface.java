@@ -35,6 +35,8 @@ public class KafkaInterface {
 	public static final String KAFKA_SERVER_URL = "kafka.bootstrap.servers";
 	public static final String KAFKA_CLIENT_ID = "kafka.clientId";
 	public static final String KFAKA_TOPIC = "kafka.topic";
+	public static final String KAFKA_GROUP_ID = "kafka.group.id";
+
 	public static final String KAFKA_TIMEOUT_SECONDS = "kafka.timeout.seconds";
 
 	public static final String KAFKA_MESSAGE_ID_PREFIX = "kafka.msgId.prefix";
@@ -113,8 +115,10 @@ public class KafkaInterface {
 	public static void getOutboundMessages() {
 		Properties props = new Properties();
 		props.put("bootstrap.servers", Config.getValue(KAFKA_SERVER_URL));
-		props.put("group.id", "KafkaExampleConsumer");
+		props.put("group.id", Config.getValue(KAFKA_GROUP_ID));
+		props.put("auto.offset.reset", "earliest");
 		props.put("enable.auto.commit", "true");
+
 		props.put("auto.commit.interval.ms", "1000");
 		props.put("session.timeout.ms", "30000");
 		props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
@@ -129,7 +133,7 @@ public class KafkaInterface {
 
 		do {
 			// TestLog.ConsoleLog("attempt: " + noRecordsCount);
-			consumerRecords = consumer.poll(Duration.ofMillis(1000));
+			consumerRecords = consumer.poll(Duration.ofMillis(3000));
 
 			if (consumerRecords.count() == 0) {
 				noRecordsCount++;
