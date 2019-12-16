@@ -101,8 +101,6 @@ public class KafkaInterface {
 		}
 
 		producer.close();
-
-		TestLog.ConsoleLog("Sent message: " + serviceObject.getRequestBody());
 	}
 
 	/**
