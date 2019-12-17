@@ -33,9 +33,11 @@ public class RabbitMqInterface {
 	public static final String RABBIT_MQ_USER = "rabbitMQ.user";
 	public static final String RABBIT_MQ_PASS = "rabbitMQ.password";
 	public static final String RABBIT_MQ_EXCHANGE = "rabbitMQ.exchange";
+	public static final String RABBIT_MQ_OUTBOUND_EXCHANGE = "rabbitMQ.outbound.exchange";
 	public static final String RABBIT_MQ_EXCHANGE_TYPE = "rabbitMQ.exchange.type";
 
-	public static final String RABBIT_MQ_QUEUE = "rabbitMQ.defaultQueue";
+	public static final String RABBIT_MQ_QUEUE = "rabbitMQ.queue";
+	public static final String RABBIT_MQ_OUTBOUND_QUEUE = "rabbitMQ.outbound.queue";
 	public static final String RABBIT_MQ_QUEUE_DURABLE = "rabbitMQ.Queue.durable";
 
 	
@@ -192,6 +194,9 @@ public class RabbitMqInterface {
 			case "queue":
 				Config.putValue(RABBIT_MQ_QUEUE, keyword.value);
 				break;
+			case "outbound_queue":
+				Config.putValue(RABBIT_MQ_OUTBOUND_QUEUE, keyword.value);
+				break;
 			default:
 				break;
 			}
@@ -204,9 +209,14 @@ public class RabbitMqInterface {
 	private static void setDefaultQueueAndExchange() {
 
 		String defaultExchange = TestObject.getDefaultTestInfo().config.get(RABBIT_MQ_EXCHANGE).toString();
+		String outboundExchange = TestObject.getDefaultTestInfo().config.get(RABBIT_MQ_OUTBOUND_EXCHANGE).toString();
 		String defaultQueue = TestObject.getDefaultTestInfo().config.get(RABBIT_MQ_QUEUE).toString();
+		String outboundQueue = TestObject.getDefaultTestInfo().config.get(RABBIT_MQ_OUTBOUND_QUEUE).toString();
+
 		Config.putValue(RABBIT_MQ_EXCHANGE, defaultExchange);
 		Config.putValue(RABBIT_MQ_QUEUE, defaultQueue);
+		Config.putValue(RABBIT_MQ_OUTBOUND_QUEUE, outboundQueue);
+		Config.putValue(RABBIT_MQ_OUTBOUND_EXCHANGE, outboundExchange);
 	}
 
 	/**
@@ -230,12 +240,22 @@ public class RabbitMqInterface {
 	 */
 	public static void getOutboundMessages() throws Exception {
 		String queueName = Config.getValue(RABBIT_MQ_QUEUE);
+		String outboundQueue = Config.getValue(RABBIT_MQ_OUTBOUND_QUEUE);
 		boolean queueDurable = Config.getBooleanValue(RABBIT_MQ_QUEUE_DURABLE);
+		
+		// set outbound queue if defined
+		if(!outboundQueue.isEmpty())
+			queueName = outboundQueue;
 
 	    channel.queueDeclare(queueName, queueDurable, false, false, null);
 	    
 		String exchangeName = Config.getValue(RABBIT_MQ_EXCHANGE);
+		String exchangeOutboundName = Config.getValue(RABBIT_MQ_OUTBOUND_EXCHANGE);	
 		String exchangeType = Config.getValue(RABBIT_MQ_EXCHANGE_TYPE);
+		
+		// set outbound exchange if defined
+		if(!exchangeOutboundName.isEmpty())
+			exchangeName = exchangeOutboundName;
 
 		if(!exchangeType.isEmpty())
 			channel.exchangeDeclare(exchangeName, exchangeType);

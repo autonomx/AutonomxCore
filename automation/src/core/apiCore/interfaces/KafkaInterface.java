@@ -35,12 +35,10 @@ public class KafkaInterface {
 	public static final String KAFKA_SERVER_URL = "kafka.bootstrap.servers";
 	public static final String KAFKA_CLIENT_ID = "kafka.clientId";
 	public static final String KFAKA_TOPIC = "kafka.topic";
+	public static final String KFAKA_OUTBOUND_TOPIC = "kafka.outbound.topic";
 	public static final String KAFKA_GROUP_ID = "kafka.group.id";
-
 	public static final String KAFKA_TIMEOUT_SECONDS = "kafka.timeout.seconds";
-
 	public static final String KAFKA_MESSAGE_ID_PREFIX = "kafka.msgId.prefix";
-
 	public static Map<ConsumerRecord<String, String>, Boolean> outboundMessages = new ConcurrentHashMap<ConsumerRecord<String, String>, Boolean>();
 
 	/**
@@ -124,8 +122,15 @@ public class KafkaInterface {
 		props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 		props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 
+		String topic = Config.getValue(KFAKA_OUTBOUND_TOPIC);
+		String outboundTopic = Config.getValue(KFAKA_OUTBOUND_TOPIC);
+		
+		// set outbound topic if defined
+		if(!outboundTopic.isEmpty())
+			topic = outboundTopic;
+		
 		KafkaConsumer consumer = new KafkaConsumer(props);
-		consumer.subscribe(Collections.singletonList(Config.getValue(KFAKA_TOPIC)));
+		consumer.subscribe(Collections.singletonList(topic));
 
 		final int giveUp = 5;
 		int noRecordsCount = 0;
@@ -191,6 +196,9 @@ public class KafkaInterface {
 			case "topic":
 				Config.putValue(KFAKA_TOPIC, keyword.value);
 				break;
+			case "outbound_topic":
+				Config.putValue(KFAKA_OUTBOUND_TOPIC, keyword.value);
+				break;
 			default:
 				break;
 			}
@@ -203,6 +211,8 @@ public class KafkaInterface {
 	private static void setDefaultTopic() {
 
 		String defaultTopic = TestObject.getDefaultTestInfo().config.get(KFAKA_TOPIC).toString();
+		String ouboundTopic = TestObject.getDefaultTestInfo().config.get(KFAKA_OUTBOUND_TOPIC).toString();
 		Config.putValue(KFAKA_TOPIC, defaultTopic);
+		Config.putValue(KFAKA_OUTBOUND_TOPIC, ouboundTopic);
 	}
 }
