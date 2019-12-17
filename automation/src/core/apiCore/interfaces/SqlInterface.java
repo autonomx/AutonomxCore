@@ -35,9 +35,7 @@ public class SqlInterface {
 
 	public static final String SQL_CURRENT_DATABASE = "db.current.database";
 
-	private static final String OPTION_DATABASE = "DATABASE";
-
-	public static Connection conn = null;
+	private static final String OPTION_DATABASE = "database";
 
 	/**
 	 *
@@ -99,7 +97,7 @@ public class SqlInterface {
 
 				// conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/testdb",
 				// "postgres", "123");
-				conn = DriverManager.getConnection(connectionString, dbUserName, dbPassword);
+				currentDb.withConnection(DriverManager.getConnection(connectionString, dbUserName, dbPassword));
 				Helper.wait.waitForSeconds(1);
 			} catch (Exception e) {
 				TestLog.logPass("sql connection failed: " + e.getMessage());
@@ -125,7 +123,7 @@ public class SqlInterface {
 		for (KeyValue keyword : keywords) {
 
 			// if additional options
-			switch (keyword.key) {
+			switch (keyword.key.toLowerCase()) {
 			case OPTION_DATABASE:
 				int position = Helper.getIntFromString(keyword.value.toString(), true);
 				if (DatabaseObject.DATABASES.get(position) == null)
@@ -252,7 +250,8 @@ public class SqlInterface {
 		String sql = serviceObject.getRequestBody();
 		TestLog.logPass("sql statement: " + sql);
 
-		PreparedStatement sqlStmt = conn.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE,
+		DatabaseObject currentDb = (DatabaseObject) Config.getObjectValue(SQL_CURRENT_DATABASE);
+		PreparedStatement sqlStmt = currentDb.getConnection().prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE,
 				ResultSet.CONCUR_UPDATABLE);
 
 		// execute And wait for response if expected values are set
