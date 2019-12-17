@@ -865,6 +865,12 @@ public class UtilityHelper {
 		// remove all non numeric characters
 		value = value.replaceAll("[^\\d.]", "");
 		
+		// remove . if value starts with ".". eg. ".1"
+		if(value.startsWith("."))
+			value = value.substring(1);
+		
+		if(value.isEmpty()) return -1;
+		
 	    Scanner st = new Scanner(value);
         while (!st.hasNextDouble())
         {
