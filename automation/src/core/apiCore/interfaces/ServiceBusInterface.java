@@ -37,7 +37,9 @@ public class ServiceBusInterface {
 
 	public static final String SERVICEBUS_CONNECTION_STR = "servicebus.connectionString";
 	public static final String SERVICEBUS_QUEUE = "servicebus.queue";
+	public static final String SERVICEBUS_OUTBOUND_QUEUE = "servicebus.outbound.queue";
 	public static final String SERVICEBUS_TOPIC = "servicebus.topic";
+	public static final String SERVICEBUS_OUTBOUND_TOPIC = "servicebus.outbound.topic";
 	public static final String SERVICEBUS_HOST = "servicebus.host";
 	public static final String SERVICEBUS_MESSAGE_ID_PREFIX = "servicebus.msgId.prefix";
 
@@ -161,6 +163,9 @@ public class ServiceBusInterface {
 			case "topic":
 				Config.putValue(SERVICEBUS_TOPIC, keyword.value);
 				break;
+			case "outbound_topic":
+				Config.putValue(SERVICEBUS_OUTBOUND_TOPIC, keyword.value);
+				break;
 			case "host":
 				Config.putValue(SERVICEBUS_HOST, keyword.value);
 				break;
@@ -179,10 +184,12 @@ public class ServiceBusInterface {
 	private static void setDefaultQueueAndTopicAndHost() {
 
 		String defaultTopic = TestObject.getDefaultTestInfo().config.get(SERVICEBUS_TOPIC).toString();
+		String outboundTopic = TestObject.getDefaultTestInfo().config.get(SERVICEBUS_OUTBOUND_TOPIC).toString();
 		String defaultQueue = TestObject.getDefaultTestInfo().config.get(SERVICEBUS_QUEUE).toString();
 		String defaultHost = TestObject.getDefaultTestInfo().config.get(SERVICEBUS_HOST).toString();
 
 		Config.putValue(SERVICEBUS_TOPIC, defaultTopic);
+		Config.putValue(SERVICEBUS_OUTBOUND_TOPIC, outboundTopic);
 		Config.putValue(SERVICEBUS_QUEUE, defaultQueue);
 		Config.putValue(SERVICEBUS_HOST, defaultHost);
 	}
@@ -209,9 +216,14 @@ public class ServiceBusInterface {
 	public static void getOutboundMessages() throws Exception {
 		String connectionString = Config.getValue(SERVICEBUS_CONNECTION_STR);
 		String topic = Config.getValue(SERVICEBUS_TOPIC);
+		String outboundTopic = Config.getValue(SERVICEBUS_OUTBOUND_TOPIC);
 		String host = Config.getValue(SERVICEBUS_HOST);
+		
+		// set outbound topic if defined
+		if(!outboundTopic.isEmpty())
+			topic = outboundTopic;
+		
 		String entityPath = topic + "/subscriptions/" + host;
-
 		SubscriptionClient subscription1Client = new SubscriptionClient(
 				new ConnectionStringBuilder(connectionString, entityPath), ReceiveMode.PEEKLOCK);
 
