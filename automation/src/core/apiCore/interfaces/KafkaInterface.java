@@ -122,7 +122,7 @@ public class KafkaInterface {
 		props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 		props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 
-		String topic = Config.getValue(KFAKA_OUTBOUND_TOPIC);
+		String topic = Config.getValue(KFAKA_TOPIC);
 		String outboundTopic = Config.getValue(KFAKA_OUTBOUND_TOPIC);
 		
 		// set outbound topic if defined
