@@ -139,9 +139,9 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		
 		// send email notification if error only is set and test fails exist, else if error only is false, send slack	
 		if(emailNotifyOnFailOnly && hasErrors) {
-			ExtentManager.emailTestReport(message); // send slack notification
+			ExtentManager.emailTestReport(message); // send email
 		}else if(!emailNotifyOnFailOnly) {
-			ExtentManager.emailTestReport(message); // send slack notification
+			ExtentManager.emailTestReport(message); // send email
 		}
 	}
 

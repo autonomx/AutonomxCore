@@ -394,10 +394,15 @@ public class UtilityHelper {
 
 		SlackWebApiClient webApiClient = SlackClientFactory.createWebApiClient(token);
 		File testfile = new File(filePath);
-
-		webApiClient.auth();
-		if (testfile != null && testfile.exists()) {
-			webApiClient.uploadFile(testfile, title, comment, channelId);
+		
+		try {
+			webApiClient.auth();
+			if (testfile != null && testfile.exists()) {
+				webApiClient.uploadFile(testfile, title, comment, channelId);
+			}
+		}catch(Exception e) {
+			TestLog.ConsoleLog("slack notification error: " + e.getMessage());
+			e.printStackTrace();
 		}
 	}
 
