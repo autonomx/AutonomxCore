@@ -13,8 +13,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.util.TextUtils;
 
-import com.microsoft.azure.servicebus.primitives.StringUtil;
-
 import core.apiCore.interfaces.KafkaInterface;
 import core.apiCore.interfaces.RabbitMqInterface;
 import core.apiCore.interfaces.ServiceBusInterface;
@@ -38,7 +36,7 @@ public class MessageQueueHelper {
 	 * @return
 	 */
 	public static String generateMessageId(ServiceObject serviceObject, String messageIdPrefix) {
-		String messageId = StringUtil.EMPTY;
+		String messageId = StringUtils.EMPTY;
 		
 		// get unique identifier for request body to match outbound message
 		if (!serviceObject.getRequestBody().isEmpty()) 
@@ -180,6 +178,10 @@ public class MessageQueueHelper {
 	 */
 	public static void receiveAndValidateMessages(ServiceObject serviceObject, String messageId, messageType messageType) throws Exception {
 
+		// return if no validation required
+		if(serviceObject.getExpectedResponse().isEmpty())
+			return;
+		
 		CopyOnWriteArrayList<MessageObject> filteredMessages = new CopyOnWriteArrayList<>();
 		List<String> errorMessages = new ArrayList<String>();
 

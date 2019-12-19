@@ -5,18 +5,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.microsoft.azure.servicebus.primitives.StringUtil;
+import org.apache.commons.lang.StringUtils;
 
 public class MessageObject {
 	
 	public enum messageType { KAFKA, RABBITMQ, SERVICEBUS, TEST }
 
 	public messageType messageType = null;
-	public String message = StringUtil.EMPTY;
-	public String messageId = StringUtil.EMPTY;
-	public String label = StringUtil.EMPTY;
-	public String correlationId = StringUtil.EMPTY;
-	public String topic = StringUtil.EMPTY;
+	public String message = StringUtils.EMPTY;
+	public String messageId = StringUtils.EMPTY;
+	public String label = StringUtils.EMPTY;
+	public String correlationId = StringUtils.EMPTY;
+	public String topic = StringUtils.EMPTY;
 	public List<String> headers = new ArrayList<String>();
 	
 	public static Map<MessageObject, Boolean> outboundMessages = new ConcurrentHashMap<MessageObject, Boolean>();

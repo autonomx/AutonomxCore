@@ -9,6 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 
@@ -729,8 +730,15 @@ public class DataHelper {
 
 		List<String> errorMessages = new ArrayList<String>();
 
-		if (expectedResponse.isEmpty())
+		if (expectedResponse.trim().isEmpty())
 			return errorMessages;
+		
+		// return error message if response is empty
+		responseValues = removeEmptyElements(responseValues);
+		if(responseValues.isEmpty()){
+			errorMessages.add("response value is empty");
+			return errorMessages;
+		}
 
 		// validate response body against expected json string
 		expectedResponse = DataHelper.replaceParameters(expectedResponse);
@@ -752,7 +760,7 @@ public class DataHelper {
 			errorMessages = validateExpectedResponse(criterion, responseValues);
 		}
 		// remove all empty response strings
-		errorMessages.removeAll(Collections.singleton(""));
+		errorMessages = removeEmptyElements(errorMessages);
 		return errorMessages;
 	}
 
@@ -778,7 +786,7 @@ public class DataHelper {
 
 			// if no errors, then validation passed, no need to validate against other
 			// responses
-			errorMessages.removeAll(Collections.singleton(""));
+			errorMessages = removeEmptyElements(errorMessages);
 			if (errorMessages.isEmpty())
 				break;
 
@@ -816,5 +824,24 @@ public class DataHelper {
 			return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * removes empty elements from list
+	 * @param list
+	 * @return
+	 */
+	public static List<String> removeEmptyElements(List<String> list) {
+		
+		Iterator<String> i = list.iterator();
+		while (i.hasNext())
+		{
+		    String s = i.next();
+		    if (s == null || s.trim().isEmpty())
+		    {
+		        i.remove();
+		    }
+		}
+		return list;
 	}
 }

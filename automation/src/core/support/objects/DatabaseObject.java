@@ -4,18 +4,18 @@ import java.sql.Connection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.microsoft.azure.servicebus.primitives.StringUtil;
+import org.apache.commons.lang.StringUtils;
 
 public class DatabaseObject {
 	
 	public enum driverOptions { driver, url, name, username, password }
 	
 	public Connection connection = null;
-	public String driver = StringUtil.EMPTY;
-	public String url = StringUtil.EMPTY;
-	public String databaseName = StringUtil.EMPTY;
-	public String username = StringUtil.EMPTY;
-	public String password = StringUtil.EMPTY;
+	public String driver = StringUtils.EMPTY;
+	public String url = StringUtils.EMPTY;
+	public String databaseName = StringUtils.EMPTY;
+	public String username = StringUtils.EMPTY;
+	public String password = StringUtils.EMPTY;
 	
 	public static Map<Integer, DatabaseObject> DATABASES = new ConcurrentHashMap<Integer, DatabaseObject>();
 

@@ -99,7 +99,7 @@ public class RestApiInterface {
 				break;
 
 			if (currentRetryCount > 0) {
-				Helper.waitForSeconds(1);
+				Helper.waitForSeconds(3);
 				String errors = StringUtils.join(errorMessages, "\n error: ");
 				TestLog.ConsoleLog("attempt failed with message: " + errors);
 				TestLog.ConsoleLog("attempt #" + (currentRetryCount + 1));
