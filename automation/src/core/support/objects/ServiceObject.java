@@ -2,8 +2,6 @@
 
 import org.apache.commons.lang.StringUtils;
 
-import core.helpers.Helper;
-
 public class ServiceObject {
 
 	private String TestSuite = StringUtils.EMPTY;

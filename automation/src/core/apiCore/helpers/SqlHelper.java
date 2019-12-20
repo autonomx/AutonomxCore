@@ -137,13 +137,16 @@ public class SqlHelper {
 	 * 
 	 * @param keywords
 	 * @param response
+	 * @return 
 	 * @throws SQLException
 	 */
-	public static void validateSqlKeywords(List<KeyValue> keywords, ResultSet resSet) throws SQLException {
+	public static List<String> validateSqlKeywords(List<KeyValue> keywords, ResultSet resSet) throws SQLException {
+		List<String> errorMessages = new ArrayList<String>();
+		
 		for (KeyValue keyword : keywords) {
-			String key = Helper.stringNormalize(keyword.key);
+			String key = Helper.removeSurroundingQuotes(keyword.key);
 			String position = Helper.stringNormalize(keyword.position);
-			String expectedValue = Helper.stringNormalize((String) keyword.value);
+			String expectedValue = Helper.stringRemoveLines((String) keyword.value);
 			String responseString = "";
 			String command = "";
 
@@ -162,12 +165,14 @@ public class SqlHelper {
 				responseString = getAllValuesInColumn(resSet, keyword.key);
 			} else {
 				resSet.absolute(Integer.valueOf(position));
-				responseString = Helper.stringNormalize(resSet.getString(key));
+				responseString = Helper.removeSurroundingQuotes(resSet.getString(key));
 			}
 
 			// validate response
-			DataHelper.validateCommand(command, responseString, expectedValue);
+			errorMessages.add(DataHelper.validateCommand(command, responseString, expectedValue));
 		}
+		
+		return errorMessages;
 	}
 
 	/**

@@ -4,14 +4,19 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang.StringUtils;
+
 import core.apiCore.helpers.ConnectionHelper;
 import core.apiCore.helpers.DataHelper;
+import core.apiCore.helpers.JsonHelper;
 import core.apiCore.helpers.SqlHelper;
 import core.helpers.Helper;
 import core.helpers.StopWatchHelper;
@@ -35,6 +40,12 @@ public class SqlInterface {
 	public static final String SQL_CURRENT_DATABASE = "db.current.database";
 
 	private static final String OPTION_DATABASE = "database";
+	
+	public static final String DB_TIMEOUT_VALIDATION_ENABLED = "db.timeout.validation.isEnabled";
+	public static final String DB_TIMEOUT_VALIDATION_SECONDS = "db.timeout.validation.seconds";
+	
+	private static final String OPTION_NO_VALIDATION_TIMEOUT = "NO_VALIDATION_TIMEOUT";
+	private static final String OPTION_WAIT_FOR_RESPONSE = "WAIT_FOR_RESPONSE_SECONDS";
 
 	/**
 	 *
@@ -44,7 +55,7 @@ public class SqlInterface {
 	 * @return
 	 * @throws Exception
 	 */
-	public static void DataBaseInterface(ServiceObject serviceObject) throws Exception {
+	public static ResultSet DataBaseInterface(ServiceObject serviceObject) throws Exception {
 
 		// get and keep track of all the databases from config
 		setDatabaseMap();
@@ -52,17 +63,16 @@ public class SqlInterface {
 		// set default database at position 0(no position) or 1(position 1)
 		setDefaultDatabase();
 		
-		// evluate options
+		// evaluate options
 		evaluateOption(serviceObject);
 		
 		// connect to db
 		connectDB();
 
-		// evaluate the sql query
-		ResultSet resSet = evaluateDbQuery(serviceObject);
-
 		// evaluate the response
-		evaluateReponse(serviceObject, resSet);
+		ResultSet resSet = evaluateRequestAndValidateResponse(serviceObject);
+		
+		return resSet;
 	}
 
 	/**
@@ -111,6 +121,9 @@ public class SqlInterface {
 		if (serviceObject.getOption().isEmpty()) {
 			return;
 		}
+		
+		// reset validation timeout. will be overwritten by option value if set
+		resetValidationTimeout();
 
 		// replace parameters for request body
 		serviceObject.withOption(DataHelper.replaceParameters(serviceObject.getOption()));
@@ -129,6 +142,14 @@ public class SqlInterface {
 					Helper.assertFalse("database number: " + position + " not found");
 				DatabaseObject database = DatabaseObject.DATABASES.get(position);
 				Config.putValue(SQL_CURRENT_DATABASE, database);
+				break;
+			case OPTION_NO_VALIDATION_TIMEOUT:
+				Config.putValue(DB_TIMEOUT_VALIDATION_ENABLED, false);
+				break;
+				
+			case OPTION_WAIT_FOR_RESPONSE:
+				Config.putValue(DB_TIMEOUT_VALIDATION_ENABLED, true);
+				Config.putValue(DB_TIMEOUT_VALIDATION_SECONDS, keyword.value);	
 				break;
 
 			default:
@@ -266,11 +287,13 @@ public class SqlInterface {
 	 * @param resSet
 	 * @throws Exception
 	 */
-	public static void evaluateReponse(ServiceObject serviceObject, ResultSet resSet) throws Exception {
+	public static List<String> evaluateReponse(ServiceObject serviceObject, ResultSet resSet) throws Exception {
 
+		List<String> errorMessages = new ArrayList<String>();
+		
 		// return if expected response is empty
 		if (serviceObject.getExpectedResponse().isEmpty() && serviceObject.getOutputParams().isEmpty())
-			return;
+			return errorMessages;
 
 		// fail test if no results returned
 		if (!resSet.isBeforeFirst()) {
@@ -282,12 +305,15 @@ public class SqlInterface {
 
 		// saves response values to config object
 		SqlHelper.saveOutboundSQLParameters(resSet, serviceObject.getOutputParams());
-
-		// validate partial expected response if exists
-		validateExpectedResponse(serviceObject.getExpectedResponse(), resSet);
+		
+		errorMessages = validateExpectedResponse(serviceObject.getExpectedResponse(), resSet);
 
 		// Clean-up environment
 		resSet.close();
+		
+		// remove all empty response strings
+		errorMessages = DataHelper.removeEmptyElements(errorMessages);
+		return errorMessages;
 	}
 
 	/**
@@ -325,9 +351,13 @@ public class SqlInterface {
 		return resSet;
 	}
 
-	public static void validateExpectedResponse(String expected, ResultSet resSet) throws SQLException {
+	public static List<String> validateExpectedResponse(String expected, ResultSet resSet) throws SQLException {
+		
+		List<String> errorMessages = new ArrayList<String>();
+
 		if (expected.isEmpty())
-			return;
+			return errorMessages;
+		
 		// validate response body against expected string
 		expected = DataHelper.replaceParameters(expected);
 		TestLog.logPass("expected result: " + Helper.stringRemoveLines(expected));
@@ -339,8 +369,79 @@ public class SqlInterface {
 				SqlHelper.validateByJsonBody(criterion, resSet);
 			} else {
 				List<KeyValue> keywords = DataHelper.getValidationMap(expected);
-				SqlHelper.validateSqlKeywords(keywords, resSet);
+				errorMessages.addAll(SqlHelper.validateSqlKeywords(keywords, resSet));
 			}
 		}
+		
+		return errorMessages;
+	}
+	
+	/**
+	 * evaluate request and validate response retry until validation timeout period
+	 * in seconds
+	 * 
+	 * @param serviceObject
+	 * @return
+	 * @throws Exception 
+	 */
+	public static ResultSet evaluateRequestAndValidateResponse(ServiceObject serviceObject) throws Exception {
+		List<String> errorMessages = new ArrayList<String>();
+		ResultSet resSet = null;
+
+		StopWatchHelper watch = StopWatchHelper.start();
+		long passedTimeInSeconds = 0;
+
+		boolean isValidationTimeout = Config.getBooleanValue(DB_TIMEOUT_VALIDATION_ENABLED);
+		int maxRetrySeconds = Config.getIntValue(DB_TIMEOUT_VALIDATION_SECONDS);
+		int currentRetryCount = 0;
+
+		do {
+			
+			// evaluate the sql query
+			 resSet = evaluateDbQuery(serviceObject);
+
+			// evaluate the response
+			errorMessages = evaluateReponse(serviceObject, resSet);
+
+			// if validation timeout is not enabled, break out of the loop
+			if (!isValidationTimeout)
+				break;
+
+			if (currentRetryCount > 0) {
+				Helper.waitForSeconds(3);
+				String errors = StringUtils.join(errorMessages, "\n error: ");
+				TestLog.ConsoleLog("attempt failed with message: " + errors);
+				TestLog.ConsoleLog("attempt #" + (currentRetryCount + 1));
+
+			}
+			currentRetryCount++;
+
+			passedTimeInSeconds = watch.time(TimeUnit.SECONDS);
+
+		} while (!errorMessages.isEmpty() && passedTimeInSeconds < maxRetrySeconds);
+
+		if (!errorMessages.isEmpty()) {
+			TestLog.ConsoleLog("Validation failed after: " +  passedTimeInSeconds + " seconds");
+			String errorString = StringUtils.join(errorMessages, "\n error: ");
+			TestLog.ConsoleLog(errorString);
+			Helper.assertFalse(StringUtils.join(errorMessages, "\n error: "));
+		}
+
+		return resSet;
+	}
+	
+	/**
+	 * reset validation timeout
+	 */
+	private static void resetValidationTimeout() {
+		// reset validation timeout option
+		String defaultValidationTimeoutIsEnabled = TestObject.getDefaultTestInfo().config
+				.get(DB_TIMEOUT_VALIDATION_ENABLED).toString();
+		
+		String defaultValidationTimeoutIsSeconds = TestObject.getDefaultTestInfo().config
+				.get(DB_TIMEOUT_VALIDATION_SECONDS).toString();
+		
+		Config.putValue(DB_TIMEOUT_VALIDATION_ENABLED, defaultValidationTimeoutIsEnabled);
+		Config.putValue(DB_TIMEOUT_VALIDATION_SECONDS, defaultValidationTimeoutIsSeconds);
 	}
 }

@@ -210,13 +210,14 @@ public class RestApiInterface {
 			}
 		}
 		
+		// get response values and validate
 		String responseString = JsonHelper.getResponseValue(response);
 		List<String> responses = new ArrayList<String>();
 		responses.add(responseString);
 		errorMessages = DataHelper.validateExpectedValues(responses, serviceObject.getExpectedResponse());
 
 		// remove all empty response strings
-		errorMessages.removeAll(Collections.singleton(""));
+		errorMessages = DataHelper.removeEmptyElements(errorMessages);
 		return errorMessages;
 	}
 
@@ -389,8 +390,12 @@ public class RestApiInterface {
 		// reset validation timeout option
 		String defaultValidationTimeoutIsEnabled = TestObject.getDefaultTestInfo().config
 				.get(API_TIMEOUT_VALIDATION_ENABLED).toString();
+		
+		String defaultValidationTimeoutIsSeconds = TestObject.getDefaultTestInfo().config
+				.get(API_TIMEOUT_VALIDATION_SECONDS).toString();
+		
 		Config.putValue(API_TIMEOUT_VALIDATION_ENABLED, defaultValidationTimeoutIsEnabled);
-
+		Config.putValue(API_TIMEOUT_VALIDATION_SECONDS, defaultValidationTimeoutIsSeconds);
 	}
 
 	public static Response evaluateRequest(ServiceObject serviceObject, RequestSpecification request) {
