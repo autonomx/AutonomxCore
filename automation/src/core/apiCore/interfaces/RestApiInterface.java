@@ -167,7 +167,8 @@ public class RestApiInterface {
 		RestAssured.config = RestAssuredConfig.config().httpClient(
 				HttpClientConfig.httpClientConfig().setParam("http.connection.timeout", connectTimeout * 1000)
 						.setParam("http.socket.timeout", connectTimeout * 1000)
-						.setParam("http.connection-manager.timeout", connectTimeout * 1000));
+						.setParam("http.connection-manager.timeout", connectTimeout * 1000)); 
+
 	}
 
 	/**

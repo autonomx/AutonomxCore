@@ -1,4 +1,4 @@
-package core.support.objects;
+ package core.support.objects;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -43,10 +43,10 @@ public class ServiceObject {
 		this.Option = Option;
 		this.RequestHeaders = RequestHeaders;
 		this.TemplateFile = TemplateFile;
-		this.RequestBody = replaceQuotes(RequestBody);
+		this.RequestBody = RequestBody;
 		this.OutputParams = OutputParams;
 		this.RespCodeExp = RespCodeExp;
-		this.ExpectedResponse = replaceQuotes(ExpectedResponse);
+		this.ExpectedResponse = ExpectedResponse;
 		this.TcComments = TcComments;
 		this.tcName = tcName;
 		this.tcIndex = tcIndex;
@@ -68,10 +68,10 @@ public class ServiceObject {
 		this.Option = getArayValue(testData, 8);
 		this.RequestHeaders = getArayValue(testData, 9);
 		this.TemplateFile = getArayValue(testData, 10);
-		this.RequestBody = replaceQuotes(getArayValue(testData, 11));
+		this.RequestBody = getArayValue(testData, 11);
 		this.OutputParams = getArayValue(testData, 12);
 		this.RespCodeExp = getArayValue(testData, 13);
-		this.ExpectedResponse = replaceQuotes(getArayValue(testData, 14));
+		this.ExpectedResponse = getArayValue(testData, 14);
 		this.TcComments = getArayValue(testData, 15);
 		this.tcName = getArayValue(testData, 16);
 		this.tcIndex = getArayValue(testData, 17);
@@ -163,7 +163,7 @@ public class ServiceObject {
 	}
 	
 	public String getMethod(){
-		return Helper.stringNormalize(this.Method);
+		return normalize(this.Method);
 	}
 	
 	public ServiceObject withOption(String Option){
@@ -192,7 +192,7 @@ public class ServiceObject {
 	}
 	
 	public String getRequestHeaders(){
-		return this.RequestHeaders;
+		return normalize(this.RequestHeaders);
 	}
 	
 	public ServiceObject withTemplateFile(String TemplateFile){
@@ -210,7 +210,7 @@ public class ServiceObject {
 	}
 	
 	public String getRequestBody(){
-		return this.RequestBody;
+		return normalize(this.RequestBody);
 	}
 	
 	public ServiceObject withOutputParams(String OutputParams){
@@ -219,7 +219,7 @@ public class ServiceObject {
 	}
 	
 	public String getOutputParams(){
-		return this.OutputParams;
+		return normalize(this.OutputParams);
 	}
 	
 	public ServiceObject withRespCodeExp(String RespCodeExp){
@@ -237,7 +237,7 @@ public class ServiceObject {
 	}
 	
 	public String getExpectedResponse(){
-		return this.ExpectedResponse;
+		return normalize(this.ExpectedResponse);
 	}
 	
 	public ServiceObject withTcComments(String TcComments){
@@ -275,7 +275,9 @@ public class ServiceObject {
 		return this.tcIndex.split(":")[1];
 	}
 //-----------------------------------------------------------------------------------------------------------------------	
-	public static String replaceQuotes(String value) {
+	public static String normalize(String value) {
+		// remove new lines
+		value = value.replaceAll("\\R+", " ");
 		return value.replaceAll("[\\u2018\\u2019]", "'").replaceAll("[\\u201C\\u201D]", "\"");
 	}
 }
