@@ -138,7 +138,78 @@ public class Config {
 		Object value = TestObject.getTestInfo().config.get(key);
 		if (value == null) {
 			 if(isFailable) Helper.assertFalse("value not found, default empty: " + key);
-			 TestLog.ConsoleLogWarn("value not found, default empty: " + key);
+			 TestLog.ConsoleLogDebug("value not found, default empty: " + key);
+			value = StringUtils.EMPTY;
+		}
+		List<String> items = Arrays.asList(value.toString().split("\\s*,\\s*"));
+		return items.get(0);
+	}
+	
+	/**
+	 * gets int value from properties key
+	 * 
+	 * @param key key in properties file
+	 * @return returns the integer value of key from properties
+	 */
+	public static int getGlobalIntValue(String key) {
+		String value = getValue(key, false);
+		if (value.isEmpty()) {
+			 TestLog.ConsoleLogDebug("value not found, default -1: " + key);
+			return -1;
+		}
+		return Integer.valueOf(value);
+	}
+	
+	
+	/**
+	 * gets the object value from property key
+	 * @param key key in properties file
+	 * @return returns the object value of key from properties
+	 */
+	public static Object getGlobalObjectValue(String key) {
+		if(TestObject.getDefaultTestInfo().config.get(key) == null)
+			return StringUtils.EMPTY;
+		Object value = TestObject.getTestInfo().config.get(key);
+		return value;
+	}
+	
+	/**
+	 * gets boolean value from properties key
+	 * 
+	 * @param key target key from properties file
+	 * @return the boolean value of key from properties
+	 */
+	public static Boolean getGlobalBooleanValue(String key) {
+		String value = getGlobalValue(key, false);
+		if (value.isEmpty()) {
+			 TestLog.ConsoleLogDebug("value not found, default false: " + key);
+			return false;
+		}
+		return Boolean.parseBoolean(value);
+	}
+	
+	/**
+	 * returns config value
+	 * 
+	 * @param key get string value of key from properties
+	 * @return string value of key
+	 */
+	public static String getGlobalValue(String key) {
+		return getGlobalValue(key, false);
+	}
+	
+	/**
+	 * returns config value
+	 * 
+	 * @param key get string value of key from properties
+	 * @return string value of key
+	 */
+	public static String getGlobalValue(String key, boolean isFailable) {
+
+		Object value = TestObject.getDefaultTestInfo().config.get(key);
+		if (value == null) {
+			 if(isFailable) Helper.assertFalse("value not found, default empty: " + key);
+			 TestLog.ConsoleLogDebug("value not found, default empty: " + key);
 			value = StringUtils.EMPTY;
 		}
 		List<String> items = Arrays.asList(value.toString().split("\\s*,\\s*"));
@@ -165,7 +236,7 @@ public class Config {
 		String value = getValue(key,isFailable);
 		if (value.isEmpty()) {
 			 if(isFailable) Helper.assertFalse("value not found: " + key);
-			 TestLog.ConsoleLogWarn("value not found, default false: " + key);
+			 TestLog.ConsoleLogDebug("value not found, default false: " + key);
 			return false;
 		}
 		return Boolean.parseBoolean(value);
@@ -177,6 +248,10 @@ public class Config {
 	 * @return returns the object value of key from properties
 	 */
 	public static Object getObjectValue(String key) {
+		if(TestObject.getTestInfo().config.get(key) == null) {
+			TestLog.ConsoleLogDebug("value not found. default set to empty");
+			return null;
+		}
 		Object value = TestObject.getTestInfo().config.get(key);
 		return value;
 	}
@@ -201,7 +276,7 @@ public class Config {
 		String value = getValue(key, isFailable);
 		if (value.isEmpty()) {
 			 if(isFailable) Helper.assertFalse("value not found: " + key);
-			 TestLog.ConsoleLogWarn("value not found, default -1: " + key);
+			 TestLog.ConsoleLogDebug("value not found, default -1: " + key);
 			return -1;
 		}
 		return Integer.valueOf(value);
@@ -227,7 +302,7 @@ public class Config {
 		String value = getValue(key, isFailable);
 		if (value.isEmpty()) {
 			if(isFailable) Helper.assertFalse("value not found: " + key);
-			 TestLog.ConsoleLogWarn("value not found, default -1: " + key);
+			 TestLog.ConsoleLogDebug("value not found, default -1: " + key);
 			return -1;
 		}
 		return Double.valueOf(value);
@@ -254,7 +329,7 @@ public class Config {
 		List<String> items = new ArrayList<String>();
 		if (value == null) {
 			if(isFailable) Helper.assertFalse("value not found in config files: " + key);
-			TestLog.ConsoleLogWarn("value not found in config files: " + key, false);
+			TestLog.ConsoleLogDebug("value not found in config files: " + key, false);
 		}
 		if(!value.isEmpty()) 
 			items = Arrays.asList(value.split("\\s*,\\s*"));
@@ -297,6 +372,16 @@ public class Config {
 		ServiceObject service = TestObject.getTestInfo().serviceObject;
 		TestObject.getParentTestInfo(service).config.put(key, value);
 
+	}
+	
+	/**
+	 * set global config value
+	 * @param key
+	 * @param value
+	 */
+	public static void setGlobalValue(String key, Object value) {
+		TestLog.logPass("storing in global key: " + key + " value: " + value);
+		TestObject.getDefaultTestInfo().config.put(key, value);
 	}
 	
 	/**

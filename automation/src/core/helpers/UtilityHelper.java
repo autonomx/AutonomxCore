@@ -904,6 +904,7 @@ public class UtilityHelper {
 	 */
 	protected static boolean isStringContainNumber(String value) {
 		value = value.replaceAll("[^\\d.]", "");
+		value = value.replace(".", "");
 		if(StringUtils.isBlank(value))
 			return false;
 		return true;

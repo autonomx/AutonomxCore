@@ -5,8 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -16,14 +14,12 @@ import org.apache.commons.lang.StringUtils;
 
 import core.apiCore.helpers.ConnectionHelper;
 import core.apiCore.helpers.DataHelper;
-import core.apiCore.helpers.JsonHelper;
 import core.apiCore.helpers.SqlHelper;
 import core.helpers.Helper;
 import core.helpers.StopWatchHelper;
 import core.support.configReader.Config;
 import core.support.logger.TestLog;
 import core.support.objects.DatabaseObject;
-import core.support.objects.DatabaseObject.driverOptions;
 import core.support.objects.KeyValue;
 import core.support.objects.ServiceObject;
 import core.support.objects.TestObject;
@@ -117,13 +113,14 @@ public class SqlInterface {
 	}
 
 	public static void evaluateOption(ServiceObject serviceObject) {
+	
+		// reset validation timeout. will be overwritten by option value if set
+		resetValidationTimeout();
+		
 		// if no option specified
 		if (serviceObject.getOption().isEmpty()) {
 			return;
 		}
-		
-		// reset validation timeout. will be overwritten by option value if set
-		resetValidationTimeout();
 
 		// replace parameters for request body
 		serviceObject.withOption(DataHelper.replaceParameters(serviceObject.getOption()));
@@ -191,6 +188,9 @@ public class SqlInterface {
 					splitter = SQL_PREFIX;
 				}
 				String[] split = fullKey.split(splitter);
+				
+				if(split.length == 1) continue;
+				
 				String command = split[1].trim();
 				String value = entry.getValue().toString().trim();
 
@@ -207,7 +207,7 @@ public class SqlInterface {
 	 */
 	public static void setDefaultDatabase() {
 		
-		if(DatabaseObject.DATABASES.get(0) != null) {
+		if(DatabaseObject.DATABASES.get(0) != null && !DatabaseObject.DATABASES.get(0).getDriver().isEmpty()) {
 			Config.putValue(SQL_CURRENT_DATABASE, DatabaseObject.DATABASES.get(0));
 		}else if(DatabaseObject.DATABASES.get(1) != null) {
 			Config.putValue(SQL_CURRENT_DATABASE, DatabaseObject.DATABASES.get(1));
@@ -247,7 +247,7 @@ public class SqlInterface {
 			database.withPassword(value);
 			break;
 		default:
-			Helper.assertFalse("command not set correctly. options: " + Arrays.asList(driverOptions.values()));
+			
 		}
 
 		DatabaseObject.DATABASES.put(position, database);
@@ -275,7 +275,13 @@ public class SqlInterface {
 				ResultSet.CONCUR_UPDATABLE);
 
 		// execute And wait for response if expected values are set
-		ResultSet resSet = executeAndWaitForDbResponse(sqlStmt, serviceObject);
+		ResultSet resSet = null;
+		try {
+			resSet = executeAndWaitForDbResponse(sqlStmt, serviceObject);
+		}catch(Exception e) {
+			e.printStackTrace();
+			Helper.assertFalse(e.getMessage());
+		}
 
 		return resSet;
 	}
@@ -435,11 +441,8 @@ public class SqlInterface {
 	 */
 	private static void resetValidationTimeout() {
 		// reset validation timeout option
-		String defaultValidationTimeoutIsEnabled = TestObject.getDefaultTestInfo().config
-				.get(DB_TIMEOUT_VALIDATION_ENABLED).toString();
-		
-		String defaultValidationTimeoutIsSeconds = TestObject.getDefaultTestInfo().config
-				.get(DB_TIMEOUT_VALIDATION_SECONDS).toString();
+		String defaultValidationTimeoutIsEnabled = Config.getGlobalValue(DB_TIMEOUT_VALIDATION_ENABLED);
+		String defaultValidationTimeoutIsSeconds = Config.getGlobalValue(DB_TIMEOUT_VALIDATION_SECONDS);
 		
 		Config.putValue(DB_TIMEOUT_VALIDATION_ENABLED, defaultValidationTimeoutIsEnabled);
 		Config.putValue(DB_TIMEOUT_VALIDATION_SECONDS, defaultValidationTimeoutIsSeconds);

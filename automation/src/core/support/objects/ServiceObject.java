@@ -235,7 +235,7 @@ public class ServiceObject {
 	}
 	
 	public String getExpectedResponse(){
-		return normalize(this.ExpectedResponse);
+		return this.ExpectedResponse;
 	}
 	
 	public ServiceObject withTcComments(String TcComments){
@@ -272,10 +272,13 @@ public class ServiceObject {
 	public String getTcCount(){
 		return this.tcIndex.split(":")[1];
 	}
-//-----------------------------------------------------------------------------------------------------------------------	
+	
 	public static String normalize(String value) {
 		// remove new lines
 		value = value.replaceAll("\\R+", " ");
+		
+		// reduces spaces to single space. eg. "    " to " "
+		value = value.trim().replaceAll(" +", " ");
 		return value.replaceAll("[\\u2018\\u2019]", "'").replaceAll("[\\u201C\\u201D]", "\"");
 	}
 }

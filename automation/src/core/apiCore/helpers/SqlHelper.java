@@ -151,7 +151,7 @@ public class SqlHelper {
 			String command = "";
 
 			String[] expected = expectedValue.split("[\\(\\)]");
-			// get value inbetween parenthesis
+			// get value in between parenthesis
 			if (expected.length > 1) {
 				command = expected[0];
 				expectedValue = expected[1];

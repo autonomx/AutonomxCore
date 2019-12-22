@@ -41,6 +41,8 @@ import marytts.MaryInterface;
 public class TestLog {
 
 	public static final String ENABLE_EXTENT_SUBSTEPS = "report.enableDetailedReport";
+	public static final String ENABLE_DEBUG = "console.debug.enable";
+
 	public static int MAX_LENGTH = 400; // in chars. currently disabled
 	public static String WATSON = "WATSON";
 	public static String MARY = "MARY";
@@ -75,7 +77,9 @@ public class TestLog {
 	 * @param args additional arguments for logging to be formatted
 	 */
 	public static void ConsoleLogDebug(String value, Object... args) {
-		logConsoleMessage(Priority.DEBUG, formatMessage(value, args));
+		boolean isDebug = Config.getBooleanValue(ENABLE_DEBUG);
+		if(isDebug)
+			logConsoleMessage(Priority.WARN, formatMessage(value, args));
 
 	}
 

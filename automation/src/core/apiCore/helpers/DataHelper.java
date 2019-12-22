@@ -541,6 +541,7 @@ public class DataHelper {
 		for (int i = 1; i < limit; i++) {
 			if (string.matches(".*" + regex + ".*")) {
 				temp = string.split(modifyRegex(regex));
+				Helper.assertTrue("value not set for: " + string,temp.length > 1);
 				result.add(temp[1]);
 				string = temp[0];
 			}
@@ -734,11 +735,9 @@ public class DataHelper {
 			return errorMessages;
 		
 		// return error message if response is empty
-		responseValues = removeEmptyElements(responseValues);
-		if(responseValues.isEmpty()){
-			errorMessages.add("response value is empty");
+		errorMessages = validateEmptyResponse(responseValues, expectedResponse);
+		if(!errorMessages.isEmpty())
 			return errorMessages;
-		}
 
 		// validate response body against expected json string
 		expectedResponse = DataHelper.replaceParameters(expectedResponse);
@@ -751,17 +750,51 @@ public class DataHelper {
 
 		
 		for (String criterion : criteria) {
-			Helper.assertTrue("expected response is not valid: " + criterion, isValidExpectation(criterion));
+			Helper.assertTrue("expected response is not a valid json, xml or keyword:  " + criterion, isValidExpectation(criterion));
 
 			// convert xml string to json for validation
-			if (XmlHelper.isValidXmlString(criterion))
+			if (XmlHelper.isValidXmlString(criterion)) {
+				TestLog.ConsoleLog("expected xml: " + ServiceObject.normalize(criterion));
 				criterion = JsonHelper.XMLToJson(criterion);
+				TestLog.ConsoleLog("expected value converted to json for validation: " + ServiceObject.normalize(criterion));
+			}
 
 			errorMessages = validateExpectedResponse(criterion, responseValues);
 		}
 		// remove all empty response strings
 		errorMessages = removeEmptyElements(errorMessages);
 		return errorMessages;
+	}
+	
+	/**
+	 * validates if empty response is expected and received
+	 * @param responseValues
+	 * @param expected
+	 * @return
+	 */
+	public static List<String> validateEmptyResponse(List<String> responseValues, String expected) {
+		List<String> errorMessage = new ArrayList<String>();
+		boolean isEmptyExpected = isEmptyResponseExpected(expected);
+		
+		for(String resonse : responseValues) {
+			if(resonse.isEmpty() && !isEmptyExpected){
+				errorMessage.add("response value is empty");
+				return errorMessage;
+			}
+		}
+		return errorMessage;
+	}
+	
+	/**
+	 * returns true if empty response is expected. denoted by isEmpty
+	 * @param expected
+	 * @return
+	 */
+	public static boolean isEmptyResponseExpected(String expected) {
+		expected = JsonHelper.removeResponseIndicator(expected);
+		if(expected.equals(JSON_COMMAND.isEmpty.name()))
+			return true;
+		return false;
 	}
 
 	/**
