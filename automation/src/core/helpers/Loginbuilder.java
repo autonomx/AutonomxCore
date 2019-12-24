@@ -2,7 +2,6 @@ package core.helpers;
 
 import java.util.List;
 
-import core.support.exceptions.loginException;
 import core.support.objects.ActionObject;
 import core.support.objects.ActionObject.ACTION;
 import core.support.objects.DriverObject;

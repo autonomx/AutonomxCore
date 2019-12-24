@@ -107,6 +107,7 @@ public class TestObject{
 	public ExtentTest testScenerio; // current test scenario
 	public List<ExtentTest> testSteps = new ArrayList<ExtentTest>(); // current test scenario
 	public List<String> testSubSteps = new ArrayList<String>(); // current test scenario
+	public List<String> missingConfigVars = new ArrayList<String>(); // keep track of missing config variables
 	
 	// screen recorder for web
 	public ScreenRecorder screenRecorder = null;

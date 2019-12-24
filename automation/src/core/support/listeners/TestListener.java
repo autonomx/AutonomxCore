@@ -375,6 +375,9 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		// run service before suite if test method is serviceRunner
 		if(isServiceSuite(suite))
 			ServiceManager.runServiceAfterSuite();
+		
+		// print list of missing config variables
+		Config.printMissingConfigVariables();
 	}
 	
 	private String getSuiteName(String suitename) {

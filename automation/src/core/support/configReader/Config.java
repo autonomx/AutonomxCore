@@ -138,8 +138,12 @@ public class Config {
 		Object value = TestObject.getTestInfo().config.get(key);
 		if (value == null) {
 			 if(isFailable) Helper.assertFalse("value not found, default empty: " + key);
-			 TestLog.ConsoleLogDebug("value not found, default empty: " + key);
+			
+			// keep track of missing config variables
+			TestObject.getTestInfo().missingConfigVars.add(key);
+			
 			value = StringUtils.EMPTY;
+			return value.toString();
 		}
 		List<String> items = Arrays.asList(value.toString().split("\\s*,\\s*"));
 		return items.get(0);
@@ -154,7 +158,6 @@ public class Config {
 	public static int getGlobalIntValue(String key) {
 		String value = getValue(key, false);
 		if (value.isEmpty()) {
-			 TestLog.ConsoleLogDebug("value not found, default -1: " + key);
 			return -1;
 		}
 		return Integer.valueOf(value);
@@ -182,7 +185,6 @@ public class Config {
 	public static Boolean getGlobalBooleanValue(String key) {
 		String value = getGlobalValue(key, false);
 		if (value.isEmpty()) {
-			 TestLog.ConsoleLogDebug("value not found, default false: " + key);
 			return false;
 		}
 		return Boolean.parseBoolean(value);
@@ -209,7 +211,6 @@ public class Config {
 		Object value = TestObject.getDefaultTestInfo().config.get(key);
 		if (value == null) {
 			 if(isFailable) Helper.assertFalse("value not found, default empty: " + key);
-			 TestLog.ConsoleLogDebug("value not found, default empty: " + key);
 			value = StringUtils.EMPTY;
 		}
 		List<String> items = Arrays.asList(value.toString().split("\\s*,\\s*"));
@@ -236,7 +237,6 @@ public class Config {
 		String value = getValue(key,isFailable);
 		if (value.isEmpty()) {
 			 if(isFailable) Helper.assertFalse("value not found: " + key);
-			 TestLog.ConsoleLogDebug("value not found, default false: " + key);
 			return false;
 		}
 		return Boolean.parseBoolean(value);
@@ -249,7 +249,6 @@ public class Config {
 	 */
 	public static Object getObjectValue(String key) {
 		if(TestObject.getTestInfo().config.get(key) == null) {
-			TestLog.ConsoleLogDebug("value not found. default set to empty");
 			return null;
 		}
 		Object value = TestObject.getTestInfo().config.get(key);
@@ -276,7 +275,6 @@ public class Config {
 		String value = getValue(key, isFailable);
 		if (value.isEmpty()) {
 			 if(isFailable) Helper.assertFalse("value not found: " + key);
-			 TestLog.ConsoleLogDebug("value not found, default -1: " + key);
 			return -1;
 		}
 		return Integer.valueOf(value);
@@ -302,7 +300,6 @@ public class Config {
 		String value = getValue(key, isFailable);
 		if (value.isEmpty()) {
 			if(isFailable) Helper.assertFalse("value not found: " + key);
-			 TestLog.ConsoleLogDebug("value not found, default -1: " + key);
 			return -1;
 		}
 		return Double.valueOf(value);
@@ -329,7 +326,6 @@ public class Config {
 		List<String> items = new ArrayList<String>();
 		if (value == null) {
 			if(isFailable) Helper.assertFalse("value not found in config files: " + key);
-			TestLog.ConsoleLogDebug("value not found in config files: " + key, false);
 		}
 		if(!value.isEmpty()) 
 			items = Arrays.asList(value.split("\\s*,\\s*"));
@@ -395,5 +391,13 @@ public class Config {
 		Object value = TestObject.getParentTestInfo(service).config.get(key);
 		if(value == null) return false;
 		return (boolean) value;
+	}
+	
+	/**
+	 * print a list of missing config variables
+	 */
+	public static void printMissingConfigVariables() {
+		List<String> variables = TestObject.getTestInfo().missingConfigVars;
+		TestLog.ConsoleLog("List of missing config variables. Please see latest version for updated config: " +  StringUtils.join(variables, ", "));
 	}
 }
