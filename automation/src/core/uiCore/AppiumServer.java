@@ -1,5 +1,6 @@
 package core.uiCore;
 
+import java.io.File;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
@@ -22,6 +23,9 @@ public class AppiumServer {
 	public static String JAVA_HOME = "android.javaHome";
 	public static String APPIUM_LOGGING = "appium.logging";
 	public static String APPIUM_LOGGING_LEVEL = "appium.logginLevel";
+	public static String APPIUM_PATH = "appium.path";
+
+	
 	public static AppiumDriverLocalService service = null;
 	
 	/**
@@ -37,6 +41,8 @@ public class AppiumServer {
 		 // run only one instance of appium server^M
 		if(service != null && service.isRunning()) return service;
 		
+		String appiumPath = Config.getValue(APPIUM_PATH);
+		
 		Map<String, String> env = setEnvVariables();
 
 		AppiumServiceBuilder builder = new AppiumServiceBuilder()
@@ -44,6 +50,10 @@ public class AppiumServer {
 				.withEnvironment(env)
 				.withIPAddress("127.0.0.1")
 				.withArgument(GeneralServerFlag.SESSION_OVERRIDE);
+		
+		// set appium js path 
+		if(!appiumPath.isEmpty())
+			builder.withAppiumJS(new File(appiumPath));
 
 		// if logging set to true, set the logging level
 		if (Config.getBooleanValue(APPIUM_LOGGING))

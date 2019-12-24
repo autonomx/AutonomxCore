@@ -212,10 +212,7 @@ public class Loginbuilder {
 
 		// if element is not displayed, through login exception
 		if (!Helper.isPresent(firstElement))
-			try {
-				throw new loginException("element '" + firstElement.name + "' did not load");
-			} catch (loginException e) {
-				e.printStackTrace();
-			}
+				Helper.assertFalse("element '" + firstElement.name + "' did not load");
+		
 	}
 }

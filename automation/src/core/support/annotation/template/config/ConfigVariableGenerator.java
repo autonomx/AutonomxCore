@@ -82,6 +82,12 @@ public class ConfigVariableGenerator {
 		 */
 		for (Entry<String, Object> entry : config.entrySet()) {
 			
+			// ignore keys with special characters
+			String splChrs = "-/@#$%^&_+=()" ;
+			boolean containsSpecialCharacters = entry.getKey().matches("[" + splChrs + "]+");
+			if(containsSpecialCharacters)
+				continue;
+			
 			bw.append("	public static ConfigManager "+ DataObjectHelper.normalizeMethod(entry.getKey()) +"() {" + "\n");
 			bw.append("		String value = Config.getValue(\""+ entry.getKey() +"\");" + "\n");
 			bw.append("		return new ConfigManager(\""+  entry.getKey() + "\", " +  "value" +");" + "\n");
