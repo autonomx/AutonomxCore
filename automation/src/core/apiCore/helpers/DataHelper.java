@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -58,32 +59,22 @@ public class DataHelper {
 		Instant newTime = null;
 		for (String parameter : parameters) {
 			if (parameter.contains("_TIME_MS_")) {
-				length = Helper.getIntFromString(parameter.split("[+-]")[0]);
-				if (length > 13) length = 13;
 				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING_MS));			
 				String timeMs = String.valueOf(newTime.toEpochMilli());
-				value = timeMs.substring(0, length);
-			}if (parameter.contains("_TIME_STRING_")) {
-					length = Helper.getIntFromString(parameter.split("[+-]")[0]);
-					if (length > 17) length = 17;
+				value = getTimeSubstring(parameter, 13, timeMs);
+			}else if (parameter.contains("_TIME_STRING_")) {
 					newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING_MS));			
 					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")
 							.withZone(ZoneId.of("UTC"));
-					value = formatter.format(newTime).substring(0, length);
+					value = getTimeSubstring(parameter, 17, formatter.format(newTime));
 			} else if (parameter.contains("_TIME_ISO_")) {
-				length = Helper.getIntFromString(parameter.split("[+-]")[0]);
-				if (length > 24)
-					length = 24;
 				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING_ISO));
-				value = newTime.toString().substring(0, length);
+				value = getTimeSubstring(parameter, 24, newTime.toString());
 			} else if (parameter.contains("_TIME")) {
-				length = Helper.getIntFromString(parameter.split("[+-]")[0]);
-				if (length > 17)
-					length = 17;
 				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING_MS));
 				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")
 						.withZone(ZoneId.of("UTC"));
-				value = formatter.format(newTime).substring(0, length);
+				value = getTimeSubstring(parameter, 17, formatter.format(newTime));
 			} else if (parameter.contains("_RAND")) {
 				length = Helper.getIntFromString(parameter);
 				value = Config.getValue(TestObject.RANDOM_STRING).substring(0, length);
@@ -108,11 +99,63 @@ public class DataHelper {
 
 		return source;
 	}
+	
+	/**
+	 * get substring of time based on time string length
+	 * format _TIME_STRING_17-72h. 17 is the length
+	 * @param parameter
+	 * @param maxLength
+	 * @param finalTime
+	 * @return
+	 */
+	public static String getTimeSubstring(String parameter, int maxLength, String finalTime) {
+		int length = Helper.getIntFromString(parameter.split("[+-]")[0]);
+		if (length > maxLength)
+			length = maxLength;
+		else if(length == -1) length = 1;
+		return finalTime.substring(0, length);
+	}
 
+	/**
+	 *  time: _TIME_STRING_17-72h or _TIME_STRING_17+72h
+	 * @param parameter: time parameter with modification. eg. _TIME_STRING_17-72h
+	 * @param timeString
+	 * @return
+	 */
 	public static Instant getTime(String parameter, String timeString) {
 		Instant time = Instant.parse(timeString);
 		Instant newTime = time;
+		String[] parameterArray = parameter.split("[+-]");
+		
+		// return non modified time if modifier not set
+		if( parameterArray.length == 1) return newTime;
+		
+		String modifier =  parameter.split("[+-]")[1];
+		
+		String modiferSign = parameter.replaceAll("[^+-]", "");
+		int modifierDuration = Helper.getIntFromString(modifier);
+		String modifierUnit =  modifier.replaceAll("[^A-Za-z]+", "");
+		
+		if(modiferSign.isEmpty() || modifierDuration == -1 || modifierUnit.isEmpty())
+			  Helper.assertFalse("invalid time modifier. format: eg. _TIME_STRING_17+72h or _TIME_STRING_17-72m");
 
+		switch(modifierUnit) {
+		  case "h":
+			  if(modiferSign.equals("+"))
+				  newTime = newTime.plus(modifierDuration, ChronoUnit.HOURS);
+			  else if(modiferSign.equals("-"))
+				  newTime = newTime.minus(modifierDuration, ChronoUnit.HOURS);
+		    break;
+		  case "m":
+			  if(modiferSign.equals("+"))
+				  newTime = newTime.plus(modifierDuration, ChronoUnit.MINUTES);
+			  else if(modiferSign.equals("-"))
+				  newTime = newTime.minus(modifierDuration, ChronoUnit.MINUTES);
+		    break;
+		  default:
+			  Helper.assertFalse("invalid time modifier. format: eg. +72h or -72m");
+		    
+		}
 		return newTime;
 	}
 
