@@ -75,6 +75,7 @@ public class ServiceManager {
 		try {
 			runCsvInterface(serviceObject);
 		} catch (Exception e) {
+			e.printStackTrace();
 			Helper.assertFalse(e.getMessage());
 		}
 	}
@@ -122,9 +123,7 @@ public class ServiceManager {
 	 * @throws Exception 
 	 */
 	public static void runBeforeCsv(ServiceObject serviceObject) throws Exception {
-		
-		
-		
+			
 		// return if current test index is not 0
 		boolean isBeforeCsvComplete = (boolean) Config.getParentValue(IS_BASE_BEFORE_CLASS_COMPLETE);
 		if (isBeforeCsvComplete) return;
