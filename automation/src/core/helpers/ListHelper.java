@@ -1,6 +1,7 @@
 package core.helpers;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -317,11 +318,12 @@ public class ListHelper {
 	public int getElementIndexEqualsByText(EnhancedBy list, String option) {
 
 		int index = -1;
+		List<String> stringList = new ArrayList<String>();
 		StopWatchHelper watch = StopWatchHelper.start();
 		long passedTimeInSeconds = 0;
 		do {
 			EnhancedWebElement listElements = Element.findElements(list);
-			List<String> stringList = listElements.getTextList();
+			stringList = listElements.getTextList();
 
 			index = getStringIndexEqualsByText(list, stringList, option);
 
@@ -329,6 +331,10 @@ public class ListHelper {
 			if (index != -1)
 				break;
 		} while (passedTimeInSeconds < AbstractDriver.TIMEOUT_SECONDS);
+		
+		if(index == -1)
+			TestLog.logWarning("option: " + option + " not found in list: " + Arrays.toString(stringList.toArray()));
+
 		return index;
 	}
 
@@ -342,17 +348,22 @@ public class ListHelper {
 	public int getElementIndexContainByText(EnhancedBy list, String option) {
 
 		int index = -1;
+		List<String> stringList = new ArrayList<String>();
 		StopWatchHelper watch = StopWatchHelper.start();
 		long passedTimeInSeconds = 0;
 		do {
 			EnhancedWebElement listElements = Element.findElements(list);
-			List<String> stringList = listElements.getTextList();
+			stringList = listElements.getTextList();
 
 			index = getStringIndexContainByText(list, stringList, option);
 			passedTimeInSeconds = watch.time(TimeUnit.SECONDS);
 			if (index != -1)
 				break;
 		} while (passedTimeInSeconds < AbstractDriver.TIMEOUT_SECONDS);
+		
+		if(index == -1)
+			TestLog.logWarning("option: " + option + " not found in list: " + Arrays.toString(stringList.toArray()));
+		
 		return index;
 	}
 
