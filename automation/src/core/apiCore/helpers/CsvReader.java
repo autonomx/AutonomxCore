@@ -1,7 +1,9 @@
 package core.apiCore.helpers;
 
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +13,10 @@ import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import com.opencsv.CSVParser;
+import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 
 import core.apiCore.TestDataProvider;
 import core.helpers.Helper;
@@ -26,7 +31,7 @@ public class CsvReader {
 	public static int SERVICE_CSV_COLUMN_COUNT = 19;
 	public static String SERVICE_CSV_FILE_PREFIX = "TestCases_";
 	public static final String ACTION_KEY = "action";
-	
+	public static final String SERVICE_CSV_SEPARATOR = "service.csv.separator";
 	enum VALID_TEST_FILE_TYPES {
 		 csv
 		}
@@ -282,12 +287,26 @@ public class CsvReader {
 		return csvList;
 	}
 
+	/**
+	 * reads csv file and returns the list of rows 
+	 * @param file
+	 * @return
+	 */
 	public static List<String[]> getCsvTestList(File file) {
 		List<String[]> csvList = new ArrayList<String[]>();
 
 		try {
-			CSVReader reader = new CSVReader(new FileReader(file.getPath()));
+			
+			// read csv file
+			char separator = getCsvSeparator();				
+			FileInputStream fis = new FileInputStream(file.getPath());
+            InputStreamReader isr = new InputStreamReader(fis, 
+                    StandardCharsets.UTF_8);
+	        CSVParser parser = new CSVParserBuilder().withSeparator(separator).build();
+		    CSVReader reader = new CSVReaderBuilder(isr).withCSVParser(parser)
+                     .build();
 
+			
 			// read header separately
 			String[] header = reader.readNext();
 			int runFlag = getColumnIndexByName("RunFlag", header);
@@ -306,6 +325,17 @@ public class CsvReader {
 		}
 
 		return csvList;
+	}
+	
+	/**
+	 * sets the separator for the csv file
+	 * @return
+	 */
+	private static char getCsvSeparator() {
+		String separatorString = Config.getValue(SERVICE_CSV_SEPARATOR);
+		if(separatorString.isEmpty()) separatorString = ",";
+		char separator = separatorString.charAt(0);
+		return separator;
 	}
 
 	public static int getFileIndex(ArrayList<File> testCsvFileList, String csvFile) {

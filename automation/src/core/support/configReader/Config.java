@@ -146,6 +146,10 @@ public class Config {
 			return value.toString();
 		}
 		List<String> items = Arrays.asList(value.toString().split("\\s*,\\s*"));
+		if(items.size() == 0) {
+			items = new ArrayList<String>();
+			items.add(value.toString());
+		}
 		return items.get(0);
 	}
 	
