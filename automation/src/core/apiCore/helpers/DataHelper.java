@@ -562,7 +562,7 @@ public class DataHelper {
 	 * @param values
 	 * @return
 	 */
-	public static String ObjectToString(Object values) {
+	public static String objectToString(Object values) {
 		String stringVal = values.toString();
 		stringVal = stringVal.replaceAll("[\\[\\](){}]", "");
 		stringVal = stringVal.replace("\"", "");
@@ -707,6 +707,33 @@ public class DataHelper {
 		
 		TestLog.ConsoleLog("request: " + requestbody);
 		return requestbody;
+	}
+	
+	/**
+	 * stores value in config
+	 * format: value:<$key> separated by colon ';'
+	 * @param source
+	 */
+	public static void saveDataToConfig(String source) {
+
+		if (source.isEmpty())
+			return;
+
+		List<KeyValue> keywords = DataHelper.getValidationMap(source);
+		for (KeyValue keyword : keywords) {
+			
+			// return if value is wrong format
+			if(!keyword.value.toString().startsWith("<") || !keyword.value.toString().contains("$")|| !keyword.value.toString().endsWith(">"))
+				return;
+			
+			String value = (String) keyword.value;
+			value = value.replace("$", "").replace("<", "").replace(">", "").trim();
+			// gets json value. if list, returns string separated by comma
+			String key = keyword.key;
+
+			Config.putValue(value, key);
+			TestLog.logPass("replacing value " + value + " with: " + key);
+		}
 	}
 
 	/**

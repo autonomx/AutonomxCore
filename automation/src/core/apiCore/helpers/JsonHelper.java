@@ -133,7 +133,7 @@ public class JsonHelper {
 			return values.toString();
 		}
 		
-		return DataHelper.ObjectToString(values);
+		return DataHelper.objectToString(values);
 	}
 
 	/**
@@ -512,7 +512,7 @@ public class JsonHelper {
 		if(getJsonArray(jsonString) == null && getJsonObject(jsonString) == null)
 			return false;
 		
-		String jsonNormalized = DataHelper.ObjectToString(jsonString);
+		String jsonNormalized = DataHelper.objectToString(jsonString);
 		if(jsonNormalized.contains(":"))
 			return true;
 		return false;
