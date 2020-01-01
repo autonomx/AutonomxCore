@@ -55,12 +55,15 @@ public class RestApiInterface {
 
 		// set proxy from api config
 		setProxy();
-
-		// replace parameters for request body, including template file (json, xml, or other)
-		serviceObject.withRequestBody(DataHelper.getRequestBodyIncludingTemplate(serviceObject));
-
+		
 		// set base uri
 		RequestSpecification request = setURI(serviceObject);
+		
+		// set options
+		request = evaluateOption(serviceObject, request);
+		
+		// replace parameters for request body, including template file (json, xml, or other)
+		serviceObject.withRequestBody(DataHelper.getRequestBodyIncludingTemplate(serviceObject));
 
 		// send request and evaluate response
 		Response response = evaluateRequestAndValidateResponse(serviceObject, request);
@@ -410,9 +413,6 @@ public class RestApiInterface {
 
 		// set request body
 		request = evaluateRequestBody(serviceObject, request);
-
-		// set options
-		request = evaluateOption(serviceObject, request);
 
 		TestLog.logPass("request body: " + Helper.stringRemoveLines(serviceObject.getRequestBody()));
 		TestLog.logPass("request type: " + serviceObject.getMethod());

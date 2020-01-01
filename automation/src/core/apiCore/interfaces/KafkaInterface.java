@@ -50,12 +50,12 @@ public class KafkaInterface {
 	 */
 	public static void testKafkaInterface(ServiceObject serviceObject) throws Exception {
 
+		// evaluate options
+		evaluateOption(serviceObject);
+		
 		// replace parameters for request body, including template file (json, xml, or
 		// other)
 		serviceObject.withRequestBody(DataHelper.getRequestBodyIncludingTemplate(serviceObject));
-
-		// evaluate options
-		evaluateOption(serviceObject);
 		
 		// generate message id
 		String messageId = MessageQueueHelper.generateMessageId(serviceObject, Config.getValue(KAFKA_MESSAGE_ID_PREFIX));
