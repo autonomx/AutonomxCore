@@ -395,7 +395,7 @@ public class Helper {
      * @param y
      * @param expected
      */
-    public void clickPointsAndExpect(int x ,int y, EnhancedBy expected) {
+    public static void clickPointsAndExpect(int x ,int y, EnhancedBy expected) {
     	click.clickPointsAndExpect(x, y, expected);
     }
     
@@ -413,7 +413,7 @@ public class Helper {
 	 * @param target
 	 * @param index
 	 */
-	public void doubleClick(EnhancedBy target, int index) {
+	public static void doubleClick(EnhancedBy target, int index) {
 		clickAction.doubleClick(target, index);
     }
     
@@ -1844,7 +1844,7 @@ public class Helper {
 	 * @return
 	 */
 	public static Point getElementPosition(EnhancedBy by) {
-		return getElementPosition(by);
+		return ElementHelper.getElementPosition(by);
 	}
 	
 	/**
@@ -1854,7 +1854,7 @@ public class Helper {
 	 * @return
 	 */
 	public static Point getElementPosition(EnhancedBy by, int index) {
-		return getElementPosition(by, index);
+		return ElementHelper.getElementPosition(by, index);
 	}
 	
 	/**

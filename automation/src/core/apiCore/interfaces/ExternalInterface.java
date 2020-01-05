@@ -3,6 +3,7 @@ package core.apiCore.interfaces;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -72,7 +73,7 @@ public class ExternalInterface {
 		if(methodInfo.length < 2)
 			Helper.assertFalse("wrong method format. must be class.method");
 		
-		File sourceFile = getFilePath(methodInfo[0], "src", "main", "java", "module", "services" , "method");
+		File sourceFile = getExternalMethodFilePath(methodInfo[0]);
 		Class<?> externalClass = groovyClassLoader.parseClass(sourceFile);
 		Method method = externalClass.getMethod(methodInfo[1]);
 		method.invoke(null);
@@ -85,22 +86,39 @@ public class ExternalInterface {
 	 * @param dirs
 	 * @return
 	 */
-	public static File getFilePath(String classname, String... dirs) {
-		String pathKotlin = StringUtils.EMPTY;
-		String pathJava = StringUtils.EMPTY;
+	public static File getExternalMethodFilePath(String classmethod) {
 
-		String path = Helper.getRootDir();
-		for(String dir: dirs) {
-			path = path + File.separator + dir;
-		}
-		pathJava = path + File.separator + classname + ".java";
-		pathKotlin = path + File.separator + classname + ".kt";
-
-		File file = new File(pathJava);
-		if(!file.exists())
-			file = new File(pathKotlin);
+		String path = "module" + File.separator + "services" + File.separator + "method" ;
+		File folder = new File(Helper.getRootDir() + "src" + File.separator + "main");
 		
-		return file;
+		List<File> listOfFiles = new ArrayList<File>();
+		listOfFiles = getAllFiles(folder, listOfFiles);
+
+		for (File file : listOfFiles) {
+			if(file.getAbsolutePath().contains(path + File.separator + classmethod))
+		    return file;
+		}
+		
+		Helper.assertFalse("directory for external test method not found: " + path);
+		return null;
+	}
+	
+	/**
+	 * gets list of files in specified directory
+	 * @param pathToDir
+	 * @param listOfFiles
+	 * @return
+	 */
+	private static List<File> getAllFiles(File pathToDir,List<File> listOfFiles) {
+	    if (pathToDir.isDirectory()) {
+	        String[] subdirs = pathToDir.list();
+	        for (int i=0; i<subdirs.length; i++) {
+	        	getAllFiles(new File(pathToDir, subdirs[i]), listOfFiles);
+	        }
+	    } else {
+	    	listOfFiles.add(pathToDir);
+	    }
+	    return listOfFiles;
 	}
 	
 }

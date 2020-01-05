@@ -402,6 +402,7 @@ public class Config {
 	 */
 	public static void printMissingConfigVariables() {
 		List<String> variables = TestObject.getTestInfo().missingConfigVars;
-		TestLog.ConsoleLog("List of missing config variables. Please see latest version for updated config: " +  StringUtils.join(variables, ", "));
+		if(variables.size() > 0)
+			TestLog.ConsoleLog("List of missing config variables. Please see latest version for updated config: " +  StringUtils.join(variables, ", "));
 	}
 }

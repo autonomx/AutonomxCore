@@ -324,6 +324,8 @@ public class ClickHelper extends Element {
 	 * @param y
 	 */
     public void clickPoints(int x ,int y) {
+    	
+    	TestLog.logPass("I click point at x: " + x + " y: " + y);
         Actions action = new Actions(AbstractDriver.getWebDriver());
 
         // offset from 0,0 position
