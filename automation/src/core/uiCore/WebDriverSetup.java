@@ -3,6 +3,7 @@ package core.uiCore;
 import java.io.IOException;
 import java.net.URL;
 
+import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -155,6 +156,8 @@ public class WebDriverSetup {
 		default:
 			throw new IllegalStateException("Unsupported browsertype " + browserType);
 		}
+		
+		printBrowserVersion(driver);
 		return driver;
 	}
 	
@@ -191,5 +194,14 @@ public class WebDriverSetup {
 
 	public String getServerPort() {
 		return Config.getValue(SERVER_PORT);
+	}
+	
+	public void printBrowserVersion(WebDriver driver) {
+		if(driver == null) return;
+		
+		Capabilities caps = ((RemoteWebDriver) driver).getCapabilities();
+		String browserName = caps.getBrowserName();
+		String browserVersion = caps.getVersion();
+		TestLog.ConsoleLog("browser name: '" + browserName + "' browser version: "+ browserVersion);	
 	}
 }

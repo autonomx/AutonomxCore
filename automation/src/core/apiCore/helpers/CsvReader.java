@@ -43,7 +43,6 @@ public class CsvReader {
 	 */
 	public synchronized static List<Object[]> getTestCasesFromCsvFile() {
 		int index = getCurrentTestInvocation();
-
 		// if single test case is specified, Then only load that file
 		String testCaseFile = Config.getValue(TestDataProvider.TEST_CASE_FILE);
 		if (!testCaseFile.isEmpty())

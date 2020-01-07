@@ -379,6 +379,14 @@ public class UtilityHelper {
 	 */
 	protected static String getRootDir() {	
 		Path currentWorkingDir = Paths.get("").toAbsolutePath();
+		boolean isRoot = false;
+		File root = new File(currentWorkingDir.toString());
+		File[] files = root.listFiles();
+		for(File file : files) {
+			if(file.getName().contains("pom"))
+				isRoot= true;
+		}
+		if(!isRoot) Helper.assertFalse("invalid root directory. is annotations processor turned off? " + root.getAbsolutePath());
 		return currentWorkingDir.normalize().toString() + File.separator;
 	}
 
