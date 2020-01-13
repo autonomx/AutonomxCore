@@ -848,7 +848,7 @@ public class DataHelper {
 				TestLog.ConsoleLog("expected value converted to json for validation: " + ServiceObject.normalize(criterion));
 			}
 
-			errorMessages = validateExpectedResponse(criterion, responseValues);
+			errorMessages.addAll(validateExpectedResponse(criterion, responseValues));
 		}
 		// remove all empty response strings
 		errorMessages = removeEmptyElements(errorMessages);
