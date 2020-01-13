@@ -203,32 +203,37 @@ public class ServiceManager {
 		
 		/**
 		 
-		 public static void runInterface(ServiceObject serviceObject) throws Exception {
-		 
-		 evaluateOption(serviceObject);
+		public static void runInterface(ServiceObject serviceObject) throws Exception {
 
-		int runCount = Config.getIntValue(ServiceManager.SERVICE_RUN_COUNT);
-		for (int i = 1; i <= runCount; i++) {
-			Config.putValue(ServiceManager.SERVICE_RUN_CURRENT_COUNT, i);
-			if (i > 1)
-				TestLog.ConsoleLog("Starting run: " + i);
-		 
-		switch (serviceObject.getInterfaceType()) {
-		case TEST_INTERFACE:
-			new TestInterface(serviceObject);
-			break;
-		default:
-			ServiceManager.TestRunner(serviceObject);
-			break;
+			evaluateOption(serviceObject);
+			int runCount = Config.getIntValue(ServiceManager.SERVICE_RUN_COUNT);
+			ServiceObject serviceObjectOriginal = (ServiceObject) serviceObject.clone();
+			for (int i = 1; i <= runCount; i++) {
+				serviceObject = (ServiceObject) serviceObjectOriginal.clone();
+				Config.putValue(ServiceManager.SERVICE_RUN_CURRENT_COUNT, i);
+				if (i > 1)
+					TestLog.ConsoleLog("Starting run: " + i);
+	
+				switch (serviceObject.getInterfaceType()) {
+				case "TestInterface":
+					new TestInterface().testInterface(serviceObject);
+					break;
+				default:
+					ServiceManager.runInterface(serviceObject);
+					break;
+				}
+			}
+			evaluateResults();
 		}
-		evaluateResults();
 		 */
 		
 		bw.append("		public static void runInterface(ServiceObject serviceObject) throws Exception {" + " \n");
 		bw.newLine();
 		bw.append("			evaluateOption(serviceObject);" + " \n");
 		bw.append(" 		int runCount = Config.getIntValue(ServiceManager.SERVICE_RUN_COUNT);" + " \n");
+		bw.append(" 		ServiceObject serviceObjectOriginal = (ServiceObject) serviceObject.clone();" + " \n");
 		bw.append(" 		for (int i = 1; i <= runCount; i++) {" + " \n");
+		bw.append(" 			serviceObject = (ServiceObject) serviceObjectOriginal.clone();" + " \n");
 		bw.append(" 			Config.putValue(ServiceManager.SERVICE_RUN_CURRENT_COUNT, i);" + " \n");
 		bw.append(" 			if (i > 1)" + " \n");
 		bw.append(" 				TestLog.ConsoleLog(\"Starting run: \" + i);" + " \n");
