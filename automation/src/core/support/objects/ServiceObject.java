@@ -2,7 +2,7 @@
 
 import org.apache.commons.lang.StringUtils;
 
-public class ServiceObject {
+public class ServiceObject implements Cloneable {
 
 	private String TestSuite = StringUtils.EMPTY;
 	private String TestCaseID = StringUtils.EMPTY;
@@ -280,5 +280,9 @@ public class ServiceObject {
 		// reduces spaces to single space. eg. "    " to " "
 		value = value.trim().replaceAll(" +", " ");
 		return value.replaceAll("[\\u2018\\u2019]", "'").replaceAll("[\\u201C\\u201D]", "\"");
+	}
+	
+	public Object clone() throws CloneNotSupportedException {
+		return super.clone();
 	}
 }

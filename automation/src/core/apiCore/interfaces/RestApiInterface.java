@@ -40,7 +40,6 @@ public class RestApiInterface {
 	private static final String OPTION_NO_VALIDATION_TIMEOUT = "NO_VALIDATION_TIMEOUT";
 	private static final String OPTION_WAIT_FOR_RESPONSE = "WAIT_FOR_RESPONSE";
 
-
 	/**
 	 * interface for restful API calls
 	 * 
@@ -57,50 +56,40 @@ public class RestApiInterface {
 
 		// set proxy from api config
 		setProxy();
-		
+
 		// set base uri
 		RequestSpecification request = setURI(serviceObject);
-		
+
 		// set options
 		request = evaluateOption(serviceObject, request);
-		
+
 		// send request and evaluate response
 		Response response = evaluate(serviceObject, request);
 
 		return response;
 	}
-	
+
 	/**
-	 * run and evaluate the api request
-	 * rerun based on service retry count. default 1
-	 * will not fail test until all iterations are complete
+	 * run and evaluate the api request rerun based on service retry count. default
+	 * 1 will not fail test until all iterations are complete
+	 * 
 	 * @param serviceObject
 	 * @param request
 	 * @return
 	 */
 	public static Response evaluate(ServiceObject serviceObject, RequestSpecification request) {
-		
-		int runCount = Config.getIntValue(ServiceManager.SERVICE_RUN_COUNT);
-		Response response  = null;
-		
-		for(int i = 1; i <= runCount; i++) {
-			Config.putValue(ServiceManager.SERVICE_RUN_CURRENT_COUNT, i);
-			if(i > 1) TestLog.ConsoleLog("Starting run: " + i);
-			
-			// replace parameters for request body, including template file (json, xml, or other)
-			serviceObject.withRequestBody(DataHelper.getRequestBodyIncludingTemplate(serviceObject));
-	
-			// send request and evaluate response
-			response = evaluateRequestAndValidateResponse(serviceObject, request);	
-		}
-		
-		// fail test if errors exist
-		evaluateResults();
-		
-		return response;		
+
+		Response response = null;
+
+		// replace parameters for request body, including template file (json, xml, or
+		// other)
+		serviceObject.withRequestBody(DataHelper.getRequestBodyIncludingTemplate(serviceObject));
+
+		// send request and evaluate response
+		response = evaluateRequestAndValidateResponse(serviceObject, request);
+
+		return response;
 	}
-	
-	
 
 	/**
 	 * evaluate request and validate response retry until validation timeout period
@@ -109,7 +98,8 @@ public class RestApiInterface {
 	 * @param serviceObject
 	 * @return
 	 */
-	public static Response evaluateRequestAndValidateResponse(ServiceObject serviceObject, RequestSpecification request) {
+	public static Response evaluateRequestAndValidateResponse(ServiceObject serviceObject,
+			RequestSpecification request) {
 		List<String> errorMessages = new ArrayList<String>();
 		Response response = null;
 
@@ -146,57 +136,27 @@ public class RestApiInterface {
 
 		// log results
 		if (!errorMessages.isEmpty()) {
-			logResults(errorMessages, passedTimeInSeconds);
+			ServiceManager.logResults(errorMessages, passedTimeInSeconds);
 		}
 		return response;
 	}
-	
-	/**
-	 * logs test results per test run
-	 * @param errorMessages
-	 * @param passedTimeInSeconds
-	 */
-	public static void logResults(List<String> errorMessages, long passedTimeInSeconds) {
-		int runCount = Config.getIntValue(ServiceManager.SERVICE_RUN_COUNT);
-		int currentRun = Config.getIntValue(ServiceManager.SERVICE_RUN_CURRENT_COUNT);
-		
-		TestLog.ConsoleLog("Validation failed after: " +  passedTimeInSeconds + " seconds");
-		String errorString = "error: " + StringUtils.join(errorMessages, "\n error: ");
-		TestLog.ConsoleLog(errorString);
-		
-		// log run count if multiple runs are enabled 
-		if(runCount > 1)
-			errorMessages.add(0, "run: " + currentRun);
-		
-		TestObject.getTestInfo().withTestErrors(errorMessages);
-		
-	}
-	
-	/**
-	 * fail test if error exists
-	 */
-	public static void evaluateResults() {
-		List<String> errorMessages = TestObject.getTestInfo().testErrors;
-		if (!errorMessages.isEmpty()) {
-			TestLog.logPass(StringUtils.join(errorMessages, "\n error: "));
-			Helper.assertFalse(StringUtils.join(errorMessages, "\n error: "));
-		}
-	}
+
 
 	/**
 	 * sets base uri for api call
-	 * @return 
+	 * 
+	 * @return
 	 */
 	public static RequestSpecification setURI(ServiceObject serviceObject) {
 		String url = StringUtils.EMPTY;
-		
+
 		// set request
 		RequestSpecification request = given();
-		
+
 		// replace place holder values for URI
 		serviceObject.withUriPath(DataHelper.replaceParameters(serviceObject.getUriPath()));
 		serviceObject.withUriPath(Helper.stringRemoveLines(serviceObject.getUriPath()));
-		
+
 		// if URI is full path, Then set base URI as what's provided in CSV file
 		// else use baseURI from properties as base URI And extend it with CSV file URI
 		// path
@@ -205,19 +165,19 @@ public class RestApiInterface {
 		} else {
 			url = Helper.stringRemoveLines(Config.getValue("api.uriPath")) + serviceObject.getUriPath();
 		}
-		// keep track of full URL 
+		// keep track of full URL
 		serviceObject.withUriPath(url);
-		
+
 		URL aURL = Helper.convertToUrl(url);
 		TestLog.logPass("request URL: " + aURL.toString());
-		
+
 		request.baseUri(aURL.getProtocol() + "://" + aURL.getHost());
 		request.port(aURL.getPort());
 		request.basePath(aURL.getPath());
-		
+
 		return request;
 	}
-	
+
 	/**
 	 * set connection timeout in milliseconds
 	 */
@@ -229,7 +189,7 @@ public class RestApiInterface {
 		RestAssured.config = RestAssuredConfig.config().httpClient(
 				HttpClientConfig.httpClientConfig().setParam("http.connection.timeout", connectTimeout * 1000)
 						.setParam("http.socket.timeout", connectTimeout * 1000)
-						.setParam("http.connection-manager.timeout", connectTimeout * 1000)); 
+						.setParam("http.connection-manager.timeout", connectTimeout * 1000));
 
 	}
 
@@ -271,7 +231,7 @@ public class RestApiInterface {
 				return errorMessages;
 			}
 		}
-		
+
 		// get response values and validate
 		String responseString = JsonHelper.getResponseValue(response);
 		List<String> responses = new ArrayList<String>();
@@ -292,7 +252,8 @@ public class RestApiInterface {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public static RequestSpecification evaluateRequestHeaders(ServiceObject serviceObject, RequestSpecification request) {
+	public static RequestSpecification evaluateRequestHeaders(ServiceObject serviceObject,
+			RequestSpecification request) {
 
 		// if no RequestHeaders specified
 		if (serviceObject.getRequestHeaders().isEmpty()) {
@@ -311,8 +272,10 @@ public class RestApiInterface {
 			// if additional request headers
 			switch (keyword.key) {
 			case Authentication.BASIC_AUTHORIZATION:
-				ArrayList<String> basicRequest = (ArrayList<String>) Config.getObjectValue(Authentication.BASIC_AUTHORIZATION);
-				if(basicRequest.size() == 0) Helper.assertFalse("basic request info not found: " + Arrays.toString(basicRequest.toArray()));
+				ArrayList<String> basicRequest = (ArrayList<String>) Config
+						.getObjectValue(Authentication.BASIC_AUTHORIZATION);
+				if (basicRequest.size() == 0)
+					Helper.assertFalse("basic request info not found: " + Arrays.toString(basicRequest.toArray()));
 				request = request.auth().basic(basicRequest.get(0), basicRequest.get(1));
 				break;
 			case INVALID_TOKEN:
@@ -342,26 +305,32 @@ public class RestApiInterface {
 		}
 		return request;
 	}
-	
+
 	/**
-	 * evaluate query parameters
-	 * format: "name=key=value&key2=value2"
+	 * evaluate query parameters format: "name=key=value&key2=value2"
+	 * 
 	 * @param serviceObject
 	 * @param request
 	 * @return
 	 */
-	public static RequestSpecification evaluateQueryParameters(ServiceObject serviceObject, RequestSpecification request) {
+	public static RequestSpecification evaluateQueryParameters(ServiceObject serviceObject,
+			RequestSpecification request) {
 		URL aURL = Helper.convertToUrl(serviceObject.getUriPath());
-		
-		if(StringUtils.isBlank(aURL.getQuery())) return request;
-		
+
+		if (StringUtils.isBlank(aURL.getQuery()))
+			return request;
+
 		String[] queryParameters = aURL.getQuery().split("(&&)|(&)");
-		
-		if(queryParameters.length == 0) Helper.assertFalse("query parameters are wrong format: " + aURL.getQuery() + ". should be \"key=value&key2=value2\"" );
-		
-		for(String queryParameter : queryParameters) {
+
+		if (queryParameters.length == 0)
+			Helper.assertFalse(
+					"query parameters are wrong format: " + aURL.getQuery() + ". should be \"key=value&key2=value2\"");
+
+		for (String queryParameter : queryParameters) {
 			String[] query = queryParameter.split("=");
-			if(query.length == 0) Helper.assertFalse("query parameters are wrong format: " + aURL.getQuery() + ". should be \"key=value&key2=value2\"" );
+			if (query.length == 0)
+				Helper.assertFalse("query parameters are wrong format: " + aURL.getQuery()
+						+ ". should be \"key=value&key2=value2\"");
 			request = request.given().queryParam(query[0], query[1]);
 		}
 		return request;
@@ -416,8 +385,9 @@ public class RestApiInterface {
 		if (serviceObject.getOption().isEmpty()) {
 			return request;
 		}
-		
-		// store value to config directly using format: value:<$key> separated by colon ';'
+
+		// store value to config directly using format: value:<$key> separated by colon
+		// ';'
 		DataHelper.saveDataToConfig(serviceObject.getOption());
 
 		// replace parameters for request body
@@ -434,15 +404,11 @@ public class RestApiInterface {
 			case OPTION_NO_VALIDATION_TIMEOUT:
 				Config.putValue(API_TIMEOUT_VALIDATION_ENABLED, false);
 				break;
-				
+
 			case OPTION_WAIT_FOR_RESPONSE:
 				Config.putValue(API_TIMEOUT_VALIDATION_ENABLED, true);
-				Config.putValue(API_TIMEOUT_VALIDATION_SECONDS, keyword.value);	
+				Config.putValue(API_TIMEOUT_VALIDATION_SECONDS, keyword.value);
 				break;
-			case ServiceManager.OPTION_RUN_COUNT:
-				Config.putValue(ServiceManager.SERVICE_RUN_COUNT, keyword.value);
-				break;
-
 			default:
 				break;
 			}
@@ -458,14 +424,12 @@ public class RestApiInterface {
 		// reset validation timeout option
 		String defaultValidationTimeoutIsEnabled = TestObject.getDefaultTestInfo().config
 				.get(API_TIMEOUT_VALIDATION_ENABLED).toString();
-		
+
 		String defaultValidationTimeoutIsSeconds = TestObject.getDefaultTestInfo().config
 				.get(API_TIMEOUT_VALIDATION_SECONDS).toString();
-		
+
 		Config.putValue(API_TIMEOUT_VALIDATION_ENABLED, defaultValidationTimeoutIsEnabled);
 		Config.putValue(API_TIMEOUT_VALIDATION_SECONDS, defaultValidationTimeoutIsSeconds);
-		Config.putValue(ServiceManager.SERVICE_RUN_COUNT, 1);
-
 	}
 
 	public static Response evaluateRequest(ServiceObject serviceObject, RequestSpecification request) {
@@ -473,7 +437,7 @@ public class RestApiInterface {
 
 		// set request header
 		request = evaluateRequestHeaders(serviceObject, request);
-		
+
 		request = evaluateQueryParameters(serviceObject, request);
 
 		// set request body

@@ -15,7 +15,6 @@ import org.apache.commons.lang3.StringUtils;
 import core.support.annotation.helper.FileCreatorHelper;
 import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PackageHelper;
-
 public class ServiceRunner {
 	
 	public static JavaFileObject CSV_File_Object = null;
@@ -37,8 +36,18 @@ public class ServiceRunner {
 	  }
 	
 	/**
-import module.services.interfaces.TestInterface;
+import java.util.List;
+import org.apache.commons.lang.StringUtils;
+import core.apiCore.ServiceManager;
+import core.apiCore.helpers.DataHelper;
+import core.helpers.Helper;
+import core.support.configReader.Config;
+import core.support.logger.TestLog;
+import core.support.objects.KeyValue;
+import core.support.objects.ServiceObject;
+import core.support.objects.TestObject;
 import core.uiCore.drivers.AbstractDriverTestNG;
+import module.services.interfaces.TestInterface;
 
 public class ServiceManager {
 
@@ -103,9 +112,18 @@ public class ServiceManager {
 		bw.newLine();
 		
 		
-		bw.append("import core.support.objects.ServiceObject;"+ "\n");
-		bw.append("import core.uiCore.drivers.AbstractDriverTestNG;"+ "\n");
-		bw.append("import core.apiCore.ServiceManager;"+ "\n");
+		bw.append("import core.support.objects.ServiceObject;" + "\n");
+		bw.append("import core.uiCore.drivers.AbstractDriverTestNG;" + "\n");
+		bw.append("import core.apiCore.ServiceManager;" + "\n");
+		bw.append("import java.util.List;" + "\n");
+		bw.append("import org.apache.commons.lang.StringUtils;" + "\n");
+		bw.append("import core.apiCore.helpers.DataHelper;" + "\n");
+		bw.append("import core.helpers.Helper;" + "\n");
+		bw.append("import core.support.configReader.Config;" + "\n");
+		bw.append("import core.support.logger.TestLog;" + "\n");
+		bw.append("import core.support.objects.KeyValue;" + "\n");
+		bw.append("import core.support.objects.TestObject;" + "\n");
+		
 		// add the service imports
 		for (Entry<String, List<Element>> entry : serviceMap.entrySet()) {
 			for (Element element : entry.getValue()) {
@@ -187,6 +205,14 @@ public class ServiceManager {
 		 
 		 public static void runInterface(ServiceObject serviceObject) throws Exception {
 		 
+		 evaluateOption(serviceObject);
+
+		int runCount = Config.getIntValue(ServiceManager.SERVICE_RUN_COUNT);
+		for (int i = 1; i <= runCount; i++) {
+			Config.putValue(ServiceManager.SERVICE_RUN_CURRENT_COUNT, i);
+			if (i > 1)
+				TestLog.ConsoleLog("Starting run: " + i);
+		 
 		switch (serviceObject.getInterfaceType()) {
 		case TEST_INTERFACE:
 			new TestInterface(serviceObject);
@@ -195,12 +221,19 @@ public class ServiceManager {
 			ServiceManager.TestRunner(serviceObject);
 			break;
 		}
+		evaluateResults();
 		 */
 		
-		bw.append("public static void runInterface(ServiceObject serviceObject) throws Exception {" + " \n");
+		bw.append("		public static void runInterface(ServiceObject serviceObject) throws Exception {" + " \n");
 		bw.newLine();
+		bw.append("			evaluateOption(serviceObject);" + " \n");
+		bw.append(" 		int runCount = Config.getIntValue(ServiceManager.SERVICE_RUN_COUNT);" + " \n");
+		bw.append(" 		for (int i = 1; i <= runCount; i++) {" + " \n");
+		bw.append(" 			Config.putValue(ServiceManager.SERVICE_RUN_CURRENT_COUNT, i);" + " \n");
+		bw.append(" 			if (i > 1)" + " \n");
+		bw.append(" 				TestLog.ConsoleLog(\"Starting run: \" + i);" + " \n");
 		bw.newLine();
-		bw.append("		switch (serviceObject.getInterfaceType()) {");
+		bw.append("			switch (serviceObject.getInterfaceType()) {");
 		
 		for (Entry<String, List<Element>> entry : serviceMap.entrySet()) {
 			for (Element element : entry.getValue()) {
@@ -221,8 +254,99 @@ public class ServiceManager {
 		bw.append("				break;" + " \n");
 		bw.append("		}" + " \n");
 		
+		bw.append("	}" + " \n");
+
+		bw.append("	evaluateResults();"+ " \n");
 		bw.append("}" + " \n");
-		bw.append("}" + " \n");
+		bw.newLine();
+		bw.newLine();
+		
+		
+		/*
+
+		public static void evaluateResults() {
+			List<String> errorMessages = TestObject.getTestInfo().testErrors;
+			if (!errorMessages.isEmpty()) {
+				TestLog.logPass(StringUtils.join(errorMessages, "\n error: "));
+				Helper.assertFalse(StringUtils.join(errorMessages, "\n error: "));
+			}
+		}
+		/*
+		 * 
+		 */
+		bw.append("		public static void evaluateResults() {" + " \n");
+		bw.append("			List<String> errorMessages = TestObject.getTestInfo().testErrors;" + " \n");
+		bw.append("			if (!errorMessages.isEmpty()) {" + " \n");
+		bw.append("				TestLog.logPass(StringUtils.join(errorMessages, \"\\n error: \"));" + " \n");
+		bw.append("				Helper.assertFalse(StringUtils.join(errorMessages, \"\\n error: \"));" + " \n");
+		bw.append("			}" + " \n");
+		bw.append("		}" + " \n");
+		bw.newLine();
+		bw.newLine();
+		
+		/*
+		 * public static void evaluateOption(ServiceObject serviceObject) {
+
+		// reset validation timeout. will be overwritten by option value if set
+		resetOptions();
+
+		// replace parameters for request body
+		serviceObject.withOption(DataHelper.replaceParameters(serviceObject.getOption()));
+
+		// get key value mapping of header parameters
+		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getOption());
+
+		// iterate through key value pairs for headers, separated by ";"
+		for (KeyValue keyword : keywords) {
+
+			// if additional options
+			switch (keyword.key) {
+			case ServiceManager.OPTION_RUN_COUNT:
+				Config.putValue(ServiceManager.SERVICE_RUN_COUNT, keyword.value);
+				break;
+			default:
+				break;
+			}
+		}
+	}
+		 */
+		bw.append("	 public static void evaluateOption(ServiceObject serviceObject) {" + " \n");
+		bw.append(" 	// reset validation timeout. will be overwritten by option value if set"+ " \n");
+		bw.append(" 	resetOptions();" + " \n");
+		bw.newLine();
+		bw.append(" 	// replace parameters for request body" + " \n");
+		bw.append(" 	serviceObject.withOption(DataHelper.replaceParameters(serviceObject.getOption()));" + " \n");
+		bw.newLine();
+		bw.append(" 	// get key value mapping of header parameters" + " \n");
+		bw.append(" 	List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getOption());" + " \n");
+		bw.newLine();
+		bw.append(" 	// iterate through key value pairs for headers, separated by \";\"" + " \n");
+		bw.append(" 	for (KeyValue keyword : keywords) {" + " \n");
+		bw.newLine();
+		bw.append(" 		// if additional options" + " \n");
+		bw.append(" 		switch (keyword.key) {" + " \n");
+		bw.append(" 		case ServiceManager.OPTION_RUN_COUNT:" + " \n");
+		bw.append(" 			Config.putValue(ServiceManager.SERVICE_RUN_COUNT, keyword.value);" + " \n");
+		bw.append(" 			break;" + " \n");
+		bw.append(" 		default:" + " \n");
+		bw.append(" 			break;" + " \n");
+		bw.append(" 		}" + " \n");
+		bw.append(" 	}" + " \n");
+		bw.append("  }" + " \n");
+		
+		
+		/*
+		 	private static void resetOptions() {
+				Config.putValue(ServiceManager.SERVICE_RUN_COUNT, 1);
+		
+			}
+		 */
+		bw.newLine();
+		bw.newLine();
+		bw.append("	private static void resetOptions() {" + " \n");
+		bw.append("		Config.putValue(ServiceManager.SERVICE_RUN_COUNT, 1);" + " \n");
+		bw.append("	}" + " \n");
+		bw.append("}" + " \n");		
 		bw.flush();
 		bw.close();		
 		

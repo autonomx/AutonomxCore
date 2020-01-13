@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 
+import core.apiCore.ServiceManager;
 import core.apiCore.helpers.ConnectionHelper;
 import core.apiCore.helpers.DataHelper;
 import core.apiCore.helpers.SqlHelper;
@@ -430,10 +431,7 @@ public class SqlInterface {
 		} while (!errorMessages.isEmpty() && passedTimeInSeconds < maxRetrySeconds);
 
 		if (!errorMessages.isEmpty()) {
-			TestLog.ConsoleLog("Validation failed after: " +  passedTimeInSeconds + " seconds");
-			String errorString = StringUtils.join(errorMessages, "\n error: ");
-			TestLog.ConsoleLog(errorString);
-			Helper.assertFalse(StringUtils.join(errorMessages, "\n error: "));
+			ServiceManager.logResults(errorMessages, passedTimeInSeconds);
 		}
 
 		return resSet;

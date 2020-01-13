@@ -82,7 +82,7 @@ public class DataHelper {
 				length = Helper.getIntFromString(parameter);
 				value = Config.getValue(TestObject.RANDOM_STRING).substring(0, length);
 			} else if (parameter.contains("_INCREMENT_FROM_")) {
-				setIncrementalValue(parameter);				
+				value = setIncrementalValue(parameter);				
 			} else if (parameter.contains("_XML")) {
 				// syntax:e.g. <@_XML:ID:1> will be replaced by 2
 				String[] valueArray = parameter.split(":");
@@ -111,12 +111,12 @@ public class DataHelper {
 	 * by default: starting value = 1
 	 * @param parameter
 	 */
-	public static void setIncrementalValue(String parameter) {
+	public static int setIncrementalValue(String parameter) {
 		int startingValue = Helper.getIntFromString(parameter);
 		int testCurrentRunCount = Config.getIntValue(ServiceManager.SERVICE_RUN_CURRENT_COUNT);
-		int incrementalValue = startingValue;
-		incrementalValue = startingValue + testCurrentRunCount;
+		int	incrementalValue = startingValue + testCurrentRunCount - 1;
 		Config.putValue(INCREMENTAL_VALUE, incrementalValue);
+		return incrementalValue;
 	}
 	
 	/**

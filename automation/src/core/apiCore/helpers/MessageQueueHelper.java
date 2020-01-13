@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.util.TextUtils;
 
+import core.apiCore.ServiceManager;
 import core.apiCore.interfaces.KafkaInterface;
 import core.apiCore.interfaces.RabbitMqInterface;
 import core.apiCore.interfaces.ServiceBusInterface;
@@ -217,9 +218,7 @@ public class MessageQueueHelper {
 		} while (!errorMessages.isEmpty() && passedTimeInSeconds < maxRetrySeconds);
 
 		if (!errorMessages.isEmpty()) {
-			String errorString = StringUtils.join(errorMessages, "\n error: ");
-			TestLog.ConsoleLog(errorString);
-			Helper.assertFalse(StringUtils.join(errorMessages, "\n error: "));
+			ServiceManager.logResults(errorMessages, passedTimeInSeconds);
 		}
 	}
 	
