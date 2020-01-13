@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 
+import core.apiCore.ServiceManager;
 import core.apiCore.helpers.DataHelper;
 import core.apiCore.helpers.JsonHelper;
 import core.helpers.Helper;
@@ -39,6 +40,7 @@ public class RestApiInterface {
 	private static final String OPTION_NO_VALIDATION_TIMEOUT = "NO_VALIDATION_TIMEOUT";
 	private static final String OPTION_WAIT_FOR_RESPONSE = "WAIT_FOR_RESPONSE";
 
+
 	/**
 	 * interface for restful API calls
 	 * 
@@ -62,14 +64,43 @@ public class RestApiInterface {
 		// set options
 		request = evaluateOption(serviceObject, request);
 		
-		// replace parameters for request body, including template file (json, xml, or other)
-		serviceObject.withRequestBody(DataHelper.getRequestBodyIncludingTemplate(serviceObject));
-
 		// send request and evaluate response
-		Response response = evaluateRequestAndValidateResponse(serviceObject, request);
+		Response response = evaluate(serviceObject, request);
 
 		return response;
 	}
+	
+	/**
+	 * run and evaluate the api request
+	 * rerun based on service retry count. default 1
+	 * will not fail test until all iterations are complete
+	 * @param serviceObject
+	 * @param request
+	 * @return
+	 */
+	public static Response evaluate(ServiceObject serviceObject, RequestSpecification request) {
+		
+		int runCount = Config.getIntValue(ServiceManager.SERVICE_RUN_COUNT);
+		Response response  = null;
+		
+		for(int i = 1; i <= runCount; i++) {
+			Config.putValue(ServiceManager.SERVICE_RUN_CURRENT_COUNT, i);
+			if(i > 1) TestLog.ConsoleLog("Starting run: " + i);
+			
+			// replace parameters for request body, including template file (json, xml, or other)
+			serviceObject.withRequestBody(DataHelper.getRequestBodyIncludingTemplate(serviceObject));
+	
+			// send request and evaluate response
+			response = evaluateRequestAndValidateResponse(serviceObject, request);	
+		}
+		
+		// fail test if errors exist
+		evaluateResults();
+		
+		return response;		
+	}
+	
+	
 
 	/**
 	 * evaluate request and validate response retry until validation timeout period
@@ -113,14 +144,43 @@ public class RestApiInterface {
 
 		} while (!errorMessages.isEmpty() && passedTimeInSeconds < maxRetrySeconds);
 
+		// log results
 		if (!errorMessages.isEmpty()) {
-			TestLog.ConsoleLog("Validation failed after: " +  passedTimeInSeconds + " seconds");
-			String errorString = StringUtils.join(errorMessages, "\n error: ");
-			TestLog.ConsoleLog(errorString);
+			logResults(errorMessages, passedTimeInSeconds);
+		}
+		return response;
+	}
+	
+	/**
+	 * logs test results per test run
+	 * @param errorMessages
+	 * @param passedTimeInSeconds
+	 */
+	public static void logResults(List<String> errorMessages, long passedTimeInSeconds) {
+		int runCount = Config.getIntValue(ServiceManager.SERVICE_RUN_COUNT);
+		int currentRun = Config.getIntValue(ServiceManager.SERVICE_RUN_CURRENT_COUNT);
+		
+		TestLog.ConsoleLog("Validation failed after: " +  passedTimeInSeconds + " seconds");
+		String errorString = "error: " + StringUtils.join(errorMessages, "\n error: ");
+		TestLog.ConsoleLog(errorString);
+		
+		// log run count if multiple runs are enabled 
+		if(runCount > 1)
+			errorMessages.add(0, "run: " + currentRun);
+		
+		TestObject.getTestInfo().withTestErrors(errorMessages);
+		
+	}
+	
+	/**
+	 * fail test if error exists
+	 */
+	public static void evaluateResults() {
+		List<String> errorMessages = TestObject.getTestInfo().testErrors;
+		if (!errorMessages.isEmpty()) {
+			TestLog.logPass(StringUtils.join(errorMessages, "\n error: "));
 			Helper.assertFalse(StringUtils.join(errorMessages, "\n error: "));
 		}
-
-		return response;
 	}
 
 	/**
@@ -350,7 +410,7 @@ public class RestApiInterface {
 	public static RequestSpecification evaluateOption(ServiceObject serviceObject, RequestSpecification request) {
 
 		// reset validation timeout. will be overwritten by option value if set
-		resetValidationTimeout();
+		resetOptions();
 
 		// if no option specified
 		if (serviceObject.getOption().isEmpty()) {
@@ -379,6 +439,9 @@ public class RestApiInterface {
 				Config.putValue(API_TIMEOUT_VALIDATION_ENABLED, true);
 				Config.putValue(API_TIMEOUT_VALIDATION_SECONDS, keyword.value);	
 				break;
+			case ServiceManager.OPTION_RUN_COUNT:
+				Config.putValue(ServiceManager.SERVICE_RUN_COUNT, keyword.value);
+				break;
 
 			default:
 				break;
@@ -389,9 +452,9 @@ public class RestApiInterface {
 	}
 
 	/**
-	 * reset validation timeout
+	 * reset option values to default from config
 	 */
-	private static void resetValidationTimeout() {
+	private static void resetOptions() {
 		// reset validation timeout option
 		String defaultValidationTimeoutIsEnabled = TestObject.getDefaultTestInfo().config
 				.get(API_TIMEOUT_VALIDATION_ENABLED).toString();
@@ -401,6 +464,8 @@ public class RestApiInterface {
 		
 		Config.putValue(API_TIMEOUT_VALIDATION_ENABLED, defaultValidationTimeoutIsEnabled);
 		Config.putValue(API_TIMEOUT_VALIDATION_SECONDS, defaultValidationTimeoutIsSeconds);
+		Config.putValue(ServiceManager.SERVICE_RUN_COUNT, 1);
+
 	}
 
 	public static Response evaluateRequest(ServiceObject serviceObject, RequestSpecification request) {

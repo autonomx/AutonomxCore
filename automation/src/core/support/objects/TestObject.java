@@ -100,7 +100,7 @@ public class TestObject{
 
 	public Description description;
 	public Throwable caughtThrowable = null;
-	public ArrayList<String> failTrace = new ArrayList<String>();
+	public List<String> testErrors = new ArrayList<String>();
 
 	// extent report info
 	public ExtentTest testFeature;
@@ -576,8 +576,8 @@ public class TestObject{
 		return this;
 	}
 
-	public TestObject withFailTrace(ArrayList<String> failTrace) {
-		this.failTrace = failTrace;
+	public TestObject withTestErrors(List<String> testErrors) {
+		this.testErrors.addAll(testErrors);
 		return this;
 	}
 

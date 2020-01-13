@@ -16,6 +16,7 @@ import java.util.regex.Matcher;
 
 import org.apache.commons.lang3.StringUtils;
 
+import core.apiCore.ServiceManager;
 import core.apiCore.TestDataProvider;
 import core.helpers.Helper;
 import core.support.configReader.Config;
@@ -34,6 +35,8 @@ public class DataHelper {
 	public static final String VERIFY_HEADER_PART_INDICATOR = "_VERIFY.HEADER.PART_";
 	public static final String VERIFY_TOPIC_PART_INDICATOR = "_VERIFY.TOPIC.PART_";
 	public static final String EXPECTED_MESSAGE_COUNT = "EXPECTED_MESSAGE_COUNT";
+	public static final String INCREMENTAL_VALUE = "INCREMENTAL_VALUE";
+
 
 	enum JSON_COMMAND {
 		hasItems, notHaveItems, notEqualTo, equalTo, notContain, contains, containsInAnyOrder, integerGreaterThan,
@@ -78,6 +81,8 @@ public class DataHelper {
 			} else if (parameter.contains("_RAND")) {
 				length = Helper.getIntFromString(parameter);
 				value = Config.getValue(TestObject.RANDOM_STRING).substring(0, length);
+			} else if (parameter.contains("_INCREMENT_FROM_")) {
+				setIncrementalValue(parameter);				
 			} else if (parameter.contains("_XML")) {
 				// syntax:e.g. <@_XML:ID:1> will be replaced by 2
 				String[] valueArray = parameter.split(":");
@@ -98,6 +103,20 @@ public class DataHelper {
 		}
 
 		return source;
+	}
+	
+	/**
+	 * incremental keyword value setter
+	 * starting value + current run count
+	 * by default: starting value = 1
+	 * @param parameter
+	 */
+	public static void setIncrementalValue(String parameter) {
+		int startingValue = Helper.getIntFromString(parameter);
+		int testCurrentRunCount = Config.getIntValue(ServiceManager.SERVICE_RUN_CURRENT_COUNT);
+		int incrementalValue = startingValue;
+		incrementalValue = startingValue + testCurrentRunCount;
+		Config.putValue(INCREMENTAL_VALUE, incrementalValue);
 	}
 	
 	/**

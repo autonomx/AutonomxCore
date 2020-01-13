@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.rules.TestRule;
@@ -157,7 +158,7 @@ public class RetryTest implements TestRule {
 
 	public void processTestResult(Description description) throws Throwable {
 		if (TestObject.getTestInfo().isTestPass) {
-			randomFailStack(TestObject.getTestInfo().failTrace, TestObject.getTestInfo().description);
+			randomFailStack(TestObject.getTestInfo().testErrors, TestObject.getTestInfo().description);
 		} else {
 			logReport(ReportType.info, "run " + (testRun) + " failed ", null);
 			logReport(ReportType.debug, null, TestObject.getTestInfo().caughtThrowable);
@@ -237,7 +238,7 @@ public class RetryTest implements TestRule {
 		}
 	}
 
-	public void randomFailStack(ArrayList<String> FailTrace, Description description) {
+	public void randomFailStack(List<String> FailTrace, Description description) {
 		if (FailTrace.size() > 0) {
 			TestLog.ConsoleLog("And finally test passed after " + retryCount + " failures");
 			getStep().log(Status.PASS, "And finally test passed after " + testRun + " failures");

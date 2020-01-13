@@ -58,6 +58,12 @@ public class ServiceManager {
 	// csv file method keys
 	public static final String BEFORE_CSV_FILE = "beforeCsvFile";
 	public static final String AFTER_CSV_FILE = "afterCsvFile";
+	
+	// option to run service calls more than once. default 1
+	public static final String OPTION_RUN_COUNT = "RUN_COUNT";
+	public static final String SERVICE_RUN_COUNT = "service.run.count";
+	public static final String SERVICE_RUN_CURRENT_COUNT = "service.run.current.count";
+
 
 	
 	public static void TestRunner(ServiceObject serviceObject)  {
