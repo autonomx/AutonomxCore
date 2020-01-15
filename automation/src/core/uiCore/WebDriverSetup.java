@@ -137,7 +137,7 @@ public class WebDriverSetup {
 			break;
 		case CHROME:
 			setDriverManager(driverObject, WebDriverManager.chromedriver());
-			driver = new ChromeDriver(driverObject.capabilities);
+			driver = new ChromeDriver();
 			break;
 		case CHROME_HEADLESS:
 			setDriverManager(driverObject, WebDriverManager.chromedriver());
@@ -166,11 +166,13 @@ public class WebDriverSetup {
 	 * values found in web.property config file
 	 * @param driverObject
 	 * @param manager
+	 * @return 
 	 */
-	private void setDriverManager(DriverObject driverObject, WebDriverManager manager) {
-		String proxyServer = Config.getValue("web.driver.manager.proxy.server");
-		String proxyUser = Config.getValue("web.driver.manager.proxy.user");
-		String proxyPassword = Config.getValue("web.driver.manager.proxy.password");
+	private WebDriverManager setDriverManager(DriverObject driverObject, WebDriverManager manager) {
+		String proxyServer = Config.getValue("proxy.host");
+		String proxyPort = Config.getValue("proxy.port");
+		String proxyUser = Config.getValue("proxy.user");
+		String proxyPassword = Config.getValue("proxy.password");
 		boolean isForceCache = Config.getBooleanValue("web.driver.manager.proxy.forceCache");
 		int timeout_seconds = Config.getIntValue("web.driver.manager.timeoutSeconds");
 		
@@ -178,7 +180,7 @@ public class WebDriverSetup {
 		if(isForceCache)
 			manager = manager.forceCache();
 		
-		manager.proxy(proxyServer)
+		manager.proxy(proxyServer + ":" + proxyPort)
 		.proxyUser(proxyUser)
 		.proxyUser(proxyPassword)
 		.version(driverObject.driverVersion)
@@ -186,6 +188,8 @@ public class WebDriverSetup {
 		.setup();
 		
 		TestLog.ConsoleLog("using driver version: " + manager.getDownloadedVersion());
+		
+		return manager;
 	}
 
 	public String getServerUrl() {

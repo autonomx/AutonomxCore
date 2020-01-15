@@ -197,8 +197,8 @@ public class RestApiInterface {
 	 * set proxy from config file
 	 */
 	public static void setProxy() {
-		String host = Config.getValue("api.proxy.host");
-		String port = Config.getValue("api.proxy.port");
+		String host = Config.getValue("proxy.host");
+		String port = Config.getValue("proxy.port");
 
 		if (host.isEmpty())
 			return;

@@ -505,6 +505,7 @@ public class UtilityHelper {
 	 */
 	protected static String getFileContent(String absolutePath) {
 		String content = StringUtils.EMPTY;
+		absolutePath = absolutePath.replaceAll("'","");
 		File file = new File(absolutePath);
 		
 		// fail if file does not exist
