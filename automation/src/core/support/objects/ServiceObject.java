@@ -1,8 +1,14 @@
  package core.support.objects;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 
-public class ServiceObject implements Cloneable {
+import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
+
+public class ServiceObject {
 
 	private String TestSuite = StringUtils.EMPTY;
 	private String TestCaseID = StringUtils.EMPTY;
@@ -24,6 +30,9 @@ public class ServiceObject implements Cloneable {
 	private String tcIndex = StringUtils.EMPTY; // format index:testCount eg. 1:6
 	private String testType = StringUtils.EMPTY;
 	private String parent = StringUtils.EMPTY; // name of the parent object to inherit from
+	private Response response = null; // rest api response
+	private RequestSpecification request = null; // rest api request
+	private List<String> errorMessages = new ArrayList<String>();
 
 	public ServiceObject setServiceObject(String TestSuite, String TestCaseID, String RunFlag, String Description,
 			String InterfaceType, String UriPath, String ContentType, String Method, String Option,
@@ -207,8 +216,19 @@ public class ServiceObject implements Cloneable {
 		return this;
 	}
 	
-	public String getRequestBody(){
-		return normalize(this.RequestBody);
+	public ServiceObject withResponse(Response response){
+		this.response = response;
+		return this;
+	}
+	
+	public ServiceObject withRequest(RequestSpecification request){
+		this.request = request;
+		return this;
+	}
+	
+	public ServiceObject withErrorMessages(List<String> errorMessages){
+		this.errorMessages = errorMessages;
+		return this;
 	}
 	
 	public ServiceObject withOutputParams(String OutputParams){
@@ -252,6 +272,22 @@ public class ServiceObject implements Cloneable {
 		return this;
 	}
 	
+	public Response getResponse(){	
+		return this.response;
+	}
+	
+	public RequestSpecification getRequest() {
+		return this.request;
+	}
+	
+	public List<String> getErrorMessages(){	
+		return this.errorMessages;
+	}
+	
+	public String getRequestBody(){
+		return normalize(this.RequestBody);
+	}
+	
 	public String getTcName(){
 		return this.tcName.trim();
 	}
@@ -280,9 +316,5 @@ public class ServiceObject implements Cloneable {
 		// reduces spaces to single space. eg. "    " to " "
 		value = value.trim().replaceAll(" +", " ");
 		return value.replaceAll("[\\u2018\\u2019]", "'").replaceAll("[\\u201C\\u201D]", "\"");
-	}
-	
-	public Object clone() throws CloneNotSupportedException {
-		return super.clone();
 	}
 }

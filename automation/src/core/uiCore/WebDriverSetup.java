@@ -137,7 +137,7 @@ public class WebDriverSetup {
 			break;
 		case CHROME:
 			setDriverManager(driverObject, WebDriverManager.chromedriver());
-			driver = new ChromeDriver();
+			driver = new ChromeDriver(driverObject.capabilities);
 			break;
 		case CHROME_HEADLESS:
 			setDriverManager(driverObject, WebDriverManager.chromedriver());
@@ -166,9 +166,8 @@ public class WebDriverSetup {
 	 * values found in web.property config file
 	 * @param driverObject
 	 * @param manager
-	 * @return 
 	 */
-	private WebDriverManager setDriverManager(DriverObject driverObject, WebDriverManager manager) {
+	private void setDriverManager(DriverObject driverObject, WebDriverManager manager) {
 		String proxyServer = Config.getValue("proxy.host");
 		String proxyPort = Config.getValue("proxy.port");
 		String proxyUser = Config.getValue("proxy.user");
@@ -188,8 +187,6 @@ public class WebDriverSetup {
 		.setup();
 		
 		TestLog.ConsoleLog("using driver version: " + manager.getDownloadedVersion());
-		
-		return manager;
 	}
 
 	public String getServerUrl() {

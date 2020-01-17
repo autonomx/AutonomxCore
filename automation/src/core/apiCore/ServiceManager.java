@@ -19,7 +19,6 @@ import core.apiCore.interfaces.TestPrepare;
 import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.configReader.PropertiesReader;
-import core.support.logger.TestLog;
 import core.support.objects.DriverObject;
 import core.support.objects.KeyValue;
 import core.support.objects.ServiceObject;
@@ -59,12 +58,6 @@ public class ServiceManager {
 	// csv file method keys
 	public static final String BEFORE_CSV_FILE = "beforeCsvFile";
 	public static final String AFTER_CSV_FILE = "afterCsvFile";
-	
-	// option to run service calls more than once. default 1
-	public static final String OPTION_RUN_COUNT = "RUN_COUNT";
-	public static final String SERVICE_RUN_COUNT = "service.run.count";
-	public static final String SERVICE_RUN_CURRENT_COUNT = "service.run.current.count";
-
 
 	
 	public static void TestRunner(ServiceObject serviceObject)  {
@@ -295,26 +288,5 @@ public class ServiceManager {
 		new AbstractDriverTestNG().setupWebDriver(serviceObject.getParent(), driver);
 		
 		TestObject.getTestInfo().serviceObject = serviceObject;
-	}
-	
-	/**
-	 * logs test results per test run
-	 * 
-	 * @param errorMessages
-	 * @param passedTimeInSeconds
-	 */
-	public static void logResults(List<String> errorMessages, long passedTimeInSeconds) {
-		int runCount = Config.getIntValue(ServiceManager.SERVICE_RUN_COUNT);
-		int currentRun = Config.getIntValue(ServiceManager.SERVICE_RUN_CURRENT_COUNT);
-
-		TestLog.ConsoleLog("Validation failed after: " + passedTimeInSeconds + " seconds");
-		String errorString = "error: " + StringUtils.join(errorMessages, "\n error: ");
-		TestLog.ConsoleLog(errorString);
-
-		// log run count if multiple runs are enabled
-		if (runCount > 1)
-			errorMessages.add(0, "run: " + currentRun);
-
-		TestObject.getTestInfo().withTestErrors(errorMessages);
 	}
 }
