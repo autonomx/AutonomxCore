@@ -2,6 +2,8 @@ package core.uiCore;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Map;
 
 import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.WebDriver;
@@ -115,6 +117,10 @@ public class WebDriverSetup {
 		if (driverObject.driverVersion != null && driverObject.driverVersion.equals(LATEST_BROWSER_VERSION))
 			driverObject.driverVersion = null;
 
+		// print the browser capabilities
+		Map<String, Object> cap = driverObject.capabilities.asMap();
+		TestLog.ConsoleLog("capabilities: " + Arrays.toString(cap.entrySet().toArray()));
+		
 		switch (browserType) {
 		case FIREFOX:
 			setDriverManager(driverObject, WebDriverManager.firefoxdriver());

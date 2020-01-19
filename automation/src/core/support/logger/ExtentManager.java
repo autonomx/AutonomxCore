@@ -194,6 +194,10 @@ public class ExtentManager {
 	 * outside of suite, use the module/app name
 	 */
 	public static void setKlovReportReporter() {
+		
+		if(!Config.getValue(REPORT_TYPE).equals(KLOV_REPORT_TYPE))
+			return;
+		
 		// setup klov reporter
 		klovReporter = new ExtentKlovReporter();
 		klovReporter.initMongoDbConnection(Config.getValue(KLOV_MONGODB_URL));
