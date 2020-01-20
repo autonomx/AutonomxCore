@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.StringUtils;
 
 import core.apiCore.helpers.DataHelper;
+import core.apiCore.helpers.DataHelper.JSON_COMMAND;
 import core.apiCore.helpers.JsonHelper;
 import core.helpers.Helper;
 import core.helpers.StopWatchHelper;
@@ -38,6 +39,20 @@ public class RestApiInterface {
 
 	private static final String OPTION_NO_VALIDATION_TIMEOUT = "NO_VALIDATION_TIMEOUT";
 	private static final String OPTION_WAIT_FOR_RESPONSE = "WAIT_FOR_RESPONSE";
+	
+	private static final String OPTION_PAGINATION_STOP_CRITERIA = "PAGINATION_STOP_CRITERIA";
+	private static final String OPTION_PAGINATION_MAX_PAGES = "PAGINATION_MAX_PAGES";
+	private static final String OPTION_PAGINATION_FROM = "PAGINATION_FROM";
+	private static final String OPTION_PAGINATION_INCREMENET = "PAGINATION_INCREMENT";
+
+	public static final String API_PAGINATION_STOP_CRITERIA = "api.pagination.stop.criteria";
+	public static final String API_PAGINATION_MAX_PAGES = "api.pagination.max.pages";
+	public static final String API_PAGINATION_PAGES_FROM = "api.pagination.pages.from";
+	public static final String API_PAGINATION_INCREMENT = "api.pagination.incremenet";
+
+	public static final String API_PAGINATION_COUNTER = "PAGINATION";
+
+	
 
 	/**
 	 * interface for restful API calls
@@ -57,11 +72,22 @@ public class RestApiInterface {
 		setProxy();
 		
 		// send request and evaluate response
-		Response response = evaluateRequestAndValidateResponse(serviceObject);
+		Response response = evaluate(serviceObject);
 
 		return response;
 	}
-
+	
+	public static Response evaluate(ServiceObject serviceObject) {
+		Response response = null;
+		
+		// if pagination
+		if(serviceObject.getUriPath().contains(API_PAGINATION_COUNTER))
+			response = evaluateRequestAndValidatePagination(serviceObject);
+		else
+			response = evaluateRequestAndValidateResponse(serviceObject);
+		return response;
+	}
+	
 	/**
 	 * evaluate request and validate response retry until validation timeout period
 	 * in seconds
@@ -70,6 +96,102 @@ public class RestApiInterface {
 	 * @return
 	 */
 	public static Response evaluateRequestAndValidateResponse(ServiceObject serviceObject) {
+		evaluateRequestAndReceiveResponse(serviceObject);
+
+		if (!serviceObject.getErrorMessages().isEmpty()) {
+			String errorString = StringUtils.join(serviceObject.getErrorMessages(), "\n error: ");
+			TestLog.ConsoleLog(errorString);
+			Helper.assertFalse(StringUtils.join(serviceObject.getErrorMessages(), "\n error: "));
+		}
+
+		return serviceObject.getResponse();
+	}
+	
+	/**
+	 * evaluate pagination
+	 * format: http://url?page=<@PAGINATION_FROM_1> 
+	 * 	counter will start from page 1
+	 * will iterate through the pages until either:
+	 * 	-  the expected response critera is met
+	 * 	-  max pages are reached. specified by PAGINATION_MAX_PAGES:100 in options
+	 *  -  response criteria for max pages is reached. OPTION_PAGINATION_STOP_CRITERIA:.results.id
+	 *  		- if the list of responses on a selected page is 0, that means the page has no results,
+	 *  			 hence, it is the last page
+	 * @param serviceObject
+	 * @return
+	 */
+	public static Response evaluateRequestAndValidatePagination(ServiceObject serviceObject) {
+		
+		evaluateOption(serviceObject, serviceObject.getRequest());
+		String criteria = Config.getValue(API_PAGINATION_STOP_CRITERIA);
+		int maxPages = Config.getIntValue(API_PAGINATION_MAX_PAGES);
+		int startingPage = Helper.getIntFromString(Config.getValue(API_PAGINATION_PAGES_FROM));
+		int incrementBy = Helper.getIntFromString(Config.getValue(API_PAGINATION_INCREMENT));
+
+		String uri = serviceObject.getUriPath();
+		boolean isCriteriaSuccess = false;
+		
+		int index;
+		for(index = startingPage; index < maxPages; index += incrementBy) {
+			
+			TestLog.logPass("Validating page: " + index);
+			
+			// update uri to include the incrementally increasing page numbers
+			serviceObject.withUriPath(uri);
+			Config.putValue(API_PAGINATION_COUNTER, index);
+			evaluateRequestAndReceiveResponse(serviceObject);
+			
+			// error indicates that there are no more results on the page
+			List<String> criteriaErrors = validatePaginationStopCriteria(serviceObject, criteria);
+			if(!criteriaErrors.isEmpty()) {
+				 TestLog.logPass("no more results returned at page: " + index + " with criteria: " + criteria);
+				 break;
+			}
+			
+			// if errors (requirements not met), reset errors for next page
+			if (!serviceObject.getErrorMessages().isEmpty()) {
+				TestLog.logPass(Arrays.toString(serviceObject.getErrorMessages().toArray()));
+				List<String> errors = new ArrayList<String>();
+				serviceObject.withErrorMessages(errors);
+			}else if (serviceObject.getErrorMessages().isEmpty()) {
+				isCriteriaSuccess = true;
+				break;
+			}
+		}
+		
+		Helper.assertTrue("expected validation not found in pages. pages searched: " + index + "."  , isCriteriaSuccess);
+		
+		return serviceObject.getResponse();
+	}
+	
+	/**
+	   stoppage criteria for api pagination
+	   will iterate through pages in api call, untill the criteria node size reaches 0
+	   - this indicates that there are no more results on the page
+	 * @param serviceObject
+	 * @param criteria
+	 * @return
+	 */
+	private static List<String> validatePaginationStopCriteria(ServiceObject serviceObject, String criteria) {
+		// add pagination page item count criteria to expected response
+		if(!criteria.isEmpty()) { 
+			criteria = DataHelper.VERIFY_JSON_PART_INDICATOR + criteria + ":"+ JSON_COMMAND.nodeSizeGreaterThan.name() + "(0)";
+		}
+		ServiceObject criteriaService = new ServiceObject()
+				.withResponse(serviceObject.getResponse())
+				.withExpectedResponse(criteria);
+		
+		// validate the response
+		List<String> criteriaErrors = validateResponse(criteriaService);
+		return criteriaErrors;
+	}
+	
+	/**
+	 * evaluates the request and stores the response in service object
+	 * @param serviceObject
+	 * @return
+	 */
+	public static ServiceObject evaluateRequestAndReceiveResponse(ServiceObject serviceObject) {
 		List<String> errorMessages = new ArrayList<String>();
 
 		StopWatchHelper watch = StopWatchHelper.start();
@@ -109,14 +231,11 @@ public class RestApiInterface {
 
 		} while (!errorMessages.isEmpty() && passedTimeInSeconds < maxRetrySeconds);
 
-		if (!errorMessages.isEmpty()) {
+		if (!serviceObject.getErrorMessages().isEmpty()) {
 			TestLog.ConsoleLog("Validation failed after: " +  passedTimeInSeconds + " seconds");
-			String errorString = StringUtils.join(errorMessages, "\n error: ");
-			TestLog.ConsoleLog(errorString);
-			Helper.assertFalse(StringUtils.join(errorMessages, "\n error: "));
 		}
 
-		return serviceObject.getResponse();
+		return serviceObject;
 	}
 	
 	private static void logTestRunError(int currentRetryCount, List<String> errorMessages) {
@@ -400,6 +519,20 @@ public class RestApiInterface {
 				Config.putValue(API_TIMEOUT_VALIDATION_ENABLED, true);
 				Config.putValue(API_TIMEOUT_VALIDATION_SECONDS, keyword.value);	
 				break;
+			case OPTION_PAGINATION_STOP_CRITERIA:
+				Config.putValue(API_PAGINATION_STOP_CRITERIA, keyword.value);
+				break;
+			case OPTION_PAGINATION_MAX_PAGES:
+				Config.putValue(API_PAGINATION_MAX_PAGES, keyword.value);
+				break;
+			case OPTION_PAGINATION_FROM:
+				Config.putValue(API_PAGINATION_PAGES_FROM, keyword.value);
+				break;
+			case OPTION_PAGINATION_INCREMENET:
+				Config.putValue(API_PAGINATION_INCREMENT, keyword.value);
+				break;
+				
+				
 
 			default:
 				break;
@@ -422,6 +555,11 @@ public class RestApiInterface {
 		
 		Config.putValue(API_TIMEOUT_VALIDATION_ENABLED, defaultValidationTimeoutIsEnabled);
 		Config.putValue(API_TIMEOUT_VALIDATION_SECONDS, defaultValidationTimeoutIsSeconds);
+		
+		Config.putValue(API_PAGINATION_STOP_CRITERIA, "");
+		Config.putValue(API_PAGINATION_MAX_PAGES, 100);	
+		Config.putValue(API_PAGINATION_PAGES_FROM, 1);	
+		Config.putValue(API_PAGINATION_INCREMENT, 1);
 	}
 
 	public static ServiceObject evaluateRequest(ServiceObject serviceObject, RequestSpecification request) {
@@ -476,7 +614,7 @@ public class RestApiInterface {
 		}
 		
 		if(response != null) {
-			TestLog.logPass("response: " + response.getBody().asString());
+			TestLog.logPass("response: " + response.getBody().asString().replace(System.lineSeparator(), ""));
 			serviceObject.withResponse(response.then().extract().response());
 		}
 		return serviceObject;

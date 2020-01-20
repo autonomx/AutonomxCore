@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
 
 import core.apiCore.TestDataProvider;
 import core.helpers.Helper;
@@ -35,7 +36,7 @@ public class DataHelper {
 	public static final String VERIFY_TOPIC_PART_INDICATOR = "_VERIFY.TOPIC.PART_";
 	public static final String EXPECTED_MESSAGE_COUNT = "EXPECTED_MESSAGE_COUNT";
 
-	enum JSON_COMMAND {
+	public enum JSON_COMMAND {
 		hasItems, notHaveItems, notEqualTo, equalTo, notContain, contains, containsInAnyOrder, integerGreaterThan,
 		integerLessThan, integerEqual, integerNotEqual, nodeSizeGreaterThan, nodeSizeExact, sequence, jsonbody,
 		isNotEmpty, isEmpty, nodeSizeLessThan
@@ -438,21 +439,24 @@ public class DataHelper {
 			break;
 		case nodeSizeGreaterThan:
 			int intValue = Integer.valueOf(expectedString);
-			TestLog.logPass("verifying node with size " + actualArray.length + " greater than " + intValue);
-			if (intValue >= actualArray.length)
-				return "response node size is: " + actualArray.length + " expected it to be greated than: " + intValue;
+			int actualLength = getResponseArrayLength(actualArray, responseString);
+			TestLog.logPass("verifying node with size " + actualLength + " greater than " + intValue);
+			if (!(actualLength > intValue))
+				return "response node size is: " + actualLength + " expected it to be greated than: " + intValue;
 			break;
 		case nodeSizeLessThan:
 			intValue = Integer.valueOf(expectedString);
-			TestLog.logPass("verifying node with size " + actualArray.length + " less than " + intValue);
-			if (intValue < actualArray.length)
-				return "response node size is: " + actualArray.length + " expected it to be greated than: " + intValue;
+			actualLength = getResponseArrayLength(actualArray, responseString);
+			TestLog.logPass("verifying node with size " + actualLength + " less than " + intValue);
+			if (!(actualLength < intValue))
+				return "response node size is: " + actualLength + " expected it to be greated than: " + intValue;
 			break;
 		case nodeSizeExact:
 			intValue = Integer.valueOf(expectedString);
-			TestLog.logPass("verifying node with size " + actualArray.length + " equals " + intValue);
-			if (actualArray.length != intValue)
-				return "response node size is: " + actualArray.length + " expected: " + intValue;
+			actualLength = getResponseArrayLength(actualArray, responseString);
+			TestLog.logPass("verifying node with size " + actualLength + " equals " + intValue);
+			if (actualLength != intValue)
+				return "response node size is: " + actualLength + " expected: " + intValue;
 			break;
 		case sequence:
 			TestLog.logPass(
@@ -483,6 +487,17 @@ public class DataHelper {
 			break;
 		}
 		return StringUtil.EMPTY_STRING;
+	}
+	
+	public static int getResponseArrayLength(String[] actualArray, String responseString) {
+		int responseLength = -1;
+		actualArray = removeEmptyElements(actualArray);
+		JSONArray jsonArray = JsonHelper.getJsonArray(responseString);
+		if(jsonArray != null)
+			responseLength = jsonArray.length();
+		else
+			responseLength = actualArray.length;
+		return responseLength;
 	}
 
 	public static boolean isGreaterThan(String value1, String value2) {
@@ -816,8 +831,7 @@ public class DataHelper {
 		String[] criteria = expectedResponse.split("&&");
 		
 		// get response body as string
-		TestLog.logPass("received response: " + String.join(System.lineSeparator(), responseValues));
-
+		logJsonResponse(responseValues);
 		
 		for (String criterion : criteria) {
 			Helper.assertTrue("expected response is not a valid json, xml or keyword:  " + criterion, isValidExpectation(criterion));
@@ -834,6 +848,15 @@ public class DataHelper {
 		// remove all empty response strings
 		errorMessages = removeEmptyElements(errorMessages);
 		return errorMessages;
+	}
+	
+	public static void logJsonResponse(List<String> responseValues) {
+		List<String> updatedList = new ArrayList<String>();
+		for(String response: responseValues) {
+			updatedList.add(response.replace(System.lineSeparator(), ""));
+		}
+		String responseString = String.join(System.lineSeparator(), updatedList);
+		TestLog.logPass("received response: " + responseString);
 	}
 	
 	/**
@@ -947,4 +970,20 @@ public class DataHelper {
 		}
 		return list;
 	}
+	
+	public static String[] removeEmptyElements(String[] array) {
+			
+			List<String> list = new ArrayList<String>();
+			for (String text : array)
+			{
+			    if (text != null && !text.trim().isEmpty())
+			    {
+			        list.add(text);
+			    }
+			}
+			array = list.toArray(new String[0]);
+			return array;
+		}
+	
+	
 }
