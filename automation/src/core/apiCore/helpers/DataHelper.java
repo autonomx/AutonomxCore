@@ -264,8 +264,8 @@ public class DataHelper {
 		command = Helper.removeSurroundingQuotes(command);
 		responseString = Helper.removeSurroundingQuotes(responseString);
 
-		String[] expectedArray = expectedString.split(",");
-		String[] actualArray = responseString.split(",");
+		List<String> expectedArray = getResponseArray(expectedString);
+		List<String> actualArray = getResponseArray(responseString);
 		String actualString = "";
 
 		int positionInt = 0;
@@ -273,14 +273,14 @@ public class DataHelper {
 		// if position has value, Then get response at position
 		if (!position.isEmpty() && Helper.getIntFromString(position) > 0) {
 			positionInt = Helper.getIntFromString(position);
-			expectedString = expectedArray[0]; // single item
-			boolean inBounds = (positionInt > 0) && (positionInt <= actualArray.length);
+			expectedString = expectedArray.get(0); // single item
+			boolean inBounds = (positionInt > 0) && (positionInt <= actualArray.size());
 			if (!inBounds) {
-				Helper.assertFalse("items returned are less than specified. returned: " + actualArray.length
+				Helper.assertFalse("items returned are less than specified. returned: " + actualArray.size()
 						+ " specified: " + positionInt);
 			}
 
-			actualString = actualArray[positionInt - 1];
+			actualString = actualArray.get(positionInt - 1);
 		}
 
 		if (getCommandFromExpectedString(command).isEmpty()) {
@@ -305,10 +305,10 @@ public class DataHelper {
 					return responseString + " does not have item " + expectedString;
 			} else {
 				TestLog.logPass(
-						"verifying: " + Arrays.toString(actualArray) + " has items " + Arrays.toString(expectedArray));
-				val = Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
+						"verifying: " + Arrays.toString(actualArray.toArray()) + " has items " + Arrays.toString(expectedArray.toArray()));
+				val = actualArray.containsAll(expectedArray);
 				if (!val)
-					return Arrays.toString(actualArray) + " does not have items " + Arrays.toString(expectedArray);
+					return Arrays.toString(actualArray.toArray()) + " does not have items " + Arrays.toString(expectedArray.toArray());
 			}
 			break;
 		case notHaveItems:
@@ -326,11 +326,11 @@ public class DataHelper {
 					return responseString + " does not have item " + expectedString;
 
 			} else {
-				TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " does not have items "
-						+ Arrays.toString(expectedArray));
-				val = !Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
+				TestLog.logPass("verifying: " + Arrays.toString(actualArray.toArray()) + " does not have items "
+						+ Arrays.toString(expectedArray.toArray()));
+				val = !actualArray.containsAll(expectedArray);
 				if (!val)
-					return Arrays.toString(actualArray) + " does have items " + Arrays.toString(expectedArray);
+					return Arrays.toString(actualArray.toArray()) + " does have items " + Arrays.toString(expectedArray.toArray());
 			}
 			break;
 		case notEqualTo:
@@ -346,10 +346,10 @@ public class DataHelper {
 					return responseString + " does equal " + expectedString;
 			} else {
 				TestLog.logPass(
-						"verifying: " + Arrays.toString(actualArray) + " not equals " + Arrays.toString(expectedArray));
-				val = !Arrays.equals(expectedArray, actualArray);
+						"verifying: " + Arrays.toString(actualArray.toArray()) + " not equals " + Arrays.toString(expectedArray.toArray()));
+				val = !actualArray.equals(expectedArray);
 				if (!val)
-					return Arrays.toString(actualArray) + " does equal " + Arrays.toString(expectedArray);
+					return Arrays.toString(actualArray.toArray()) + " does equal " + Arrays.toString(expectedArray.toArray());
 			}
 			break;
 		case equalTo:
@@ -365,10 +365,10 @@ public class DataHelper {
 					return responseString + " does not equal " + expectedString;
 			} else {
 				TestLog.logPass(
-						"verifying: " + Arrays.toString(actualArray) + " equals " + Arrays.toString(expectedArray));
-				val = Arrays.equals(expectedArray, actualArray);
+						"verifying: " + Arrays.toString(actualArray.toArray()) + " equals " + Arrays.toString(expectedArray.toArray()));
+				val = actualArray.equals(expectedArray);
 				if (!val)
-					return Arrays.toString(actualArray) + " does not equal " + Arrays.toString(expectedArray);
+					return Arrays.toString(actualArray.toArray()) + " does not equal " + Arrays.toString(expectedArray.toArray());
 			}
 			break;
 		case notContain:
@@ -383,11 +383,11 @@ public class DataHelper {
 				if (!val)
 					return responseString + " does contain " + expectedString;
 			} else {
-				TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " does not contain "
-						+ Arrays.toString(expectedArray));
-				val = !Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
+				TestLog.logPass("verifying: " + Arrays.toString(actualArray.toArray()) + " does not contain "
+						+ Arrays.toString(expectedArray.toArray()));
+				val = !actualArray.containsAll(expectedArray);
 				if (!val)
-					return Arrays.toString(actualArray) + " does not contain " + Arrays.toString(expectedArray);
+					return Arrays.toString(actualArray.toArray()) + " does not contain " + Arrays.toString(expectedArray.toArray());
 			}
 			break;
 		case contains:
@@ -403,36 +403,40 @@ public class DataHelper {
 					return responseString + " does not contain " + expectedString;
 			} else {
 				TestLog.logPass(
-						"verifying: " + Arrays.toString(actualArray) + " contains " + Arrays.toString(expectedArray));
-				val = Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
+						"verifying: " + Arrays.toString(actualArray.toArray()) + " contains " + Arrays.toString(expectedArray.toArray()));
+				val = actualArray.containsAll(expectedArray);
 				if (!val)
-					return Arrays.toString(actualArray) + " does not contain " + Arrays.toString(expectedArray);
+					return Arrays.toString(actualArray.toArray()) + " does not contain " + Arrays.toString(expectedArray.toArray());
 			}
 			break;
 		case containsInAnyOrder:
-			TestLog.logPass("verifying: " + Arrays.toString(actualArray) + " contains any order "
-					+ Arrays.toString(expectedArray));
-			val = Arrays.asList(actualArray).containsAll(Arrays.asList(expectedArray));
+			TestLog.logPass("verifying: " + Arrays.toString(actualArray.toArray()) + " contains any order "
+					+ Arrays.toString(expectedArray.toArray()));
+			val = actualArray.containsAll(expectedArray);
 			if (!val)
-				return Arrays.toString(actualArray) + " does not contain in any order "
-						+ Arrays.toString(expectedArray);
+				return Arrays.toString(actualArray.toArray()) + " does not contain in any order "
+						+ Arrays.toString(expectedArray.toArray());
 			break;
 		case integerGreaterThan:
+			TestLog.logPass("verifying: " + responseString + " is greater than " + expectedString);
 			val = compareNumbers(responseString, expectedString, "greaterThan");
 			if (!val)
-				return "actual: " + responseString + " is is less than expected: " + expectedString;
+				return "actual: " + responseString + " is less than expected: " + expectedString;
 			break;
 		case integerLessThan:
+			TestLog.logPass("verifying: " + responseString + " is less than " + expectedString);
 			val = compareNumbers(responseString, expectedString, "lessThan");
 			if (!val)
-				return "actual: " + responseString + " is is greater than expected: " + expectedString;
+				return "actual: " + responseString + " is greater than expected: " + expectedString;
 			break;
 		case integerEqual:
+			TestLog.logPass("verifying: " + responseString + " is equal to " + expectedString);
 			val = compareNumbers(responseString, expectedString, "equalTo");
 			if (!val)
 				return "actual: " + responseString + " is not equal to expected: " + expectedString;
 			break;
 		case integerNotEqual:
+			
 			val = !compareNumbers(responseString, expectedString, "equalTo");
 			if (!val)
 				return "actual: " + responseString + " is not equal to expected: " + expectedString;
@@ -460,10 +464,10 @@ public class DataHelper {
 			break;
 		case sequence:
 			TestLog.logPass(
-					"verifying: " + Arrays.toString(actualArray) + " with sequence " + Arrays.toString(expectedArray));
-			val = Arrays.equals(expectedArray, actualArray);
+					"verifying: " + Arrays.toString(actualArray.toArray()) + " with sequence " + Arrays.toString(expectedArray.toArray()));
+			val = Arrays.asList(actualArray).equals(Arrays.asList(expectedArray));
 			if (!val)
-				return Arrays.toString(actualArray) + " does not equal " + Arrays.toString(expectedArray);
+				return Arrays.toString(actualArray.toArray()) + " does not equal " + Arrays.toString(expectedArray.toArray());
 			break;
 		case jsonbody:
 			TestLog.logPass("verifying response: \n" + responseString + "\n against expected: \n" + expectedString);
@@ -489,14 +493,31 @@ public class DataHelper {
 		return StringUtil.EMPTY_STRING;
 	}
 	
-	public static int getResponseArrayLength(String[] actualArray, String responseString) {
+	
+	/**
+	 * converts string separated by "," to array[]
+	 * trims each value and removes quotes
+	 * @param array
+	 * @return
+	 */
+	public static List<String> getResponseArray(String array) {
+		List<String> list = new ArrayList<String>();
+		String[] responses = array.split(",");
+		for(String response : responses) {
+			response = response.trim().replace("\"", "");
+			list.add(response);
+		}
+		return list;
+	}
+	
+	public static int getResponseArrayLength(List<String> actualArray, String responseString) {
 		int responseLength = -1;
 		actualArray = removeEmptyElements(actualArray);
 		JSONArray jsonArray = JsonHelper.getJsonArray(responseString);
 		if(jsonArray != null)
 			responseLength = jsonArray.length();
 		else
-			responseLength = actualArray.length;
+			responseLength = actualArray.size();
 		return responseLength;
 	}
 
