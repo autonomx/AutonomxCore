@@ -442,14 +442,14 @@ public class DataHelper {
 			int actualLength = getResponseArrayLength(actualArray, responseString);
 			TestLog.logPass("verifying node with size " + actualLength + " greater than " + intValue);
 			if (!(actualLength > intValue))
-				return "response node size is: " + actualLength + " expected it to be greated than: " + intValue;
+				return "response node size is: " + actualLength + " expected it to be greater than: " + intValue;
 			break;
 		case nodeSizeLessThan:
 			intValue = Integer.valueOf(expectedString);
 			actualLength = getResponseArrayLength(actualArray, responseString);
 			TestLog.logPass("verifying node with size " + actualLength + " less than " + intValue);
 			if (!(actualLength < intValue))
-				return "response node size is: " + actualLength + " expected it to be greated than: " + intValue;
+				return "response node size is: " + actualLength + " expected it to be less than: " + intValue;
 			break;
 		case nodeSizeExact:
 			intValue = Integer.valueOf(expectedString);

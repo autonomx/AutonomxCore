@@ -132,7 +132,7 @@ public class RestApiInterface {
 		boolean isCriteriaSuccess = false;
 		
 		int index;
-		for(index = startingPage; index < maxPages; index += incrementBy) {
+		for(index = startingPage; index <= maxPages; index += incrementBy) {
 			
 			TestLog.logPass("Validating page: " + index);
 			
@@ -192,8 +192,6 @@ public class RestApiInterface {
 	 * @return
 	 */
 	public static ServiceObject evaluateRequestAndReceiveResponse(ServiceObject serviceObject) {
-		List<String> errorMessages = new ArrayList<String>();
-
 		StopWatchHelper watch = StopWatchHelper.start();
 		long passedTimeInSeconds = 0;
 
@@ -216,7 +214,7 @@ public class RestApiInterface {
 			serviceObject = evaluateRequest(serviceObject, request);
 
 			// validate the response
-			errorMessages = validateResponse(serviceObject);
+			serviceObject.withErrorMessages(validateResponse(serviceObject));
 			
 			passedTimeInSeconds = watch.time(TimeUnit.SECONDS);
 			
@@ -227,9 +225,9 @@ public class RestApiInterface {
 				break;
 
 			// log errors if exist
-			logTestRunError(currentRetryCount, errorMessages);
+			logTestRunError(currentRetryCount, serviceObject.getErrorMessages());
 
-		} while (!errorMessages.isEmpty() && passedTimeInSeconds < maxRetrySeconds);
+		} while (!serviceObject.getErrorMessages().isEmpty() && passedTimeInSeconds < maxRetrySeconds);
 
 		if (!serviceObject.getErrorMessages().isEmpty()) {
 			TestLog.ConsoleLog("Validation failed after: " +  passedTimeInSeconds + " seconds");
