@@ -259,7 +259,7 @@ public class JsonHelper {
 		expectedJson = Helper.stringRemoveLines(expectedJson);
 		if (JsonHelper.isJSONValid(expectedJson, false)) {
 			if(StringUtils.isBlank(response)) 
-				Helper.assertFalse("response is empty, please re-evaluate your json path");
+				return "response from json path is empty";
 			
 			TestLog.logPass("expected: " + Helper.stringRemoveLines(expectedJson));
 			try {

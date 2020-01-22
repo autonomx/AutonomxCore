@@ -602,6 +602,8 @@ public class DataHelper {
 		String stringVal = values.toString();
 		stringVal = stringVal.replaceAll("[\\[\\](){}]", "");
 		stringVal = stringVal.replace("\"", "");
+		stringVal = stringVal.replace("\\/", "/");
+
 		return stringVal;
 	}
 
