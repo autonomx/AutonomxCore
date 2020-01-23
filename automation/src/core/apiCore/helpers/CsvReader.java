@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
@@ -32,6 +33,14 @@ public class CsvReader {
 	public static String SERVICE_CSV_FILE_PREFIX = "TestCases_";
 	public static final String ACTION_KEY = "action";
 	public static final String SERVICE_CSV_SEPARATOR = "service.csv.separator";
+	
+	// option to run service calls more than once. default 1
+	public static final String OPTION_RUN_COUNT = "RUN_COUNT";
+	public static final String SERVICE_RUN_COUNT = "service.run.count";
+	public static final String SERVICE_RUN_CURRENT_COUNT = "service.run.current.count";
+	public static final String SERVICE_RUN_PREFIX = "_run_";
+	
+	
 	enum VALID_TEST_FILE_TYPES {
 		 csv
 		}
@@ -58,7 +67,43 @@ public class CsvReader {
 		List<String[]> updatedCsvList = new ArrayList<String[]>();
 		updatedCsvList.addAll(addActionCsvTests(csvList));
 		
-		return updateCsvFileFromFile(updatedCsvList, csvFileName, testCaseFile);
+		// get the test cases based on specifications from config. eg. single file name, or single test case, or all
+		List<Object[]> testCaseList = updateCsvFileFromFile(updatedCsvList, csvFileName, testCaseFile);
+		
+		// updated test cases based on run count
+		testCaseList = setTestRerun(testCaseList);
+
+		return testCaseList;
+	}
+	
+	/**
+	 * set test cases based on run count
+	 * @param testCaseList
+	 * @return
+	 */
+	public static List<Object[]> setTestRerun(List<Object[]> testCaseList){
+		List<Object[]> updatedTestCases = new ArrayList<>();
+		
+		for (Object[] testCase : testCaseList) {
+			ServiceObject serviceObject = mapToServiceObject(testCase); 
+			
+			// set run count based on option value
+			evaluateOption(serviceObject);
+			int runCount = Config.getIntValue(SERVICE_RUN_COUNT);
+			
+			String testid = testCase[1].toString();
+			// add test cases based on run count
+			for(int i = 1; i <= runCount; i++) {
+				
+				// add test number to test case id if multirun. index 1 is test id 
+				if(runCount > 1) 				
+					testCase[1] = testid + SERVICE_RUN_PREFIX + i;
+					Object[] testCaseUpdated =  Arrays.copyOf( testCase, testCase.length );
+				
+				updatedTestCases.add(testCaseUpdated);
+			}
+		}
+		return updatedTestCases;
 	}
 	
 	/**
@@ -385,5 +430,51 @@ public class CsvReader {
 				  return true;
 			}
 		return false;
+	}
+	
+	/**
+	 * set run count for individual test case
+	 * @param serviceObject
+	 * @return
+	 */
+	public static void evaluateOption(ServiceObject serviceObject) {
+
+		// reset validation timeout. will be overwritten by option value if set
+		resetOptions();
+
+		// if no option specified
+		if (serviceObject.getOption().isEmpty()) {
+			return;
+		}
+		
+		// store value to config directly using format: value:<$key> separated by colon ';'
+		DataHelper.saveDataToConfig(serviceObject.getOption());
+
+		// replace parameters for request body
+		serviceObject.withOption(DataHelper.replaceParameters(serviceObject.getOption()));
+
+		// get key value mapping of header parameters
+		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getOption());
+
+		// iterate through key value pairs for headers, separated by ";"
+		for (KeyValue keyword : keywords) {
+
+			// if additional options
+			switch (keyword.key) {
+			case OPTION_RUN_COUNT:
+				Config.putValue(SERVICE_RUN_COUNT, keyword.value);
+				break;
+			default:
+				break;
+			}
+		}
+	}
+	
+	/**
+	 * reset option values to default from config
+	 */
+	private static void resetOptions() {
+		// reset options
+		Config.putValue(SERVICE_RUN_COUNT, 1);
 	}
 }

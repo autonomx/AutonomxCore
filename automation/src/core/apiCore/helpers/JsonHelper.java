@@ -65,7 +65,7 @@ public class JsonHelper {
 			
 			// fail if value is wrong format
 			if(!keyword.value.toString().startsWith("<") || !keyword.value.toString().contains("$")|| !keyword.value.toString().endsWith(">"))
-				Helper.assertFalse("variable placement must of format <$variable>: " + keyword.value.toString());
+				Helper.assertFalse("variable placement must of format path: <$variable>. invalid value: " + keyword.value.toString());
 			
 			String key = (String) keyword.value;
 			key = key.replace("$", "").replace("<", "").replace(">", "").trim();

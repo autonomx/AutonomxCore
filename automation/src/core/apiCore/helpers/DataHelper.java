@@ -79,6 +79,8 @@ public class DataHelper {
 			} else if (parameter.contains("_RAND")) {
 				length = Helper.getIntFromString(parameter);
 				value = Config.getValue(TestObject.RANDOM_STRING).substring(0, length);
+			} else if (parameter.contains("_INCREMENT_FROM_")) {
+				value = getIncrementalValue(parameter);	
 			} else if (parameter.contains("_XML")) {
 				// syntax:e.g. <@_XML:ID:1> will be replaced by 2
 				String[] valueArray = parameter.split(":");
@@ -99,6 +101,27 @@ public class DataHelper {
 		}
 
 		return source;
+	}
+	
+	/**
+	 * incremental keyword value setter
+	 * starting value + current run count
+	 * by default: starting value = 1
+	 * eg. <@_INCREMENT_FROM_3>
+	 * current test count is appended to test case id. eg. validateId_run_1
+	 * 	
+	 * @param parameter
+	 */
+	public static int getIncrementalValue(String parameter) {
+		int startingValue = Helper.getIntFromString(parameter);
+		
+		int testCurrentRunCount = 1;
+		String testId = TestObject.getTestInfo().serviceObject.getTestCaseID();
+		if(testId.matches(".*" + CsvReader.SERVICE_RUN_PREFIX + "(\\d)?$"))
+			testCurrentRunCount = Helper.getIntFromString(testId);
+
+		int incrementalValue = startingValue + testCurrentRunCount - 1;
+		return incrementalValue;
 	}
 	
 	/**
@@ -602,6 +625,8 @@ public class DataHelper {
 		String stringVal = values.toString();
 		stringVal = stringVal.replaceAll("[\\[\\](){}]", "");
 		stringVal = stringVal.replace("\"", "");
+		
+		// replace \/ with /. limitation in json parsing
 		stringVal = stringVal.replace("\\/", "/");
 
 		return stringVal;

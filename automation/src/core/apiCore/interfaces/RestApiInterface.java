@@ -96,6 +96,8 @@ public class RestApiInterface {
 	 * @return
 	 */
 	public static Response evaluateRequestAndValidateResponse(ServiceObject serviceObject) {
+		
+		// evaluate request and receive response
 		evaluateRequestAndReceiveResponse(serviceObject);
 
 		if (!serviceObject.getErrorMessages().isEmpty()) {
