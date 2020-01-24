@@ -117,8 +117,10 @@ public class DataHelper {
 		
 		int testCurrentRunCount = 1;
 		String testId = TestObject.getTestInfo().serviceObject.getTestCaseID();
-		if(testId.matches(".*" + CsvReader.SERVICE_RUN_PREFIX + "(\\d)?$"))
+		if(testId.matches(".*" + CsvReader.SERVICE_RUN_PREFIX + "(\\d)?$")) {
+			testId = testId.substring(testId.lastIndexOf(CsvReader.SERVICE_RUN_PREFIX) + 1);
 			testCurrentRunCount = Helper.getIntFromString(testId);
+		}
 
 		int incrementalValue = startingValue + testCurrentRunCount - 1;
 		return incrementalValue;

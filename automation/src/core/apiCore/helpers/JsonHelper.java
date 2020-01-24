@@ -107,8 +107,9 @@ public class JsonHelper {
 	 */
 	public static String getJsonValue(String json, String path) {
 		String prefix = "$.";
-		
 		Object values = null;
+		
+		isJSONValid(json, true);
 		
 		// in case user forgets to remove prefix
 		if(path.startsWith(prefix)) 
@@ -116,7 +117,7 @@ public class JsonHelper {
 		
 		Configuration config = Configuration.defaultConfiguration().addOptions(Option.ALWAYS_RETURN_LIST);
 
-		ReadContext ctx = JsonPath.using(config).parse(json);		
+		ReadContext ctx = JsonPath.using(config).parse(json);
 		
 		try {
 			values = ctx.read(prefix + path);
@@ -223,7 +224,7 @@ public class JsonHelper {
 	 * @param value
 	 * @return
 	 */
-	public static boolean isJSONValid(String value, boolean printError) {		
+	public static boolean isJSONValid(String value, boolean isFailOnError) {		
 		String error = StringUtils.EMPTY;
 		
 		// if contains keyword indicators, then return false
@@ -241,7 +242,7 @@ public class JsonHelper {
 				new JSONArray(value);
 			} catch (JSONException ex1) {
 				if(error.isEmpty()) error = ex1.getMessage();
-				if(printError) TestLog.ConsoleLog("Invalid Json error: " + error);
+				if(isFailOnError) Helper.assertFalse("Invalid Json. Error: " + error + "\n json: " + value);
 				return false;
 			}
 		}
