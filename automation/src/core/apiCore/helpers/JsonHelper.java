@@ -110,6 +110,9 @@ public class JsonHelper {
 		Object values = null;
 		
 		isJSONValid(json, true);
+		if(containsEscapeChar(json))
+			Helper.assertFalse("invalid escape character in json. invalid chars are: \\\", \\b, "
+					+ "\\n, \\r, \\f, \\', \\\\: " + json);
 		
 		// in case user forgets to remove prefix
 		if(path.startsWith(prefix)) 
@@ -135,6 +138,27 @@ public class JsonHelper {
 		}
 		
 		return DataHelper.objectToString(values);
+	}
+	
+	/**
+	 * \t Insert a tab in the text at this point.
+		\b Insert a backspace in the text at this point.
+		\n Insert a newline in the text at this point.
+		\r Insert a carriage return in the text at this point.
+		\f Insert a formfeed in the text at this point.
+		\' Insert a single quote character in the text at this point.
+		\" Insert a double quote character in the text at this point.
+		\\ Insert a backslash character in the text at this point.
+	 * @param value
+	 * @return
+	 */
+	public static boolean containsEscapeChar(String value) {
+		String[] escapeChars = {"\\\"", "\\b", "\\n", "\\r", "\\f", "\\'", "\\\\"};
+		for(String escape : escapeChars) {
+			if(value.contains(escape))
+				return true;
+		}
+		return false;
 	}
 
 	/**
