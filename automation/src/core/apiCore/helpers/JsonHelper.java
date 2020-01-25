@@ -32,6 +32,8 @@ import core.support.objects.ServiceObject;
 import io.restassured.response.Response;
 
 public class JsonHelper {
+	
+	public static String failOnEscapeChars = "api.validation.fail.on.escapechars";
 
 	/**
 	 * replaces output parameter with response values eg. $token with id form values
@@ -110,7 +112,7 @@ public class JsonHelper {
 		Object values = null;
 		
 		isJSONValid(json, true);
-		if(containsEscapeChar(json))
+		if(Config.getBooleanValue(failOnEscapeChars) && containsEscapeChar(json))
 			Helper.assertFalse("invalid escape character in json. invalid chars are: \\\", \\b, "
 					+ "\\n, \\r, \\f, \\', \\\\: " + json);
 		
@@ -489,8 +491,7 @@ public class JsonHelper {
 		}catch(Exception e) {
 			e.printStackTrace();	
 		}
-		
-		JsonObject jsonObj = new GsonBuilder().create().toJsonTree(doc.json()).getAsJsonObject();
+		JsonObject jsonObj = new GsonBuilder().serializeNulls().create().toJsonTree(doc.json()).getAsJsonObject();
 		return jsonObj.toString();
 	}
 	

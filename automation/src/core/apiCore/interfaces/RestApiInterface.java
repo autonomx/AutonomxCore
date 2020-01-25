@@ -616,7 +616,9 @@ public class RestApiInterface {
 		if(response != null) {
 			TestLog.logPass("response: " + response.getBody().asString().replace(System.lineSeparator(), ""));
 			serviceObject.withResponse(response.then().extract().response());
-		}
+		}else
+			serviceObject.withResponse(response);
+
 		return serviceObject;
 	}
 }
