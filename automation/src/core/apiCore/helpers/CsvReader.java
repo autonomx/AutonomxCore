@@ -61,19 +61,53 @@ public class CsvReader {
 		String csvFileName = CsvReader.getCsvFileFromIndex(index);
 
 		// get test rows from csv file
-		List<String[]> csvList = getCsvTestListForTestRunner(csvFileName);
+		List<Object[]> csvList = getCsvTestListForTestRunner(csvFileName);
 		
 		// update csv test list with action csv file values
-		List<String[]> updatedCsvList = new ArrayList<String[]>();
+		List<Object[]> updatedCsvList = new ArrayList<Object[]>();
 		updatedCsvList.addAll(addActionCsvTests(csvList));
+		
+		// updated test cases based on run count
+		updatedCsvList = setTestRerun(updatedCsvList);
+		
+		// update test cases base on test steps (combining test steps with _step#number postfix. eg. verifyUser_step1, verifyUser_step2
+	//	updatedCsvList = setTestSteps(updatedCsvList);
 		
 		// get the test cases based on specifications from config. eg. single file name, or single test case, or all
 		List<Object[]> testCaseList = updateCsvFileFromFile(updatedCsvList, csvFileName, testCaseFile);
-		
-		// updated test cases based on run count
-		testCaseList = setTestRerun(testCaseList);
 
 		return testCaseList;
+	}
+	
+	/**
+	 * update test cases base on test steps (combining test steps with _step#number postfix.
+	 *  eg. verifyUser_step1, verifyUser_step2
+	 * @param testCaseList
+	 * @return
+	 */
+	public static List<Object[]> setTestSteps(List<Object[]> testCaseList){
+		List<Object[]> updatedTestCases = new ArrayList<>();
+		
+		for (Object[] testCase : testCaseList) {
+			ServiceObject serviceObject = mapToServiceObject(testCase); 
+			
+			// set run count based on option value
+			evaluateOption(serviceObject);
+			int runCount = Config.getIntValue(SERVICE_RUN_COUNT);
+			
+			String testid = testCase[1].toString();
+			// add test cases based on run count
+			for(int i = 1; i <= runCount; i++) {
+				
+				// add test number to test case id if multirun. index 1 is test id 
+				if(runCount > 1) 				
+					testCase[1] = testid + SERVICE_RUN_PREFIX + i;
+					Object[] testCaseUpdated =  Arrays.copyOf( testCase, testCase.length );
+				
+				updatedTestCases.add(testCaseUpdated);
+			}
+		}
+		return updatedTestCases;
 	}
 	
 	/**
@@ -114,12 +148,12 @@ public class CsvReader {
 	 * @param testCaseFile
 	 * @return
 	 */
-	public static List<Object[]> updateCsvFileFromFile(List<String[]> csvList, String csvFileName, String testCaseFile) {
+	public static List<Object[]> updateCsvFileFromFile(List<Object[]> csvList, String csvFileName, String testCaseFile) {
 		List<Object[]> testCases = new ArrayList<>();
 		
 		for (int i = 0; i < csvList.size(); i++) {
 			// add test name, test index, and test type 
-			String[] obj = { csvFileName, String.valueOf(i) + ":" + String.valueOf(csvList.size()), TestObject.testType.service.name()};
+			Object[] obj = { csvFileName, String.valueOf(i) + ":" + String.valueOf(csvList.size()), TestObject.testType.service.name()};
 			String[] csvRow = (String[]) ArrayUtils.addAll(csvList.get(i), obj);			
 			
 			// for single test case selection. Both test case file And test case have to be
@@ -140,14 +174,14 @@ public class CsvReader {
 	 * @param testData
 	 * @return 
 	 */
-	public static List<String[]> addActionCsvTests(List<String[]> csvList) {
+	public static List<Object[]> addActionCsvTests(List<Object[]> csvList) {
 		String csvTestPath = PropertiesReader.getLocalRootPath()
 				+ Config.getValue(TestDataProvider.TEST_DATA_ACTION_PATH);
 		
-		List<String[]> updateDataList = new ArrayList<String[]>();
+		List<Object[]> updateDataList = new ArrayList<Object[]>();
 		boolean hasActionKey = false;
 				
-		for(String[] dataRow : csvList) {
+		for(Object[] dataRow : csvList) {
 			hasActionKey = false;
 			ServiceObject serviceObject = CsvReader.mapToServiceObject(dataRow);
 			List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getMethod());
@@ -158,7 +192,7 @@ public class CsvReader {
 			
 			for (KeyValue keyword : keywords) {		
 				if(keyword.key.equals(ACTION_KEY)) {
-					List<String[]> tests = getCsvTestListForTestRunner(csvTestPath, keyword.value.toString());
+					List<Object[]> tests = getCsvTestListForTestRunner(csvTestPath, keyword.value.toString());
 					updateDataList.addAll(tests);
 					hasActionKey = true;
 				}
@@ -176,9 +210,9 @@ public class CsvReader {
 	 * @param testCases
 	 * @return
 	 */
-	public static Map<String, ServiceObject> mapToApiObject(List<String[]> testCases) {
+	public static Map<String, ServiceObject> mapToApiObject(List<Object[]> testCases) {
 		Map<String, ServiceObject> serviceMap = new ConcurrentHashMap<String, ServiceObject>();
-		for (String[] testCase : testCases) {
+		for (Object[] testCase : testCases) {
 			// add parameters to ServiceObject
 			ServiceObject ServiceObject = mapToServiceObject(testCase); 
 			serviceMap.put(ServiceObject.getTestCaseID(), ServiceObject);
@@ -201,7 +235,7 @@ public class CsvReader {
 	public static void getAllTestCases(String testPath, String prefix) {
 		ArrayList<File> csvFiles = Helper.getFileListByType(testPath, prefix);
 		for (int i = 0; i < csvFiles.size(); i++) {
-			List<String[]> testCases = getCsvTestList(csvFiles.get(i));
+			List<Object[]> testCases = getCsvTestList(csvFiles.get(i));
 			Map<String, ServiceObject> apiMap = mapToApiObject(testCases);
 			TestObject.getTestInfo().apiMap.putAll(apiMap);
 		}
@@ -308,7 +342,7 @@ public class CsvReader {
 	 * @param csvFile
 	 * @return
 	 */
-	public static List<String[]> getCsvTestListForTestRunner(String csvFile) {
+	public static List<Object[]> getCsvTestListForTestRunner(String csvFile) {
 		String csvTestPath = PropertiesReader.getLocalRootPath()
 				+ Config.getValue(TestDataProvider.TEST_DATA_PARALLEL_PATH);
 		
@@ -321,8 +355,8 @@ public class CsvReader {
 	 * @param csvFile
 	 * @return
 	 */
-	public static List<String[]> getCsvTestListForTestRunner(String csvDir, String csvFile) {
-		List<String[]> csvList = new ArrayList<String[]>();
+	public static List<Object[]> getCsvTestListForTestRunner(String csvDir, String csvFile) {
+		List<Object[]> csvList = new ArrayList<Object[]>();
 		ArrayList<File> testCsvFileList = getCsvFileList(csvDir);
 		int fileIndex = getFileIndex(testCsvFileList, csvFile);
 		if(fileIndex == -1)
@@ -336,8 +370,8 @@ public class CsvReader {
 	 * @param file
 	 * @return
 	 */
-	public static List<String[]> getCsvTestList(File file) {
-		List<String[]> csvList = new ArrayList<String[]>();
+	public static List<Object[]> getCsvTestList(File file) {
+		List<Object[]> csvList = new ArrayList<Object[]>();
 
 		try {
 			
