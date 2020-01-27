@@ -6,12 +6,14 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.IntStream;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
 import com.opencsv.CSVParser;
@@ -39,6 +41,8 @@ public class CsvReader {
 	public static final String SERVICE_RUN_COUNT = "service.run.count";
 	public static final String SERVICE_RUN_CURRENT_COUNT = "service.run.current.count";
 	public static final String SERVICE_RUN_PREFIX = "_run_";
+	public static final String SERVICE_STEP_PREFIX = "_step";
+
 	
 	
 	enum VALID_TEST_FILE_TYPES {
@@ -70,11 +74,15 @@ public class CsvReader {
 		// updated test cases based on run count
 		updatedCsvList = setTestRerun(updatedCsvList);
 		
+		
+		// get map of test cases with test steps
+		Map<String, List<Object[]>> testStepMap = getTestStepMap(csvList);
+		
 		// update test cases base on test steps (combining test steps with _step#number postfix. eg. verifyUser_step1, verifyUser_step2
-	//	updatedCsvList = setTestSteps(updatedCsvList);
+		updatedCsvList = setTestSteps(updatedCsvList, testStepMap);
 		
 		// get the test cases based on specifications from config. eg. single file name, or single test case, or all
-		List<Object[]> testCaseList = updateCsvFileFromFile(updatedCsvList, csvFileName, testCaseFile);
+		List<Object[]> testCaseList = updateCsvFileFromFile(updatedCsvList, csvFileName, testCaseFile, testStepMap);
 
 		return testCaseList;
 	}
@@ -85,29 +93,69 @@ public class CsvReader {
 	 * @param testCaseList
 	 * @return
 	 */
-	public static List<Object[]> setTestSteps(List<Object[]> testCaseList){
-		List<Object[]> updatedTestCases = new ArrayList<>();
+	public static List<Object[]> setTestSteps(List<Object[]> csvList, Map<String, List<Object[]>> testStepMap){
+		List<Object[]> testCases = new ArrayList<>();
+
+		String currentTestname = StringUtils.EMPTY;
 		
-		for (Object[] testCase : testCaseList) {
-			ServiceObject serviceObject = mapToServiceObject(testCase); 
-			
-			// set run count based on option value
-			evaluateOption(serviceObject);
-			int runCount = Config.getIntValue(SERVICE_RUN_COUNT);
-			
-			String testid = testCase[1].toString();
-			// add test cases based on run count
-			for(int i = 1; i <= runCount; i++) {
-				
-				// add test number to test case id if multirun. index 1 is test id 
-				if(runCount > 1) 				
-					testCase[1] = testid + SERVICE_RUN_PREFIX + i;
-					Object[] testCaseUpdated =  Arrays.copyOf( testCase, testCase.length );
-				
-				updatedTestCases.add(testCaseUpdated);
+		for (int i = 0; i < csvList.size(); i++) {
+			Object[] csvRow = csvList.get(i);
+			String testname = getTestname(csvRow);
+			if(testStepMap.get(testname) != null && !currentTestname.equals(testname)) {
+				csvRow[1] = testname; // set test name without test step
+				testCases.add(csvRow);
+				currentTestname = testname;
+			}else if(testStepMap.get(testname) == null)		
+				testCases.add(csvRow);
+		}
+		return testCases;
+	}
+	
+	/**
+	 * get test name from csv row without test step identifier
+	 * @param csvRow
+	 * @return
+	 */
+	private static String getTestname(Object[] csvRow) {
+		if(!csvRow[1].toString().contains(SERVICE_STEP_PREFIX))
+			return csvRow[1].toString();
+		String testname = csvRow[1].toString().split(SERVICE_STEP_PREFIX)[0];
+		return testname;
+	}
+	
+	/**
+	 * get test name without test step identifier
+	 * @param csvRow
+	 * @return
+	 */
+	public static String getTestname(String fullTestname) {
+		String testname = fullTestname.toString().split(SERVICE_STEP_PREFIX)[0];
+		return testname;
+	}
+	
+	/**
+	 * get map of test cases with test steps
+	 * removes test step prefix from test case id
+	 * @param csvList
+	 * @return
+	 */
+	public static Map<String, List<Object[]>> getTestStepMap(List<Object[]> csvList){
+		Map<String, List<Object[]>> testStepMap = new HashMap<String, List<Object[]>>();
+
+		// get map of test cases with test steps
+		for (int i = 0; i < csvList.size(); i++) {
+			Object[] csvRow = csvList.get(i);	
+			if(csvRow[1].toString().contains(SERVICE_STEP_PREFIX)) {
+				String testname = getTestname(csvRow);
+				List<Object[]> rowList = testStepMap.get(testname);
+				if(rowList == null) rowList = new ArrayList<Object[]>();
+				csvRow[1] = testname; // set test name without test step
+				rowList.add(csvRow);
+				testStepMap.put(testname, rowList);
 			}
 		}
-		return updatedTestCases;
+		
+		return testStepMap;
 	}
 	
 	/**
@@ -148,13 +196,24 @@ public class CsvReader {
 	 * @param testCaseFile
 	 * @return
 	 */
-	public static List<Object[]> updateCsvFileFromFile(List<Object[]> csvList, String csvFileName, String testCaseFile) {
+	public static List<Object[]> updateCsvFileFromFile(List<Object[]> csvList, String csvFileName, String testCaseFile, Map<String, List<Object[]>> testStepMap) {
 		List<Object[]> testCases = new ArrayList<>();
 		
 		for (int i = 0; i < csvList.size(); i++) {
 			// add test name, test index, and test type 
 			Object[] obj = { csvFileName, String.valueOf(i) + ":" + String.valueOf(csvList.size()), TestObject.testType.service.name()};
-			String[] csvRow = (String[]) ArrayUtils.addAll(csvList.get(i), obj);			
+			
+			Object[] csvRow = ArrayUtils.addAll(csvList.get(i), obj);			
+			
+			// add test steps map to the csv row
+			String testname = getTestname(csvRow);
+			if(testStepMap!= null && testStepMap.get(testname) != null) {
+				ArrayList<Object> list = new ArrayList<>(Arrays.asList(csvRow));
+				list.add(testStepMap);
+				Object[] arr = list.toArray(new Object[list.size()]);
+				csvRow = ArrayUtils.addAll(arr);	
+			}else
+				csvRow = ArrayUtils.addAll(csvRow, StringUtils.EMPTY);
 			
 			// for single test case selection. Both test case file And test case have to be
 			// set

@@ -97,7 +97,7 @@ public class TestObject{
 	public int testCountInCsvFile = 0; // test count in csv file
 	public String testCsvFileName = StringUtils.EMPTY;
 	public ServiceObject serviceObject = null;
-
+	
 	public Description description;
 	public Throwable caughtThrowable = null;
 	public ArrayList<String> failTrace = new ArrayList<String>();

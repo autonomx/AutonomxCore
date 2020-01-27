@@ -29,6 +29,7 @@ public class ServiceObject {
 	private String tcName = StringUtils.EMPTY;
 	private String tcIndex = StringUtils.EMPTY; // format index:testCount eg. 1:6
 	private String testType = StringUtils.EMPTY;
+	private Object serviceSteps = null;
 	private String parent = StringUtils.EMPTY; // name of the parent object to inherit from
 	private Response response = null; // rest api response
 	private RequestSpecification request = null; // rest api request
@@ -38,7 +39,7 @@ public class ServiceObject {
 			String InterfaceType, String UriPath, String ContentType, String Method, String Option,
 			String RequestHeaders, String TemplateFile, String RequestBody, String OutputParams, String RespCodeExp,
 			 String ExpectedResponse, String TcComments,
-			String tcName, String tcIndex, String testType) {
+			String tcName, String tcIndex, String testType, Object serviceSteps) {
 		this.TestSuite = TestSuite;
 		this.TestCaseID = TestCaseID;
 		this.RunFlag = RunFlag;
@@ -58,42 +59,55 @@ public class ServiceObject {
 		this.tcName = tcName;
 		this.tcIndex = tcIndex;
 		this.testType = testType;
+		this.serviceSteps = serviceSteps;
 		
 		return this;
 	}
 	
 	public ServiceObject setServiceObject(Object[] testData) {
 		
-		this.TestSuite = getArayValue(testData, 0);
-		this.TestCaseID = getArayValue(testData, 1);
-		this.RunFlag = getArayValue(testData, 2);
-		this.Description = getArayValue(testData, 3);
-		this.InterfaceType = getArayValue(testData, 4);
-		this.UriPath = getArayValue(testData, 5);
-		this.ContentType = getArayValue(testData, 6);
-		this.Method = getArayValue(testData, 7);
-		this.Option = getArayValue(testData, 8);
-		this.RequestHeaders = getArayValue(testData, 9);
-		this.TemplateFile = getArayValue(testData, 10);
-		this.RequestBody = getArayValue(testData, 11);
-		this.OutputParams = getArayValue(testData, 12);
-		this.RespCodeExp = getArayValue(testData, 13);
-		this.ExpectedResponse = getArayValue(testData, 14);
-		this.TcComments = getArayValue(testData, 15);
-		this.tcName = getArayValue(testData, 16);
-		this.tcIndex = getArayValue(testData, 17);
-		this.testType = getArayValue(testData, 18);
+		this.TestSuite = getArrayValue(testData, 0);
+		this.TestCaseID = getArrayValue(testData, 1);
+		this.RunFlag = getArrayValue(testData, 2);
+		this.Description = getArrayValue(testData, 3);
+		this.InterfaceType = getArrayValue(testData, 4);
+		this.UriPath = getArrayValue(testData, 5);
+		this.ContentType = getArrayValue(testData, 6);
+		this.Method = getArrayValue(testData, 7);
+		this.Option = getArrayValue(testData, 8);
+		this.RequestHeaders = getArrayValue(testData, 9);
+		this.TemplateFile = getArrayValue(testData, 10);
+		this.RequestBody = getArrayValue(testData, 11);
+		this.OutputParams = getArrayValue(testData, 12);
+		this.RespCodeExp = getArrayValue(testData, 13);
+		this.ExpectedResponse = getArrayValue(testData, 14);
+		this.TcComments = getArrayValue(testData, 15);
+		this.tcName = getArrayValue(testData, 16);
+		this.tcIndex = getArrayValue(testData, 17);
+		this.testType = getArrayValue(testData, 18);
+		this.serviceSteps = getObjectValue(testData, 19);
 		
 		return this;
 	}
 	
-	private String getArayValue(Object[] testData, int index) {
+	private String getArrayValue(Object[] testData, int index) {
 		if(index >= testData.length)
 			return StringUtils.EMPTY;
 		
 		String value = testData[index].toString();
 		
 		if(StringUtils.isBlank(value))
+			return StringUtils.EMPTY;
+		return value;
+	}
+	
+	private Object getObjectValue(Object[] testData, int index) {
+		if(index >= testData.length)
+			return StringUtils.EMPTY;
+		
+		Object value = testData[index];
+		
+		if(StringUtils.isBlank(value.toString()))
 			return StringUtils.EMPTY;
 		return value;
 	}
@@ -294,6 +308,10 @@ public class ServiceObject {
 	
 	public String getTcType(){
 		return this.testType;
+	}
+	
+	public Object getServiceSteps(){
+		return this.serviceSteps;
 	}
 	
 	public ServiceObject withTcIndex(String tcIndex){
