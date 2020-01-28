@@ -797,7 +797,6 @@ public class DataHelper {
 			String key = keyword.key;
 
 			Config.putValue(value, key);
-			TestLog.logPass("replacing value " + value + " with: " + key);
 		}
 	}
 

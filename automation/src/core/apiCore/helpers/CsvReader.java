@@ -31,7 +31,7 @@ import core.support.objects.TestObject;
 
 public class CsvReader {
 	
-	public static int SERVICE_CSV_COLUMN_COUNT = 19;
+	public static int SERVICE_CSV_COLUMN_COUNT = 20;
 	public static String SERVICE_CSV_FILE_PREFIX = "TestCases_";
 	public static final String ACTION_KEY = "action";
 	public static final String SERVICE_CSV_SEPARATOR = "service.csv.separator";
@@ -74,7 +74,6 @@ public class CsvReader {
 		// updated test cases based on run count
 		updatedCsvList = setTestRerun(updatedCsvList);
 		
-		
 		// get map of test cases with test steps
 		Map<String, List<Object[]>> testStepMap = getTestStepMap(csvList);
 		
@@ -83,7 +82,6 @@ public class CsvReader {
 		
 		// get the test cases based on specifications from config. eg. single file name, or single test case, or all
 		List<Object[]> testCaseList = updateCsvFileFromFile(updatedCsvList, csvFileName, testCaseFile, testStepMap);
-
 		return testCaseList;
 	}
 	

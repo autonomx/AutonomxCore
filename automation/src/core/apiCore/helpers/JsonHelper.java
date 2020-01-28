@@ -78,7 +78,6 @@ public class JsonHelper {
 				value = value.split(",")[Integer.valueOf(keyword.position) - 1];
 			}
 			Config.putValue(key, value);
-			TestLog.logPass("replacing value " + key + " with: " + value);
 		}
 	}
 
