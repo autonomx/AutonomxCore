@@ -254,7 +254,9 @@ public class JsonHelper {
 		
 		// if contains keyword indicators, then return false
 		String expectedJson = Helper.stringNormalize(value);
-		if (expectedJson.startsWith(DataHelper.VERIFY_JSON_PART_INDICATOR) || expectedJson.startsWith(DataHelper.VERIFY_RESPONSE_NO_EMPTY)
+		if (expectedJson.startsWith(DataHelper.VERIFY_JSON_PART_INDICATOR)
+				|| expectedJson.startsWith(DataHelper.VERIFY_JSON_PART_INDICATOR_UNDERSCORE)
+				|| expectedJson.startsWith(DataHelper.VERIFY_RESPONSE_NO_EMPTY)
 				|| expectedJson.startsWith(DataHelper.VERIFY_RESPONSE_BODY_INDICATOR)) {
 			return false;
 		}
@@ -327,7 +329,7 @@ public class JsonHelper {
 		expectedJson = Helper.removeSurroundingQuotes(expectedJson);
 		
 		if (!JsonHelper.isJSONValid(expectedJson, false)) {
-			if (expectedJson.startsWith(DataHelper.VERIFY_JSON_PART_INDICATOR)) {
+			if (expectedJson.startsWith(DataHelper.VERIFY_JSON_PART_INDICATOR) || expectedJson.startsWith(DataHelper.VERIFY_JSON_PART_INDICATOR_UNDERSCORE)) {
 				// get hashmap of json path And verification
 				List<KeyValue> keywords = DataHelper.getValidationMap(expectedJson);
 				// validate based on keywords
@@ -372,7 +374,7 @@ public class JsonHelper {
 			return StringUtils.EMPTY;
 		}
 		
-		// remove the indicator _VERIFY.RESPONSE.BODY_
+		// remove the indicator _VERIFY_RESPONSE_BODY_
 		expected = removeResponseIndicator(expected);
 
 		String[] expectedArr = expected.split("[\\(\\)]");
@@ -402,6 +404,7 @@ public class JsonHelper {
 		List<String> indicator = new ArrayList<String>();
 		indicator.add(DataHelper.VERIFY_RESPONSE_BODY_INDICATOR);
 		indicator.add(DataHelper.VERIFY_JSON_PART_INDICATOR);
+		indicator.add(DataHelper.VERIFY_JSON_PART_INDICATOR_UNDERSCORE);
 		indicator.add(DataHelper.VERIFY_HEADER_PART_INDICATOR);
 		indicator.add(DataHelper.VERIFY_TOPIC_PART_INDICATOR);
 

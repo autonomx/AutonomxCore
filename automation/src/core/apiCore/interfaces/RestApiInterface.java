@@ -33,7 +33,9 @@ public class RestApiInterface {
 	private static final String AUTHORIZATION_HEADER = "Authorization";
 	public static final String API_TIMEOUT_VALIDATION_ENABLED = "api.timeout.validation.isEnabled";
 	public static final String API_TIMEOUT_VALIDATION_SECONDS = "api.timeout.validation.seconds";
+	public static final String API_RESPONSE_TIMEOUT_SECONDS = "api.response.timeout.seconds";
 
+	
 	private static final String INVALID_TOKEN = "INVALID_TOKEN";
 	private static final String NO_TOKEN = "NO_TOKEN";
 
@@ -286,9 +288,9 @@ public class RestApiInterface {
 	 * set connection timeout in milliseconds
 	 */
 	public static void setTimeout() {
-		int connectTimeout = Config.getIntValue("api.timeout.connect.seconds");
+		int connectTimeout = Config.getIntValue(API_RESPONSE_TIMEOUT_SECONDS);
 		if (connectTimeout == -1)
-			return;
+			connectTimeout = 30; // connect timeout defaults to 30 seconds
 
 		RestAssured.config = RestAssuredConfig.config().httpClient(
 				HttpClientConfig.httpClientConfig().setParam("http.connection.timeout", connectTimeout * 1000)

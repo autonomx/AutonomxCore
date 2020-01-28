@@ -30,10 +30,11 @@ import io.netty.util.internal.StringUtil;
 public class DataHelper {
 
 	public static final String VERIFY_JSON_PART_INDICATOR = "_VERIFY.JSON.PART_";
-	public static final String VERIFY_RESPONSE_BODY_INDICATOR = "_VERIFY.RESPONSE.BODY_";
+	public static final String VERIFY_JSON_PART_INDICATOR_UNDERSCORE = "_VERIFY_JSON_PART_";
+	public static final String VERIFY_RESPONSE_BODY_INDICATOR = "_VERIFY_RESPONSE_BODY_";
 	public static final String VERIFY_RESPONSE_NO_EMPTY = "_NOT_EMPTY_";
-	public static final String VERIFY_HEADER_PART_INDICATOR = "_VERIFY.HEADER.PART_";
-	public static final String VERIFY_TOPIC_PART_INDICATOR = "_VERIFY.TOPIC.PART_";
+	public static final String VERIFY_HEADER_PART_INDICATOR = "_VERIFY_HEADER_PART_";
+	public static final String VERIFY_TOPIC_PART_INDICATOR = "_VERIFY_TOPIC_PART_";
 	public static final String EXPECTED_MESSAGE_COUNT = "EXPECTED_MESSAGE_COUNT";
 
 	public enum JSON_COMMAND {
@@ -816,7 +817,7 @@ public class DataHelper {
 
 	/**
 	 * remove section from expected response separated by && the section will start
-	 * with the identifier. eg. _VERIFY.RESPONSE.BODY_
+	 * with the identifier. eg. _VERIFY_RESPONSE_BODY_
 	 * 
 	 * @param section
 	 * @param expectedResponse
@@ -836,7 +837,7 @@ public class DataHelper {
 
 	/**
 	 * get section from expected response separated by && the section will start
-	 * with the identifier. eg. _VERIFY.RESPONSE.BODY_
+	 * with the identifier. eg. _VERIFY_RESPONSE_BODY_
 	 * 
 	 * @param section
 	 * @param expectedResponse
@@ -991,7 +992,9 @@ public class DataHelper {
 			return true;
 
 		expectedValue = Helper.stringNormalize(expectedValue);
-		if (expectedValue.startsWith(DataHelper.VERIFY_JSON_PART_INDICATOR) || expectedValue.startsWith("_NOT_EMPTY_")
+		if (expectedValue.startsWith(DataHelper.VERIFY_JSON_PART_INDICATOR)
+				|| expectedValue.startsWith(DataHelper.VERIFY_JSON_PART_INDICATOR_UNDERSCORE)
+				|| expectedValue.startsWith(VERIFY_RESPONSE_NO_EMPTY)
 				|| expectedValue.startsWith(DataHelper.VERIFY_RESPONSE_BODY_INDICATOR)
 				|| expectedValue.startsWith(DataHelper.VERIFY_HEADER_PART_INDICATOR)
 				|| expectedValue.startsWith(DataHelper.EXPECTED_MESSAGE_COUNT)
