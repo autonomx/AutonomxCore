@@ -37,8 +37,17 @@ public class ServiceRunner {
 	  }
 	
 	/**
-import module.services.interfaces.TestInterface;
+import core.support.logger.TestLog;
+import core.support.objects.ServiceObject;
 import core.uiCore.drivers.AbstractDriverTestNG;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import core.apiCore.ServiceManager;
+import core.apiCore.helpers.CsvReader;
+import module.services.interfaces.TestInterface;
 
 public class ServiceManager {
 
@@ -103,6 +112,14 @@ public class ServiceManager {
 		bw.newLine();
 		
 		
+	
+		bw.append("import core.support.logger.TestLog;"+ "\n");
+		bw.append("import core.apiCore.helpers.CsvReader;"+ "\n");
+		bw.newLine();
+		bw.append("import java.util.HashMap;"+ "\n");
+		bw.append("import java.util.List;"+ "\n");
+		bw.append("import java.util.Map;"+ "\n");
+		bw.newLine();
 		bw.append("import core.support.objects.ServiceObject;"+ "\n");
 		bw.append("import core.uiCore.drivers.AbstractDriverTestNG;"+ "\n");
 		bw.append("import core.apiCore.ServiceManager;"+ "\n");
@@ -156,13 +173,13 @@ public class ServiceManager {
 		bw.append("		String InterfaceType, String UriPath, String ContentType, String Method, String Option," + " \n" );
 		bw.append("		String RequestHeaders, String TemplateFile, String RequestBody, String OutputParams, String RespCodeExp," + " \n" );
 		bw.append("		String ExpectedResponse, String TcComments," + " \n" );
-		bw.append("		String tcName, String tcIndex, String testType) throws Exception {" + " \n" );
+		bw.append("		String tcName, String tcIndex, String testType, Object serviceSteps) throws Exception {" + " \n" );
 		bw.newLine();
 		bw.append("		// add parameters to ServiceObject" + " \n" );
 		bw.append("		ServiceObject serviceObject = new ServiceObject().setServiceObject(TestSuite, TestCaseID, RunFlag, Description, InterfaceType," + " \n" );
 		bw.append("		UriPath, ContentType, Method, Option, RequestHeaders, TemplateFile, RequestBody, OutputParams," + " \n" );
 		bw.append("		RespCodeExp, ExpectedResponse, TcComments, tcName," + " \n" );
-		bw.append("		tcIndex, testType);"+ " \n" );
+		bw.append("		tcIndex, testType, serviceSteps);"+ " \n" );
 		bw.newLine();
 		bw.append("		// set parent object" + " \n");
 		bw.append("		ServiceManager.setupParentObject(serviceObject);" + " \n");
@@ -175,13 +192,47 @@ public class ServiceManager {
 		bw.newLine();
 		bw.append("		// setup api driver" + " \n");
 		bw.append("		new AbstractDriverTestNG().setupApiDriver(serviceObject);" + " \n");
-		bw.append("		runInterface(serviceObject);" + " \n");
+		bw.append("		runServiceTests(serviceObject);" + " \n");
 		bw.newLine();
 		bw.append("		// run after each test file" + " \n");
 		bw.append("		ServiceManager.runAfterCsv(serviceObject);" + " \n");
 		bw.append("}" + " \n");
 		bw.newLine();
 		bw.newLine();
+		
+		
+		
+		/**
+		 public static void runServiceTests(ServiceObject serviceObject) throws Exception { 
+			if(serviceObject.getServiceSteps() instanceof HashMap) {
+				Map<String, List<Object[]>> testStepMap = (Map<String, List<Object[]>>) serviceObject.getServiceSteps();
+				List<Object[]> teststeps = testStepMap.get(CsvReader.getTestname(serviceObject.getTestCaseID()));
+				for(int i = 0; i < teststeps.size(); i ++) {
+					TestLog.logPass("******** Starting Step " +  (i+1) + " **********");
+					ServiceObject stepObject = CsvReader.mapToServiceObject(teststeps.get(i)); 
+					runInterface(stepObject);
+				}
+			}else
+				runInterface(serviceObject);
+		}
+		 */
+		
+		bw.append("	public static void runServiceTests(ServiceObject serviceObject) throws Exception {" + " \n");
+		bw.append("		if(serviceObject.getServiceSteps() instanceof HashMap) {" + " \n");
+		bw.append("			Map<String, List<Object[]>> testStepMap = (Map<String, List<Object[]>>) serviceObject.getServiceSteps();" + " \n");
+		bw.append("			List<Object[]> teststeps = testStepMap.get(CsvReader.getTestname(serviceObject.getTestCaseID()));" + " \n");
+		bw.append("			for(int i = 0; i < teststeps.size(); i ++) {" + " \n");
+		bw.append("				TestLog.logPass(\"******** Starting Step \" +  (i+1) + \" **********\");" + " \n");
+		bw.append("				ServiceObject stepObject = CsvReader.mapToServiceObject(teststeps.get(i)); " + " \n");
+		bw.append("				runInterface(stepObject);" + " \n");
+		bw.append("			}" + " \n");
+		bw.append("		}else" + " \n");
+		bw.append("			runInterface(serviceObject);" + " \n");
+		bw.append("	}" + " \n");
+		bw.newLine();
+		bw.newLine();
+		
+		
 		
 		/**
 		 

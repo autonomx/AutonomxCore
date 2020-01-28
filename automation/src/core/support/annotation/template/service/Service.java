@@ -47,7 +47,7 @@ public class Service {
 
 			// get all service keyword
 			for (int i = 0; i < csvFiles.size(); i++) {
-				List<String[]> testCases = CsvReader.getCsvTestList(csvFiles.get(i));
+				List<Object[]> testCases = CsvReader.getCsvTestList(csvFiles.get(i));
 				completeServices.putAll(CsvReader.mapToApiObject(testCases));
 			}
 		  

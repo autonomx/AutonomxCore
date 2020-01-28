@@ -59,25 +59,8 @@ public class ServiceManager {
 	public static final String BEFORE_CSV_FILE = "beforeCsvFile";
 	public static final String AFTER_CSV_FILE = "afterCsvFile";
 
-	
-	public static void TestRunner(ServiceObject serviceObject)  {
-
-		try {
-			// setup api driver
-			new AbstractDriverTestNG().setupApiDriver(serviceObject);
-			runInterface(serviceObject);
-		}catch(Exception e) {
-			Helper.assertFalse(e.getMessage());
-		}
-	}
-	
-	public static void runInterface(ServiceObject serviceObject) {
-		try {
+	public static void runInterface(ServiceObject serviceObject) throws Exception {
 			runCsvInterface(serviceObject);
-		} catch (Exception e) {
-			e.printStackTrace();
-			Helper.assertFalse(e.getMessage());
-		}
 	}
 	
 	public static void runCsvInterface(ServiceObject serviceObject) throws Exception {
@@ -207,7 +190,7 @@ public class ServiceManager {
 	 * @param serviceObject
 	 * @throws Exception 
 	 */
-	public static void runServiceBeforeSuite()  {
+	public static void runServiceBeforeSuite() {
 		
 		// run all tests in csv file
 		String csvTestPath = PropertiesReader.getLocalRootPath()
@@ -261,12 +244,19 @@ public class ServiceManager {
 		String updateName = testname;
 		
 		// map test list and run through the service runner
-		List<String[]> testList = CsvReader.getCsvTestListForTestRunner(csvTestPath, file);
-		List<Object[]> updateList = CsvReader.updateCsvFileFromFile(testList, updateName, "");
+		List<Object[]> testList = CsvReader.getCsvTestListForTestRunner(csvTestPath, file);
+		List<Object[]> updateList = CsvReader.updateCsvFileFromFile(testList, updateName, "", null);
 		for(Object[] dataRow : updateList) {
 			ServiceObject testServiceObject = CsvReader.mapToServiceObject(dataRow);
 			testServiceObject.withParent(parent);
-			TestRunner(testServiceObject);
+			try {
+				new AbstractDriverTestNG().setupApiDriver(testServiceObject);
+				runInterface(testServiceObject);
+			} catch (Exception e) {
+				e.printStackTrace();
+				Helper.assertFalse(e.getMessage());
+			}
+			
 		}
 	}
 	
