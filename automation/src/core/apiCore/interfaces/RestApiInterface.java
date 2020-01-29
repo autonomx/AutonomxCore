@@ -54,7 +54,9 @@ public class RestApiInterface {
 
 	public static final String API_PAGINATION_COUNTER = "PAGINATION";
 
-	
+	public static final String API_PARAMETER_ENCODING = "api.encoding.parameter";
+	public static final String API_URL_ENCODING = "api.encoding.url";
+
 
 	/**
 	 * interface for restful API calls
@@ -281,6 +283,10 @@ public class RestApiInterface {
 		request.port(aURL.getPort());
 		request.basePath(aURL.getPath());
 		
+		// set url encoding
+		boolean urlEncoding = Config.getBooleanValue(API_URL_ENCODING);
+		request = request.urlEncodingEnabled(urlEncoding);
+		
 		return request;
 	}
 	
@@ -446,6 +452,11 @@ public class RestApiInterface {
 			else
 				request = request.given().queryParam(query[0], query[1]);
 		}
+		
+		// set parameter encoding
+		boolean paramterEncoding = Config.getBooleanValue(API_PARAMETER_ENCODING);
+		request = request.urlEncodingEnabled(paramterEncoding);
+		
 		return request;
 	}
 
@@ -623,4 +634,6 @@ public class RestApiInterface {
 
 		return serviceObject;
 	}
+	
+	
 }

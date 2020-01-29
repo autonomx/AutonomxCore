@@ -110,6 +110,7 @@ public class JsonHelper {
 		String prefix = "$.";
 		Object values = null;
 		
+		// validate escape characters in json 
 		isJSONValid(json, true);
 		if(Config.getBooleanValue(failOnEscapeChars) && containsEscapeChar(json))
 			Helper.assertFalse("invalid escape character in json. invalid chars are: \\\", \\b, "

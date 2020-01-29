@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,22 +59,17 @@ public class DataHelper {
 		Instant newTime = null;
 		for (String parameter : parameters) {
 			if (parameter.contains("_TIME_MS_")) {
-				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING_MS));			
-				String timeMs = String.valueOf(newTime.toEpochMilli());
-				value = getTimeSubstring(parameter, 13, timeMs);
+				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING));			
+				value = getTimeSubstring(parameter, String.valueOf(newTime.toEpochMilli()));
 			}else if (parameter.contains("_TIME_STRING_")) {
-					newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING_MS));			
-					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")
-							.withZone(ZoneId.of("UTC"));
-					value = getTimeSubstring(parameter, 17, formatter.format(newTime));
+					newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING));
+					value = getTimeSubstring(parameter, Helper.date.getTime(newTime, "yyyyMMddHHmmssSSS"));
 			} else if (parameter.contains("_TIME_ISO_")) {
-				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING_ISO));
-				value = getTimeSubstring(parameter, 24, newTime.toString());
+				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING));
+				value = getTimeSubstring(parameter, newTime.toString());
 			} else if (parameter.contains("_TIME")) {
-				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING_MS));
-				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")
-						.withZone(ZoneId.of("UTC"));
-				value = getTimeSubstring(parameter, 17, formatter.format(newTime));
+				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING));
+				value = getTimeSubstring(parameter, getTimeWithFormatingZone(newTime, parameter));
 			} else if (parameter.contains("_RAND")) {
 				length = Helper.getIntFromString(parameter);
 				value = Config.getValue(TestObject.RANDOM_STRING).substring(0, length);
@@ -135,12 +128,40 @@ public class DataHelper {
 	 * @param finalTime
 	 * @return
 	 */
-	public static String getTimeSubstring(String parameter, int maxLength, String finalTime) {
+	public static String getTimeSubstring(String parameter, String finalTime) {
+		// values after the last "_", then after the last :
+		parameter = parameter.substring(parameter.lastIndexOf("_") + 1);
+		parameter = parameter.substring(parameter.lastIndexOf(":") + 1);
+				
 		int length = Helper.getIntFromString(parameter.split("[+-]")[0]);
+		int maxLength = finalTime.length();
 		if (length > maxLength)
 			length = maxLength;
 		else if(length == -1) length = 1;
 		return finalTime.substring(0, length);
+	}
+	
+	/**
+	 * set format and time zone for time
+	 * eg.
+	    <@_TIME_FORMAT:yyyyMMddHHmmssSSS:13+72h>
+		<@_TIME_FORMAT:yyyyMMddHHmmssSSS:Zone:UTC:13+72h>
+	 * @param parameter
+	 * @param time
+	 * @return
+	 */
+	public static String getTimeWithFormatingZone(Instant time, String parameter) {
+		String timeFormatted = StringUtils.EMPTY;
+		String format = StringUtils.substringBetween(parameter, "FORMAT:", ":Zone");
+		if (StringUtils.isBlank(format) && parameter.contains("FORMAT:")) {
+			parameter = parameter.substring(0, parameter.lastIndexOf(":"));
+			if(parameter.endsWith(":")) parameter = parameter.substring(0, parameter.length()-1);
+			format = parameter.split("FORMAT:")[1];
+		}
+		String zone = StringUtils.substringBetween(parameter, "Zone:", ":");
+		
+		timeFormatted = Helper.date.getTime(time, format, zone);
+		return timeFormatted;
 	}
 
 	/**
@@ -152,6 +173,11 @@ public class DataHelper {
 	public static Instant getTime(String parameter, String timeString) {
 		Instant time = Instant.parse(timeString);
 		Instant newTime = time;
+		
+		// values after the last "_", then after the last :
+		parameter = parameter.substring(parameter.lastIndexOf("_") + 1);
+		parameter = parameter.substring(parameter.lastIndexOf(":") + 1);
+
 		String[] parameterArray = parameter.split("[+-]");
 		
 		// return non modified time if modifier not set
