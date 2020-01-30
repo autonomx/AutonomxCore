@@ -94,7 +94,7 @@ public class JsonHelper {
 		String value = getJsonValue(jsonResponse, path);
 		return value;
 	}
-
+	
 	/**
 	 * gets json value as list if applicable, or string if single item converts to
 	 * string separated by "," https://github.com/json-path/JsonPath
@@ -107,6 +107,21 @@ public class JsonHelper {
 	 * @return value string list separated by ","
 	 */
 	public static String getJsonValue(String json, String path) {
+		return getJsonValue(json, path, false);
+	}
+
+	/**
+	 * gets json value as list if applicable, or string if single item converts to
+	 * string separated by "," https://github.com/json-path/JsonPath
+	 * 
+	 * @param path
+	 *            https://github.com/json-path/JsonPath
+	 *           
+	 *            for testing json path values:
+	 *            	http://jsonpath.herokuapp.com/
+	 * @return value string list separated by ","
+	 */
+	public static String getJsonValue(String json, String path, boolean isAlwaysReturnList) {
 		String prefix = "$.";
 		Object values = null;
 		
@@ -120,14 +135,22 @@ public class JsonHelper {
 		if(path.startsWith(prefix)) 
 			path = path.replace(prefix, "");
 		
-		Configuration config = Configuration.defaultConfiguration().addOptions(Option.ALWAYS_RETURN_LIST);
-
+		// set always return list. on json path method errors, need to be turned off. eg. length()
+		Configuration config = null;
+		if(isAlwaysReturnList)
+			 config = Configuration.defaultConfiguration().addOptions(Option.ALWAYS_RETURN_LIST);
+		else
+			 config = Configuration.defaultConfiguration();
+		
 		ReadContext ctx = JsonPath.using(config).parse(json);
 		
 		try {
 			values = ctx.read(prefix + path);
 		}catch(Exception e) {
-			Helper.assertFalse("invalid path: '" + path + "' for json string: " + json + "\n. see http://jsonpath.herokuapp.com to validate your path against json string. see https://github.com/json-path/JsonPath for more info. \n" + e.getMessage());
+			if(e.getMessage().contains(Option.ALWAYS_RETURN_LIST.name()) && isAlwaysReturnList)
+				getJsonValue(json, path, false);
+			else
+				Helper.assertFalse("invalid path: '" + path + "' for json string: " + json + "\n. see http://jsonpath.herokuapp.com to validate your path against json string. see https://github.com/json-path/JsonPath for more info. \n" + e.getMessage());
 		}
 		
 
