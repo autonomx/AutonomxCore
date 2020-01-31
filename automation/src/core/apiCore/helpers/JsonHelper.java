@@ -493,6 +493,10 @@ public class JsonHelper {
 
 		// replace parameters
 		jsonString = DataHelper.replaceParameters(jsonString);
+		
+		// if request body is json, will not replace template
+		if(isJSONValid(serviceObject.getRequestBody(), false))
+			return serviceObject.getRequestBody();
 
 		// get key value mapping of header parameters
 		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getRequestBody());

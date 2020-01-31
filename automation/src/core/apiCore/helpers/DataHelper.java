@@ -797,7 +797,6 @@ public class DataHelper {
 		// replace request body parameters
 		requestbody = replaceParameters(requestbody);
 		
-		TestLog.ConsoleLog("request: " + requestbody);
 		return requestbody;
 	}
 	
