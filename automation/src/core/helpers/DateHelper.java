@@ -72,7 +72,8 @@ public class DateHelper {
 	 * @param zone
 	 * @return
 	 */
-	public String getTime(Instant time, String format, String zone) {
+	public String getTime(String timeString, String format, String zone) {
+		Instant time = Instant.parse(timeString);
 		DateTimeFormatter formatter = null;
 
 		if (StringUtils.isBlank(format) && StringUtils.isBlank(zone))

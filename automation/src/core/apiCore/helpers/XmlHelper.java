@@ -307,6 +307,11 @@ public class XmlHelper {
 		
 		// replace parameters
 		xmlString = DataHelper.replaceParameters(xmlString);
+		
+		// if request is valid xml, do not update. only key value pair
+		if(isValidXmlString(serviceObject.getRequestBody())){
+			return serviceObject.getRequestBody();
+		}
 
 		// get key value mapping of header parameters
 		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getRequestBody());

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,6 +12,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
@@ -56,25 +58,26 @@ public class DataHelper {
 		List<String> parameters = Helper.getValuesFromPattern(source, "<@(.+?)>");
 		Object value = null;
 		int length = 0;
-		Instant newTime = null;
+		String newTime = StringUtils.EMPTY;
 		for (String parameter : parameters) {
 			if (parameter.contains("_TIME_MS_")) {
-				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING));			
-				value = getTimeSubstring(parameter, String.valueOf(newTime.toEpochMilli()));
-			}else if (parameter.contains("_TIME_STRING_")) {
-					newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING));
-					value = getTimeSubstring(parameter, Helper.date.getTime(newTime, "yyyyMMddHHmmssSSS"));
+				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING));
+				Instant time = Instant.parse(newTime);
+				value = getTimeSubstring(parameter, String.valueOf(time.toEpochMilli()));
+			} else if (parameter.contains("_TIME_STRING_")) {
+				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING));
+				value = getTimeSubstring(parameter, Helper.date.getTime(newTime, "yyyyMMddHHmmssSSS", null));
 			} else if (parameter.contains("_TIME_ISO_")) {
 				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING));
-				value = getTimeSubstring(parameter, newTime.toString());
+				value = getTimeSubstring(parameter, newTime);
 			} else if (parameter.contains("_TIME")) {
 				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING));
-				value = getTimeSubstring(parameter, getTimeWithFormatingZone(newTime, parameter));
+				value = getTimeSubstring(parameter, newTime);
 			} else if (parameter.contains("_RAND")) {
 				length = Helper.getIntFromString(parameter);
 				value = Config.getValue(TestObject.RANDOM_STRING).substring(0, length);
 			} else if (parameter.contains("_INCREMENT_FROM_")) {
-				value = getIncrementalValue(parameter);	
+				value = getIncrementalValue(parameter);
 			} else if (parameter.contains("_XML")) {
 				// syntax:e.g. <@_XML:ID:1> will be replaced by 2
 				String[] valueArray = parameter.split(":");
@@ -96,22 +99,20 @@ public class DataHelper {
 
 		return source;
 	}
-	
+
 	/**
-	 * incremental keyword value setter
-	 * starting value + current run count
-	 * by default: starting value = 1
-	 * eg. <@_INCREMENT_FROM_3>
-	 * current test count is appended to test case id. eg. validateId_run_1
-	 * 	
+	 * incremental keyword value setter starting value + current run count by
+	 * default: starting value = 1 eg. <@_INCREMENT_FROM_3> current test count is
+	 * appended to test case id. eg. validateId_run_1
+	 * 
 	 * @param parameter
 	 */
 	public static int getIncrementalValue(String parameter) {
 		int startingValue = Helper.getIntFromString(parameter);
-		
+
 		int testCurrentRunCount = 1;
 		String testId = TestObject.getTestInfo().serviceObject.getTestCaseID();
-		if(testId.matches(".*" + CsvReader.SERVICE_RUN_PREFIX + "(\\d)?$")) {
+		if (testId.matches(".*" + CsvReader.SERVICE_RUN_PREFIX + "(\\d)?$")) {
 			testId = testId.substring(testId.lastIndexOf(CsvReader.SERVICE_RUN_PREFIX) + 1);
 			testCurrentRunCount = Helper.getIntFromString(testId);
 		}
@@ -119,10 +120,11 @@ public class DataHelper {
 		int incrementalValue = startingValue + testCurrentRunCount - 1;
 		return incrementalValue;
 	}
-	
+
 	/**
-	 * get substring of time based on time string length
-	 * format _TIME_STRING_17-72h. 17 is the length
+	 * get substring of time based on time string length format _TIME_STRING_17-72h.
+	 * 17 is the length
+	 * 
 	 * @param parameter
 	 * @param maxLength
 	 * @param finalTime
@@ -130,86 +132,153 @@ public class DataHelper {
 	 */
 	public static String getTimeSubstring(String parameter, String finalTime) {
 		// values after the last "_", then after the last :
-		parameter = parameter.substring(parameter.lastIndexOf("_") + 1);
-		parameter = parameter.substring(parameter.lastIndexOf(":") + 1);
-				
-		int length = Helper.getIntFromString(parameter.split("[+-]")[0]);
-		int maxLength = finalTime.length();
-		if (length > maxLength)
-			length = maxLength;
-		else if(length == -1) length = 1;
-		return finalTime.substring(0, length);
-	}
-	
-	/**
-	 * set format and time zone for time
-	 * eg.
-	    <@_TIME_FORMAT:yyyyMMddHHmmssSSS:13+72h>
-		<@_TIME_FORMAT:yyyyMMddHHmmssSSS:Zone:UTC:13+72h>
-	 * @param parameter
-	 * @param time
-	 * @return
-	 */
-	public static String getTimeWithFormatingZone(Instant time, String parameter) {
-		String timeFormatted = StringUtils.EMPTY;
-		String format = StringUtils.substringBetween(parameter, "FORMAT:", ":Zone");
-		if (StringUtils.isBlank(format) && parameter.contains("FORMAT:")) {
-			parameter = parameter.substring(0, parameter.lastIndexOf(":"));
-			if(parameter.endsWith(":")) parameter = parameter.substring(0, parameter.length()-1);
-			format = parameter.split("FORMAT:")[1];
-		}
-		String zone = StringUtils.substringBetween(parameter, "Zone:", ":");
+
+		Matcher matcher = Pattern.compile("\\d+").matcher(parameter);
+		matcher.find();
+		int length = Integer.valueOf(matcher.group());
 		
-		timeFormatted = Helper.date.getTime(time, format, zone);
-		return timeFormatted;
+		int maxLength = finalTime.length();
+		if (length > maxLength || length == -1)
+			length = maxLength;
+		
+		return finalTime.substring(0, length);
 	}
 
 	/**
-	 *  time: _TIME_STRING_17-72h or _TIME_STRING_17+72h
+	 * get time based time modification, format or fixed time
+	 * eg. <@_TIME_ISO_17+30h;setTime:14h23m33s>
+	 * or <@_TIME_ISO_17+30h;FORMAT:yyyyMMddHHmmssSSS>
+	 * @param parameter
+	 * @param timeString
+	 * @return
+	 */
+	public static String getTime(String parameter, String timeString) {
+		
+		
+		String[] values = parameter.split(";");
+		
+		for(String value : values) {
+						
+			if(value.contains("FORMAT")) {
+				String format = value.split("FORMAT")[1];
+				format = removeFirstAndLastChars(format, ":","<", ">");			
+				timeString = Helper.date.getTime(timeString, format, null);
+			}else if(value.contains("ZONE")) {
+				String zone = value.split("ZONE")[1];
+				zone = removeFirstAndLastChars(zone, ":","<", ">");	
+				timeString = Helper.date.getTime(timeString, null, zone);
+			}else if(value.contains("setTime")) {
+				String setTime = value.split("setTime")[1];	
+				setTime = removeFirstAndLastChars(setTime, ":","<", ">");
+				timeString = setTime(setTime, timeString);
+			}else {
+				value = removeFirstAndLastChars(value, ":","<", ">");
+				timeString = getTimeWithModification(value, timeString);					
+			}
+		}
+		return timeString;
+	}
+	
+	/**
+	 * sets time based on format: setTime:hh:mm:ss eg: 14:42:33
+	 * any combination will work
+	 * uses utc zone to set time
+	 * @param parameter
+	 * @param timeString
+	 * @return
+	 */
+	public static String setTime(String parameter, String timeString ) {
+		Instant time = Instant.parse(timeString);
+		
+		String[] parameters = parameter.split(":");
+		if(parameters.length != 3)
+			Helper.assertFalse("format must be hh:mm:ss. value: " +  parameter);
+		int hour = Helper.getIntFromString(parameters[0]);
+		int minute = Helper.getIntFromString(parameters[1]);
+		int second = Helper.getIntFromString(parameters[2]);
+	
+		time = time.atZone(ZoneOffset.UTC)
+		        .withHour(hour)
+		        .withMinute(minute)
+		        .withSecond(second)
+		        .withNano(0)
+		        .toInstant();	
+		return time.toString();
+	}
+	
+	/**
+	 * removes surrounding character from string
+	 * @param value
+	 * @param toRemove
+	 * @return
+	 */
+	public static String removeFirstAndLastChars(String value, String... toRemove) {
+		if(StringUtils.isBlank(value)) return value;
+		if(toRemove.length == 0) return value;
+		
+		for(String remove : toRemove) {
+			if(value.startsWith(remove))
+				value = StringUtils.removeStart(value, remove);
+			if(value.endsWith(remove))
+				value = StringUtils.removeEnd(value, remove);
+		}
+		return value;
+	}
+
+	/**
+	 * time: _TIME_STRING_17-72h or _TIME_STRING_17+72h
+	 * 
 	 * @param parameter: time parameter with modification. eg. _TIME_STRING_17-72h
 	 * @param timeString
 	 * @return
 	 */
-	public static Instant getTime(String parameter, String timeString) {
+	public static String getTimeWithModification(String parameter, String timeString) {
 		Instant time = Instant.parse(timeString);
 		Instant newTime = time;
-		
+
 		// values after the last "_", then after the last :
-		parameter = parameter.substring(parameter.lastIndexOf("_") + 1);
-		parameter = parameter.substring(parameter.lastIndexOf(":") + 1);
+	//	parameter = parameter.substring(parameter.lastIndexOf("_") + 1);
+	//	parameter = parameter.substring(parameter.lastIndexOf(":") + 1);
 
 		String[] parameterArray = parameter.split("[+-]");
-		
+
 		// return non modified time if modifier not set
-		if( parameterArray.length == 1) return newTime;
-		
-		String modifier =  parameter.split("[+-]")[1];
-		
+		if (parameterArray.length == 1)
+			return newTime.toString();
+
+		String modifier = parameter.split("[+-]")[1];
+
 		String modiferSign = parameter.replaceAll("[^+-]", "");
 		int modifierDuration = Helper.getIntFromString(modifier);
-		String modifierUnit =  modifier.replaceAll("[^A-Za-z]+", "");
-		
-		if(modiferSign.isEmpty() || modifierDuration == -1 || modifierUnit.isEmpty())
-			  Helper.assertFalse("invalid time modifier. format: eg. _TIME_STRING_17+72h or _TIME_STRING_17-72m");
+		String modifierUnit = modifier.replaceAll("[^A-Za-z]+", "");
 
-		switch(modifierUnit) {
-		  case "h":
-			  if(modiferSign.equals("+"))
-				  newTime = newTime.plus(modifierDuration, ChronoUnit.HOURS);
-			  else if(modiferSign.equals("-"))
-				  newTime = newTime.minus(modifierDuration, ChronoUnit.HOURS);
-		    break;
-		  case "m":
-			  if(modiferSign.equals("+"))
-				  newTime = newTime.plus(modifierDuration, ChronoUnit.MINUTES);
-			  else if(modiferSign.equals("-"))
-				  newTime = newTime.minus(modifierDuration, ChronoUnit.MINUTES);
-		    break;
-		  default:
-			  Helper.assertFalse("invalid time modifier. format: eg. +72h or -72m");
-		    
+		if (modiferSign.isEmpty() || modifierDuration == -1 || modifierUnit.isEmpty())
+			Helper.assertFalse("invalid time modifier. format: eg. _TIME_STRING_17+72h or _TIME_STRING_17-72m");
+
+		switch (modifierUnit) {
+		case "d":
+			if (modiferSign.equals("+"))
+				newTime = newTime.plus(modifierDuration, ChronoUnit.DAYS);
+			else if (modiferSign.equals("-"))
+				newTime = newTime.minus(modifierDuration, ChronoUnit.DAYS);
+			break;
+		case "h":
+			if (modiferSign.equals("+"))
+				newTime = newTime.plus(modifierDuration, ChronoUnit.HOURS);
+			else if (modiferSign.equals("-"))
+				newTime = newTime.minus(modifierDuration, ChronoUnit.HOURS);
+			break;
+		case "m":
+			if (modiferSign.equals("+"))
+				newTime = newTime.plus(modifierDuration, ChronoUnit.MINUTES);
+			else if (modiferSign.equals("-"))
+				newTime = newTime.minus(modifierDuration, ChronoUnit.MINUTES);
+			break;
+		default:
+			Helper.assertFalse("invalid time modifier. format: eg. +2d or +72h or -72m");
+
 		}
-		return newTime;
+		return newTime.toString();
 	}
 
 	/**
@@ -356,11 +425,12 @@ public class DataHelper {
 				if (!val)
 					return responseString + " does not have item " + expectedString;
 			} else {
-				TestLog.logPass(
-						"verifying: " + Arrays.toString(actualArray.toArray()) + " has items " + Arrays.toString(expectedArray.toArray()));
+				TestLog.logPass("verifying: " + Arrays.toString(actualArray.toArray()) + " has items "
+						+ Arrays.toString(expectedArray.toArray()));
 				val = actualArray.containsAll(expectedArray);
 				if (!val)
-					return Arrays.toString(actualArray.toArray()) + " does not have items " + Arrays.toString(expectedArray.toArray());
+					return Arrays.toString(actualArray.toArray()) + " does not have items "
+							+ Arrays.toString(expectedArray.toArray());
 			}
 			break;
 		case notHaveItems:
@@ -382,7 +452,8 @@ public class DataHelper {
 						+ Arrays.toString(expectedArray.toArray()));
 				val = !actualArray.containsAll(expectedArray);
 				if (!val)
-					return Arrays.toString(actualArray.toArray()) + " does have items " + Arrays.toString(expectedArray.toArray());
+					return Arrays.toString(actualArray.toArray()) + " does have items "
+							+ Arrays.toString(expectedArray.toArray());
 			}
 			break;
 		case notEqualTo:
@@ -397,11 +468,12 @@ public class DataHelper {
 				if (!val)
 					return responseString + " does equal " + expectedString;
 			} else {
-				TestLog.logPass(
-						"verifying: " + Arrays.toString(actualArray.toArray()) + " not equals " + Arrays.toString(expectedArray.toArray()));
+				TestLog.logPass("verifying: " + Arrays.toString(actualArray.toArray()) + " not equals "
+						+ Arrays.toString(expectedArray.toArray()));
 				val = !actualArray.equals(expectedArray);
 				if (!val)
-					return Arrays.toString(actualArray.toArray()) + " does equal " + Arrays.toString(expectedArray.toArray());
+					return Arrays.toString(actualArray.toArray()) + " does equal "
+							+ Arrays.toString(expectedArray.toArray());
 			}
 			break;
 		case equalTo:
@@ -416,11 +488,12 @@ public class DataHelper {
 				if (!val)
 					return responseString + " does not equal " + expectedString;
 			} else {
-				TestLog.logPass(
-						"verifying: " + Arrays.toString(actualArray.toArray()) + " equals " + Arrays.toString(expectedArray.toArray()));
+				TestLog.logPass("verifying: " + Arrays.toString(actualArray.toArray()) + " equals "
+						+ Arrays.toString(expectedArray.toArray()));
 				val = actualArray.equals(expectedArray);
 				if (!val)
-					return Arrays.toString(actualArray.toArray()) + " does not equal " + Arrays.toString(expectedArray.toArray());
+					return Arrays.toString(actualArray.toArray()) + " does not equal "
+							+ Arrays.toString(expectedArray.toArray());
 			}
 			break;
 		case notContain:
@@ -439,7 +512,8 @@ public class DataHelper {
 						+ Arrays.toString(expectedArray.toArray()));
 				val = !actualArray.containsAll(expectedArray);
 				if (!val)
-					return Arrays.toString(actualArray.toArray()) + " does not contain " + Arrays.toString(expectedArray.toArray());
+					return Arrays.toString(actualArray.toArray()) + " does not contain "
+							+ Arrays.toString(expectedArray.toArray());
 			}
 			break;
 		case contains:
@@ -454,11 +528,12 @@ public class DataHelper {
 				if (!val)
 					return responseString + " does not contain " + expectedString;
 			} else {
-				TestLog.logPass(
-						"verifying: " + Arrays.toString(actualArray.toArray()) + " contains " + Arrays.toString(expectedArray.toArray()));
+				TestLog.logPass("verifying: " + Arrays.toString(actualArray.toArray()) + " contains "
+						+ Arrays.toString(expectedArray.toArray()));
 				val = actualArray.containsAll(expectedArray);
 				if (!val)
-					return Arrays.toString(actualArray.toArray()) + " does not contain " + Arrays.toString(expectedArray.toArray());
+					return Arrays.toString(actualArray.toArray()) + " does not contain "
+							+ Arrays.toString(expectedArray.toArray());
 			}
 			break;
 		case containsInAnyOrder:
@@ -488,7 +563,7 @@ public class DataHelper {
 				return "actual: " + responseString + " is not equal to expected: " + expectedString;
 			break;
 		case integerNotEqual:
-			
+
 			val = !compareNumbers(responseString, expectedString, "equalTo");
 			if (!val)
 				return "actual: " + responseString + " is not equal to expected: " + expectedString;
@@ -515,11 +590,12 @@ public class DataHelper {
 				return "response node size is: " + actualLength + " expected: " + intValue;
 			break;
 		case sequence:
-			TestLog.logPass(
-					"verifying: " + Arrays.toString(actualArray.toArray()) + " with sequence " + Arrays.toString(expectedArray.toArray()));
+			TestLog.logPass("verifying: " + Arrays.toString(actualArray.toArray()) + " with sequence "
+					+ Arrays.toString(expectedArray.toArray()));
 			val = Arrays.asList(actualArray).equals(Arrays.asList(expectedArray));
 			if (!val)
-				return Arrays.toString(actualArray.toArray()) + " does not equal " + Arrays.toString(expectedArray.toArray());
+				return Arrays.toString(actualArray.toArray()) + " does not equal "
+						+ Arrays.toString(expectedArray.toArray());
 			break;
 		case jsonbody:
 			TestLog.logPass("verifying response: \n" + responseString + "\n against expected: \n" + expectedString);
@@ -544,29 +620,29 @@ public class DataHelper {
 		}
 		return StringUtil.EMPTY_STRING;
 	}
-	
-	
+
 	/**
-	 * converts string separated by "," to array[]
-	 * trims each value and removes quotes
+	 * converts string separated by "," to array[] trims each value and removes
+	 * quotes
+	 * 
 	 * @param array
 	 * @return
 	 */
 	public static List<String> getResponseArray(String array) {
 		List<String> list = new ArrayList<String>();
 		String[] responses = array.split(",");
-		for(String response : responses) {
+		for (String response : responses) {
 			response = response.trim().replace("\"", "");
 			list.add(response);
 		}
 		return list;
 	}
-	
+
 	public static int getResponseArrayLength(List<String> actualArray, String responseString) {
 		int responseLength = -1;
 		actualArray = removeEmptyElements(actualArray);
 		JSONArray jsonArray = JsonHelper.getJsonArray(responseString);
-		if(jsonArray != null)
+		if (jsonArray != null)
 			responseLength = jsonArray.length();
 		else
 			responseLength = actualArray.size();
@@ -654,7 +730,7 @@ public class DataHelper {
 		String stringVal = values.toString();
 		stringVal = stringVal.replaceAll("[\\[\\](){}]", "");
 		stringVal = stringVal.replace("\"", "");
-		
+
 		// replace \/ with /. limitation in json parsing
 		stringVal = stringVal.replace("\\/", "/");
 
@@ -676,7 +752,7 @@ public class DataHelper {
 		for (int i = 1; i < limit; i++) {
 			if (string.matches(".*" + regex + ".*")) {
 				temp = string.split(modifyRegex(regex));
-				Helper.assertTrue("value not set for: " + string,temp.length > 1);
+				Helper.assertTrue("value not set for: " + string, temp.length > 1);
 				result.add(temp[1]);
 				string = temp[0];
 			}
@@ -780,29 +856,28 @@ public class DataHelper {
 		if (JsonHelper.isJsonFile(serviceObject.getTemplateFile())) {
 			requestbody = JsonHelper.getRequestBodyFromJsonTemplate(serviceObject);
 
-		// if xml template file
-		}else if (XmlHelper.isXmlFile(serviceObject.getTemplateFile())) {
+			// if xml template file
+		} else if (XmlHelper.isXmlFile(serviceObject.getTemplateFile())) {
 			requestbody = XmlHelper.getRequestBodyFromXmlTemplate(serviceObject);
 
-		// if other type of file
-		}else if (!serviceObject.getTemplateFile().isEmpty()) {
+			// if other type of file
+		} else if (!serviceObject.getTemplateFile().isEmpty()) {
 			Path templatePath = DataHelper.getTemplateFilePath(serviceObject.getTemplateFile());
 			requestbody = convertFileToString(templatePath);
-		
 
-		// if no template, return request body
-		}else if(requestbody.isEmpty())
+			// if no template, return request body
+		} else if (requestbody.isEmpty())
 			requestbody = serviceObject.getRequestBody();
-		
+
 		// replace request body parameters
 		requestbody = replaceParameters(requestbody);
-		
+
 		return requestbody;
 	}
-	
+
 	/**
-	 * stores value in config
-	 * format: value:<$key> separated by colon ';'
+	 * stores value in config format: value:<$key> separated by colon ';'
+	 * 
 	 * @param source
 	 */
 	public static void saveDataToConfig(String source) {
@@ -812,11 +887,12 @@ public class DataHelper {
 
 		List<KeyValue> keywords = DataHelper.getValidationMap(source);
 		for (KeyValue keyword : keywords) {
-			
+
 			// return if value is wrong format
-			if(!keyword.value.toString().startsWith("<") || !keyword.value.toString().contains("$")|| !keyword.value.toString().endsWith(">"))
+			if (!keyword.value.toString().startsWith("<") || !keyword.value.toString().contains("$")
+					|| !keyword.value.toString().endsWith(">"))
 				return;
-			
+
 			String value = (String) keyword.value;
 			value = value.replace("$", "").replace("<", "").replace(">", "").trim();
 			// gets json value. if list, returns string separated by comma
@@ -893,10 +969,10 @@ public class DataHelper {
 
 		if (expectedResponse.trim().isEmpty())
 			return errorMessages;
-		
+
 		// return error message if response is empty
 		errorMessages = validateEmptyResponse(responseValues, expectedResponse);
-		if(!errorMessages.isEmpty())
+		if (!errorMessages.isEmpty())
 			return errorMessages;
 
 		// validate response body against expected json string
@@ -904,18 +980,20 @@ public class DataHelper {
 
 		// separate the expected response by &&
 		String[] criteria = expectedResponse.split("&&");
-		
+
 		// get response body as string
 		logJsonResponse(responseValues);
-		
+
 		for (String criterion : criteria) {
-			Helper.assertTrue("expected response is not a valid json, xml or keyword:  " + criterion, isValidExpectation(criterion));
+			Helper.assertTrue("expected response is not a valid json, xml or keyword:  " + criterion,
+					isValidExpectation(criterion));
 
 			// convert xml string to json for validation
 			if (XmlHelper.isValidXmlString(criterion)) {
 				TestLog.ConsoleLog("expected xml: " + ServiceObject.normalize(criterion));
 				criterion = JsonHelper.XMLToJson(criterion);
-				TestLog.ConsoleLog("expected value converted to json for validation: " + ServiceObject.normalize(criterion));
+				TestLog.ConsoleLog(
+						"expected value converted to json for validation: " + ServiceObject.normalize(criterion));
 			}
 
 			errorMessages.addAll(validateExpectedResponse(criterion, responseValues));
@@ -924,18 +1002,19 @@ public class DataHelper {
 		errorMessages = removeEmptyElements(errorMessages);
 		return errorMessages;
 	}
-	
+
 	public static void logJsonResponse(List<String> responseValues) {
 		List<String> updatedList = new ArrayList<String>();
-		for(String response: responseValues) {
+		for (String response : responseValues) {
 			updatedList.add(response.replace(System.lineSeparator(), ""));
 		}
 		String responseString = String.join(System.lineSeparator(), updatedList);
 		TestLog.logPass("received response: " + responseString);
 	}
-	
+
 	/**
 	 * validates if empty response is expected and received
+	 * 
 	 * @param responseValues
 	 * @param expected
 	 * @return
@@ -943,24 +1022,25 @@ public class DataHelper {
 	public static List<String> validateEmptyResponse(List<String> responseValues, String expected) {
 		List<String> errorMessage = new ArrayList<String>();
 		boolean isEmptyExpected = isEmptyResponseExpected(expected);
-		
-		for(String resonse : responseValues) {
-			if(resonse.isEmpty() && !isEmptyExpected){
+
+		for (String resonse : responseValues) {
+			if (resonse.isEmpty() && !isEmptyExpected) {
 				errorMessage.add("response value is empty");
 				return errorMessage;
 			}
 		}
 		return errorMessage;
 	}
-	
+
 	/**
 	 * returns true if empty response is expected. denoted by isEmpty
+	 * 
 	 * @param expected
 	 * @return
 	 */
 	public static boolean isEmptyResponseExpected(String expected) {
 		expected = JsonHelper.removeResponseIndicator(expected);
-		if(expected.equals(JSON_COMMAND.isEmpty.name()))
+		if (expected.equals(JSON_COMMAND.isEmpty.name()))
 			return true;
 		return false;
 	}
@@ -1028,39 +1108,35 @@ public class DataHelper {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * removes empty elements from list
+	 * 
 	 * @param list
 	 * @return
 	 */
 	public static List<String> removeEmptyElements(List<String> list) {
-		
+
 		Iterator<String> i = list.iterator();
-		while (i.hasNext())
-		{
-		    String s = i.next();
-		    if (s == null || s.trim().isEmpty())
-		    {
-		        i.remove();
-		    }
+		while (i.hasNext()) {
+			String s = i.next();
+			if (s == null || s.trim().isEmpty()) {
+				i.remove();
+			}
 		}
 		return list;
 	}
-	
+
 	public static String[] removeEmptyElements(String[] array) {
-			
-			List<String> list = new ArrayList<String>();
-			for (String text : array)
-			{
-			    if (text != null && !text.trim().isEmpty())
-			    {
-			        list.add(text);
-			    }
+
+		List<String> list = new ArrayList<String>();
+		for (String text : array) {
+			if (text != null && !text.trim().isEmpty()) {
+				list.add(text);
 			}
-			array = list.toArray(new String[0]);
-			return array;
 		}
-	
-	
+		array = list.toArray(new String[0]);
+		return array;
+	}
+
 }
