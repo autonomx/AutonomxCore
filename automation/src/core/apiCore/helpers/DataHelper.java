@@ -384,7 +384,7 @@ public class DataHelper {
 			String position) {
 		String error =   validateExpectedCommand(command, responseString, expectedString, position);
 		if(error.isEmpty())
-			TestLog.ConsoleLog("validation passed for command: " + responseString + " " + command + " " + expectedString);
+			TestLog.ConsoleLog("validation passed for command: response " + command + " " + expectedString);
 		else
 			TestLog.ConsoleLog("validation failed for command: " + command + " with error: " + error);
 
@@ -1031,7 +1031,7 @@ public class DataHelper {
 			updatedList.add(response.replace(System.lineSeparator(), ""));
 		}
 		String responseString = String.join(System.lineSeparator(), updatedList);
-		TestLog.logPass("received response: " + responseString);
+		TestLog.logPass("response to be validated: " + responseString);
 	}
 
 	/**

@@ -32,6 +32,8 @@ public class RestApiInterface {
 
 	private static final String AUTHORIZATION_HEADER = "Authorization";
 	public static final String API_TIMEOUT_VALIDATION_ENABLED = "api.timeout.validation.isEnabled";
+	public static final String API_TIMEOUT_PAGINATION_VALIDATION_ENABLED = "api.timeout.pagination.validation.isEnabled";
+
 	public static final String API_TIMEOUT_VALIDATION_SECONDS = "api.timeout.validation.seconds";
 	public static final String API_RESPONSE_TIMEOUT_SECONDS = "api.response.timeout.seconds";
 
@@ -86,7 +88,7 @@ public class RestApiInterface {
 		
 		// if pagination
 		if(serviceObject.getUriPath().contains(API_PAGINATION_COUNTER))
-			response = evaluateRequestAndValidatePagination(serviceObject);
+			response = evaluatePagination(serviceObject);
 		else
 			response = evaluateRequestAndValidateResponse(serviceObject);
 		return response;
@@ -106,7 +108,7 @@ public class RestApiInterface {
 
 		if (!serviceObject.getErrorMessages().isEmpty()) {
 			String errorString = StringUtils.join(serviceObject.getErrorMessages(), "\n error: ");
-			TestLog.ConsoleLog(errorString);
+			TestLog.ConsoleLog(ServiceObject.normalize(errorString));
 			Helper.assertFalse(StringUtils.join(serviceObject.getErrorMessages(), "\n error: "));
 		}
 
@@ -126,9 +128,48 @@ public class RestApiInterface {
 	 * @param serviceObject
 	 * @return
 	 */
-	public static Response evaluateRequestAndValidatePagination(ServiceObject serviceObject) {
+	public static Response evaluatePagination(ServiceObject serviceObject) {
 		
+		// set options
 		evaluateOption(serviceObject, serviceObject.getRequest());
+		boolean isValidationTimeout = Config.getBooleanValue(API_TIMEOUT_VALIDATION_ENABLED);
+		
+		// set pagination response validation
+		Config.putValue(API_TIMEOUT_PAGINATION_VALIDATION_ENABLED, isValidationTimeout);
+		
+		boolean isCriteriaSuccess = false;
+		
+		StopWatchHelper watch = StopWatchHelper.start();
+		long passedTimeInSeconds = 0;
+		int maxRetrySeconds = -1;
+		
+		int currentRunCount = 1;
+		// if validation timeout set, will retry for duration of validation timeout
+		// validation timeout per page is disabled
+		do {
+			currentRunCount++;
+			
+			if(currentRunCount > 1)
+				TestLog.ConsoleLog("attempt #" + (currentRunCount));
+			
+			// evaluate request and validate pagination
+			isCriteriaSuccess = evaluateRequestAndValidatePagination(serviceObject);
+			
+			passedTimeInSeconds = watch.time(TimeUnit.SECONDS);
+			
+			// if validation timeout is not enabled, break out of the loop
+			maxRetrySeconds = Config.getIntValue(API_TIMEOUT_VALIDATION_SECONDS);
+			if (!isValidationTimeout)
+				break;
+			
+		} while (!isCriteriaSuccess && passedTimeInSeconds < maxRetrySeconds);
+		
+		Helper.assertTrue("expected validation not found in pages.", isCriteriaSuccess);	
+		return serviceObject.getResponse();
+	}
+	
+	public static boolean evaluateRequestAndValidatePagination(ServiceObject serviceObject) {
+		
 		String criteria = Config.getValue(API_PAGINATION_STOP_CRITERIA);
 		int maxPages = Config.getIntValue(API_PAGINATION_MAX_PAGES);
 		int startingPage = Helper.getIntFromString(Config.getValue(API_PAGINATION_PAGES_FROM));
@@ -137,15 +178,16 @@ public class RestApiInterface {
 		String uri = serviceObject.getUriPath();
 		boolean isCriteriaSuccess = false;
 		
-		int index;
-		for(index = startingPage; index <= maxPages; index += incrementBy) {
+		for(int index = startingPage; index <= maxPages; index += incrementBy) {
 			
 			TestLog.logPass("Validating page: " + index);
 			
 			// update uri to include the incrementally increasing page numbers
-			serviceObject.withUriPath(uri);
+			serviceObject = serviceObject.withUriPath(uri);
 			Config.putValue(API_PAGINATION_COUNTER, index);
-			evaluateRequestAndReceiveResponse(serviceObject);
+			
+			// evaluate the request and receive response. errors are stored at serviceObject.errorMessages
+			serviceObject = evaluateRequestAndReceiveResponse(serviceObject);
 			
 			// error indicates that there are no more results on the page
 			List<String> criteriaErrors = validatePaginationStopCriteria(serviceObject, criteria);
@@ -165,10 +207,10 @@ public class RestApiInterface {
 			}
 		}
 		
-		Helper.assertTrue("expected validation not found in pages. pages searched: " + index + "."  , isCriteriaSuccess);
-		
-		return serviceObject.getResponse();
+		return isCriteriaSuccess;
 	}
+	
+
 	
 	/**
 	   stoppage criteria for api pagination
@@ -207,6 +249,9 @@ public class RestApiInterface {
 		do {		
 			currentRetryCount++;
 			
+			if(currentRetryCount > 1)
+				TestLog.ConsoleLog("attempt #" + (currentRetryCount));
+			
 			// set base uri
 			RequestSpecification request = setURI(serviceObject);
 			
@@ -243,12 +288,12 @@ public class RestApiInterface {
 	}
 	
 	private static void logTestRunError(int currentRetryCount, List<String> errorMessages) {
-		if (currentRetryCount > 1) {
-			Helper.waitForSeconds(3);
+		if (currentRetryCount >= 1) {
 			String errors = StringUtils.join(errorMessages, "\n error: ");
-			TestLog.ConsoleLog("attempt failed with message: " + errors);
-			TestLog.ConsoleLog("attempt #" + (currentRetryCount));
+			TestLog.ConsoleLog("attempt failed with message: " + ServiceObject.normalize(errors));
 		}
+		if(currentRetryCount > 1)
+			Helper.waitForSeconds(3);
 	}
 
 	/**
@@ -529,7 +574,10 @@ public class RestApiInterface {
 				break;
 				
 			case OPTION_WAIT_FOR_RESPONSE:
-				Config.putValue(API_TIMEOUT_VALIDATION_ENABLED, true);
+				// disable per page wait for response if pagination validation is enabled
+				if(Config.getBooleanValue(API_TIMEOUT_PAGINATION_VALIDATION_ENABLED))
+					Config.putValue(API_TIMEOUT_VALIDATION_ENABLED, false);
+				else Config.putValue(API_TIMEOUT_VALIDATION_ENABLED, true);
 				Config.putValue(API_TIMEOUT_VALIDATION_SECONDS, keyword.value);	
 				break;
 			case OPTION_PAGINATION_STOP_CRITERIA:

@@ -314,7 +314,7 @@ public class JsonHelper {
 			if (StringUtils.isBlank(response))
 				return "response from json path is empty";
 
-			TestLog.logPass("expected: " + Helper.stringRemoveLines(expectedJson));
+			TestLog.logPass("expecting partial json: " + Helper.stringRemoveLines(expectedJson));
 			try {
 				JSONCompareResult result = JSONCompare.compareJSON(expectedJson, response, JSONCompareMode.LENIENT);
 				if (result.failed()) {
