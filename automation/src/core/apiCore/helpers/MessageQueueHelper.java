@@ -27,7 +27,7 @@ import core.support.objects.ServiceObject;
 public class MessageQueueHelper {
 
 	public static final String MQ_TIMEOUT_SECONDS = "messagequeue.timeout.seconds";
-
+	public static final String RESPONSE_IDENTIFIER = "response.identifier";
 	/**
 	 * generate message id if the request body is set
 	 * 
@@ -127,6 +127,35 @@ public class MessageQueueHelper {
 	}
 	
 	/**
+	 * find message based on unique identifier passed in through options
+	 * 
+	 * @param messageId
+	 * @return
+	 */
+	public static CopyOnWriteArrayList<MessageObject> findMessagesBasedOnResponseIdentifier() {
+		CopyOnWriteArrayList<MessageObject> filteredMessages = new CopyOnWriteArrayList<MessageObject>();
+		String identifier = Config.getValue(MessageQueueHelper.RESPONSE_IDENTIFIER);
+		
+		// return if identifier is empty
+		if(identifier.isEmpty())
+			return filteredMessages;
+		
+		for (Entry<MessageObject, Boolean> entry : MessageObject.outboundMessages.entrySet()) {
+			String receiveMessage = Optional.ofNullable(entry.getKey().getMessage()).orElse("");
+			
+
+			boolean isMessageMatch = receiveMessage.contains(identifier);
+			if (entry.getValue().equals(true) && isMessageMatch) {
+
+				filteredMessages.add(entry.getKey());
+				MessageObject.outboundMessages.put(entry.getKey(), false);
+			}
+		}
+
+		return filteredMessages;
+	}
+	
+	/**
 	 * find message based on record id
 	 * 
 	 * @param messageId
@@ -135,6 +164,9 @@ public class MessageQueueHelper {
 	public static CopyOnWriteArrayList<MessageObject> findMessagesBasedOnMessageId(String messageId) {
 		CopyOnWriteArrayList<MessageObject> filteredMessages = new CopyOnWriteArrayList<MessageObject>();
 
+		// return if message id is not set. message id is empty when no message is sent
+		if(messageId.isEmpty()) return filteredMessages;
+		
 		for (Entry<MessageObject, Boolean> entry : MessageObject.outboundMessages.entrySet()) {
 			String receivedMessageId = Optional.ofNullable(entry.getKey().getMessageId()).orElse("");
 			String receivedCorrelationId =  Optional.ofNullable(entry.getKey().getCorrelationId()).orElse("");
@@ -161,10 +193,13 @@ public class MessageQueueHelper {
 
 		// filter messages for the current test
 		CopyOnWriteArrayList<MessageObject> filteredMessages = new CopyOnWriteArrayList<MessageObject>();
-		
+		 
 		// filter based on message Id
 		CopyOnWriteArrayList<MessageObject> filterMessageId = MessageQueueHelper.findMessagesBasedOnMessageId(messageId);
 		filteredMessages.addAll(filterMessageId);
+		
+		CopyOnWriteArrayList<MessageObject> filterMessageIdentifier = MessageQueueHelper.findMessagesBasedOnResponseIdentifier();
+		filteredMessages.addAll(filterMessageIdentifier);
 
 		return filteredMessages;
 	}

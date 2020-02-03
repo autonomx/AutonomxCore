@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -205,6 +206,8 @@ public class KafkaInterface {
 			case "outbound_topic":
 				Config.putValue(KFAKA_OUTBOUND_TOPIC, keyword.value);
 				break;
+			case "response_identifier":
+				Config.putValue(MessageQueueHelper.RESPONSE_IDENTIFIER, keyword.value);
 			default:
 				break;
 			}
@@ -220,5 +223,6 @@ public class KafkaInterface {
 		String ouboundTopic = TestObject.getDefaultTestInfo().config.get(KFAKA_OUTBOUND_TOPIC).toString();
 		Config.putValue(KFAKA_TOPIC, defaultTopic);
 		Config.putValue(KFAKA_OUTBOUND_TOPIC, ouboundTopic);
+		Config.putValue(MessageQueueHelper.RESPONSE_IDENTIFIER, StringUtils.EMPTY);
 	}
 }

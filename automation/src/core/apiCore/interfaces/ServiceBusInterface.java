@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.microsoft.azure.servicebus.ExceptionPhase;
 import com.microsoft.azure.servicebus.IMessage;
 import com.microsoft.azure.servicebus.IMessageHandler;
@@ -141,7 +143,7 @@ public class ServiceBusInterface {
 
 		// set default queue and exchange values. will be overwritten if values are set
 		// in csv
-		setDefaultQueueAndTopicAndHost();
+		resetOptions();
 
 		// if no option specified
 		if (serviceObject.getOption().isEmpty()) {
@@ -175,6 +177,8 @@ public class ServiceBusInterface {
 			case "queue":
 				Config.putValue(SERVICEBUS_QUEUE, keyword.value);
 				break;
+			case "response_identifier":
+				Config.putValue(MessageQueueHelper.RESPONSE_IDENTIFIER, keyword.value);
 			default:
 				break;
 			}
@@ -184,7 +188,7 @@ public class ServiceBusInterface {
 	/**
 	 * set default queue, topic and host
 	 */
-	private static void setDefaultQueueAndTopicAndHost() {
+	private static void resetOptions() {
 
 		String defaultTopic = TestObject.getDefaultTestInfo().config.get(SERVICEBUS_TOPIC).toString();
 		String outboundTopic = TestObject.getDefaultTestInfo().config.get(SERVICEBUS_OUTBOUND_TOPIC).toString();
@@ -195,6 +199,7 @@ public class ServiceBusInterface {
 		Config.putValue(SERVICEBUS_OUTBOUND_TOPIC, outboundTopic);
 		Config.putValue(SERVICEBUS_QUEUE, defaultQueue);
 		Config.putValue(SERVICEBUS_HOST, defaultHost);
+		Config.putValue(MessageQueueHelper.RESPONSE_IDENTIFIER, StringUtils.EMPTY);
 	}
 
 	/**

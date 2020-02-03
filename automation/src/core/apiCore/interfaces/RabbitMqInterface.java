@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -40,13 +42,11 @@ public class RabbitMqInterface {
 	public static final String RABBIT_MQ_OUTBOUND_QUEUE = "rabbitMQ.outbound.queue";
 	public static final String RABBIT_MQ_QUEUE_DURABLE = "rabbitMQ.Queue.durable";
 
-	
-	
 	public static final String RABBIT_MQ_MESSAGE_ID_PREFIX = "rabbitMQ.msgId.prefix";
 
 	public static Connection connection = null;
 	public static Channel channel;
-	
+
 	/**
 	 * interface for database calls
 	 * 
@@ -67,11 +67,12 @@ public class RabbitMqInterface {
 		serviceObject.withRequestBody(DataHelper.getRequestBodyIncludingTemplate(serviceObject));
 
 		// generate message id
-		String messageId = MessageQueueHelper.generateMessageId(serviceObject, Config.getValue(RABBIT_MQ_MESSAGE_ID_PREFIX));
-		
+		String messageId = MessageQueueHelper.generateMessageId(serviceObject,
+				Config.getValue(RABBIT_MQ_MESSAGE_ID_PREFIX));
+
 		// send message
 		sendRabbitMqMessage(serviceObject, messageId);
-		
+
 		// receive messages
 		MessageQueueHelper.receiveAndValidateMessages(serviceObject, messageId, messageType.RABBITMQ);
 	}
@@ -88,15 +89,15 @@ public class RabbitMqInterface {
 				String username = Config.getValue(RABBIT_MQ_USER);
 				String password = Config.getValue(RABBIT_MQ_PASS);
 				String virtualHost = Config.getValue(RABBIT_MQ_VIRTUAL_HOST);
-				
+
 				factory.setHost(Config.getValue(RABBIT_MQ_HOST));
-				if(port != -1)
-					factory.setPort(port);	
-				if(!username.isEmpty())
+				if (port != -1)
+					factory.setPort(port);
+				if (!username.isEmpty())
 					factory.setUsername(Config.getValue(RABBIT_MQ_USER));
-				if(!password.isEmpty())
-					factory.setPassword(Config.getValue(RABBIT_MQ_PASS));	
-				if(!virtualHost.isEmpty())
+				if (!password.isEmpty())
+					factory.setPassword(Config.getValue(RABBIT_MQ_PASS));
+				if (!virtualHost.isEmpty())
 					factory.setVirtualHost(Config.getValue(RABBIT_MQ_VIRTUAL_HOST));
 
 				connection = factory.newConnection();
@@ -125,11 +126,11 @@ public class RabbitMqInterface {
 		String exchange = Config.getValue(RABBIT_MQ_EXCHANGE);
 		String queueName = Config.getValue(RABBIT_MQ_QUEUE);
 		String exchangeType = Config.getValue(RABBIT_MQ_EXCHANGE_TYPE);
-		
+
 		try {
-			if(!exchangeType.isEmpty())
+			if (!exchangeType.isEmpty())
 				channel.exchangeDeclare(exchange, exchangeType);
-			
+
 			channel.basicPublish(exchange, queueName, props, serviceObject.getRequestBody().getBytes());
 		} catch (Exception e) {
 			throw new RuntimeException("Could not send message. ", e);
@@ -169,14 +170,15 @@ public class RabbitMqInterface {
 
 		// set default queue and exchange values. will be overwritten if values are set
 		// in csv
-		setDefaultQueueAndExchange();
+		resetOptions();
 
 		// if no option specified
 		if (serviceObject.getOption().isEmpty()) {
 			return;
 		}
-		
-		// store value to config directly using format: value:<$key> separated by colon ';'
+
+		// store value to config directly using format: value:<$key> separated by colon
+		// ';'
 		DataHelper.saveDataToConfig(serviceObject.getOption());
 
 		// replace parameters for options
@@ -200,6 +202,8 @@ public class RabbitMqInterface {
 			case "outbound_queue":
 				Config.putValue(RABBIT_MQ_OUTBOUND_QUEUE, keyword.value);
 				break;
+			case "response_identifier":
+				Config.putValue(MessageQueueHelper.RESPONSE_IDENTIFIER, keyword.value);
 			default:
 				break;
 			}
@@ -209,7 +213,7 @@ public class RabbitMqInterface {
 	/**
 	 * set default queue and exchange values
 	 */
-	private static void setDefaultQueueAndExchange() {
+	private static void resetOptions() {
 
 		String defaultExchange = TestObject.getDefaultTestInfo().config.get(RABBIT_MQ_EXCHANGE).toString();
 		String outboundExchange = TestObject.getDefaultTestInfo().config.get(RABBIT_MQ_OUTBOUND_EXCHANGE).toString();
@@ -220,6 +224,7 @@ public class RabbitMqInterface {
 		Config.putValue(RABBIT_MQ_QUEUE, defaultQueue);
 		Config.putValue(RABBIT_MQ_OUTBOUND_QUEUE, outboundQueue);
 		Config.putValue(RABBIT_MQ_OUTBOUND_EXCHANGE, outboundExchange);
+		Config.putValue(MessageQueueHelper.RESPONSE_IDENTIFIER, StringUtils.EMPTY);
 	}
 
 	/**
@@ -233,55 +238,60 @@ public class RabbitMqInterface {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * gets message from outbound queue Adds messages to ouboutMessage hashmap
 	 * 
 	 * @param receiver
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public static void getOutboundMessages() throws Exception {
 		String queueName = Config.getValue(RABBIT_MQ_QUEUE);
 		String outboundQueue = Config.getValue(RABBIT_MQ_OUTBOUND_QUEUE);
 		boolean queueDurable = Config.getBooleanValue(RABBIT_MQ_QUEUE_DURABLE);
-		
+
 		// set outbound queue if defined
-		if(!outboundQueue.isEmpty())
+		if (!outboundQueue.isEmpty())
 			queueName = outboundQueue;
 
-	    channel.queueDeclare(queueName, queueDurable, false, false, null);
-	    
+		channel.queueDeclare(queueName, queueDurable, false, false, null);
+
 		String exchangeName = Config.getValue(RABBIT_MQ_EXCHANGE);
-		String exchangeOutboundName = Config.getValue(RABBIT_MQ_OUTBOUND_EXCHANGE);	
+		String exchangeOutboundName = Config.getValue(RABBIT_MQ_OUTBOUND_EXCHANGE);
 		String exchangeType = Config.getValue(RABBIT_MQ_EXCHANGE_TYPE);
-		
+
 		// set outbound exchange if defined
-		if(!exchangeOutboundName.isEmpty())
+		if (!exchangeOutboundName.isEmpty())
 			exchangeName = exchangeOutboundName;
 
-		if(!exchangeType.isEmpty())
+		if (!exchangeType.isEmpty())
 			channel.exchangeDeclare(exchangeName, exchangeType);
-		if(!exchangeName.isEmpty()) 
+		if (!exchangeName.isEmpty())
 			channel.queueBind(queueName, exchangeName, "");
 
-		 try {
-		    DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-		    	String messageString = new String(delivery.getBody(), "UTF-8");
-		    	
-		    	 MessageObject message = new MessageObject()
-		    			 .withMessageType(messageType.RABBITMQ)
-		    			 .withMessageId(delivery.getProperties().getMessageId())
-		    			 .withCorrelationId(delivery.getProperties().getCorrelationId())
-		    			 .withMessage(messageString);
-		        
-		        TestLog.logPass("Received message with Id '" + message.getMessageId());
-		        MessageObject.outboundMessages.put(message, true);
-		    };
-		    channel.basicConsume(queueName, true, deliverCallback, consumerTag -> { });
-		 } catch (Exception e) {
-		        TestLog.ConsoleLog("Exception while getting messages from Rabbit ", e);
-		   }	 
+		// test id is passed into call back, since its different thread
+		String testId = TestObject.getTestId();
+		try {
+			DeliverCallback deliverCallback = (consumerTag, delivery) -> {
+				String messageString = new String(delivery.getBody(), "UTF-8");
+
+				MessageObject message = new MessageObject().withMessageType(messageType.RABBITMQ)
+						.withMessageId(delivery.getProperties().getMessageId())
+						.withCorrelationId(delivery.getProperties().getCorrelationId()).withMessage(messageString);
+
+				// print message id
+				if(!message.getMessageId().isEmpty()) {
+					TestObject.setTestId(testId);
+					TestLog.logPass("Received message with Id: " + message.getMessageId());
+				}
+				MessageObject.outboundMessages.put(message, true);
+			};
+			channel.basicConsume(queueName, true, deliverCallback, consumerTag -> {
+			});
+		} catch (Exception e) {
+			TestLog.ConsoleLog("Exception while getting messages from Rabbit ", e);
+		}
 	}
 
 }

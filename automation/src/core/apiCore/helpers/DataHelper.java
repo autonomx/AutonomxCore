@@ -236,10 +236,6 @@ public class DataHelper {
 		Instant time = Instant.parse(timeString);
 		Instant newTime = time;
 
-		// values after the last "_", then after the last :
-	//	parameter = parameter.substring(parameter.lastIndexOf("_") + 1);
-	//	parameter = parameter.substring(parameter.lastIndexOf(":") + 1);
-
 		String[] parameterArray = parameter.split("[+-]");
 
 		// return non modified time if modifier not set
@@ -366,7 +362,33 @@ public class DataHelper {
 	 * @return
 	 */
 	public static String validateCommand(String command, String responseString, String expectedString) {
-		return validateCommand(command, responseString, expectedString, StringUtils.EMPTY);
+		String error =  validateExpectedCommand(command, responseString, expectedString, StringUtils.EMPTY);
+		if(error.isEmpty())
+			TestLog.ConsoleLog("validation passed for command: " + responseString + " " + command + " " + expectedString);
+		else
+			TestLog.ConsoleLog("validation failed for command: " + command + " with error: " + error);
+
+		return error;
+	}
+	
+	/**
+	 * validates response against expected values
+	 * 
+	 * @param command
+	 * @param responseString
+	 * @param expectedString
+	 * @param position
+	 * @return
+	 */
+	public static String validateCommand(String command, String responseString, String expectedString,
+			String position) {
+		String error =   validateExpectedCommand(command, responseString, expectedString, position);
+		if(error.isEmpty())
+			TestLog.ConsoleLog("validation passed for command: " + responseString + " " + command + " " + expectedString);
+		else
+			TestLog.ConsoleLog("validation failed for command: " + command + " with error: " + error);
+
+		return error;
 	}
 
 	/**
@@ -377,7 +399,7 @@ public class DataHelper {
 	 * @param expectedString
 	 * @param position
 	 */
-	public static String validateCommand(String command, String responseString, String expectedString,
+	public static String validateExpectedCommand(String command, String responseString, String expectedString,
 			String position) {
 
 		// remove surrounding quotes
@@ -598,7 +620,7 @@ public class DataHelper {
 						+ Arrays.toString(expectedArray.toArray());
 			break;
 		case jsonbody:
-			TestLog.logPass("verifying response: \n" + responseString + "\n against expected: \n" + expectedString);
+			TestLog.logPass("verifying response: \n" + ServiceObject.normalize(responseString) + "\n against expected: \n" + expectedString);
 			String error = JsonHelper.validateByJsonBody(expectedString, responseString);
 			if (!error.isEmpty())
 				return error;
