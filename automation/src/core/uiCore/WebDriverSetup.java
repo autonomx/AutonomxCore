@@ -10,12 +10,16 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.ie.InternetExplorerOptions;
 import org.openqa.selenium.opera.OperaDriver;
+import org.openqa.selenium.opera.OperaOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariDriver;
+import org.openqa.selenium.safari.SafariOptions;
 
 import com.microsoft.appcenter.appium.EnhancedAndroidDriver;
 import com.microsoft.appcenter.appium.Factory;
@@ -124,40 +128,52 @@ public class WebDriverSetup {
 		switch (browserType) {
 		case FIREFOX:
 			setDriverManager(driverObject, WebDriverManager.firefoxdriver());
-			driver = new FirefoxDriver(driverObject.capabilities);
+			FirefoxOptions firefoxOptions = new FirefoxOptions();
+			firefoxOptions.merge(driverObject.capabilities);
+			driver = new FirefoxDriver(firefoxOptions);
 			break;
 		case FIREFOX_HEADLESS:
 			setDriverManager(driverObject, WebDriverManager.firefoxdriver());
-			FirefoxOptions firefoxOptions = new FirefoxOptions();
+			firefoxOptions = new FirefoxOptions();
 			firefoxOptions.setHeadless(true);
-			driverObject.capabilities.setCapability(FirefoxOptions.FIREFOX_OPTIONS, firefoxOptions);
-			driver = new FirefoxDriver(driverObject.capabilities);
+			firefoxOptions.merge(driverObject.capabilities);
+			driver = new FirefoxDriver(firefoxOptions);
 			break;
 		case INTERNET_EXPLORER:
 			setDriverManager(driverObject, WebDriverManager.iedriver());
-			driver = new InternetExplorerDriver(driverObject.capabilities);
+			InternetExplorerOptions ieOptions = new InternetExplorerOptions();
+			ieOptions.merge(driverObject.capabilities);
+			driver = new InternetExplorerDriver(ieOptions);
 			break;
 		case MICROSOFT_EDGE:
 			setDriverManager(driverObject, WebDriverManager.edgedriver());
-			driver = new EdgeDriver(driverObject.capabilities);
+			EdgeOptions edgeOptions = new EdgeOptions();
+			edgeOptions.merge(driverObject.capabilities);
+			driver = new EdgeDriver(edgeOptions);
 			break;
 		case CHROME:
 			setDriverManager(driverObject, WebDriverManager.chromedriver());
-			driver = new ChromeDriver(driverObject.capabilities);
+			ChromeOptions chromeOptions = new ChromeOptions();
+			chromeOptions.merge(driverObject.capabilities);
+			driver = new ChromeDriver(chromeOptions);
 			break;
 		case CHROME_HEADLESS:
 			setDriverManager(driverObject, WebDriverManager.chromedriver());
-			ChromeOptions chromeOptions = new ChromeOptions();
+			chromeOptions = new ChromeOptions();
 			chromeOptions.setHeadless(true);
-			driverObject.capabilities.setCapability(ChromeOptions.CAPABILITY, chromeOptions);
-			driver = new ChromeDriver(driverObject.capabilities);
+			chromeOptions.merge(driverObject.capabilities);
+			driver = new ChromeDriver(chromeOptions);
 			break;
 		case OPERA:
 			setDriverManager(driverObject, WebDriverManager.operadriver());
-			driver = new OperaDriver(driverObject.capabilities);
+			OperaOptions operaOptions = new OperaOptions();
+			operaOptions.merge(driverObject.capabilities);
+			driver = new OperaDriver(operaOptions);
 			break;
 		case SAFARI:
-			driver = new SafariDriver(driverObject.capabilities); 
+			SafariOptions safairOptions = new SafariOptions();
+			safairOptions.merge(driverObject.capabilities);
+			driver = new SafariDriver(safairOptions); 
 			break;
 		default:
 			throw new IllegalStateException("Unsupported browsertype " + browserType);
