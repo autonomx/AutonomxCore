@@ -111,7 +111,6 @@ public class WebDriverSetup {
 		return driver;
 	}
 
-	@SuppressWarnings("deprecation")
 	public WebDriver getBrowserDriverByType(DriverObject driverObject) throws IOException {
 		WebDriver driver = null;
 

@@ -196,10 +196,14 @@ public class MessageQueueHelper {
 		 
 		// filter based on message Id
 		CopyOnWriteArrayList<MessageObject> filterMessageId = MessageQueueHelper.findMessagesBasedOnMessageId(messageId);
-		filteredMessages.addAll(filterMessageId);
 		
-		CopyOnWriteArrayList<MessageObject> filterMessageIdentifier = MessageQueueHelper.findMessagesBasedOnResponseIdentifier();
-		filteredMessages.addAll(filterMessageIdentifier);
+		// if message id set (message is sent in same test), use filtered by message id, else use identifier from options
+		if(!messageId.isEmpty())
+			filteredMessages.addAll(filterMessageId);
+		else {
+			CopyOnWriteArrayList<MessageObject> filterMessageIdentifier = MessageQueueHelper.findMessagesBasedOnResponseIdentifier();
+			filteredMessages.addAll(filterMessageIdentifier);
+		}	
 
 		return filteredMessages;
 	}

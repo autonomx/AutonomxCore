@@ -295,7 +295,7 @@ public class DataHelper {
 		String position = "";
 		String value = "";
 		for (String keyVal : keyVals) {
-			List<String> parts = splitRight(keyVal, ":", 3);
+			List<String> parts = splitToKeyPositionValue(keyVal, ":", 3);
 			if (parts.size() == 1) {
 				key = Helper.stringRemoveLines(parts.get(0));
 			}
@@ -758,16 +758,57 @@ public class DataHelper {
 
 		return stringVal;
 	}
-
-	public static List<String> splitRight(String value, String regex, int limit) {
-
+	
+	/**
+	 * split based on key position value
+	 * @param keyvalue
+	 * @param regex
+	 * @param limit
+	 * @return
+	 */
+	public static List<String> splitToKeyPositionValue(String keyvalue, String regex, int limit) {
+		List<String> result = new ArrayList<String>();
+		
+		// if no key value pair
+		if(!keyvalue.contains(":")) {
+			result.add(keyvalue);
+			return result;
+		}
+		
 		// if json validation command, return format path:position:command or
 		// path:command
-		String commandValue = getCommandFromExpectedString(value);
+		String commandValue = getCommandFromExpectedString(keyvalue);
 		if (!commandValue.isEmpty()) {
-			return getJsonKeyValue(value, commandValue);
+			return getJsonKeyValue(keyvalue, commandValue);
 		}
+		
+		String position = StringUtils.EMPTY;
+		
+		// position has format :position: 
+		boolean hasPosition = Pattern.compile(":\\d{1}:").matcher(keyvalue).find();
 
+		// split based on position, and add to result list
+		if(hasPosition) {
+			String[] resultArray = keyvalue.split(":\\d{1}:");
+			Pattern pattern = Pattern.compile(":\\d{1}:");
+			Matcher matcher = pattern.matcher(keyvalue);
+			if(matcher.find())
+				position = matcher.group(0);
+			result.add(resultArray[0]);
+			result.add(removeFirstAndLastChars(position,":"));
+			result.add(resultArray[1]);
+		}
+		else{ // split left to right
+			String[] resultArray = keyvalue.split(":", 2);
+			result.add(resultArray[0]);
+			result.add(resultArray[1]);
+		}
+		return result;
+	}
+
+	public static List<String> splitRight(String value, String regex, int limit) {
+		
+		
 		String string = value;
 		List<String> result = new ArrayList<String>();
 		String[] temp = new String[0];
