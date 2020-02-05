@@ -587,11 +587,14 @@ public class JsonHelper {
 			replacementValue = Boolean.valueOf(value);
 			break;
 		case "null":
-			replacementValue = null;
+				replacementValue = value;
 			break;
 		default:
 			replacementValue = value;		
 		}
+		
+		if(value == "null")
+			replacementValue = null;
 
 		// in case user forgets to remove prefix
 		if (path.startsWith(prefix))
