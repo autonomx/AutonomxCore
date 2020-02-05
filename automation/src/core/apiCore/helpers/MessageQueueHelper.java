@@ -56,7 +56,7 @@ public class MessageQueueHelper {
 		long passedTimeInSeconds = watch.time(TimeUnit.SECONDS);
 		if (passedTimeInSeconds > interval && passedTimeInSeconds - lastLogged > interval) {
 			TestLog.logPass("waiting: " + watch.time(TimeUnit.SECONDS) + " seconds");
-			TestLog.logPass("received: " + receivedMessageCount + " relavent message(s)");
+			TestLog.logPass("received: " + receivedMessageCount + " relevant message(s)");
 
 			Helper.waitForSeconds(1);
 			lastLogged = passedTimeInSeconds;
@@ -294,7 +294,7 @@ public class MessageQueueHelper {
 	}
 	
 	public static void printAllFilteredMessages(CopyOnWriteArrayList<MessageObject> filteredMessages) {
-		TestLog.ConsoleLog("Printing All relavent received messages");
+		TestLog.ConsoleLog("Printing All relevant received messages");
 		for (MessageObject message : filteredMessages) {
 			String messageId = message.getMessageId();
 			String messageContent = message.getMessage();

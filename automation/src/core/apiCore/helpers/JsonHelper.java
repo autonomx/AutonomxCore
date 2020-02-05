@@ -109,7 +109,7 @@ public class JsonHelper {
 	public static String getJsonValue(String json, String path) {
 		return getJsonValue(json, path, true);
 	}
-
+	
 	/**
 	 * gets json value as list if applicable, or string if single item converts to
 	 * string separated by "," https://github.com/json-path/JsonPath
@@ -120,6 +120,26 @@ public class JsonHelper {
 	 * @return value string list separated by ","
 	 */
 	public static String getJsonValue(String json, String path, boolean isAlwaysReturnList) {
+		Object values = getJsonPathValue(json, path, isAlwaysReturnList);
+		
+		// return json response without normalizing
+		if (isValidJsonkeyValue(values)) {
+			return values.toString();
+		}
+
+		return DataHelper.objectToString(values);
+	}
+
+	/**
+	 * gets json value as list if applicable, or string if single item converts to
+	 * string separated by "," https://github.com/json-path/JsonPath
+	 * 
+	 * @param path https://github.com/json-path/JsonPath
+	 * 
+	 *             for testing json path values: http://jsonpath.herokuapp.com/
+	 * @return value string list separated by ","
+	 */
+	public static Object getJsonPathValue(String json, String path, boolean isAlwaysReturnList) {
 		String prefix = "$.";
 		Object values = null;
 
@@ -146,6 +166,7 @@ public class JsonHelper {
 		try {
 			values = ctx.read(prefix + path);
 		} catch (Exception e) {
+			// in case always return list is not applicable to json and we need to turn it off and rerun
 			if (e.getMessage().contains(Option.ALWAYS_RETURN_LIST.name()) && isAlwaysReturnList)
 				values = getJsonValue(json, path, false);
 			else
@@ -158,12 +179,45 @@ public class JsonHelper {
 			Helper.assertFalse("no results returned: '" + path
 					+ "'. see http://jsonpath.herokuapp.com to validate your path against json string. see https://github.com/json-path/JsonPath for more info.");
 
-		// return json response without normalizing
-		if (isValidJsonkeyValue(values)) {
-			return values.toString();
-		}
+		return values;
+	}
+	
+	public static String getJsonValueType(String json, String path) {
+		String prefix = "$.";
+		Object jsonResponse = null;
+		Object value = "";
+		// in case user forgets to remove prefix
+			if (path.startsWith(prefix))
+				path = path.replace(prefix, "");
+			
+			Configuration config = Configuration.defaultConfiguration().addOptions(Option.ALWAYS_RETURN_LIST);
+			ReadContext ctx = JsonPath.using(config).parse(json);
 
-		return DataHelper.objectToString(values);
+			try {
+				jsonResponse = ctx.read(prefix + path);
+			} catch (Exception e) {
+				e.getCause();
+			}
+			
+			if(jsonResponse instanceof List) {
+				net.minidev.json.JSONArray array = (net.minidev.json.JSONArray) jsonResponse;
+				if(!array.isEmpty())
+					value = array.get(0);
+			}
+			
+			if(value instanceof Integer) {
+				return "integer";
+			}
+			
+			if(value instanceof Boolean) {
+				return "boolean";
+			}
+			
+			if(value == null) {
+				return "null";
+			}
+			
+			return "string";		
 	}
 
 	/**
@@ -519,13 +573,32 @@ public class JsonHelper {
 
 		DocumentContext doc = JsonPath.parse(jsonString);
 		String prefix = "$.";
+		String type = JsonHelper.getJsonValueType(jsonString, path);
+		
+		Object replacementValue = null;
+		switch(type) {
+		case "integer":
+			replacementValue = Integer.valueOf(value);
+			break;
+		case "string":
+			replacementValue = value;
+			break;
+		case "boolean":
+			replacementValue = Boolean.valueOf(value);
+			break;
+		case "null":
+			replacementValue = null;
+			break;
+		default:
+			replacementValue = value;		
+		}
 
 		// in case user forgets to remove prefix
 		if (path.startsWith(prefix))
 			path = path.replace(prefix, "");
 
 		try {
-			doc.set("$." + path, value);
+			doc.set("$." + path, replacementValue);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
