@@ -1,5 +1,6 @@
 package core.apiCore.helpers;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,6 +16,9 @@ import org.skyscreamer.jsonassert.JSONCompare;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.skyscreamer.jsonassert.JSONCompareResult;
 
+import com.fasterxml.jackson.core.JsonParser.Feature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -182,7 +186,7 @@ public class JsonHelper {
 		return values;
 	}
 	
-	public static String getJsonValueType(String json, String path) {
+	public static boolean isJsonPathValueString(String json, String path) {
 		String prefix = "$.";
 		Object jsonResponse = null;
 		Object value = "";
@@ -205,19 +209,12 @@ public class JsonHelper {
 					value = array.get(0);
 			}
 			
-			if(value instanceof Integer) {
-				return "integer";
-			}
+	
 			
-			if(value instanceof Boolean) {
-				return "boolean";
-			}
+			if(value instanceof String) 
+				return true;
+			return false;
 			
-			if(value == null) {
-				return "null";
-			}
-			
-			return "string";		
 	}
 
 	/**
@@ -573,28 +570,10 @@ public class JsonHelper {
 
 		DocumentContext doc = JsonPath.parse(jsonString);
 		String prefix = "$.";
-		String type = JsonHelper.getJsonValueType(jsonString, path);
+		boolean isJsonPathValueString = JsonHelper.isJsonPathValueString(jsonString, path);
 		
-		Object replacementValue = null;
-		switch(type) {
-		case "integer":
-			replacementValue = Integer.valueOf(value);
-			break;
-		case "string":
-			replacementValue = value;
-			break;
-		case "boolean":
-			replacementValue = Boolean.valueOf(value);
-			break;
-		case "null":
-				replacementValue = value;
-			break;
-		default:
-			replacementValue = value;		
-		}
-		
-		if(value == "null")
-			replacementValue = null;
+		// if json path data type is other than string, remove quotes
+		Object replacementValue = convertToObject(value, isJsonPathValueString);
 
 		// in case user forgets to remove prefix
 		if (path.startsWith(prefix))
@@ -607,6 +586,36 @@ public class JsonHelper {
 		}
 		JsonObject jsonObj = new GsonBuilder().serializeNulls().create().toJsonTree(doc.json()).getAsJsonObject();
 		return jsonObj.toString();
+	}
+	
+	/**
+	 * convert string to object
+	 * converts string to appropriate object type
+	 * json supports string, number, boolean, null, object, array
+	 * @param value
+	 * @param isPathValueString the path value to replace. if string, then replacement type will be string
+	 * @return
+	 */
+	public static Object convertToObject(String value, boolean isPathValueString) {
+		Object objectvalue = null;
+		
+		if(isPathValueString)
+			objectvalue = value;
+		else {
+		    ObjectMapper ob = new ObjectMapper();
+		    ob.configure(Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+		    try {		
+				objectvalue = ob.readValue(value, Object.class);
+			} catch (IOException e) {
+				objectvalue = value;
+			}
+		}
+		
+		// if path value string is string and being replaced with null
+		if(objectvalue == "null")
+			objectvalue = null;
+		    
+		return objectvalue;
 	}
 
 	/**
