@@ -16,10 +16,10 @@ import java.util.stream.IntStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
-import com.opencsv.CSVParser;
-import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
+import com.opencsv.RFC4180Parser;
+import com.opencsv.RFC4180ParserBuilder;
 
 import core.apiCore.TestDataProvider;
 import core.helpers.Helper;
@@ -437,11 +437,10 @@ public class CsvReader {
 			FileInputStream fis = new FileInputStream(file.getPath());
             InputStreamReader isr = new InputStreamReader(fis, 
                     StandardCharsets.UTF_8);
-	        CSVParser parser = new CSVParserBuilder().withSeparator(separator).build();
+            RFC4180Parser parser = new RFC4180ParserBuilder().withSeparator(separator).build();
 		    CSVReader reader = new CSVReaderBuilder(isr).withCSVParser(parser)
                      .build();
 
-			
 			// read header separately
 			String[] header = reader.readNext();
 			int runFlag = getColumnIndexByName("RunFlag", header);
@@ -450,6 +449,9 @@ public class CsvReader {
 			// only add tests that have runFlag set to Y And testCaseID is set
 			String[] line;
 			while ((line = reader.readNext()) != null) {
+				if(line.toString().contains("createUserNoToken"))
+					System.out.print(line.toString());
+				
 				if (line[runFlag].equals("Y") && !line[testCaseID].isEmpty()) {
 					csvList.add(line);
 				}

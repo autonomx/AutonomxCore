@@ -1072,7 +1072,7 @@ public class DataHelper {
 			updatedList.add(response.replace(System.lineSeparator(), ""));
 		}
 		String responseString = String.join(System.lineSeparator(), updatedList);
-		TestLog.logPass("response to be validated: " + responseString);
+		TestLog.logPass("response to be validated: " + ServiceObject.normalize(responseString));
 	}
 
 	/**
