@@ -611,7 +611,7 @@ public class JsonHelper {
 		}
 		
 		// if path value string is string and being replaced with null
-		if(objectvalue == "null")
+		if(objectvalue != null && objectvalue.equals("null"))
 			objectvalue = null;
 		    
 		return objectvalue;

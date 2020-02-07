@@ -432,14 +432,7 @@ public class CsvReader {
 
 		try {
 			
-			// read csv file
-			char separator = getCsvSeparator();				
-			FileInputStream fis = new FileInputStream(file.getPath());
-            InputStreamReader isr = new InputStreamReader(fis, 
-                    StandardCharsets.UTF_8);
-            RFC4180Parser parser = new RFC4180ParserBuilder().withSeparator(separator).build();
-		    CSVReader reader = new CSVReaderBuilder(isr).withCSVParser(parser)
-                     .build();
+		    CSVReader reader = readCsvFile(file);
 
 			// read header separately
 			String[] header = reader.readNext();
@@ -460,6 +453,24 @@ public class CsvReader {
 		}
 
 		return csvList;
+	}
+	
+	public static CSVReader readCsvFile(File file) {
+		CSVReader reader = null;
+		try {
+			// read csv file
+			char separator = getCsvSeparator();				
+			FileInputStream fis = new FileInputStream(file.getPath());
+	        InputStreamReader isr = new InputStreamReader(fis, 
+	                StandardCharsets.UTF_8);
+	        RFC4180Parser parser = new RFC4180ParserBuilder().withSeparator(separator).build();
+		    reader = new CSVReaderBuilder(isr).withCSVParser(parser)
+	                 .build();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return reader;
 	}
 	
 	/**
@@ -499,7 +510,7 @@ public class CsvReader {
 		Helper.assertTrue("column not found", false);
 		return -1;
 	}
-
+	
 	/**
 	 * get the number of tests in csv file
 	 * 

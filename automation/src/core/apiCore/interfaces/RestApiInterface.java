@@ -592,9 +592,6 @@ public class RestApiInterface {
 			case OPTION_PAGINATION_INCREMENET:
 				Config.putValue(API_PAGINATION_INCREMENT, keyword.value);
 				break;
-				
-				
-
 			default:
 				break;
 			}

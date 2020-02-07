@@ -17,6 +17,8 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 
+import com.opencsv.CSVReader;
+
 import core.apiCore.TestDataProvider;
 import core.helpers.Helper;
 import core.support.configReader.Config;
@@ -36,6 +38,8 @@ public class DataHelper {
 	public static final String VERIFY_HEADER_PART_INDICATOR = "_VERIFY_HEADER_PART_";
 	public static final String VERIFY_TOPIC_PART_INDICATOR = "_VERIFY_TOPIC_PART_";
 	public static final String EXPECTED_MESSAGE_COUNT = "EXPECTED_MESSAGE_COUNT";
+	
+	public static final String TEST_DATA_TEMPLATE_DATA_PATH = "api.templateDataFile";
 
 	public enum JSON_COMMAND {
 		hasItems, notHaveItems, notEqualTo, equalTo, notContain, contains, containsInAnyOrder, integerGreaterThan,
@@ -295,6 +299,10 @@ public class DataHelper {
 		String position = "";
 		String value = "";
 		for (String keyVal : keyVals) {
+			
+			// if empty, skip
+			if(keyVal.isEmpty()) continue;
+			
 			List<String> parts = splitToKeyPositionValue(keyVal, ":", 3);
 			if (parts.size() == 1) {
 				key = Helper.stringRemoveLines(parts.get(0));
@@ -914,6 +922,9 @@ public class DataHelper {
 	public static String getRequestBodyIncludingTemplate(ServiceObject serviceObject) {
 
 		String requestbody = StringUtils.EMPTY;
+		
+		// load data file to config
+		loadDataFile(serviceObject);
 
 		// if json template file
 		if (JsonHelper.isJsonFile(serviceObject.getTemplateFile())) {
@@ -937,7 +948,82 @@ public class DataHelper {
 
 		return requestbody;
 	}
+	
+	
+	/**
+	 * loads template data info based on value set on request body
+	 * format: DataFile:file:dataId
+	 * @param serviceObject
+	 */
+	public static void loadDataFile(ServiceObject serviceObject) {
+		if (serviceObject.getRequestBody().isEmpty())
+			return;
+		
+		final String DataFile = "DataFile";
 
+		// get key value mapping of header parameters
+		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getRequestBody());
+
+		// iterate through key value pairs for headers, separated by ";"
+		for (KeyValue keyword : keywords) {
+
+			// if additional options
+			switch (keyword.key) {
+			case DataFile:
+				
+				// remove DataFile value from request body
+				String updateRequest = serviceObject.getRequestBody()
+				.replace(keyword.value.toString(), "")
+				.replace(keyword.value.toString() + ";", "")
+				.replace(DataFile + ":", "");
+				
+				String[] dataInfo = keyword.value.toString().split(":");
+				if (dataInfo.length != 2)
+					Helper.assertFalse("format must be file:dataId. actual value: " + keyword.value.toString());
+				
+				String dataFilename = dataInfo[0];
+				String expectedDataId = dataInfo[1];
+
+				// get data file in csv format
+				String templateDataFilePath = PropertiesReader.getLocalRootPath()
+						+ Config.getValue(TEST_DATA_TEMPLATE_DATA_PATH);
+				File dataFile = new File(templateDataFilePath + dataFilename + ".csv");
+				try {
+
+					CSVReader reader = CsvReader.readCsvFile(dataFile);
+
+					// read header separately
+					String[] header = reader.readNext();
+					int dataId = CsvReader.getColumnIndexByName("dataId", header);
+
+					// add semicolon to separate from the rest of the data
+					if(header.length > 1 && !updateRequest.isEmpty())
+						updateRequest = updateRequest + ";";
+					
+					// if dataId matches expected dataId, add all row data
+					String[] line;
+					while ((line = reader.readNext()) != null) {
+						if (!expectedDataId.equals(line[dataId]))
+							continue;
+
+						for (int i = 1; i < header.length; i++) {
+							updateRequest = updateRequest + header[i] + ":" + line[i] + ";";
+						}
+					}
+					reader.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
+				serviceObject.withRequestBody(updateRequest);
+				break;
+			default:
+				break;
+			}
+			
+		}
+	}
+	
 	/**
 	 * stores value in config format: value:<$key> separated by colon ';'
 	 * 
