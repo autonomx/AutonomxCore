@@ -449,8 +449,6 @@ public class CsvReader {
 			// only add tests that have runFlag set to Y And testCaseID is set
 			String[] line;
 			while ((line = reader.readNext()) != null) {
-				if(line.toString().contains("createUserNoToken"))
-					System.out.print(line.toString());
 				
 				if (line[runFlag].equals("Y") && !line[testCaseID].isEmpty()) {
 					csvList.add(line);
