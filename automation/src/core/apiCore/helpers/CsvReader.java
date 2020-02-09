@@ -35,6 +35,9 @@ public class CsvReader {
 	public static String SERVICE_CSV_FILE_PREFIX = "TestCases_";
 	public static final String ACTION_KEY = "action";
 	public static final String SERVICE_CSV_SEPARATOR = "service.csv.separator";
+	public static final String SERVICE_CSV_DATAPROVIDER_COUNT = "service.csv.dataprovider.count";
+
+	
 	
 	// option to run service calls more than once. default 1
 	public static final String OPTION_RUN_COUNT = "RUN_COUNT";
@@ -210,8 +213,11 @@ public class CsvReader {
 				list.add(testStepMap);
 				Object[] arr = list.toArray(new Object[list.size()]);
 				csvRow = ArrayUtils.addAll(arr);	
-			}else
-				csvRow = ArrayUtils.addAll(csvRow, StringUtils.EMPTY);
+			}else {
+				int dataCount = Config.getIntValue(SERVICE_CSV_DATAPROVIDER_COUNT);
+				if(dataCount == 20) // including test step object
+					csvRow = ArrayUtils.addAll(csvRow, StringUtils.EMPTY);
+			}
 			
 			// for single test case selection. Both test case file And test case have to be
 			// set

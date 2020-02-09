@@ -173,7 +173,7 @@ public class ServiceManager {
 		bw.append("		String InterfaceType, String UriPath, String ContentType, String Method, String Option," + " \n" );
 		bw.append("		String RequestHeaders, String TemplateFile, String RequestBody, String OutputParams, String RespCodeExp," + " \n" );
 		bw.append("		String ExpectedResponse, String TcComments," + " \n" );
-		bw.append("		String tcName, String tcIndex, String testType, Object serviceSteps) throws Exception {" + " \n" );
+		bw.append("		String tcName, String tcIndex, String testType, Object... serviceSteps) throws Exception {" + " \n" );
 		bw.newLine();
 		bw.append("		// add parameters to ServiceObject" + " \n" );
 		bw.append("		ServiceObject serviceObject = new ServiceObject().setServiceObject(TestSuite, TestCaseID, RunFlag, Description, InterfaceType," + " \n" );

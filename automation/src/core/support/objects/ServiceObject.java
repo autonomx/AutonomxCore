@@ -311,7 +311,10 @@ public class ServiceObject {
 	}
 	
 	public Object getServiceSteps(){
-		return this.serviceSteps;
+		Object[] Objects = (Object[]) this.serviceSteps;
+		if(Objects.length > 0)
+			return Objects[0];
+		return null;
 	}
 	
 	public ServiceObject withTcIndex(String tcIndex){
