@@ -165,6 +165,10 @@ public class RestApiInterface {
 		} while (!isCriteriaSuccess && passedTimeInSeconds < maxRetrySeconds);
 		
 		Helper.assertTrue("expected validation not found in pages.", isCriteriaSuccess);	
+
+		// reset pagination timeout
+		Config.putValue(API_TIMEOUT_PAGINATION_VALIDATION_ENABLED, false);
+
 		return serviceObject.getResponse();
 	}
 	

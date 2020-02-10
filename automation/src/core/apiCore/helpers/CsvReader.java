@@ -215,7 +215,7 @@ public class CsvReader {
 				csvRow = ArrayUtils.addAll(arr);	
 			}else {
 				int dataCount = Config.getIntValue(SERVICE_CSV_DATAPROVIDER_COUNT);
-				if(dataCount == 20) // including test step object
+				if(dataCount >= 20) // including test step object
 					csvRow = ArrayUtils.addAll(csvRow, StringUtils.EMPTY);
 			}
 			
