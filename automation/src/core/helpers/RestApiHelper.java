@@ -3,6 +3,7 @@ package core.helpers;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import core.apiCore.helpers.JsonHelper;
 import core.apiCore.interfaces.RestApiInterface;
 import core.support.configReader.Config;
 import core.support.logger.TestLog;
@@ -38,15 +39,16 @@ public class RestApiHelper {
 		ServiceObject api = TestObject.getApiDef(getApi);
 		Response response = RestApiInterface.RestfullApiInterface(api);
 		JSONArray valueArray = new JSONArray(response.body().asString());
+		String responseString = response.body().asString();
 
 		for (int i = 0; i < valueArray.length(); i++) {
-
-			String name = valueArray.getJSONObject(i).getString(identifier);
-			int id = valueArray.getJSONObject(i).getInt(targetApiId);
+			
+			String name = JsonHelper.getJsonValue(responseString, identifier).split(",")[i];
+			String id = JsonHelper.getJsonValue(responseString, targetApiId).split(",")[i];
 
 			if (name.contains(prefix)) {
 				TestLog.logPass("calling: " + targerApi + ": with identifier: " + name);
-				Config.putValue(variable, id);
+				Config.putValue(variable, Helper.getIntFromString(id));
 				api = TestObject.getApiDef(targerApi);
 
 				RestApiInterface.RestfullApiInterface(api);
