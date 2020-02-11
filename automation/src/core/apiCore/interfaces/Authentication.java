@@ -90,10 +90,6 @@ public class Authentication {
 		// evaluate options
 		request = evaluateOption(serviceObject, request);
 
-		if (serviceObject.getRequestBody().isEmpty()) {
-			Helper.assertFalse("no request set");
-		}
-
 		Map<String, String> parameterMap = getParameters(serviceObject);
 
 		TestLog.logPass("authentication type: " + Helper.stringRemoveLines(serviceObject.getOption()));
@@ -147,7 +143,11 @@ public class Authentication {
 	}
 
 	private static Map<String, String> getParameters(ServiceObject serviceObject) {
+		
 		Map<String, String> parameterMap = new HashMap<String, String>();
+		
+		if(serviceObject.getRequestBody().isEmpty())
+			return parameterMap;
 
 		String[] formData = serviceObject.getRequestBody().split(",");
 		for (String data : formData) {
