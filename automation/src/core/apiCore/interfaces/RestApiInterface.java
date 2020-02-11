@@ -164,10 +164,10 @@ public class RestApiInterface {
 			
 		} while (!isCriteriaSuccess && passedTimeInSeconds < maxRetrySeconds);
 		
-		Helper.assertTrue("expected validation not found in pages.", isCriteriaSuccess);	
-
 		// reset pagination timeout
 		Config.putValue(API_TIMEOUT_PAGINATION_VALIDATION_ENABLED, false);
+		
+		Helper.assertTrue("expected validation not found in pages.", isCriteriaSuccess);	
 
 		return serviceObject.getResponse();
 	}
@@ -422,6 +422,7 @@ public class RestApiInterface {
 	 * based on key value, separated by ";" Invalid token: if authorization token
 	 * exists, replace last values with "invalid", else set to "invalid"
 	 * 
+	 * we replace parameters per authentication type
 	 * @param serviceObject
 	 * @return
 	 */
@@ -433,21 +434,32 @@ public class RestApiInterface {
 			return request;
 		}
 
-		// replace parameters for request body
-		serviceObject.withRequestHeaders(DataHelper.replaceParameters(serviceObject.getRequestHeaders()));
-
 		// get key value mapping of header parameters
 		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getRequestHeaders());
 
 		// iterate through key value pairs for headers, separated by ";"
 		for (KeyValue keyword : keywords) {
-
+			
 			// if additional request headers
 			switch (keyword.key) {
 			case Authentication.BASIC_AUTHORIZATION:
-				ArrayList<String> basicRequest = (ArrayList<String>) Config.getObjectValue(Authentication.BASIC_AUTHORIZATION);
-				if(basicRequest.size() == 0) Helper.assertFalse("basic request info not found: " + Arrays.toString(basicRequest.toArray()));
+				List<String> keys = Helper.getValuesFromPattern(keyword.value.toString(), "<@(.+?)>");
+				if(keys.size() == 0)  Helper.assertFalse("value not set with format identifier:<@variable>");
+				String key = keys.get(0);
+				
+				ArrayList<String> basicRequest = (ArrayList<String>) Config.getObjectValue(key);
+				if(basicRequest ==  null || basicRequest.size() != 2) Helper.assertFalse("basicRequest request info not correct. Should include username, password: " + Arrays.toString(basicRequest.toArray()));
 				request = request.auth().basic(basicRequest.get(0), basicRequest.get(1));
+				break;
+				
+			case Authentication.NTLM_AUTHORIZATION:
+				keys = Helper.getValuesFromPattern(keyword.value.toString(), "<@(.+?)>");
+				if(keys.size() == 0)  Helper.assertFalse("value not set with format identifier:<@variable>");
+				key = keys.get(0);
+				
+				ArrayList<String> ntlmRequest = (ArrayList<String>) Config.getObjectValue(key);
+				if(ntlmRequest ==  null || ntlmRequest.size() != 4) Helper.assertFalse("ntlmRequest request info not correct. Should include username, password, workstation, domain: " + Arrays.toString(ntlmRequest.toArray()));
+				request = request.auth().ntlm(ntlmRequest.get(0), ntlmRequest.get(1), ntlmRequest.get(2), ntlmRequest.get(3));
 				break;
 			case INVALID_TOKEN:
 				String authValue = Config.getValue(AUTHORIZATION_HEADER);
@@ -465,12 +477,14 @@ public class RestApiInterface {
 				break;
 
 			case AUTHORIZATION_HEADER:
+				authValue = DataHelper.replaceParameters(keyword.value.toString());
 				// keep track of the token
-				Config.putValue(AUTHORIZATION_HEADER, (String) keyword.value);
-				request = request.given().header(keyword.key, keyword.value);
+				Config.putValue(AUTHORIZATION_HEADER, authValue);
+				request = request.given().header(keyword.key, authValue);
 				break;
 			default:
-				request = request.given().header(keyword.key, keyword.value);
+				authValue = DataHelper.replaceParameters(keyword.value.toString());
+				request = request.given().header(keyword.key, authValue);
 				break;
 			}
 		}

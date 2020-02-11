@@ -14,6 +14,7 @@ import core.apiCore.helpers.DataHelper;
 import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.logger.TestLog;
+import core.support.objects.KeyValue;
 import core.support.objects.ServiceObject;
 import io.restassured.RestAssured;
 import io.restassured.specification.RequestSpecification;
@@ -21,16 +22,17 @@ import io.restassured.specification.RequestSpecification;
 public class Authentication {
 
 	public static final String BASIC_AUTHORIZATION = "BASIC";
-	public static final String AUTHENTICATION_SCHEME = "AUTHENTICATION_SCHEME";
+	public static final String NTLM_AUTHORIZATION = "NTLM";
 
+	public static final String AUTHENTICATION = "auth";
 
 	/**
 	 * interface for restful api calls
 	 * 
-	 * @param apiObject
+	 * @param serviceObject
 	 * @return
 	 */
-	public static void tokenGenerator(ServiceObject serviceObject) {
+	public static void authenticator(ServiceObject serviceObject) {
 
 		if (serviceObject == null)
 			Helper.assertFalse("apiobject is null");
@@ -41,7 +43,8 @@ public class Authentication {
 		// set proxy from config file
 		RestApiInterface.setProxy();
 
-		// replace parameters for request body, including template file (json, xml, or other)
+		// replace parameters for request body, including template file (json, xml, or
+		// other)
 		serviceObject.withRequestBody(DataHelper.getRequestBodyIncludingTemplate(serviceObject));
 
 		// set base uri
@@ -56,11 +59,11 @@ public class Authentication {
 	 */
 	public static void setURI(ServiceObject serviceObject) {
 		String url = StringUtils.EMPTY;
-		
+
 		// replace place holder values for uri
 		serviceObject.withUriPath(DataHelper.replaceParameters(serviceObject.getUriPath()));
 		serviceObject.withUriPath(Helper.stringRemoveLines(serviceObject.getUriPath()));
-		
+
 		// if uri is full path, Then set base uri as whats provided in csv file
 		// else use baseURI from properties as base uri And extend it with csv file uri
 		// path
@@ -69,33 +72,33 @@ public class Authentication {
 		} else {
 			url = Helper.stringRemoveLines(Config.getValue("api.uriPath")) + serviceObject.getUriPath();
 		}
-		// keep track of full URL 
+		// keep track of full URL
 		serviceObject.withUriPath(url);
-		
+
 		URL aURL = Helper.convertToUrl(url);
 		TestLog.logPass("request URL: " + aURL.toString());
-		
-		RestAssured.baseURI  = aURL.getProtocol() + "://" + aURL.getHost();
+
+		RestAssured.baseURI = aURL.getProtocol() + "://" + aURL.getHost();
 		RestAssured.port = aURL.getPort();
 		RestAssured.basePath = aURL.getPath();
 	}
 
-	private static RequestSpecification evaluateRequest(ServiceObject apiObject) {
+	private static RequestSpecification evaluateRequest(ServiceObject serviceObject) {
 		// set content type
 		RequestSpecification request = null;
 
 		// evaluate options
-		request = evaluateOption(apiObject, request);
-		
-		if (apiObject.getRequestBody().isEmpty()) {
+		request = evaluateOption(serviceObject, request);
+
+		if (serviceObject.getRequestBody().isEmpty()) {
 			Helper.assertFalse("no request set");
 		}
 
-		Map<String, String> parameterMap = getParameters(apiObject);
+		Map<String, String> parameterMap = getParameters(serviceObject);
 
-		TestLog.logPass("authentication type: " + Helper.stringRemoveLines(apiObject.getOption()));
+		TestLog.logPass("authentication type: " + Helper.stringRemoveLines(serviceObject.getOption()));
 
-		switch (apiObject.getOption()) {
+		switch (serviceObject.getOption()) {
 		case BASIC_AUTHORIZATION:
 			String username = parameterMap.get("username");
 			String password = parameterMap.get("password");
@@ -104,7 +107,23 @@ public class Authentication {
 			credentials.add(password);
 			
 			// store basic request in config
-			Config.putValue(BASIC_AUTHORIZATION, credentials);
+			saveOutboundParameter(serviceObject, credentials);
+			break;
+
+		case NTLM_AUTHORIZATION:
+			username = parameterMap.get("username");
+			password = parameterMap.get("password");
+			String workstation = parameterMap.get("workstation");
+			String domain = parameterMap.get("domain");
+			
+			credentials = new ArrayList<String>();
+			credentials.add(username);
+			credentials.add(password);
+			credentials.add(workstation);
+			credentials.add(domain);
+
+			// store basic request in config
+			saveOutboundParameter(serviceObject, credentials);
 			break;
 		case "OAUTH2":
 			username = parameterMap.get("username");
@@ -120,17 +139,17 @@ public class Authentication {
 					.formParam("redirect_uri", redirectUri).formParam("scope", scope);
 			break;
 		default:
-			Helper.assertFalse("Correct authentication type not set. selected: <" + apiObject.getMethod()
+			Helper.assertFalse("Correct authentication type not set. selected: <" + serviceObject.getMethod()
 					+ "> Available options: BASIC");
 			break;
 		}
 		return request;
 	}
 
-	private static Map<String, String> getParameters(ServiceObject apiObject) {
+	private static Map<String, String> getParameters(ServiceObject serviceObject) {
 		Map<String, String> parameterMap = new HashMap<String, String>();
 
-		String[] formData = apiObject.getRequestBody().split(",");
+		String[] formData = serviceObject.getRequestBody().split(",");
 		for (String data : formData) {
 			String[] keyValue = data.split(":");
 			parameterMap.put(keyValue[0].trim(), keyValue[1].trim());
@@ -142,25 +161,53 @@ public class Authentication {
 	/**
 	 * sets the header, content type And body based on specifications
 	 * 
-	 * @param apiObject
+	 * @param serviceObject
 	 * @return
 	 */
-	private static RequestSpecification evaluateOption(ServiceObject apiObject, RequestSpecification request) {
+	private static RequestSpecification evaluateOption(ServiceObject serviceObject, RequestSpecification request) {
 
 		// if no option specified
-		if (apiObject.getOption().isEmpty()) {
+		if (serviceObject.getOption().isEmpty()) {
 			return request;
 		}
 
 		// replace parameters for request body
-		apiObject.withOption(DataHelper.replaceParameters(apiObject.getOption()));
+		serviceObject.withOption(DataHelper.replaceParameters(serviceObject.getOption()));
 
 		// if additional options
-		switch (apiObject.getOption()) {
+		switch (serviceObject.getOption()) {
 		default:
 			break;
 		}
 
 		return request;
 	}
+	
+	/**
+	 * save authorization object in user defined variables with format:
+	 * AUTH:<$variable> 
+	 * Authorization is stored in variable
+	 * @param serviceObject
+	 * @param authorization
+	 */
+	private static void saveOutboundParameter(ServiceObject serviceObject, Object authorization) {
+		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getOutputParams());
+		
+		// fail if incorrect format for AUTH:<$variable>
+		if(keywords.isEmpty()) Helper.assertFalse("Autehntication value must be stored in a variable. eg. " + AUTHENTICATION + ":<$variable>" );
+		if (!keywords.get(0).key.equals(AUTHENTICATION)) 
+			Helper.assertFalse("Authentication storing format: " +  AUTHENTICATION + ":<$variable>");
+		
+		KeyValue keyword = keywords.get(0);
+			// fail if value is wrong format
+			if (!keyword.value.toString().startsWith("<") || !keyword.value.toString().contains("$")
+					|| !keyword.value.toString().endsWith(">"))
+				Helper.assertFalse("variable placement must of format path: <$variable>. invalid value: "
+						+ keyword.value.toString());
+
+			String key = (String) keyword.value;
+			key = key.replace("$", "").replace("<", "").replace(">", "").trim();
+			Config.putValue(key, authorization);
+	}
+
 }

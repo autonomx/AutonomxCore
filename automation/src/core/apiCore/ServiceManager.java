@@ -27,7 +27,7 @@ import core.uiCore.driverProperties.driverType.DriverType;
 import core.uiCore.drivers.AbstractDriverTestNG;
 
 public class ServiceManager {
-	private static final String TOKEN_GENERATOR = "Authentication";
+	private static final String AUTHENTICATION = "Authentication";
 	public static final String SERVICE_TEST_RUNNER_ID = "ServiceTestRunner"; // matches the name of the service test runner class
 	private static final String RESTFULL_API_INTERFACE = "RESTfulAPI";
 	private static final String SQL_DB_INTERFACE = "SQLDB";
@@ -65,8 +65,8 @@ public class ServiceManager {
 	
 	public static void runCsvInterface(ServiceObject serviceObject) throws Exception {
 		switch (serviceObject.getInterfaceType()) {
-		case TOKEN_GENERATOR:
-			Authentication.tokenGenerator(serviceObject);
+		case AUTHENTICATION:
+			Authentication.authenticator(serviceObject);
 			break;
 		case RESTFULL_API_INTERFACE:
 			RestApiInterface.RestfullApiInterface(serviceObject);
