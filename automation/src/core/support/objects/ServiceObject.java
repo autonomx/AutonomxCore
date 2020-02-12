@@ -312,7 +312,7 @@ public class ServiceObject {
 	
 	public Object getServiceSteps(){
 		Object[] Objects = (Object[]) this.serviceSteps;
-		if(Objects.length > 0)
+		if(Objects != null && Objects.length > 0)
 			return Objects[0];
 		return null;
 	}
