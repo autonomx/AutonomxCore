@@ -3,14 +3,21 @@ package core.apiCore.interfaces;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import core.apiCore.helpers.DataHelper;
 import core.helpers.Helper;
+import core.support.logger.TestLog;
 import core.support.objects.KeyValue;
 import core.support.objects.ServiceObject;
 import groovy.lang.GroovyClassLoader;
+import com.thoughtworks.paranamer.AnnotationParanamer;
+import com.thoughtworks.paranamer.BytecodeReadingParanamer;
+import com.thoughtworks.paranamer.CachingParanamer;
+import com.thoughtworks.paranamer.Paranamer;
 
 public class ExternalInterface {
 
@@ -43,13 +50,18 @@ public class ExternalInterface {
 			return;
 		}
 		
+		// replace parameters for request body, including template file (json, xml, or other)
+		serviceObject.withRequestBody(DataHelper.getRequestBodyIncludingTemplate(serviceObject));
+		List<KeyValue> parameterList = DataHelper.getValidationMap(serviceObject.getRequestBody());
+		Object[] parameters = parameters(parameterList)	;
+		
 		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getMethod());
 
 		for (KeyValue keyword : keywords) {	
 			
 			switch (keyword.key.toLowerCase()) {
 			case METHOD:
-				runExernalMethod(keyword.value.toString());
+				runExernalMethod(keyword.value.toString(), parameters);
 				break;
 			default:
 				break;
@@ -64,23 +76,79 @@ public class ExternalInterface {
 	 * @param classmethod
 	 * @throws Exception
 	 */
-	public static void runExernalMethod(String classmethod) throws Exception {
+	public static void runExernalMethod(String classmethod, Object... parameters) throws Exception {
 		GroovyClassLoader groovyClassLoader = new GroovyClassLoader();
 
 		String[] methodInfo = classmethod.split("\\.");
 		if(methodInfo.length < 2)
 			Helper.assertFalse("wrong method format. must be class.method");
 		
-		File sourceFile = getExternalMethodFilePath(methodInfo[0]);
+		String className = methodInfo[0];
+		String methodName = methodInfo[1];
+		TestLog.logPass("invoking method: " + methodName + " at class: " +  className);
+		
+		File sourceFile = getExternalMethodFilePath(className);
 		Class<?> externalClass = groovyClassLoader.parseClass(sourceFile);
-		Method method = externalClass.getMethod(methodInfo[1]);
-		method.invoke(null);
+		Object external = externalClass.newInstance(); 
+		
+		
+		
+		// get parameter types
+		Class<?>[] paramTypes = getMethodParameterTypes(externalClass, methodName);
+		Method method = externalClass.getMethod(methodName, paramTypes);
+		
+		// validate parameter count
+		if(parameters.length != paramTypes.length)
+			Helper.assertFalse("number of parameters must match method parameters");
+		
+		verifyParameterNames(externalClass, methodName, parameters);
+		
+		// call the method with parameters
+		method.invoke(external, parameters);
 		groovyClassLoader.close();
+	}
+	
+	public static void verifyParameterNames(Class<?> external, String methodName, Object... parameters) {
+		Paranamer info = new CachingParanamer(new AnnotationParanamer(new BytecodeReadingParanamer()));
+
+		for (Method m : external.getMethods()) {
+			if (m.getName().equals(methodName)) {
+				Class<?>[] params = m.getParameterTypes();
+				Parameter[] param = m.getParameters();
+				String[] parameterNames = info.lookupParameterNames(m);
+				 for (Parameter p : m.getParameters()) {
+				      System.err.println("  " + p.getName());
+				   }
+				m.getDefaultValue();
+				TestLog.ConsoleLog("");
+			}
+
+		}
+	}
+	
+	/**
+	 * gets the list of parameter types for a method in an external class
+	 * 
+	 * @param external
+	 * @param methodName
+	 * @return
+	 */
+	public static Class<?>[] getMethodParameterTypes(Class<?> external, String methodName) {
+
+		for (Method m : external.getMethods()) {
+			if (m.getName().equals(methodName)) {
+				Class<?>[] params = m.getParameterTypes();
+				return params;
+			}
+
+		}
+		return null;
 	}
 
 	/**
 	 * gets File from root directory
 	 * root directory: where pom file is located
+	 * if classname matches the class in method directory, then the class is returned
 	 * @param dirs
 	 * @return
 	 */
@@ -117,6 +185,15 @@ public class ExternalInterface {
 	    	listOfFiles.add(pathToDir);
 	    }
 	    return listOfFiles;
+	}
+	
+	private static Object[] parameters(List<KeyValue> paramters) {
+		List<Object> parameterList = new ArrayList<Object>();
+		for(KeyValue parameter: paramters) {
+			parameterList.add(parameter.value);	
+		}
+		Object[] paramArr = new String[parameterList.size()];
+		return parameterList.toArray(paramArr);
 	}
 	
 }
