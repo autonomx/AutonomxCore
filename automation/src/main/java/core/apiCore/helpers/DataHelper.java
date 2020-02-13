@@ -653,7 +653,7 @@ public class DataHelper {
 
 	/**
 	 * converts string separated by "," to array[] trims each value and removes
-	 * quotes
+	 * quotes or array brackets 
 	 * 
 	 * @param array
 	 * @return
@@ -663,6 +663,7 @@ public class DataHelper {
 		String[] responses = array.split(",");
 		for (String response : responses) {
 			response = response.trim().replace("\"", "");
+			response = response.replace("[", "").replace("]","");
 			list.add(response);
 		}
 		return list;
