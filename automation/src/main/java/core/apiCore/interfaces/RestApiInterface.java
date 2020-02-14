@@ -345,7 +345,7 @@ public class RestApiInterface {
 	public static void setTimeout() {
 		int connectTimeout = Config.getIntValue(API_RESPONSE_TIMEOUT_SECONDS);
 		if (connectTimeout == -1)
-			connectTimeout = 30; // connect timeout defaults to 30 seconds
+			connectTimeout = 60; // connect timeout defaults to 60 seconds
 
 		RestAssured.config = RestAssuredConfig.config().httpClient(
 				HttpClientConfig.httpClientConfig().setParam("http.connection.timeout", connectTimeout * 1000)

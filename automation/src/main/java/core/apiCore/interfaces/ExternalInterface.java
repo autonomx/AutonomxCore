@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import core.apiCore.helpers.DataHelper;
+import core.apiCore.helpers.JsonHelper;
 import core.helpers.Helper;
 import core.support.logger.TestLog;
 import core.support.objects.KeyValue;
@@ -53,7 +54,6 @@ public class ExternalInterface {
 		// replace parameters for request body, including template file (json, xml, or other)
 		serviceObject.withRequestBody(DataHelper.getRequestBodyIncludingTemplate(serviceObject));
 		List<KeyValue> parameterList = DataHelper.getValidationMap(serviceObject.getRequestBody());
-		Object[] parameters = parameters(parameterList)	;
 		
 		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getMethod());
 
@@ -61,7 +61,7 @@ public class ExternalInterface {
 			
 			switch (keyword.key.toLowerCase()) {
 			case METHOD:
-				runExernalMethod(keyword.value.toString(), parameters);
+				runExernalMethod(keyword.value.toString(), parameterList);
 				break;
 			default:
 				break;
@@ -76,8 +76,12 @@ public class ExternalInterface {
 	 * @param classmethod
 	 * @throws Exception
 	 */
-	public static void runExernalMethod(String classmethod, Object... parameters) throws Exception {
+	public static void runExernalMethod(String classmethod, List<KeyValue> parameterList) throws Exception {
 		GroovyClassLoader groovyClassLoader = new GroovyClassLoader();
+		
+		
+		Object[] parameters = parameters(parameterList)	;
+
 
 		String[] methodInfo = classmethod.split("\\.");
 		if(methodInfo.length < 2)
@@ -94,36 +98,32 @@ public class ExternalInterface {
 		
 		
 		// get parameter types
-		Class<?>[] paramTypes = getMethodParameterTypes(externalClass, methodName);
+		Class<?>[] paramTypes = getMethodParameterTypes(externalClass, methodName, parameterList);
 		Method method = externalClass.getMethod(methodName, paramTypes);
 		
 		// validate parameter count
 		if(parameters.length != paramTypes.length)
 			Helper.assertFalse("number of parameters must match method parameters");
 		
-		verifyParameterNames(externalClass, methodName, parameters);
-		
 		// call the method with parameters
 		method.invoke(external, parameters);
 		groovyClassLoader.close();
 	}
 	
-	public static void verifyParameterNames(Class<?> external, String methodName, Object... parameters) {
-		Paranamer info = new CachingParanamer(new AnnotationParanamer(new BytecodeReadingParanamer()));
+	/**
+	 * verify if parameter names match the ones in the method
+	 * @param external
+	 * @param methodName
+	 * @param parameterList
+	 */
+	public static boolean isParameterNamesMatch(String[] parameterNames, List<KeyValue> parameterList) {
 
-		for (Method m : external.getMethods()) {
-			if (m.getName().equals(methodName)) {
-				Class<?>[] params = m.getParameterTypes();
-				Parameter[] param = m.getParameters();
-				String[] parameterNames = info.lookupParameterNames(m);
-				 for (Parameter p : m.getParameters()) {
-				      System.err.println("  " + p.getName());
-				   }
-				m.getDefaultValue();
-				TestLog.ConsoleLog("");
-			}
-
-		}
+				for(KeyValue keyVal : parameterList) {
+					if( !Arrays.stream(parameterNames).anyMatch(keyVal.key::equals)) {
+						return false;
+					}
+				}
+		return true;
 	}
 	
 	/**
@@ -133,14 +133,25 @@ public class ExternalInterface {
 	 * @param methodName
 	 * @return
 	 */
-	public static Class<?>[] getMethodParameterTypes(Class<?> external, String methodName) {
-
+	public static Class<?>[] getMethodParameterTypes(Class<?> external, String methodName, List<KeyValue> parameterList) {
+		Paranamer info = new CachingParanamer(new AnnotationParanamer(new BytecodeReadingParanamer()));
+		List<String> methodList = new ArrayList<String>();
 		for (Method m : external.getMethods()) {
 			if (m.getName().equals(methodName)) {
-				Class<?>[] params = m.getParameterTypes();
-				return params;
+				String[] parameterNames = info.lookupParameterNames(m);
+				methodList.add("method: " +  m.getName() + "(" +  Arrays.toString(parameterNames) + ")");
+				boolean isParameterMatch =  isParameterNamesMatch(parameterNames, parameterList);
+				
+				if(m.getParameterCount() == parameterList.size() && isParameterMatch ) {
+					Class<?>[] params = m.getParameterTypes();
+					return params;
+				}
 			}
 
+		}
+		if(!methodList.isEmpty()) {
+			Object[] parameters = parameters(parameterList)	;
+			TestLog.logPass("method: " + methodName + "(" +parameters.toString() + ") not found. methods found: " +  Arrays.toString(methodList.toArray()));
 		}
 		return null;
 	}
