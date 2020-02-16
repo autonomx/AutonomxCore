@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.util.TextUtils;
 
+import core.apiCore.ServiceManager;
 import core.apiCore.interfaces.KafkaInterface;
 import core.apiCore.interfaces.RabbitMqInterface;
 import core.apiCore.interfaces.ServiceBusInterface;
@@ -20,9 +21,11 @@ import core.helpers.Helper;
 import core.helpers.StopWatchHelper;
 import core.support.configReader.Config;
 import core.support.logger.TestLog;
+import core.support.objects.KeyValue;
 import core.support.objects.MessageObject;
 import core.support.objects.MessageObject.messageType;
 import core.support.objects.ServiceObject;
+import core.support.objects.TestObject;
 
 public class MessageQueueHelper {
 
@@ -217,6 +220,9 @@ public class MessageQueueHelper {
 	 */
 	public static void receiveAndValidateMessages(ServiceObject serviceObject, String messageId, messageType messageType) throws Exception {
 
+		// evaluate options
+		evaluateOption(serviceObject);
+		
 		// return if no validation required
 		if(serviceObject.getExpectedResponse().isEmpty())
 			return;
@@ -393,5 +399,56 @@ public class MessageQueueHelper {
 
 		return errorMessages;
 	}
+	
+	public static void evaluateOption(ServiceObject serviceObject) {
 
+		// reset validation timeout. will be overwritten by option value if set
+		resetValidationTimeout();
+
+		// if no option specified
+		if (serviceObject.getOption().isEmpty()) {
+			return;
+		}
+		
+		// store value to config directly using format: value:<$key> separated by colon ';'
+		DataHelper.saveDataToConfig(serviceObject.getOption());
+
+		// replace parameters for request body
+		serviceObject.withOption(DataHelper.replaceParameters(serviceObject.getOption()));
+
+		// get key value mapping of header parameters
+		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getOption());
+
+		// iterate through key value pairs for headers, separated by ";"
+		for (KeyValue keyword : keywords) {
+
+			// if additional options
+			switch (keyword.key) {
+			case ServiceManager.OPTION_NO_VALIDATION_TIMEOUT:
+				Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, false);
+				break;	
+			case ServiceManager.OPTION_WAIT_FOR_RESPONSE:
+				Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, true);
+				Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS, keyword.value);	
+				break;
+			default:
+				break;
+			}
+		}
+	}
+	
+	/**
+	 * reset validation timeout
+	 */
+	private static void resetValidationTimeout() {
+		// reset validation timeout option
+		String defaultValidationTimeoutIsEnabled = TestObject.getDefaultTestInfo().config
+				.get(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED).toString();
+		
+		String defaultValidationTimeoutIsSeconds = TestObject.getDefaultTestInfo().config
+				.get(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS).toString();
+		
+		Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, defaultValidationTimeoutIsEnabled);
+		Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS, defaultValidationTimeoutIsSeconds);
+	}
 }

@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 
+import core.apiCore.ServiceManager;
 import core.apiCore.helpers.ConnectionHelper;
 import core.apiCore.helpers.DataHelper;
 import core.apiCore.helpers.SqlHelper;
@@ -36,12 +37,6 @@ public class SqlInterface {
 	public static final String SQL_CURRENT_DATABASE = "db.current.database";
 
 	private static final String OPTION_DATABASE = "database";
-	
-	public static final String DB_TIMEOUT_VALIDATION_ENABLED = "db.timeout.validation.isEnabled";
-	public static final String DB_TIMEOUT_VALIDATION_SECONDS = "db.timeout.validation.seconds";
-	
-	private static final String OPTION_NO_VALIDATION_TIMEOUT = "NO_VALIDATION_TIMEOUT";
-	private static final String OPTION_WAIT_FOR_RESPONSE = "WAIT_FOR_RESPONSE_SECONDS";
 
 	/**
 	 *
@@ -143,13 +138,13 @@ public class SqlInterface {
 				DatabaseObject database = DatabaseObject.DATABASES.get(position);
 				Config.putValue(SQL_CURRENT_DATABASE, database);
 				break;
-			case OPTION_NO_VALIDATION_TIMEOUT:
-				Config.putValue(DB_TIMEOUT_VALIDATION_ENABLED, false);
+			case ServiceManager.OPTION_NO_VALIDATION_TIMEOUT:
+				Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, false);
 				break;
 				
-			case OPTION_WAIT_FOR_RESPONSE:
-				Config.putValue(DB_TIMEOUT_VALIDATION_ENABLED, true);
-				Config.putValue(DB_TIMEOUT_VALIDATION_SECONDS, keyword.value);	
+			case ServiceManager.OPTION_WAIT_FOR_RESPONSE:
+				Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, true);
+				Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS, keyword.value);	
 				break;
 
 			default:
@@ -400,8 +395,8 @@ public class SqlInterface {
 		StopWatchHelper watch = StopWatchHelper.start();
 		long passedTimeInSeconds = 0;
 
-		boolean isValidationTimeout = Config.getBooleanValue(DB_TIMEOUT_VALIDATION_ENABLED);
-		int maxRetrySeconds = Config.getIntValue(DB_TIMEOUT_VALIDATION_SECONDS);
+		boolean isValidationTimeout = Config.getBooleanValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED);
+		int maxRetrySeconds = Config.getIntValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS);
 		int currentRetryCount = 0;
 
 		do {
@@ -444,10 +439,10 @@ public class SqlInterface {
 	 */
 	private static void resetValidationTimeout() {
 		// reset validation timeout option
-		String defaultValidationTimeoutIsEnabled = Config.getGlobalValue(DB_TIMEOUT_VALIDATION_ENABLED);
-		String defaultValidationTimeoutIsSeconds = Config.getGlobalValue(DB_TIMEOUT_VALIDATION_SECONDS);
+		String defaultValidationTimeoutIsEnabled = Config.getGlobalValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED);
+		String defaultValidationTimeoutIsSeconds = Config.getGlobalValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS);
 		
-		Config.putValue(DB_TIMEOUT_VALIDATION_ENABLED, defaultValidationTimeoutIsEnabled);
-		Config.putValue(DB_TIMEOUT_VALIDATION_SECONDS, defaultValidationTimeoutIsSeconds);
+		Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, defaultValidationTimeoutIsEnabled);
+		Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS, defaultValidationTimeoutIsSeconds);
 	}
 }

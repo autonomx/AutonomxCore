@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 
+import core.apiCore.ServiceManager;
 import core.apiCore.helpers.DataHelper;
 import core.apiCore.helpers.DataHelper.JSON_COMMAND;
 import core.apiCore.helpers.JsonHelper;
@@ -31,18 +32,10 @@ import io.restassured.specification.RequestSpecification;
 public class RestApiInterface {
 
 	private static final String AUTHORIZATION_HEADER = "Authorization";
-	public static final String API_TIMEOUT_VALIDATION_ENABLED = "api.timeout.validation.isEnabled";
 	public static final String API_TIMEOUT_PAGINATION_VALIDATION_ENABLED = "api.timeout.pagination.validation.isEnabled";
-
-	public static final String API_TIMEOUT_VALIDATION_SECONDS = "api.timeout.validation.seconds";
-	public static final String API_RESPONSE_TIMEOUT_SECONDS = "api.response.timeout.seconds";
-
 	
 	private static final String INVALID_TOKEN = "INVALID_TOKEN";
 	private static final String NO_TOKEN = "NO_TOKEN";
-
-	private static final String OPTION_NO_VALIDATION_TIMEOUT = "NO_VALIDATION_TIMEOUT";
-	private static final String OPTION_WAIT_FOR_RESPONSE = "WAIT_FOR_RESPONSE";
 	
 	private static final String OPTION_PAGINATION_STOP_CRITERIA = "PAGINATION_STOP_CRITERIA";
 	private static final String OPTION_PAGINATION_MAX_PAGES = "PAGINATION_MAX_PAGES";
@@ -132,7 +125,7 @@ public class RestApiInterface {
 		
 		// set options
 		evaluateOption(serviceObject, serviceObject.getRequest());
-		boolean isValidationTimeout = Config.getBooleanValue(API_TIMEOUT_VALIDATION_ENABLED);
+		boolean isValidationTimeout = Config.getBooleanValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED);
 		
 		// set pagination response validation
 		Config.putValue(API_TIMEOUT_PAGINATION_VALIDATION_ENABLED, isValidationTimeout);
@@ -158,7 +151,7 @@ public class RestApiInterface {
 			passedTimeInSeconds = watch.time(TimeUnit.SECONDS);
 			
 			// if validation timeout is not enabled, break out of the loop
-			maxRetrySeconds = Config.getIntValue(API_TIMEOUT_VALIDATION_SECONDS);
+			maxRetrySeconds = Config.getIntValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS);
 			if (!isValidationTimeout)
 				break;
 			
@@ -274,8 +267,8 @@ public class RestApiInterface {
 			passedTimeInSeconds = watch.time(TimeUnit.SECONDS);
 			
 			// if validation timeout is not enabled, break out of the loop
-			boolean isValidationTimeout = Config.getBooleanValue(API_TIMEOUT_VALIDATION_ENABLED);
-			maxRetrySeconds = Config.getIntValue(API_TIMEOUT_VALIDATION_SECONDS);
+			boolean isValidationTimeout = Config.getBooleanValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED);
+			maxRetrySeconds = Config.getIntValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS);
 			if (!isValidationTimeout)
 				break;
 
@@ -343,7 +336,7 @@ public class RestApiInterface {
 	 * set connection timeout in milliseconds
 	 */
 	public static void setTimeout() {
-		int connectTimeout = Config.getIntValue(API_RESPONSE_TIMEOUT_SECONDS);
+		int connectTimeout = Config.getIntValue(ServiceManager.SERVICE_RESPONSE_TIMEOUT_SECONDS);
 		if (connectTimeout == -1)
 			connectTimeout = 60; // connect timeout defaults to 60 seconds
 
@@ -587,16 +580,16 @@ public class RestApiInterface {
 
 			// if additional options
 			switch (keyword.key) {
-			case OPTION_NO_VALIDATION_TIMEOUT:
-				Config.putValue(API_TIMEOUT_VALIDATION_ENABLED, false);
+			case ServiceManager.OPTION_NO_VALIDATION_TIMEOUT:
+				Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, false);
 				break;
 				
-			case OPTION_WAIT_FOR_RESPONSE:
+			case ServiceManager.OPTION_WAIT_FOR_RESPONSE:
 				// disable per page wait for response if pagination validation is enabled
 				if(Config.getBooleanValue(API_TIMEOUT_PAGINATION_VALIDATION_ENABLED))
-					Config.putValue(API_TIMEOUT_VALIDATION_ENABLED, false);
-				else Config.putValue(API_TIMEOUT_VALIDATION_ENABLED, true);
-				Config.putValue(API_TIMEOUT_VALIDATION_SECONDS, keyword.value);	
+					Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, false);
+				else Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, true);
+				Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS, keyword.value);	
 				break;
 			case OPTION_PAGINATION_STOP_CRITERIA:
 				Config.putValue(API_PAGINATION_STOP_CRITERIA, keyword.value);
@@ -624,13 +617,13 @@ public class RestApiInterface {
 	private static void resetValidationTimeout() {
 		// reset validation timeout option
 		String defaultValidationTimeoutIsEnabled = TestObject.getDefaultTestInfo().config
-				.get(API_TIMEOUT_VALIDATION_ENABLED).toString();
+				.get(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED).toString();
 		
 		String defaultValidationTimeoutIsSeconds = TestObject.getDefaultTestInfo().config
-				.get(API_TIMEOUT_VALIDATION_SECONDS).toString();
+				.get(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS).toString();
 		
-		Config.putValue(API_TIMEOUT_VALIDATION_ENABLED, defaultValidationTimeoutIsEnabled);
-		Config.putValue(API_TIMEOUT_VALIDATION_SECONDS, defaultValidationTimeoutIsSeconds);
+		Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, defaultValidationTimeoutIsEnabled);
+		Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS, defaultValidationTimeoutIsSeconds);
 		
 		Config.putValue(API_PAGINATION_STOP_CRITERIA, "");
 		Config.putValue(API_PAGINATION_MAX_PAGES, 100);	
