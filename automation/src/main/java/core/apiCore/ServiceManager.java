@@ -64,7 +64,7 @@ public class ServiceManager {
 	public static final String OPTION_WAIT_FOR_RESPONSE = "WAIT_FOR_RESPONSE";
 	public static final String SERVICE_TIMEOUT_VALIDATION_SECONDS = "service.timeout.validation.seconds";
 	public static final String SERVICE_RESPONSE_TIMEOUT_SECONDS = "service.response.timeout.seconds";
-	public static final String SERVICE_TIMEOUT_VALIDATION_ENABLED = "api.timeout.validation.isEnabled";
+	public static final String SERVICE_TIMEOUT_VALIDATION_ENABLED = "service.timeout.validation.isEnabled";
 
 	public static void runInterface(ServiceObject serviceObject) throws Exception {
 			runCsvInterface(serviceObject);

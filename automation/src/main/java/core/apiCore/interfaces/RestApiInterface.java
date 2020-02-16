@@ -21,7 +21,6 @@ import core.support.configReader.Config;
 import core.support.logger.TestLog;
 import core.support.objects.KeyValue;
 import core.support.objects.ServiceObject;
-import core.support.objects.TestObject;
 import io.restassured.RestAssured;
 import io.restassured.config.HttpClientConfig;
 import io.restassured.config.RestAssuredConfig;
@@ -616,11 +615,9 @@ public class RestApiInterface {
 	 */
 	private static void resetValidationTimeout() {
 		// reset validation timeout option
-		String defaultValidationTimeoutIsEnabled = TestObject.getDefaultTestInfo().config
-				.get(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED).toString();
+		String defaultValidationTimeoutIsEnabled = Config.getGlobalValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED);
 		
-		String defaultValidationTimeoutIsSeconds = TestObject.getDefaultTestInfo().config
-				.get(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS).toString();
+		String defaultValidationTimeoutIsSeconds = Config.getGlobalValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS);
 		
 		Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, defaultValidationTimeoutIsEnabled);
 		Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS, defaultValidationTimeoutIsSeconds);

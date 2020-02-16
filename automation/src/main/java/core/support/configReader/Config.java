@@ -126,7 +126,7 @@ public class Config {
 	public static String getValue(String key) {
 		return getValue(key, false);
 	}
-
+	
 	/**
 	 * returns config value
 	 * 

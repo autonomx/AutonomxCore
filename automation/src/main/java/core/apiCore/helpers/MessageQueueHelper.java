@@ -25,7 +25,6 @@ import core.support.objects.KeyValue;
 import core.support.objects.MessageObject;
 import core.support.objects.MessageObject.messageType;
 import core.support.objects.ServiceObject;
-import core.support.objects.TestObject;
 
 public class MessageQueueHelper {
 
@@ -442,11 +441,8 @@ public class MessageQueueHelper {
 	 */
 	private static void resetValidationTimeout() {
 		// reset validation timeout option
-		String defaultValidationTimeoutIsEnabled = TestObject.getDefaultTestInfo().config
-				.get(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED).toString();
-		
-		String defaultValidationTimeoutIsSeconds = TestObject.getDefaultTestInfo().config
-				.get(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS).toString();
+		String defaultValidationTimeoutIsEnabled = Config.getGlobalValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED);	
+		String defaultValidationTimeoutIsSeconds = Config.getGlobalValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS);
 		
 		Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, defaultValidationTimeoutIsEnabled);
 		Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS, defaultValidationTimeoutIsSeconds);
