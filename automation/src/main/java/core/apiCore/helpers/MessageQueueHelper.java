@@ -28,7 +28,6 @@ import core.support.objects.ServiceObject;
 
 public class MessageQueueHelper {
 
-	public static final String MQ_TIMEOUT_SECONDS = "messagequeue.timeout.seconds";
 	public static final String RESPONSE_IDENTIFIER = "response.identifier";
 	/**
 	 * generate message id if the request body is set
@@ -230,7 +229,7 @@ public class MessageQueueHelper {
 		List<String> errorMessages = new ArrayList<String>();
 
 		// message queue will run for maxRetrySeconds to retrieve matching outbound message
-		int maxRetrySeconds = Config.getIntValue(MQ_TIMEOUT_SECONDS);
+		int maxRetrySeconds = Config.getIntValue(ServiceManager.SERVICE_RESPONSE_TIMEOUT_SECONDS);
 		StopWatchHelper watch = StopWatchHelper.start();
 		long passedTimeInSeconds = 0;
 		long lastLogged = 0;
