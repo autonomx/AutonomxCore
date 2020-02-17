@@ -28,6 +28,7 @@ import core.support.configReader.Config;
 import core.support.configReader.PropertiesReader;
 import core.support.logger.TestLog;
 import core.support.objects.DriverObject;
+import core.support.objects.TestObject;
 import core.uiCore.driverProperties.browserType.BrowserType;
 import core.uiCore.driverProperties.driverType.DriverType;
 import io.appium.java_client.MobileElement;
@@ -189,10 +190,11 @@ public class WebDriverSetup {
 	 * @param manager
 	 */
 	private void setDriverManager(DriverObject driverObject, WebDriverManager manager) {
-		String proxyServer = Config.getValue("proxy.host");
-		String proxyPort = Config.getValue("proxy.port");
-		String proxyUser = Config.getValue("proxy.user");
-		String proxyPassword = Config.getValue("proxy.password");
+		boolean isProxyEnabled = Config.getBooleanValue(TestObject.PROXY_ENABLED);
+		String proxyServer = Config.getValue(TestObject.PROXY_HOST);
+		String proxyPort = Config.getValue(TestObject.PROXY_PORT);
+		String proxyUser = Config.getValue(TestObject.PROXY_USER);
+		String proxyPassword = Config.getValue(TestObject.PROXY_PASS);
 		boolean isForceCache = Config.getBooleanValue("web.driver.manager.proxy.forceCache");
 		int timeout_seconds = Config.getIntValue("web.driver.manager.timeoutSeconds");
 		
@@ -200,12 +202,16 @@ public class WebDriverSetup {
 		if(isForceCache)
 			manager = manager.forceCache();
 		
-		manager.proxy(proxyServer + ":" + proxyPort)
-		.proxyUser(proxyUser)
-		.proxyUser(proxyPassword)
-		.version(driverObject.driverVersion)
-		.timeout(timeout_seconds)
-		.setup();
+		if(isProxyEnabled) {	
+			manager.proxy(proxyServer + ":" + proxyPort)
+			.proxyUser(proxyUser)
+			.proxyPass(proxyPassword)
+			.version(driverObject.driverVersion)
+			.timeout(timeout_seconds)
+			.setup();
+		}else
+			manager
+			.setup();
 		
 		TestLog.ConsoleLog("using driver version: " + manager.getDownloadedVersion());
 	}

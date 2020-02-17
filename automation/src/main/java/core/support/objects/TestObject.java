@@ -43,6 +43,15 @@ public class TestObject{
 		parent, beforeSuite, suite, testClass, testMethod, apiTestMethod, defaultState
 	}
 	
+	// proxy info
+	public final static String PROXY_ENABLED = "proxy.enabled";
+	public final static String PROXY_HOST = "proxy.host";
+	public final static String PROXY_PORT = "proxy.port";
+	public final static String PROXY_USER = "proxy.username";
+	public final static String PROXY_PASS = "proxy.password";
+	public final static String PROXY_PROTOCOL = "proxy.maven.protocol";
+
+	
 	public static String BEFORE_SUITE_PREFIX = "-Beforesuite";
 	public static String AFTER_SUITE_PREFIX = "-Aftersuite";
 	public static String BEFORE_CLASS_PREFIX = "-Beforeclass";
@@ -51,8 +60,6 @@ public class TestObject{
 	public static String BEFORE_TEST_FILE_PREFIX = "-BeforeTestFile";
 	public static String AFTER_TEST_FILE_PREFIX = "-AfterTestFile";
 	public static String PARENT_PREFIX = "-Parent"; // parent object of csv file 
-
-
 
 	public static String DATAPROVIDER_TEST_SUFFIX = "-test";
 

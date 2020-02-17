@@ -21,6 +21,7 @@ import core.support.configReader.Config;
 import core.support.logger.TestLog;
 import core.support.objects.KeyValue;
 import core.support.objects.ServiceObject;
+import core.support.objects.TestObject;
 import io.restassured.RestAssured;
 import io.restassured.config.HttpClientConfig;
 import io.restassured.config.RestAssuredConfig;
@@ -50,7 +51,6 @@ public class RestApiInterface {
 
 	public static final String API_PARAMETER_ENCODING = "api.encoding.parameter";
 	public static final String API_URL_ENCODING = "api.encoding.url";
-
 
 	/**
 	 * interface for restful API calls
@@ -350,15 +350,22 @@ public class RestApiInterface {
 	 * set proxy from config file
 	 */
 	public static void setProxy() {
-		String host = Config.getValue("proxy.host");
-		String port = Config.getValue("proxy.port");
+		
+		boolean isProxyEnabled = Config.getBooleanValue(TestObject.PROXY_ENABLED);
+		String host = Config.getValue(TestObject.PROXY_HOST);
+		int port = Config.getIntValue(TestObject.PROXY_PORT);
+		String proxyProtocal = Config.getValue(TestObject.PROXY_PROTOCOL);
 
-		if (host.isEmpty())
+		if (!isProxyEnabled )
 			return;
-
-		RestAssured.proxy(host);
-		if (!port.isEmpty())
-			RestAssured.proxy(port);
+		
+		if(host.isEmpty() || port == -1)
+			return;
+		
+		if(proxyProtocal.equals("http") || proxyProtocal.equals("https"))
+			RestAssured.proxy(host, port , proxyProtocal);
+		else
+			RestAssured.proxy(host, port);		
 	}
 
 	public static List<String> validateResponse(ServiceObject serviceObject) {

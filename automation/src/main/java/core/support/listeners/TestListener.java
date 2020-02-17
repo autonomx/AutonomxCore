@@ -35,7 +35,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 	public static boolean isTestNG = false;
 	public static final String PARALLEL_TEST_TYPE = "global.parallel.type";
-
+	
 	// Before starting all tests, below method runs.
 	@SuppressWarnings("deprecation")
 	@Override
