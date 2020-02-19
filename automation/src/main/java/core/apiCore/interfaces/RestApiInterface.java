@@ -55,7 +55,7 @@ public class RestApiInterface {
 	
 	public static final String API_BASE_URL = "api.uriPath";
 
-	public static Boolean API_PROXY_AUTO_DETECT_VALUE = null;
+	public static Boolean API_IS_PROXY_ENABLED = null;
 
 	/**
 	 * interface for restful API calls
@@ -353,7 +353,7 @@ public class RestApiInterface {
 
 	/**
 	 * set proxy from config file
-	 * value to use proxy is set at API_PROXY_AUTO_DETECT_VALUE
+	 * value to use proxy is set at API_IS_PROXY_ENABLED
 	 * We evaluate if we need to use proxy once in test run
 	 * @throws Exception 
 	 */
@@ -366,12 +366,12 @@ public class RestApiInterface {
 		
 		// set proxy enabled value based on proxy auto detection. if auto detect enabled,
 		// attempt to connect to url with proxy info. if able to connect, enable proxy
-		if(isProxyAutoDetect && API_PROXY_AUTO_DETECT_VALUE != null) {
-			API_PROXY_AUTO_DETECT_VALUE = Helper.setProxyAutoDetection(getBaseUrl());
+		if(isProxyAutoDetect && API_IS_PROXY_ENABLED == null) {
+			API_IS_PROXY_ENABLED = Helper.setProxyAutoDetection(getBaseUrl());
 		}else if (!isProxyAutoDetect)
-			API_PROXY_AUTO_DETECT_VALUE = Config.getBooleanValue(TestObject.PROXY_ENABLED);
+			API_IS_PROXY_ENABLED = Config.getBooleanValue(TestObject.PROXY_ENABLED);
 
-		if (!API_PROXY_AUTO_DETECT_VALUE )
+		if (!API_IS_PROXY_ENABLED )
 			return;
 		
 		if(host.isEmpty() || port == -1)
