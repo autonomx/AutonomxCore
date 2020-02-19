@@ -24,6 +24,7 @@ import org.openqa.selenium.safari.SafariOptions;
 import com.microsoft.appcenter.appium.EnhancedAndroidDriver;
 import com.microsoft.appcenter.appium.Factory;
 
+import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.configReader.PropertiesReader;
 import core.support.logger.TestLog;
@@ -190,7 +191,6 @@ public class WebDriverSetup {
 	 * @param manager
 	 */
 	private void setDriverManager(DriverObject driverObject, WebDriverManager manager) {
-		boolean isProxyEnabled = Config.getBooleanValue(TestObject.PROXY_ENABLED);
 		String proxyServer = Config.getValue(TestObject.PROXY_HOST);
 		String proxyPort = Config.getValue(TestObject.PROXY_PORT);
 		String proxyUser = Config.getValue(TestObject.PROXY_USER);
@@ -201,6 +201,11 @@ public class WebDriverSetup {
 		// force cache, not checking online
 		if(isForceCache)
 			manager = manager.forceCache();
+		
+		// set proxy enabled value based on proxy auto detection. if auto detect enabled,
+		// attempt to connect to url with proxy info. if able to connect, enable proxy
+		Helper.setProxyAutoDetection(manager.config().getChromeDriverMirrorUrl());
+		boolean isProxyEnabled = Config.getBooleanValue(TestObject.PROXY_ENABLED);
 		
 		if(isProxyEnabled) {	
 			manager.proxy(proxyServer + ":" + proxyPort)

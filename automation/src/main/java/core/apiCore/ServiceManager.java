@@ -47,8 +47,8 @@ public class ServiceManager {
 	public static final String TEST_BASE_AFTER_SUITE = "api.base.after.suite";
 	
 	// before/after class/suite directories
-	private static final String BEFORE_CLASS_DIR = "beforeClass";
-	private static final String AFTER_CLASS_DIR = "afterClass";
+	private static final String BEFORE_CLASS_DIR = "beforeTestFile";
+	private static final String AFTER_CLASS_DIR = "afterTestFile";
 	private static final String BEFORE_SUITE_DIR = "beforeSuite";
 	private static final String AFTER_SUITE_DIR = "afterSuite";
 	
@@ -129,7 +129,7 @@ public class ServiceManager {
 		
 		String beforeTestName = ApiTestDriver.getTestClass(serviceObject) + TestObject.BEFORE_TEST_FILE_PREFIX + "-" + ApiTestDriver.getTestClass(beforeCsvFile);
 		// run tests in csv files
-		runServiceTestFileWithoutDataProvider(csvTestPath, beforeCsvFile, beforeTestName, serviceObject.getParent());
+		runServiceTestFile(csvTestPath, beforeCsvFile, beforeTestName, serviceObject.getParent());
 		
 		Config.setParentValue(IS_BASE_BEFORE_CLASS_COMPLETE, true);
 	}
@@ -189,7 +189,7 @@ public class ServiceManager {
 		String afterTestName = ApiTestDriver.getTestClass(serviceObject) + TestObject.AFTER_TEST_FILE_PREFIX + "-" + ApiTestDriver.getTestClass(afterCsvFile);
 
 		// run tests in csv files
-		runServiceTestFileWithoutDataProvider(csvTestPath, afterCsvFile, afterTestName, serviceObject.getParent());
+		runServiceTestFile(csvTestPath, afterCsvFile, afterTestName, serviceObject.getParent());
 	}
 	
 	/**
@@ -211,7 +211,7 @@ public class ServiceManager {
 		String beforeSuiteName = TestObject.SUITE_NAME + TestObject.BEFORE_SUITE_PREFIX + "-" + ApiTestDriver.getTestClass(beforeSuiteFile);
 
 		// run tests in csv files
-		runServiceTestFileWithoutDataProvider(csvTestPath, beforeSuiteFile, beforeSuiteName, "");
+		runServiceTestFile(csvTestPath, beforeSuiteFile, beforeSuiteName, "");
 	}
 	
 	
@@ -234,7 +234,7 @@ public class ServiceManager {
 		String afterSuiteName = TestObject.SUITE_NAME + TestObject.AFTER_SUITE_PREFIX + "-" + ApiTestDriver.getTestClass(afterSuiteFile);
 		
 		// run tests in csv files
-		runServiceTestFileWithoutDataProvider(csvTestPath, afterSuiteFile, afterSuiteName, "");
+		runServiceTestFile(csvTestPath, afterSuiteFile, afterSuiteName, "");
 	}
 	
 	/**
@@ -243,15 +243,32 @@ public class ServiceManager {
 	 * @param csvTestPath
 	 * @param file
 	 * @param parentFileName : name of the class before/after class is running for
-	 * @throws Exception
+	 * @throws Exception 
 	 */
-	public static void runServiceTestFileWithoutDataProvider(String csvTestPath, String file, String testname, String parent) {
+	public static void runServiceTestFile(String csvTestPath, String file, String testname, String parent) {
+		
+		
+		// map test list and run through the service runner
+		List<Object[]> testList = CsvReader.getCsvTestListForTestRunner(csvTestPath, file);
+		
+		// run csv tests without data provider
+		runServiceTestFileWithoutDataProvider(testList, testname, parent);
+	}
+	
+	/**
+	 * run csv tests without data provider
+	 * used for before/after class/suite
+	 * @param csvTestPath
+	 * @param file
+	 * @param parentFileName : name of the class before/after class is running for
+	 * @throws Exception 
+	 */
+	public static void runServiceTestFileWithoutDataProvider(List<Object[]> testList, String testname, String parent) {
 		
 		// set test id to be prefixed by the csv it is being used for. eg. before/after class
 		String updateName = testname;
 		
 		// map test list and run through the service runner
-		List<Object[]> testList = CsvReader.getCsvTestListForTestRunner(csvTestPath, file);
 		List<Object[]> updateList = CsvReader.updateCsvFileFromFile(testList, updateName, "", null);
 		for(Object[] dataRow : updateList) {
 			ServiceObject testServiceObject = CsvReader.mapToServiceObject(dataRow);

@@ -13,7 +13,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.net.Authenticator;
+import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
+import java.net.PasswordAuthentication;
+import java.net.Proxy;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -947,5 +952,93 @@ public class UtilityHelper {
 			Helper.assertFalse(e.getMessage());
 		}
 		return aURL;
+	}
+	
+	
+	/**
+	 * check if able to connect to source url
+	 * @param source
+	 * @return
+	 */
+	public static boolean isUrlAbleToConnect(URL source, Proxy proxy) {
+		 try {
+			 HttpURLConnection con = null;
+		        HttpURLConnection.setFollowRedirects(false);
+		        if(proxy != null)
+		        	con = (HttpURLConnection) source.openConnection(proxy);
+		        else
+		        	con = (HttpURLConnection) source.openConnection();
+		        con.setConnectTimeout(1000);
+		        con.setReadTimeout(1000);
+		        con.setRequestMethod("HEAD");
+		       if (con.getResponseCode() == HttpURLConnection.HTTP_OK)
+		    	   return false;
+		     	 else
+		     		return true;
+		    } catch (Exception e) {
+		        return true;
+		    }
+	}
+	
+	/**
+	 * checks if proxy is required
+	 * first attempt without proxy, second with proxy, checking the validity of the proxy connection
+	 * @param source
+	 * @return
+	 */
+	public static boolean setProxyAutoDetection(URL source) {
+
+		Proxy proxy = null;
+		
+		String PROXY_ENABLED = TestObject.PROXY_ENABLED;
+		String PROXY_AUTO_DETECT = TestObject.PROXY_AUTO_DETECT;
+		String PROXY_HOST = TestObject.PROXY_HOST;
+		String PROXY_PORT = TestObject.PROXY_PORT;
+		String PROXY_USERNAME = TestObject.PROXY_USER;
+		String PROXY_PASSWORD = TestObject.PROXY_PASS;
+
+		String host = Config.getValue(PROXY_HOST);
+		int port = Config.getIntValue(PROXY_PORT);
+		String username = Config.getValue(PROXY_USERNAME);
+		String password = Config.getValue(PROXY_PASSWORD);
+		boolean isProxyAutoDetect = Config.getBooleanValue(PROXY_AUTO_DETECT);
+		
+		// return if auto detect proxy is disabled or already set
+		if(!isProxyAutoDetect) return false;
+		
+		// return false if connection can be established without proxy
+		boolean isValidConnection = isUrlAbleToConnect(source, null);
+		if(isValidConnection)
+		{
+			Config.putValue(PROXY_ENABLED, false);
+			return false;
+		}
+
+
+		// set username/password for proxy authenticator
+		if (!username.isEmpty() && !password.isEmpty()) {
+			Authenticator.setDefault(new Authenticator() {
+				@Override
+				public PasswordAuthentication getPasswordAuthentication() {
+					return new PasswordAuthentication(username, password.toCharArray());
+				}
+			});
+		}
+
+		// set and download through proxy if enabled
+		if (!host.isEmpty() && port != -1)
+			proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(host, port));
+		
+		 isValidConnection = isUrlAbleToConnect(source, proxy);
+		 
+		 // if connection was established using proxy, then return true
+		 if(isValidConnection) {
+			 TestLog.ConsoleLog("proxy detected, switching proxy on, host: " + host + " port: " + port);
+			 Config.putValue(PROXY_ENABLED, true);
+			 return true;
+		 }
+		 else 
+			 Config.putValue(PROXY_ENABLED, false);
+		 return false;
 	}
 }

@@ -3,6 +3,7 @@ package core.apiCore.interfaces;
 import static io.restassured.RestAssured.given;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,6 +52,10 @@ public class RestApiInterface {
 
 	public static final String API_PARAMETER_ENCODING = "api.encoding.parameter";
 	public static final String API_URL_ENCODING = "api.encoding.url";
+	
+	public static final String API_BASE_URL = "api.uriPath";
+
+	public static Boolean API_PROXY_AUTO_DETECT_VALUE = null;
 
 	/**
 	 * interface for restful API calls
@@ -348,15 +353,25 @@ public class RestApiInterface {
 
 	/**
 	 * set proxy from config file
+	 * value to use proxy is set at API_PROXY_AUTO_DETECT_VALUE
+	 * We evaluate if we need to use proxy once in test run
+	 * @throws Exception 
 	 */
 	public static void setProxy() {
 		
-		boolean isProxyEnabled = Config.getBooleanValue(TestObject.PROXY_ENABLED);
 		String host = Config.getValue(TestObject.PROXY_HOST);
 		int port = Config.getIntValue(TestObject.PROXY_PORT);
 		String proxyProtocal = Config.getValue(TestObject.PROXY_PROTOCOL);
+		boolean isProxyAutoDetect = Config.getBooleanValue(TestObject.PROXY_AUTO_DETECT);
+		
+		// set proxy enabled value based on proxy auto detection. if auto detect enabled,
+		// attempt to connect to url with proxy info. if able to connect, enable proxy
+		if(isProxyAutoDetect && API_PROXY_AUTO_DETECT_VALUE != null) {
+			API_PROXY_AUTO_DETECT_VALUE = Helper.setProxyAutoDetection(getBaseUrl());
+		}else if (!isProxyAutoDetect)
+			API_PROXY_AUTO_DETECT_VALUE = Config.getBooleanValue(TestObject.PROXY_ENABLED);
 
-		if (!isProxyEnabled )
+		if (!API_PROXY_AUTO_DETECT_VALUE )
 			return;
 		
 		if(host.isEmpty() || port == -1)
@@ -693,6 +708,20 @@ public class RestApiInterface {
 			serviceObject.withResponse(response);
 
 		return serviceObject;
+	}
+	
+	/**
+	 * get base url from the config
+	 * @return
+	 */
+	public static URL getBaseUrl() {
+		URL baseUrl = null;
+		try {
+			new URL(Config.getValue(API_BASE_URL));
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+		return baseUrl;
 	}
 	
 	

@@ -3,6 +3,7 @@ package core.helpers;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.Proxy;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -2351,6 +2352,27 @@ public class Helper {
 	 */
 	public static URL convertToUrl(String url) {
 		return UtilityHelper.convertToUrl(url);
+	}
+	
+	/**
+	 * check if able to connect to source url
+	 * 
+	 * @param source
+	 * @param proxy   set to null if no proxy
+	 * @return
+	 */
+	public static boolean isUrlAbleToConnect(URL source, Proxy proxy) {
+		return UtilityHelper.isUrlAbleToConnect(source, proxy);
+	}
+	
+	/**
+	 * checks if proxy is required
+	 * first attempt without proxy, second with proxy, checking the validity of the proxy connection
+	 * @param source
+	 * @return
+	 */
+	public static boolean setProxyAutoDetection(URL source) {
+		return UtilityHelper.setProxyAutoDetection(source);
 	}
 	
 	/**
