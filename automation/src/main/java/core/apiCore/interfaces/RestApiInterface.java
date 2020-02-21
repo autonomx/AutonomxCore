@@ -55,7 +55,7 @@ public class RestApiInterface {
 	
 	public static final String API_BASE_URL = "api.uriPath";
 
-	public static Boolean API_IS_PROXY_ENABLED = null;
+	public static boolean API_AUTO_PROXY_SET = false;
 
 	/**
 	 * interface for restful API calls
@@ -102,7 +102,11 @@ public class RestApiInterface {
 		
 		// evaluate request and receive response
 		evaluateRequestAndReceiveResponse(serviceObject);
-
+		
+		// do not evaluate errors if no expectations set
+		if(serviceObject.getExpectedResponse().isEmpty() || serviceObject.getRespCodeExp().isEmpty())
+			return serviceObject.getResponse();
+		
 		if (!serviceObject.getErrorMessages().isEmpty()) {
 			String errorString = StringUtils.join(serviceObject.getErrorMessages(), "\n error: ");
 			TestLog.ConsoleLog(ServiceObject.normalize(errorString));
@@ -353,7 +357,7 @@ public class RestApiInterface {
 
 	/**
 	 * set proxy from config file
-	 * value to use proxy is set at API_IS_PROXY_ENABLED
+	 * value to use proxy is set at API_AUTO_PROXY_SET
 	 * We evaluate if we need to use proxy once in test run
 	 * @throws Exception 
 	 */
@@ -363,15 +367,17 @@ public class RestApiInterface {
 		int port = Config.getIntValue(TestObject.PROXY_PORT);
 		String proxyProtocal = Config.getValue(TestObject.PROXY_PROTOCOL);
 		boolean isProxyAutoDetect = Config.getBooleanValue(TestObject.PROXY_AUTO_DETECT);
+		boolean isProxyEnabled = false;
 		
 		// set proxy enabled value based on proxy auto detection. if auto detect enabled,
 		// attempt to connect to url with proxy info. if able to connect, enable proxy
-		if(isProxyAutoDetect && API_IS_PROXY_ENABLED == null) {
-			API_IS_PROXY_ENABLED = Helper.setProxyAutoDetection(getBaseUrl());
+		if(isProxyAutoDetect && !API_AUTO_PROXY_SET) {
+			isProxyEnabled = Helper.setProxyAutoDetection(getBaseUrl());
+			API_AUTO_PROXY_SET= true;
 		}else if (!isProxyAutoDetect)
-			API_IS_PROXY_ENABLED = Config.getBooleanValue(TestObject.PROXY_ENABLED);
+			isProxyEnabled = Config.getBooleanValue(TestObject.PROXY_ENABLED);
 
-		if (!API_IS_PROXY_ENABLED )
+		if (!isProxyEnabled )
 			return;
 		
 		if(host.isEmpty() || port == -1)
