@@ -256,6 +256,12 @@ public class DataHelper {
 			Helper.assertFalse("invalid time modifier. format: eg. _TIME_STRING_17+72h or _TIME_STRING_17-72m");
 
 		switch (modifierUnit) {
+		case "w":
+			if (modiferSign.equals("+"))
+				newTime = newTime.plus(modifierDuration * 7, ChronoUnit.DAYS);
+			else if (modiferSign.equals("-"))
+				newTime = newTime.minus(modifierDuration * 7, ChronoUnit.DAYS);
+			break;
 		case "d":
 			if (modiferSign.equals("+"))
 				newTime = newTime.plus(modifierDuration, ChronoUnit.DAYS);
