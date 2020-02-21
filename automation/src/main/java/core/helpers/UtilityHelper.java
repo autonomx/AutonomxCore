@@ -972,11 +972,11 @@ public class UtilityHelper {
 		        con.setReadTimeout(1000);
 		        con.setRequestMethod("HEAD");
 		       if (con.getResponseCode() == HttpURLConnection.HTTP_OK)
-		    	   return false;
+		    	   return true;
 		     	 else
-		     		return true;
+		     		return false;
 		    } catch (Exception e) {
-		        return true;
+		        return false;
 		    }
 	}
 	

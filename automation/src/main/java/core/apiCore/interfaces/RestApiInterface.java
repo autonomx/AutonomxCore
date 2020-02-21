@@ -104,7 +104,7 @@ public class RestApiInterface {
 		evaluateRequestAndReceiveResponse(serviceObject);
 		
 		// do not evaluate errors if no expectations set
-		if(serviceObject.getExpectedResponse().isEmpty() || serviceObject.getRespCodeExp().isEmpty())
+		if(serviceObject.getExpectedResponse().isEmpty() && serviceObject.getRespCodeExp().isEmpty())
 			return serviceObject.getResponse();
 		
 		if (!serviceObject.getErrorMessages().isEmpty()) {
@@ -722,8 +722,9 @@ public class RestApiInterface {
 	 */
 	public static URL getBaseUrl() {
 		URL baseUrl = null;
+		String baseUrlValue = Config.getValue(API_BASE_URL);
 		try {
-			new URL(Config.getValue(API_BASE_URL));
+			baseUrl = new URL(baseUrlValue);
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
