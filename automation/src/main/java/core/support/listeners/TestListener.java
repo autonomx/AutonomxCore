@@ -146,7 +146,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 	}
 
 	public void onTestStart(ITestResult iTestResult) {
-
+		
 		setTestClassName(iTestResult);
 		ScreenRecorderHelper.startRecording();
 	}

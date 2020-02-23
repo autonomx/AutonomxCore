@@ -56,7 +56,7 @@ public class CrossPlatformProperties {
 	}
 
 	public static Boolean getEnableBatchLogging() {
-		return Config.getBooleanValue(ENABLE_BATCH_LOGGING, true);
+		return Config.getBooleanValue(ENABLE_BATCH_LOGGING, false);
 	}
 
 	public static String getLocalizationFile() {

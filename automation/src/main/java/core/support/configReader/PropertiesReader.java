@@ -1,5 +1,6 @@
 package core.support.configReader;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
@@ -7,6 +8,7 @@ import java.util.List;
 import java.util.Properties;
 
 import core.helpers.Helper;
+import core.support.objects.TestObject;
 
 public class PropertiesReader {
 
@@ -43,6 +45,7 @@ public class PropertiesReader {
 	 * @return list of all properties
 	 * @throws Exception exception from getting properties file
 	 */
+	@SuppressWarnings("serial")
 	public static List<Properties> getPropertiesByFileType(String path, String fileType) throws Exception {
 		List<Properties> properties = new ArrayList<Properties>();
 
@@ -50,9 +53,23 @@ public class PropertiesReader {
 
 		for (File file : files) {
 			// get property files
-			FileInputStream fileInput = new FileInputStream(file);
-			Properties prop = new Properties();
-			prop.load(fileInput);
+			//Properties prop = new Properties();
+			Properties prop = new Properties() {
+			    @Override
+			    public synchronized Object put(Object key, Object value) {
+			       
+			    	// store key and property file location for duplicate check
+			    	TestObject.getTestInfo().configKeys.put(key.toString(), file.getName());
+			        return super.put(key, value);
+			    }
+			};
+			try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file))) {
+				prop.load(bis);
+
+			} catch (IllegalArgumentException ex) {
+			   ex.printStackTrace();
+			}
+			
 
 			// add to propery list
 			properties.add(prop);

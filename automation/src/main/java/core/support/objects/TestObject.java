@@ -12,6 +12,8 @@ import org.monte.screenrecorder.ScreenRecorder;
 import org.openqa.selenium.WebDriver;
 
 import com.aventstack.extentreports.ExtentTest;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 
 import core.apiCore.helpers.CsvReader;
 import core.helpers.Helper;
@@ -120,7 +122,9 @@ public class TestObject{
 	public Map<String, String> languageMap = new ConcurrentHashMap<String, String>();
 	public Map<String, ServiceObject> apiMap = new ConcurrentHashMap<String, ServiceObject>();// api keywords
 	public Map<String, Object> config = new ConcurrentHashMap<String, Object>();
+	public Multimap<String, String> configKeys = ArrayListMultimap.create();
 
+	
 	public static ThreadLocal<String> currentTestName = new ThreadLocal<String>();
 	public static ThreadLocal<String> currentTestId = new ThreadLocal<String>(); // key for testObject
 	
