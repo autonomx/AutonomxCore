@@ -8,7 +8,6 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalField;
 import java.time.temporal.WeekFields;
 import java.util.Locale;
 
@@ -79,21 +78,25 @@ public class DateHelper {
 	 * @return
 	 */
 	public String getTime(String timeString, String format, String zone) {
-		Instant time = Instant.parse(timeString);
+		Instant timeInstant = Instant.parse(timeString);
 		DateTimeFormatter formatter = null;
 
 		if (StringUtils.isBlank(format) && StringUtils.isBlank(zone))
-			return time.toString();
+			return timeInstant.toString();
 
 		if (!StringUtils.isBlank(format) && StringUtils.isBlank(zone))
-			return getTime(time, format);
+			return getTime(timeInstant, format);
 
 		if (StringUtils.isBlank(format) && !StringUtils.isBlank(zone)) {
-			return time.atZone(ZoneId.of(zone)).toString();
+			LocalDateTime timelocal = LocalDateTime.ofInstant(timeInstant, ZoneId.of(zone));	
+			ZoneId systemZone =  ZoneId.of(zone);
+			ZoneOffset offset = systemZone.getRules().getOffset(timeInstant);
+			String dateString = timelocal.toInstant(offset).toString();
+			return dateString;
 		}
 
 		formatter = DateTimeFormatter.ofPattern(format).withZone(ZoneId.of(zone));
-		return formatter.format(time);
+		return formatter.format(timeInstant);
 	}
 	
 	/**
