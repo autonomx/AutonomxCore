@@ -3,7 +3,9 @@ package core.apiCore.helpers;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.DayOfWeek;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -175,6 +177,14 @@ public class DataHelper {
 				String setTime = value.split("setTime")[1];	
 				setTime = removeFirstAndLastChars(setTime, ":","<", ">");
 				timeString = setTime(setTime, timeString);
+			}else if(value.contains("setDay")) {
+				String setDay = value.split("setDay")[1];	
+				setDay = removeFirstAndLastChars(setDay, ":","<", ">");
+				timeString = setDay(setDay, timeString);
+			}else if(value.contains("setMonth")) {
+				String setDay = value.split("setMonth")[1];	
+				setDay = removeFirstAndLastChars(setDay, ":","<", ">");
+				timeString = setMonth(setDay, timeString);
 			}else {
 				value = removeFirstAndLastChars(value, ":","<", ">");
 				timeString = getTimeWithModification(value, timeString);					
@@ -209,6 +219,43 @@ public class DataHelper {
 		        .toInstant();	
 		return time.toString();
 	}
+	
+	/**
+	 * set day based on format setDay:Day
+	 * @param parameter
+	 * @param timeString
+	 * @return
+	 */
+	public static String setDay(String dayName, String timeString ) {
+		Instant timeinstance = Instant.parse(timeString);
+		LocalDateTime time = LocalDateTime.ofInstant(timeinstance, ZoneOffset.UTC);
+		
+		int currentDay = Helper.date.getDayOfWeekIndex(time);
+		int targetDay = Helper.date.getDayOfWeekIndex(dayName);
+		int timeDifference = targetDay - currentDay;
+		
+		time = time.plusDays(timeDifference);
+		return time.toString();
+	}
+	
+	/**
+	 * set month based on format setMonth:Month
+	 * @param monthName
+	 * @param timeString
+	 * @return
+	 */
+	public static String setMonth(String monthName, String timeString ) {
+		Instant timeinstance = Instant.parse(timeString);
+		LocalDateTime time = LocalDateTime.ofInstant(timeinstance, ZoneOffset.UTC);
+		
+		int currentMonth = Helper.date.getMonthOfYearIndex(time);
+		int targetMonth = Helper.date.getMonthOfYearIndex(monthName);
+		int timeDifference = targetMonth - currentMonth;
+		
+		time = time.plusMonths(timeDifference);
+		return time.toString();
+	}
+	
 	
 	/**
 	 * removes surrounding character from string
