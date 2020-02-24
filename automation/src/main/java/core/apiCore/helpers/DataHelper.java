@@ -285,6 +285,7 @@ public class DataHelper {
 	 */
 	public static String getTimeWithModification(String parameter, String timeString) {
 		Instant time = Instant.parse(timeString);
+		LocalDateTime localTime = LocalDateTime.ofInstant(time, ZoneOffset.UTC);
 		Instant newTime = time;
 
 		String[] parameterArray = parameter.split("[+-]");
@@ -303,35 +304,48 @@ public class DataHelper {
 			Helper.assertFalse("invalid time modifier. format: eg. _TIME_STRING_17+72h or _TIME_STRING_17-72m");
 
 		switch (modifierUnit) {
+		case "y":
+			if (modiferSign.equals("+"))
+				localTime = localTime.plusYears(modifierDuration);
+			else if (modiferSign.equals("-"))
+				localTime = localTime.minusYears(modifierDuration);
+			break;
+		case "mo":
+			if (modiferSign.equals("+"))
+				localTime = localTime.plusMonths(modifierDuration);
+			else if (modiferSign.equals("-"))
+				localTime = localTime.minusMonths(modifierDuration);
+			break;
 		case "w":
 			if (modiferSign.equals("+"))
-				newTime = newTime.plus(modifierDuration * 7, ChronoUnit.DAYS);
+				localTime = localTime.plusWeeks(modifierDuration);
 			else if (modiferSign.equals("-"))
-				newTime = newTime.minus(modifierDuration * 7, ChronoUnit.DAYS);
+				localTime = localTime.minusWeeks(modifierDuration);
 			break;
 		case "d":
 			if (modiferSign.equals("+"))
-				newTime = newTime.plus(modifierDuration, ChronoUnit.DAYS);
+				localTime = localTime.plusDays(modifierDuration);
 			else if (modiferSign.equals("-"))
-				newTime = newTime.minus(modifierDuration, ChronoUnit.DAYS);
+				localTime = localTime.minusDays(modifierDuration);
 			break;
 		case "h":
 			if (modiferSign.equals("+"))
-				newTime = newTime.plus(modifierDuration, ChronoUnit.HOURS);
+				localTime = localTime.plusHours(modifierDuration);
 			else if (modiferSign.equals("-"))
-				newTime = newTime.minus(modifierDuration, ChronoUnit.HOURS);
+				localTime = localTime.minusHours(modifierDuration);
 			break;
 		case "m":
 			if (modiferSign.equals("+"))
-				newTime = newTime.plus(modifierDuration, ChronoUnit.MINUTES);
+				localTime = localTime.plusMinutes(modifierDuration);
 			else if (modiferSign.equals("-"))
-				newTime = newTime.minus(modifierDuration, ChronoUnit.MINUTES);
+				localTime = localTime.minusMinutes(modifierDuration);
 			break;
 		default:
-			Helper.assertFalse("invalid time modifier. format: eg. +2d or +72h or -72m");
+			Helper.assertFalse("invalid time modifier. format: eg. +2d or +72h or -72m or +1mo or +2y");
 
 		}
-		return newTime.toString();
+		String dateString = localTime.toInstant(ZoneOffset.UTC).toString();
+		return dateString;
 	}
 
 	/**
