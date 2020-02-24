@@ -2604,6 +2604,15 @@ public class Helper {
 	public static String getRootDir() {
 		return UtilityHelper.getRootDir();
 	}
+	
+	/**
+	 * gets the list of files
+	 * 
+	 * @return
+	 */
+	public static ArrayList<File> getFileListByType(String directoryPath, String type, boolean includeSubtype) {
+		return UtilityHelper.getFileListByType(directoryPath, type, includeSubtype);
+	}
 
 	/**
 	 * gets the list of files

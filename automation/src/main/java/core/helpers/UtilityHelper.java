@@ -435,25 +435,55 @@ public class UtilityHelper {
 		Helper.wait.waitForSeconds(3);
 		return destFile;
 	}
+	
+	protected static ArrayList<File> getFileListByType(String directoryPath, String type) {
+		return getFileListByType(directoryPath, type, false);
+	}
 
 	/**
 	 * gets the list of files tye: file type. eg. ".csv"
 	 * 
 	 * @return
 	 */
-	protected static ArrayList<File> getFileListByType(String directoryPath, String type) {
-		ArrayList<File> testFiles = getFileList(directoryPath);
+	protected static ArrayList<File> getFileListByType(String directoryPath, String type, boolean includeSubtype) {
 		ArrayList<File> filteredFiles = new ArrayList<File>();
+		ArrayList<File> testFiles = new ArrayList<File>();
+		if(includeSubtype)
+			testFiles = getFileList(directoryPath, testFiles);
+		else
+			testFiles = getFileList(directoryPath);
 		
-		// filter files by suffix And add to testFiles list
-		for (int i = 0; i < testFiles.size(); i++) {
-			if (testFiles.get(i).isFile() && testFiles.get(i).getName().endsWith(type)) {
-				filteredFiles.add(testFiles.get(i));
-				// System.out.println("File " + listOfFiles[i].getName());
-			}
+		
+		for(File file : testFiles) {
+			if (file.isFile() && file.getName().endsWith(type)) {
+				filteredFiles.add(file);
+			 }	
 		}
 		return filteredFiles;
 	}
+	
+	/**
+	 * returns the list of files in directory
+	 * @param directoryPath
+	 * @return
+	 */
+	protected static ArrayList<File> getFileList(String directoryPath, ArrayList<File> files) {
+		File directory = new File(directoryPath);
+
+		// Get all files from a directory.
+		File[] fList = directory.listFiles();
+		if (fList != null)
+			for (File file : fList) {
+				if (file.isFile()) {
+					files.add(file);
+				} else if (file.isDirectory()) {
+					getFileList(file.getAbsolutePath(), files);
+				}
+			}
+		return files;
+	}
+		
+	
 	
 	/**
 	 * returns the list of files in directory

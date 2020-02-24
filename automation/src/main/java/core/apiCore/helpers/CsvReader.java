@@ -36,6 +36,7 @@ public class CsvReader {
 	public static final String ACTION_KEY = "action";
 	public static final String SERVICE_CSV_SEPARATOR = "service.csv.separator";
 	public static final String SERVICE_CSV_DATAPROVIDER_COUNT = "service.csv.dataprovider.count";
+	public static final String SERVICE_CSV_INCLUDE_SUB_DIR = "api.csv.include.subdir";
 
 	
 	
@@ -352,7 +353,7 @@ public class CsvReader {
 	 * 
 	 * @return
 	 */
-	public static ArrayList<File> getTestDataCsvFileList() {
+	public static ArrayList<File> getTestDataCsvFileList() {		
 		String csvTestPath = PropertiesReader.getLocalRootPath()
 				+ Config.getValue(TestDataProvider.TEST_DATA_PARALLEL_PATH);
 		return getCsvFileList(csvTestPath);
@@ -365,7 +366,9 @@ public class CsvReader {
 	 * @return
 	 */
 	public static ArrayList<File> getCsvFileList(String csvTestPath) {
-		ArrayList<File> csvFiles = Helper.getFileListByType(csvTestPath, ".csv");
+		System.out.print("");
+		boolean includeSubDirectories = Config.getBooleanValue(SERVICE_CSV_INCLUDE_SUB_DIR);
+		ArrayList<File> csvFiles = Helper.getFileListByType(csvTestPath, ".csv", includeSubDirectories);
 		return csvFiles;
 	}
 
