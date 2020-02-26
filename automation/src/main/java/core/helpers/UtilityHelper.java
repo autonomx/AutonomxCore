@@ -482,8 +482,35 @@ public class UtilityHelper {
 			}
 		return files;
 	}
-		
 	
+	/**
+	 * get file from file path
+	 * @param directoryPath
+	 * @return
+	 */
+	protected static File getFile(String directoryPath) {
+		File file = new File(directoryPath);
+		if(!file.exists())
+			Helper.assertFalse("test files not found at path: " + directoryPath);
+		return file;
+	}
+		
+	/**
+	 * get file by name
+	 * @param path
+	 * @param filename
+	 * @return
+	 */
+	protected static File getFileByName(String path, String filename) {
+		List<File> files = Helper.getFileList(path);
+		for(File file : files) {
+			String simplename = file.getName().split("\\.")[0];
+			if(simplename.equals(filename))
+				return file;
+		}
+		Helper.assertFalse("file: <" + filename + "> not found at path: " + path);
+		return null;
+	}
 	
 	/**
 	 * returns the list of files in directory

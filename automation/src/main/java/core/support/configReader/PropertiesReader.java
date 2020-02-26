@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
+
 import core.helpers.Helper;
 import core.support.objects.TestObject;
 
@@ -15,8 +17,8 @@ public class PropertiesReader {
 	private static String LOCAL_ROOT_PATH = Helper.getRootDir();
 	private static String LOCAL_RESOURCE_PATH = LOCAL_ROOT_PATH + "resources" + File.separator;
 	private static String LOCAL_RESOURCE_CLOUD_PATH = LOCAL_ROOT_PATH + "test-classes" + File.separator + "testData" + File.separator + "resources" + File.separator;
-	private static String PROPERTIES_TYPE_PROPERTIES = ".property";
-	private static String PROPERTIES_TYPE_CONF = ".conf";
+	public static String PROPERTIES_TYPE_PROPERTIES = ".property";
+	public static String PROPERTIES_TYPE_CONF = ".conf";
 
    /**
     * @param path path to properties file
@@ -26,12 +28,18 @@ public class PropertiesReader {
 	public static List<Properties> Property(String path) throws Exception {
 
 		List<Properties> properties = new ArrayList<Properties>();
-		properties.addAll(getPropertiesByFileType(path, PROPERTIES_TYPE_PROPERTIES));
-		properties.addAll(getPropertiesByFileType(path, PROPERTIES_TYPE_CONF));
-
-		if(Helper.getFileList(path).isEmpty())
-			Helper.assertFalse("path: '" + path + "' does not have any property files, please verify resources/properties.property for correct path");
 		
+		if(new File(path).isFile()) {
+			properties.addAll(getPropertiesByFileType(path, StringUtils.EMPTY));
+		}else {	
+			properties.addAll(getPropertiesByFileType(path, PROPERTIES_TYPE_PROPERTIES));
+			properties.addAll(getPropertiesByFileType(path, PROPERTIES_TYPE_CONF));
+			
+			if(Helper.getFileList(path).isEmpty())
+				Helper.assertFalse("path: '" + path + "' does not have any property files, please verify resources/properties.property for correct path");
+		}
+
+				
 		return properties;
 	}
 
@@ -48,8 +56,13 @@ public class PropertiesReader {
 	@SuppressWarnings("serial")
 	public static List<Properties> getPropertiesByFileType(String path, String fileType) throws Exception {
 		List<Properties> properties = new ArrayList<Properties>();
-
-		List<File> files = Helper.getFileListByType(path, fileType);
+		List<File> files = new ArrayList<File>();
+		
+		if(fileType.isEmpty()) {
+			File file = Helper.getFile(path);
+			files.add(file);
+		}else
+			files = Helper.getFileListByType(path, fileType);
 
 		for (File file : files) {
 			// get property files
@@ -75,6 +88,10 @@ public class PropertiesReader {
 			properties.add(prop);
 		}
 		return properties;
+	}
+	
+	public static List<Properties> getPropertiesByFileType(String path) throws Exception {
+		return getPropertiesByFileType(path, StringUtils.EMPTY);
 	}
 
 	/**

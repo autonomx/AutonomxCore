@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -23,10 +24,14 @@ import core.support.objects.TestObject;
 
 public class Config {
 
-	private static final String CONFIG_PREFIX = "config.";
-	private static final String CONFIG_PROFILE = "config.profile";
-	private static final String PROFILE_PREFIX = "profile.";
+	private static final String CONFIG_GROUP_PREFIX = "config.group.";
+	private static final String CONFIG_PROFILE_PREFIX = "config.profile.";
 
+	private static final String CONFIG_PREFIX = "config.";
+	private static final String PROFILE_PREFIX = "profile.";
+	private static final String GROUP_PREFIX = "profile.group.";
+
+	
 	public static String RESOURCE_PATH = PropertiesReader.getLocalResourcePath();
 
 	/**
@@ -115,11 +120,12 @@ public class Config {
 		Map<String, String> propertiesMap = getAllKeys(RESOURCE_PATH);
 		List<String> configPath = new ArrayList<String>();
 
-		// add config and profile path
+		// add config, profile and group path
 		configPath.addAll(getConfigs(propertiesMap));
-		configPath.addAll(getProfiles(propertiesMap));
+		configPath.addAll(getConfigProfiles(propertiesMap));
+		configPath.addAll(getConfigGroup(propertiesMap));
 
-		// load config/properties values from entries with "config_" prefix
+		// load config/properties values 
 		for (String path : configPath) {
 			propertiesMap = getAllKeys(PropertiesReader.getLocalRootPath() + path);
 			config.putAll(propertiesMap);
@@ -166,7 +172,9 @@ public class Config {
 		// get list of profiles from key: config.profile
 		for (Entry<String, String> entry : propertiesMap.entrySet()) {
 			String key = entry.getKey().toString();
-			boolean isConfig = key.startsWith(CONFIG_PREFIX) && !key.equals(CONFIG_PROFILE);
+			boolean isConfig = key.startsWith(CONFIG_PREFIX) 
+					&& !key.startsWith(CONFIG_PROFILE_PREFIX) 
+					&& !key.startsWith(CONFIG_GROUP_PREFIX);
 			if (isConfig) {
 				configPath.add(entry.getValue());
 			}
@@ -175,35 +183,84 @@ public class Config {
 	}
 
 	/**
-	 * get the list of profile path specified by config.profile in
+	 * get the list of profile path specified by profile. in
 	 * properties.property file multiple profiles can be separated by ","
 	 * 
 	 * @param propertiesMap
 	 * @return
 	 */
-	public static List<String> getProfiles(Map<String, String> propertiesMap) {
+	// TODO: add support for .conf file as well
+	public static List<String> getConfigProfiles(Map<String, String> propertiesMap) {
 		List<String> profiles = new ArrayList<String>();
 		List<String> profilePath = new ArrayList<String>();
 
-		// get list of profiles from key: config.profile
+		// get list of profiles from key: profile.
 		for (Entry<String, String> entry : propertiesMap.entrySet()) {
-			boolean isProfile = entry.getKey().toString().equalsIgnoreCase(CONFIG_PROFILE);
-			if (isProfile) {
+			boolean isProfile = entry.getKey().toString().startsWith(PROFILE_PREFIX);
+			boolean isCorrectLength =  entry.getKey().toString().split("\\.").length == 2;
+			if (isProfile && isCorrectLength) {
+				String profile = entry.getKey().split("\\.")[1];
+				// add profile name to value. eg. environment.dev 
 				profiles = new ArrayList<String>(Arrays.asList(entry.getValue().split(",")));
+				profiles = profiles.stream().map(c -> profile + "." + c).collect(Collectors.toList());
+
 			}
 		}
-
-		// add profile path to list
+		// property value: profile.environment = dev
+		// add profile path to list. eg. 'environment.dev'. profile is environment, 
+		// dev is the property file name: dev.property
 		for (String profile : profiles) {
-			if (propertiesMap.get(PROFILE_PREFIX + profile) == null)
+			String profileValue = profile.split("\\.")[0];
+			String propertyFile = profile.split("\\.")[1];
+			if (propertiesMap.get(CONFIG_PROFILE_PREFIX + profileValue) == null)
 				Helper.assertFalse("profile not found: " + profile
 						+ ". Please add profile to properties.property file as profile." + profile);
-			String path = propertiesMap.get(PROFILE_PREFIX + profile);
-			profilePath.add(path);
+			String path = propertiesMap.get(CONFIG_PROFILE_PREFIX + profileValue);
+			File file = Helper.getFileByName(path, propertyFile);
+			profilePath.add(file.getPath());
 		}
 
 		return profilePath;
 	}
+	
+	
+	/**
+	 * get the list of group path specified by profile.group.groupName. in
+	 * properties.property file multiple profiles can be separated by ","
+	 * 
+	 * @param propertiesMap
+	 * @return
+	 */
+	public static List<String> getConfigGroup(Map<String, String> propertiesMap) {
+		List<String> profiles = new ArrayList<String>();
+		List<String> groupPath = new ArrayList<String>();
+
+		// get list of groups from key: profile.
+		for (Entry<String, String> entry : propertiesMap.entrySet()) {
+			boolean isProfile = entry.getKey().toString().startsWith(GROUP_PREFIX);
+			boolean isCorrectLength =  entry.getKey().toString().split("\\.").length == 3;
+			if (isProfile && isCorrectLength) {
+				String group = entry.getKey().split("\\.")[2];
+				
+				// add group name to value. eg. repot.value
+				profiles = new ArrayList<String>(Arrays.asList(entry.getValue().split(",")));
+				profiles = profiles.stream().map(c -> group + "." + c).collect(Collectors.toList());
+
+			}
+		}
+
+		// add group path to list
+		for (String profile : profiles) {
+			if (propertiesMap.get(CONFIG_GROUP_PREFIX + profile) == null)
+				Helper.assertFalse("profile not found: " + profile
+						+ ". Please add groups to properties.property file as " + CONFIG_GROUP_PREFIX + profile);
+			String path = propertiesMap.get(CONFIG_GROUP_PREFIX + profile);
+			groupPath.add(path);
+		}
+
+		return groupPath;
+	}
+
 
 	/**
 	 * returns config value

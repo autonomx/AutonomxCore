@@ -203,6 +203,7 @@ public class ServiceManager {
 		
 		
 		/**
+		 * @SuppressWarnings("unchecked")
 		 public static void runServiceTests(ServiceObject serviceObject) throws Exception { 
 			if(serviceObject.getServiceSteps() instanceof HashMap) {
 				Map<String, List<Object[]>> testStepMap = (Map<String, List<Object[]>>) serviceObject.getServiceSteps();
@@ -216,7 +217,7 @@ public class ServiceManager {
 				runInterface(serviceObject);
 		}
 		 */
-		
+		bw.append(" @SuppressWarnings(\"unchecked\")" + " \n");
 		bw.append("	public static void runServiceTests(ServiceObject serviceObject) throws Exception {" + " \n");
 		bw.append("		if(serviceObject.getServiceSteps() instanceof HashMap) {" + " \n");
 		bw.append("			Map<String, List<Object[]>> testStepMap = (Map<String, List<Object[]>>) serviceObject.getServiceSteps();" + " \n");

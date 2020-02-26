@@ -2606,6 +2606,25 @@ public class Helper {
 	}
 	
 	/**
+	 * get file from file path
+	 * @param directoryPath
+	 * @return
+	 */
+	public static File getFile(String directoryPath) {
+		return UtilityHelper.getFile(directoryPath);
+	}
+	
+	/**
+	 * get file by name
+	 * @param path
+	 * @param filename
+	 * @return
+	 */
+	public static File getFileByName(String path, String filename) {
+		return UtilityHelper.getFileByName(path, filename);
+	}
+	
+	/**
 	 * gets the list of files
 	 * 
 	 * @return
