@@ -189,7 +189,6 @@ public class Config {
 	 * @param propertiesMap
 	 * @return
 	 */
-	// TODO: add support for .conf file as well
 	public static List<String> getConfigProfiles(Map<String, String> propertiesMap) {
 		List<String> profiles = new ArrayList<String>();
 		List<String> profilePath = new ArrayList<String>();

@@ -23,6 +23,8 @@ public class Authentication {
 
 	public static final String BASIC_AUTHORIZATION = "BASIC";
 	public static final String NTLM_AUTHORIZATION = "NTLM";
+	public static final String AUTHENTICATION_DISABLE = "authentication.disabled";
+
 
 	public static final String AUTHENTICATION = "auth";
 
@@ -36,6 +38,10 @@ public class Authentication {
 
 		if (serviceObject == null)
 			Helper.assertFalse("apiobject is null");
+		
+		// if authentication is disabled, return
+		if(Config.getBooleanValue(AUTHENTICATION_DISABLE))
+			return;
 
 		// set timeout from api config
 		RestApiInterface.setTimeout();
