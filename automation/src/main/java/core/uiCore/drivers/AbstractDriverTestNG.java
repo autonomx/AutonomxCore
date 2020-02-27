@@ -14,7 +14,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Listeners;
-import org.testng.internal.BaseTestMethod;
 import org.testng.reporters.JUnitReportReporter;
 
 import com.aventstack.extentreports.ExtentReports;
@@ -317,7 +316,6 @@ public class AbstractDriverTestNG extends JUnitReportReporter implements ITest {
 
 	@Override
 	public String getTestName() {
-		String testnameval = testName.get();
 		if(testName.get() == null)
 			 testName.set("");
 		return testName.get();
