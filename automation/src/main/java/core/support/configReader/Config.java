@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 import core.helpers.Helper;
@@ -115,6 +116,7 @@ public class Config {
 	 */
 	public static Map<String, Object> loadConfigProperties() {
 		Map<String, Object> config = new ConcurrentHashMap<String, Object>();
+		TestObject.getTestInfo().configKeys = ArrayListMultimap.create();
 
 		// get all keys from resource path
 		Map<String, String> propertiesMap = getAllKeys(RESOURCE_PATH);
@@ -124,7 +126,7 @@ public class Config {
 		configPath.addAll(getConfigs(propertiesMap));
 		configPath.addAll(getConfigProfiles(propertiesMap));
 		configPath.addAll(getConfigGroup(propertiesMap));
-
+		
 		// load config/properties values 
 		for (String path : configPath) {
 			propertiesMap = getAllKeys(PropertiesReader.getLocalRootPath() + path);

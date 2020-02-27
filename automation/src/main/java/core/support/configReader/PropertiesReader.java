@@ -63,8 +63,10 @@ public class PropertiesReader {
 			files.add(file);
 		}else
 			files = Helper.getFileListByType(path, fileType);
+		
 
 		for (File file : files) {
+			
 			// get property files
 			//Properties prop = new Properties();
 			Properties prop = new Properties() {
