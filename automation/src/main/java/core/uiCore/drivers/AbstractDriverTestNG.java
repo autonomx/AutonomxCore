@@ -1,5 +1,6 @@
 package core.uiCore.drivers;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
@@ -8,10 +9,12 @@ import org.openqa.selenium.WebDriver;
 import org.testng.ITest;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
+import org.testng.Reporter;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Listeners;
+import org.testng.internal.BaseTestMethod;
 
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
@@ -161,7 +164,7 @@ public class AbstractDriverTestNG implements ITest {
 	 * @return
 	 */
 	@BeforeMethod(alwaysRun = true)
-	public synchronized void handleTestMethodName(Method method, Object[] testData) {
+	public synchronized void handleTestMethodName(Method method, ITestResult iTestResult, Object[] testData) {
 		TestObject.setTestName(method.getName());
 		TestObject.setTestId(getClassName(), TestObject.currentTestName.get());
        
@@ -178,6 +181,25 @@ public class AbstractDriverTestNG implements ITest {
 		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
 
 		new AbstractDriverTestNG().setupWebDriver(TestObject.getTestId(), driver);
+		
+		// set test name for reports. eg. junit report
+		setResultTestName(iTestResult);
+	}
+	
+	/**
+	 * // set test name for reports. eg. junit report
+	 * @param result
+	 */
+	public void setResultTestName(ITestResult result) {
+	    try {
+	    	
+	    	 Field methodName = org.testng.internal.BaseTestMethod.class.getDeclaredField("m_methodName");
+	         methodName.setAccessible(true);
+	         methodName.set(result.getMethod(), testName.get());
+
+	    } catch (Exception e) {
+	        Reporter.log("Exception : " + e.getMessage());
+	    }
 	}
 	
 	/**
@@ -270,8 +292,10 @@ public class AbstractDriverTestNG implements ITest {
 		
 		// shut down drivers after test
 		DriverObject.shutDownDriver(iTestResult.isSuccess());
+		
+		
 	}
-	
+		
 	/**
 	 * After class batch log print is called here, cause this after class method is called after all other after class
 	 * methods
@@ -292,6 +316,7 @@ public class AbstractDriverTestNG implements ITest {
 
 	@Override
 	public String getTestName() {
+		String testnameval = testName.get();
 		if(testName.get() == null)
 			 testName.set("");
 		return testName.get();
