@@ -8,6 +8,7 @@ public class JUnitReporter extends JUnitReportReporter {
 	@Override
 	protected String getTestName(ITestResult tr) {
 		String name = tr.getName();
+		System.out.println(name);
 	    return name;
 	}
 }
