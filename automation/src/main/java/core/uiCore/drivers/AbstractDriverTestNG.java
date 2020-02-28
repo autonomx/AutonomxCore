@@ -14,7 +14,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Listeners;
-import org.testng.reporters.JUnitReportReporter;
 
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
@@ -35,7 +34,7 @@ import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 
 @Listeners({core.support.listeners.TestListener.class})
 
-public class AbstractDriverTestNG extends JUnitReportReporter implements ITest {
+public class AbstractDriverTestNG implements ITest {
 
 	public static ExtentReports extent;
 	public static ThreadLocal<ExtentTest> step = new ThreadLocal<ExtentTest>();
