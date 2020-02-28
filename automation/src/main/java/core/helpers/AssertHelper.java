@@ -4,6 +4,7 @@ import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
 import core.support.logger.TestLog;
+import core.support.objects.TestObject;
 
 public class AssertHelper {
 
@@ -15,15 +16,15 @@ public class AssertHelper {
 	 */
 	protected static void assertTrue(String message, boolean value) {
 		if(!value) TestLog.ConsoleLog("Assertion failed: " + message);
-		Assert.assertTrue(value, message);
+		Assert.assertTrue(value, TestObject.getTestId() + ": " +  message);
 	}
 
 	protected static void assertFalse(String message) {
-		Assert.assertTrue(false, message);
+		Assert.assertTrue(false, TestObject.getTestId() + ": " +  message);
 	}
 	
 	protected static void assertFalse(String message, boolean value) {
-		Assert.assertTrue(!value, message);
+		Assert.assertTrue(!value, TestObject.getTestId() + ": " +  message);
 	}
 
 	protected static void assertEquals(String expected, String actual) {
