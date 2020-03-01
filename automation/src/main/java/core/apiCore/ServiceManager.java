@@ -256,6 +256,8 @@ public class ServiceManager {
 	 */
 	public static void runServiceTestFile(String csvTestPath, String file, String testname, String parent) {
 		
+		if(!new File(csvTestPath).exists())
+			return;
 		
 		// map test list and run through the service runner
 		List<Object[]> testList = CsvReader.getCsvTestListForTestRunner(csvTestPath, file);

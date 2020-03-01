@@ -366,7 +366,6 @@ public class CsvReader {
 	 * @return
 	 */
 	public static ArrayList<File> getCsvFileList(String csvTestPath) {
-		System.out.print("");
 		boolean includeSubDirectories = Config.getBooleanValue(SERVICE_CSV_INCLUDE_SUB_DIR);
 		ArrayList<File> csvFiles = Helper.getFileListByType(csvTestPath, ".csv", includeSubDirectories);
 		return csvFiles;
