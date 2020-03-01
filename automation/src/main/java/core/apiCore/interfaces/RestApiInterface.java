@@ -94,18 +94,38 @@ public class RestApiInterface {
 	/**
 	 * evaluate request and validate response retry until validation timeout period
 	 * in seconds
-	 * 
+	 * RetryAfterSecond is based on waiting after the validation round is complete, including wait for response wait period
 	 * @param serviceObject
 	 * @return
 	 */
 	public static Response evaluateRequestAndValidateResponse(ServiceObject serviceObject) {
 		
-		// evaluate request and receive response
-		evaluateRequestAndReceiveResponse(serviceObject);
+		// evaluate options
+		evaluateOption(serviceObject, null);
 		
-		// do not evaluate errors if no expectations set
-		if(serviceObject.getExpectedResponse().isEmpty() && serviceObject.getRespCodeExp().isEmpty())
-			return serviceObject.getResponse();
+		int getRetryCount = Config.getIntValue(ServiceManager.SERVICE_RETRY_COUNT);
+		int getRetryAfterSecond = Config.getIntValue(ServiceManager.SERVICE_RETRY_AFTER_SERCONDS);
+		
+		// retry test if value set
+		for(int i = 1; i <= getRetryCount + 1; i++) {
+			// evaluate request and receive response
+			evaluateRequestAndReceiveResponse(serviceObject);
+			
+			// do not evaluate errors if no expectations set
+			if(serviceObject.getExpectedResponse().isEmpty() && serviceObject.getRespCodeExp().isEmpty())
+				return serviceObject.getResponse();
+			
+			// if no errors, then break 
+			if(serviceObject.getErrorMessages().isEmpty())
+				break;
+			
+			// wait after the test is complete before next retry. default is 0
+			if(i <= getRetryCount) {
+				TestLog.logPass("Run: " + i + " Failed, attempting another retry... " + (getRetryCount + 1 - i) + " retry(s) remaining"  );
+				if(getRetryAfterSecond > 0)
+					Helper.waitForSeconds(getRetryAfterSecond);
+			}
+		}
 		
 		if (!serviceObject.getErrorMessages().isEmpty()) {
 			String errorString = StringUtils.join(serviceObject.getErrorMessages(), "\n error: ");
@@ -121,7 +141,7 @@ public class RestApiInterface {
 	 * format: http://url?page=<@PAGINATION_FROM_1> 
 	 * 	counter will start from page 1
 	 * will iterate through the pages until either:
-	 * 	-  the expected response critera is met
+	 * 	-  the expected response criteria is met
 	 * 	-  max pages are reached. specified by PAGINATION_MAX_PAGES:100 in options
 	 *  -  response criteria for max pages is reached. OPTION_PAGINATION_STOP_CRITERIA:.results.id
 	 *  		- if the list of responses on a selected page is 0, that means the page has no results,
@@ -275,9 +295,11 @@ public class RestApiInterface {
 			passedTimeInSeconds = watch.time(TimeUnit.SECONDS);
 			
 			// if validation timeout is not enabled, break out of the loop
+			// retry only applicable to GET call
 			boolean isValidationTimeout = Config.getBooleanValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED);
+			boolean isGetCall = serviceObject.getMethod().equals("GET");
 			maxRetrySeconds = Config.getIntValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS);
-			if (!isValidationTimeout)
+			if (!isValidationTimeout || !isGetCall)
 				break;
 
 			// log errors if exist
@@ -618,6 +640,12 @@ public class RestApiInterface {
 				else Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, true);
 				Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS, keyword.value);	
 				break;
+			case ServiceManager.OPTION_RETRY_COUNT:
+				Config.putValue(ServiceManager.SERVICE_RETRY_COUNT, keyword.value);
+				break;
+			case ServiceManager.OPTION_RETRY_AFTER_SECONDS:
+				Config.putValue(ServiceManager.SERVICE_RETRY_AFTER_SERCONDS, keyword.value);
+				break;
 			case OPTION_PAGINATION_STOP_CRITERIA:
 				Config.putValue(API_PAGINATION_STOP_CRITERIA, keyword.value);
 				break;
@@ -649,6 +677,12 @@ public class RestApiInterface {
 		
 		Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, defaultValidationTimeoutIsEnabled);
 		Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS, defaultValidationTimeoutIsSeconds);
+		
+		// reset retry count
+		int defaultRetryCount = Config.getGlobalIntValue(ServiceManager.SERVICE_RETRY_COUNT);
+		int defaultRetryAfterSeconds = Config.getGlobalIntValue(ServiceManager.SERVICE_RETRY_AFTER_SERCONDS);
+		Config.putValue(ServiceManager.SERVICE_RETRY_COUNT, defaultRetryCount);
+		Config.putValue(ServiceManager.SERVICE_RETRY_AFTER_SERCONDS, defaultRetryAfterSeconds);
 		
 		Config.putValue(API_PAGINATION_STOP_CRITERIA, "");
 		Config.putValue(API_PAGINATION_MAX_PAGES, 100);	

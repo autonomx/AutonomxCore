@@ -455,6 +455,11 @@ public class TestObject{
 		return (test == null);
 	}
 	
+	public static boolean isValidTestId(String testId) {
+		TestObject test = testInfo.get(testId);
+		return (test != null);
+	}
+	
 	/**
 	 * returns the invocation count for the data provider test
 	 * format class-testname-test1

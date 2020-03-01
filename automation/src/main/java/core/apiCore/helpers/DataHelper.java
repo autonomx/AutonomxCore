@@ -485,6 +485,11 @@ public class DataHelper {
 		String actualString = "";
 
 		int positionInt = 0;
+		
+		// if response is single item, it is same as command with position 1
+		if(actualArray.size() == 1) {
+			position = "1";
+		}
 
 		// if position has value, Then get response at position
 		if (!position.isEmpty() && Helper.getIntFromString(position) > 0) {
@@ -497,6 +502,7 @@ public class DataHelper {
 			}
 
 			actualString = actualArray.get(positionInt - 1);
+		// if response is single array element, set position to 1, treat as string comparison
 		}
 
 		if (getCommandFromExpectedString(command).isEmpty()) {

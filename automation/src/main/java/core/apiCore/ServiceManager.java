@@ -66,6 +66,12 @@ public class ServiceManager {
 	public static final String SERVICE_TIMEOUT_VALIDATION_SECONDS = "service.timeout.validation.seconds";
 	public static final String SERVICE_TIMEOUT_VALIDATION_ENABLED = "service.timeout.validation.isEnabled";
 
+	public static final String OPTION_RETRY_COUNT = "RETRY_COUNT";
+	public static final String OPTION_RETRY_AFTER_SECONDS = "RETRY_AFTER_SECONDS";
+	public static final String SERVICE_RETRY_COUNT = "service.retry.count";
+	public static final String SERVICE_RETRY_AFTER_SERCONDS = "service.retry.after.seconds";
+
+	
 	public static void runInterface(ServiceObject serviceObject) throws Exception {
 			runCsvInterface(serviceObject);
 	}

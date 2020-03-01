@@ -11,7 +11,7 @@ public class CrossPlatformProperties {
 	private static String PARALLEL_TEST_COUNT = "global.parallelTestCount";
 	private static String PARALLEL_TEST_TYPE = "global.parallelTestType";
 
-	private static String RETRY_COUNT = "global.retryCount";
+	public static String RETRY_COUNT = "global.retryCount";
 	private static String GLOBAL_TIMEOUT_SECONDS = "global.timeoutSeconds";
 	private static String GLOBAL_TIMEOUT_IMPLICIT_SECONDS = "global.timeout.implicit.Seconds";
 

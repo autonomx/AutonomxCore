@@ -182,16 +182,17 @@ public class AbstractDriverTestNG implements ITest {
 		new AbstractDriverTestNG().setupWebDriver(TestObject.getTestId(), driver);
 		
 		// set test name for reports. eg. junit report
-		setResultTestName(iTestResult);
+		setResultTestName(testData, iTestResult);
 	}
 	
 	/**
 	 * // set test name for reports. eg. junit report
 	 * @param result
 	 */
-	public void setResultTestName(ITestResult result) {
-	    try {
-	    	
+	public void setResultTestName(Object[] testData, ITestResult result) {
+		if (!ApiTestDriver.isRunningServiceTest(testData)) return;
+	  
+		try {
 	    	 Field methodName = org.testng.internal.BaseTestMethod.class.getDeclaredField("m_methodName");
 	         methodName.setAccessible(true);
 	         methodName.set(result.getMethod(), testName.get());
