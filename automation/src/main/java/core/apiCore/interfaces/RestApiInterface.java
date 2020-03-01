@@ -297,9 +297,8 @@ public class RestApiInterface {
 			// if validation timeout is not enabled, break out of the loop
 			// retry only applicable to GET call
 			boolean isValidationTimeout = Config.getBooleanValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED);
-			boolean isGetCall = serviceObject.getMethod().equals("GET");
 			maxRetrySeconds = Config.getIntValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS);
-			if (!isValidationTimeout || !isGetCall)
+			if (!isValidationTimeout)
 				break;
 
 			// log errors if exist
@@ -315,12 +314,14 @@ public class RestApiInterface {
 	}
 	
 	private static void logTestRunError(int currentRetryCount, List<String> errorMessages) {
+		int waitTime = Config.getIntValue(ServiceManager.SERVICE_RESPONSE_DELAY_BETWEEN_ATTEMPTS_SECONDS);
+		
 		if (currentRetryCount >= 1) {
 			String errors = StringUtils.join(errorMessages, "\n error: ");
 			TestLog.ConsoleLog("attempt failed with message: " + ServiceObject.normalize(errors));
 		}
 		if(currentRetryCount > 1)
-			Helper.waitForSeconds(3);
+			Helper.waitForSeconds(waitTime);
 	}
 
 	/**
@@ -631,14 +632,16 @@ public class RestApiInterface {
 			switch (keyword.key) {
 			case ServiceManager.OPTION_NO_VALIDATION_TIMEOUT:
 				Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, false);
-				break;
-				
+				break;	
 			case ServiceManager.OPTION_WAIT_FOR_RESPONSE:
 				// disable per page wait for response if pagination validation is enabled
 				if(Config.getBooleanValue(API_TIMEOUT_PAGINATION_VALIDATION_ENABLED))
 					Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, false);
 				else Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, true);
 				Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS, keyword.value);	
+				break;
+			case ServiceManager.OPTION_WAIT_FOR_RESPONSE_DELAY:
+				Config.putValue(ServiceManager.SERVICE_RESPONSE_DELAY_BETWEEN_ATTEMPTS_SECONDS, keyword.value);
 				break;
 			case ServiceManager.OPTION_RETRY_COUNT:
 				Config.putValue(ServiceManager.SERVICE_RETRY_COUNT, keyword.value);
@@ -675,12 +678,20 @@ public class RestApiInterface {
 		
 		String defaultValidationTimeoutIsSeconds = Config.getGlobalValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS);
 		
+		int defaultValidationTimeoutDelay = Config.getGlobalIntValue(ServiceManager.SERVICE_RESPONSE_DELAY_BETWEEN_ATTEMPTS_SECONDS);
+		if(defaultValidationTimeoutDelay == -1) defaultValidationTimeoutDelay = 3;
+		
 		Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, defaultValidationTimeoutIsEnabled);
 		Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS, defaultValidationTimeoutIsSeconds);
-		
+		Config.putValue(ServiceManager.SERVICE_RESPONSE_DELAY_BETWEEN_ATTEMPTS_SECONDS, defaultValidationTimeoutDelay);
+
 		// reset retry count
 		int defaultRetryCount = Config.getGlobalIntValue(ServiceManager.SERVICE_RETRY_COUNT);
+		if(defaultRetryCount == -1) defaultRetryCount = 0;
+		
 		int defaultRetryAfterSeconds = Config.getGlobalIntValue(ServiceManager.SERVICE_RETRY_AFTER_SERCONDS);
+		if(defaultRetryAfterSeconds == -1) defaultRetryAfterSeconds = 1;
+		
 		Config.putValue(ServiceManager.SERVICE_RETRY_COUNT, defaultRetryCount);
 		Config.putValue(ServiceManager.SERVICE_RETRY_AFTER_SERCONDS, defaultRetryAfterSeconds);
 		

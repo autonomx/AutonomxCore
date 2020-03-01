@@ -1,9 +1,8 @@
 package core.support.listeners;
 
-import org.apache.commons.lang.StringUtils;
 import org.testng.ITestResult;
 import org.testng.reporters.JUnitReportReporter;
-import core.apiCore.driver.ApiTestDriver;
+
 import core.support.objects.ServiceObject;
 import core.support.objects.TestObject;
 

@@ -146,7 +146,9 @@ public class SqlInterface {
 				Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, true);
 				Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS, keyword.value);	
 				break;
-
+			case ServiceManager.OPTION_WAIT_FOR_RESPONSE_DELAY:
+				Config.putValue(ServiceManager.SERVICE_RESPONSE_DELAY_BETWEEN_ATTEMPTS_SECONDS, keyword.value);
+				break;
 			default:
 				break;
 			}
@@ -412,7 +414,8 @@ public class SqlInterface {
 				break;
 
 			if (currentRetryCount > 0) {
-				Helper.waitForSeconds(3);
+				int waitTime = Config.getIntValue(ServiceManager.SERVICE_RESPONSE_DELAY_BETWEEN_ATTEMPTS_SECONDS);
+				Helper.waitForSeconds(waitTime);
 				String errors = StringUtils.join(errorMessages, "\n error: ");
 				TestLog.ConsoleLog("attempt failed with message: " + errors);
 				TestLog.ConsoleLog("attempt #" + (currentRetryCount + 1));
@@ -440,9 +443,15 @@ public class SqlInterface {
 	private static void resetValidationTimeout() {
 		// reset validation timeout option
 		String defaultValidationTimeoutIsEnabled = Config.getGlobalValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED);
-		String defaultValidationTimeoutIsSeconds = Config.getGlobalValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS);
+		int defaultValidationTimeoutIsSeconds = Config.getGlobalIntValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS);
+		if(defaultValidationTimeoutIsSeconds == -1) defaultValidationTimeoutIsSeconds = 60;
+		
+		// delay timeout reset 
+		int defaultValidationTimeoutDelay = Config.getGlobalIntValue(ServiceManager.SERVICE_RESPONSE_DELAY_BETWEEN_ATTEMPTS_SECONDS);
+		if(defaultValidationTimeoutDelay == -1) defaultValidationTimeoutDelay = 3;
 		
 		Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, defaultValidationTimeoutIsEnabled);
 		Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS, defaultValidationTimeoutIsSeconds);
+		Config.putValue(ServiceManager.SERVICE_RESPONSE_DELAY_BETWEEN_ATTEMPTS_SECONDS, defaultValidationTimeoutDelay);
 	}
 }
