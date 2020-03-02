@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 import javax.lang.model.element.Element;
 
 public class PackageHelper {
-	
+
 	public static String CONFIG_MANAGER_CLASS = "ConfigManager";
 	public static String MODULE_MANAGER_CLASS = "ModuleManager";
 	public static String PANEL_MANAGER_CLASS = "PanelManager";
@@ -22,8 +22,6 @@ public class PackageHelper {
 	public static String SERVICE_PATH = "serviceManager";
 	public static String MODULE_MANAGER_PATH = "moduleManager";
 	public static String CONFIG_MANAGER_PATH = "configManager";
-
-
 
 	/**
 	 * gets module name. eg. module.android.LoginPanel with return android
@@ -39,13 +37,15 @@ public class PackageHelper {
 
 	public static String getPackagePath(Element element) {
 		String sourceClass = element.asType().toString();
-		String packagePath = MODULE_MANAGER_PATH + "." + sourceClass.split("\\.")[0] + "." + sourceClass.split("\\.")[1];
+		String packagePath = MODULE_MANAGER_PATH + "." + sourceClass.split("\\.")[0] + "."
+				+ sourceClass.split("\\.")[1];
 		return packagePath;
 	}
-	
+
 	/**
-	 * returns package name from file path
-	 * eg. module.common.data.user will return module.common.data
+	 * returns package name from file path eg. module.common.data.user will return
+	 * module.common.data
+	 * 
 	 * @param sourceClass
 	 * @return
 	 */
@@ -86,47 +86,49 @@ public class PackageHelper {
 		}
 		return sourceClass;
 	}
-	
+
 	/**
-	 * returns the module name from the file path
-	 * module is directory after "module" directory
-	 * eg. module.webapp.data.user.csv will return webapp
-	 * outside module: data.user.csv will return data
+	 * returns the module name from the file path module is directory after "module"
+	 * directory eg. module.webapp.data.user.csv will return webapp outside module:
+	 * data.user.csv will return data
+	 * 
 	 * @return
 	 */
 	public static String getModuleFromFullPath(File file) {
 		String pattern = Pattern.quote(File.separator); // win, osx, linux have different separators
 		String[] directories = file.getAbsolutePath().split(pattern);
 		Logger.debug("getModuleFromFullPath: " + file.getAbsolutePath());
-		for(int i = 0; i< directories.length; i++) {
-			if(directories[i].equals("module"))
-				return directories[i+1];
+		for (int i = 0; i < directories.length; i++) {
+			if (directories[i].equals("module"))
+				return directories[i + 1];
 		}
-		
+
 		// by default return data. this is applicable for data files outside modules
 		return "data";
 	}
-	
+
 	/**
 	 * gets the list of modules that have csv data files
+	 * 
 	 * @param files
 	 * @return
 	 */
-	public static Set<String> getModuleList(List<File> files){
-		 // unique modules
-		 Set<String> modules = new TreeSet<>();
+	public static Set<String> getModuleList(List<File> files) {
+		// unique modules
+		Set<String> modules = new TreeSet<>();
 
-		for(File file : files) {
+		for (File file : files) {
 			String module = getModuleFromFullPath(file);
 			modules.add(module);
 		}
-		
+
 		return modules;
 	}
-	
+
 	/**
-	 * returns true if package path is contained in the name
-	 * eg. module.common.data.user
+	 * returns true if package path is contained in the name eg.
+	 * module.common.data.user
+	 * 
 	 * @param value
 	 * @return
 	 */
@@ -134,10 +136,10 @@ public class PackageHelper {
 		List<String> list = new ArrayList<String>(Arrays.asList(value.split("\\.")));
 		return list.size() > 1;
 	}
-	
+
 	/**
-	 * gets class name from path
-	 * eg. module.common.data.user returns user
+	 * gets class name from path eg. module.common.data.user returns user
+	 * 
 	 * @param classPath
 	 * @return
 	 */

@@ -16,33 +16,33 @@ import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PackageHelper;
 
 public class DataMapHelper {
-	
-	
+
 	/**
 	 * creates a map of modules with list of csv data files
+	 * 
 	 * @param files
 	 * @return
 	 */
-	public static Map<String, List<File>> getDataModuleMap(List<File> files){
-		
+	public static Map<String, List<File>> getDataModuleMap(List<File> files) {
+
 		Map<String, List<File>> moduleMap = new HashMap<String, List<File>>();
-		
-		for(File file : files) {
+
+		for (File file : files) {
 			List<File> dataFiles = new ArrayList<File>();
-			String module = PackageHelper.getModuleFromFullPath(file);	
-			
-			if( moduleMap.get(module) != null) {
+			String module = PackageHelper.getModuleFromFullPath(file);
+
+			if (moduleMap.get(module) != null) {
 				dataFiles = moduleMap.get(module);
 				dataFiles.add(file);
-			}else {
+			} else {
 				dataFiles.add(file);
 			}
-			moduleMap.put(module, dataFiles);	
-			
+			moduleMap.put(module, dataFiles);
+
 		}
 		return moduleMap;
 	}
-	
+
 	/**
 	 * maps the module with the panels containing the Panel annotation
 	 * 
@@ -87,9 +87,9 @@ public class DataMapHelper {
 	}
 
 	/**
-	 * creates a map of modules, But does not add the elements
-	 * key: module
-	 * value: classes with Panel annotation
+	 * creates a map of modules, But does not add the elements key: module value:
+	 * classes with Panel annotation
+	 * 
 	 * @param roundEnv
 	 * @return
 	 */
@@ -106,24 +106,23 @@ public class DataMapHelper {
 		}
 		return map;
 	}
-	
-	public static Map<String, List<String>> mergeMaps(Map<String, List<String>> mapA, Map<String, List<String>> mapB) {
-	    Map<String, List<String>> map = new HashMap<>();
-	    map.putAll(mapA);
 
-	    mapB.forEach((key , value) -> {
-	        //Get the value for key in map.
-	        List<String> list = map.get(key);
-	        if (list == null) {
-	            map.put(key,value);
-	        }
-	        else {
-	            //Merge two list together
-	            ArrayList<String> mergedValue = new ArrayList<>(value);
-	            mergedValue.addAll(list);
-	            map.put(key , mergedValue);
-	        }
-	    });
-	    return map;
+	public static Map<String, List<String>> mergeMaps(Map<String, List<String>> mapA, Map<String, List<String>> mapB) {
+		Map<String, List<String>> map = new HashMap<>();
+		map.putAll(mapA);
+
+		mapB.forEach((key, value) -> {
+			// Get the value for key in map.
+			List<String> list = map.get(key);
+			if (list == null) {
+				map.put(key, value);
+			} else {
+				// Merge two list together
+				ArrayList<String> mergedValue = new ArrayList<>(value);
+				mergedValue.addAll(list);
+				map.put(key, mergedValue);
+			}
+		});
+		return map;
 	}
 }

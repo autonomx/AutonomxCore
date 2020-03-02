@@ -129,12 +129,12 @@ public class RetryTest implements TestRule {
 		};
 
 	}
-	
+
 	/**
-	 print page source
+	 * print page source
 	 */
 	public void getPageSource() {
-		if(webDriver != null)
+		if (webDriver != null)
 			TestLog.ConsoleLog(webDriver.getPageSource());
 
 	}

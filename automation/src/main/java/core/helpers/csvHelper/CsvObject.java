@@ -11,7 +11,7 @@ public class CsvObject {
 		this.path = path;
 		return this;
 	}
-	
+
 	public CsvObject withCsvFile(String csvFile) {
 		this.csvFile = csvFile;
 		return this;

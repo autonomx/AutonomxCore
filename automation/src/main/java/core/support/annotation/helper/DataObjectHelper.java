@@ -10,41 +10,44 @@ import core.helpers.Helper;
 import core.support.configReader.PropertiesReader;
 
 public class DataObjectHelper {
-	
-	public static String DATA_FOLDER = "data";
-	private static String SOURCE_PATH =  PropertiesReader.getLocalRootPath() + "src" + File.separator +  "main";
 
-	
+	public static String DATA_FOLDER = "data";
+	private static String SOURCE_PATH = PropertiesReader.getLocalRootPath() + "src" + File.separator + "main";
+
 	/**
 	 * gets all csv files in data folders
+	 * 
 	 * @return
 	 */
 	public static List<File> getAllCsvDataFiles() {
 		List<File> files = new ArrayList<File>();
-		files = Helper.getFileListWithSubfolders(SOURCE_PATH , ".csv", files);
+		files = Helper.getFileListWithSubfolders(SOURCE_PATH, ".csv", files);
 		files = DataObjectHelper.getTestDataCsvFiles(files);
 		return files;
 	}
-	
+
 	/**
 	 * filters files that are in data folder
+	 * 
 	 * @param files
-	 * @return 
+	 * @return
 	 */
-	public static List<File> getTestDataCsvFiles(List<File> files ) {
+	public static List<File> getTestDataCsvFiles(List<File> files) {
 		List<File> dataFiles = new ArrayList<File>();
-		for(File file : files) {
-			if( file.getAbsolutePath().contains(DATA_FOLDER)) {
+		for (File file : files) {
+			if (file.getAbsolutePath().contains(DATA_FOLDER)) {
 				dataFiles.add(file);
 			}
 		}
-		return dataFiles;	
+		return dataFiles;
 	}
-	
+
 	/**
-	 * normalizes method name. eg. web.element.highlight.enable to webElementHightEnable
+	 * normalizes method name. eg. web.element.highlight.enable to
+	 * webElementHightEnable
+	 * 
 	 * @param methodName
-	 * @return 
+	 * @return
 	 */
 	public static String normalizeMethod(String methodName) {
 		String method = capitalizeMethod(methodName, "\\.");
@@ -52,25 +55,26 @@ public class DataObjectHelper {
 		method = capitalizeMethod(method, "_");
 		method = capitalizeMethod(method, "@");
 		method = capitalizeMethod(method, " ");
-		
+
 		// work around method starting with digits
 		if (Character.isDigit(method.charAt(0))) {
-			method = "method" + method; 
+			method = "method" + method;
 		}
 		return method;
 	}
-	
+
 	/**
-	 * capitalize method name from web.element.highlight.enable to webElementHightEnable
-	 * split based on splitter value
+	 * capitalize method name from web.element.highlight.enable to
+	 * webElementHightEnable split based on splitter value
+	 * 
 	 * @param methodName
-	 * @return 
+	 * @return
 	 */
 	private static String capitalizeMethod(String methodName, String splitter) {
 		String methodNormalize = StringUtils.EMPTY;
-		
+
 		String[] words = methodName.split(splitter);
-		for(int i = 1; i<words.length; i++) {
+		for (int i = 1; i < words.length; i++) {
 			methodNormalize += StringUtils.capitalize(words[i]);
 		}
 		methodNormalize = words[0] + methodNormalize;

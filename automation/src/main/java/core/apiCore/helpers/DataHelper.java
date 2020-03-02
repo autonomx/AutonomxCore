@@ -38,7 +38,7 @@ public class DataHelper {
 	public static final String VERIFY_HEADER_PART_INDICATOR = "_VERIFY_HEADER_PART_";
 	public static final String VERIFY_TOPIC_PART_INDICATOR = "_VERIFY_TOPIC_PART_";
 	public static final String EXPECTED_MESSAGE_COUNT = "EXPECTED_MESSAGE_COUNT";
-	
+
 	public static final String TEST_DATA_TEMPLATE_DATA_PATH = "api.templateDataFile";
 
 	public enum JSON_COMMAND {
@@ -140,135 +140,134 @@ public class DataHelper {
 		Matcher matcher = Pattern.compile("\\d+").matcher(parameter);
 		matcher.find();
 		int length = Integer.valueOf(matcher.group());
-		
+
 		int maxLength = finalTime.length();
 		if (length > maxLength || length == -1)
 			length = maxLength;
-		
+
 		return finalTime.substring(0, length);
 	}
 
 	/**
-	 * get time based time modification, format or fixed time
-	 * eg. <@_TIME_ISO_17+30h;setTime:14h23m33s>
-	 * or <@_TIME_ISO_17+30h;FORMAT:yyyyMMddHHmmssSSS>
+	 * get time based time modification, format or fixed time eg.
+	 * <@_TIME_ISO_17+30h;setTime:14h23m33s> or
+	 * <@_TIME_ISO_17+30h;FORMAT:yyyyMMddHHmmssSSS>
+	 * 
 	 * @param parameter
 	 * @param timeString
 	 * @return
 	 */
 	public static String getTime(String parameter, String timeString) {
-		
-		
+
 		String[] values = parameter.split(";");
-		
-		for(String value : values) {
-						
-			if(value.contains("FORMAT")) {
+
+		for (String value : values) {
+
+			if (value.contains("FORMAT")) {
 				String format = value.split("FORMAT")[1];
-				format = removeFirstAndLastChars(format, ":","<", ">");			
+				format = removeFirstAndLastChars(format, ":", "<", ">");
 				timeString = Helper.date.getTime(timeString, format, null);
-			}else if(value.contains("ZONE")) {
+			} else if (value.contains("ZONE")) {
 				String zone = value.split("ZONE")[1];
-				zone = removeFirstAndLastChars(zone, ":","<", ">");	
+				zone = removeFirstAndLastChars(zone, ":", "<", ">");
 				timeString = Helper.date.getTime(timeString, null, zone);
-			}else if(value.contains("setTime")) {
-				String setTime = value.split("setTime")[1];	
-				setTime = removeFirstAndLastChars(setTime, ":","<", ">");
+			} else if (value.contains("setTime")) {
+				String setTime = value.split("setTime")[1];
+				setTime = removeFirstAndLastChars(setTime, ":", "<", ">");
 				timeString = setTime(setTime, timeString);
-			}else if(value.contains("setDay")) {
-				String setDay = value.split("setDay")[1];	
-				setDay = removeFirstAndLastChars(setDay, ":","<", ">");
+			} else if (value.contains("setDay")) {
+				String setDay = value.split("setDay")[1];
+				setDay = removeFirstAndLastChars(setDay, ":", "<", ">");
 				timeString = setDay(setDay, timeString);
-			}else if(value.contains("setMonth")) {
-				String setDay = value.split("setMonth")[1];	
-				setDay = removeFirstAndLastChars(setDay, ":","<", ">");
+			} else if (value.contains("setMonth")) {
+				String setDay = value.split("setMonth")[1];
+				setDay = removeFirstAndLastChars(setDay, ":", "<", ">");
 				timeString = setMonth(setDay, timeString);
-			}else {
-				value = removeFirstAndLastChars(value, ":","<", ">");
-				timeString = getTimeWithModification(value, timeString);					
+			} else {
+				value = removeFirstAndLastChars(value, ":", "<", ">");
+				timeString = getTimeWithModification(value, timeString);
 			}
 		}
 		return timeString;
 	}
-	
+
 	/**
-	 * sets time based on format: setTime:hh:mm:ss eg: 14:42:33
-	 * any combination will work
-	 * uses utc zone to set time
+	 * sets time based on format: setTime:hh:mm:ss eg: 14:42:33 any combination will
+	 * work uses utc zone to set time
+	 * 
 	 * @param parameter
 	 * @param timeString
 	 * @return
 	 */
-	public static String setTime(String parameter, String timeString ) {
+	public static String setTime(String parameter, String timeString) {
 		Instant time = Instant.parse(timeString);
-		
+
 		String[] parameters = parameter.split(":");
-		if(parameters.length != 3)
-			Helper.assertFalse("format must be hh:mm:ss. value: " +  parameter);
+		if (parameters.length != 3)
+			Helper.assertFalse("format must be hh:mm:ss. value: " + parameter);
 		int hour = Helper.getIntFromString(parameters[0]);
 		int minute = Helper.getIntFromString(parameters[1]);
 		int second = Helper.getIntFromString(parameters[2]);
-	
-		time = time.atZone(ZoneOffset.UTC)
-		        .withHour(hour)
-		        .withMinute(minute)
-		        .withSecond(second)
-		        .withNano(0)
-		        .toInstant();	
+
+		time = time.atZone(ZoneOffset.UTC).withHour(hour).withMinute(minute).withSecond(second).withNano(0).toInstant();
 		return time.toString();
 	}
-	
+
 	/**
 	 * set day based on format setDay:Day
+	 * 
 	 * @param parameter
 	 * @param timeString
 	 * @return
 	 */
-	public static String setDay(String dayName, String timeString ) {
+	public static String setDay(String dayName, String timeString) {
 		Instant timeinstance = Instant.parse(timeString);
 		LocalDateTime time = LocalDateTime.ofInstant(timeinstance, ZoneOffset.UTC);
-		
+
 		int currentDay = Helper.date.getDayOfWeekIndex(time);
 		int targetDay = Helper.date.getDayOfWeekIndex(dayName);
 		int timeDifference = targetDay - currentDay;
-		
+
 		time = time.plusDays(timeDifference);
 		return time.toString();
 	}
-	
+
 	/**
 	 * set month based on format setMonth:Month
+	 * 
 	 * @param monthName
 	 * @param timeString
 	 * @return
 	 */
-	public static String setMonth(String monthName, String timeString ) {
+	public static String setMonth(String monthName, String timeString) {
 		Instant timeinstance = Instant.parse(timeString);
 		LocalDateTime time = LocalDateTime.ofInstant(timeinstance, ZoneOffset.UTC);
-		
+
 		int currentMonth = Helper.date.getMonthOfYearIndex(time);
 		int targetMonth = Helper.date.getMonthOfYearIndex(monthName);
 		int timeDifference = targetMonth - currentMonth;
-		
+
 		time = time.plusMonths(timeDifference);
 		return time.toString();
 	}
-	
-	
+
 	/**
 	 * removes surrounding character from string
+	 * 
 	 * @param value
 	 * @param toRemove
 	 * @return
 	 */
 	public static String removeFirstAndLastChars(String value, String... toRemove) {
-		if(StringUtils.isBlank(value)) return value;
-		if(toRemove.length == 0) return value;
-		
-		for(String remove : toRemove) {
-			if(value.startsWith(remove))
+		if (StringUtils.isBlank(value))
+			return value;
+		if (toRemove.length == 0)
+			return value;
+
+		for (String remove : toRemove) {
+			if (value.startsWith(remove))
 				value = StringUtils.removeStart(value, remove);
-			if(value.endsWith(remove))
+			if (value.endsWith(remove))
 				value = StringUtils.removeEnd(value, remove);
 		}
 		return value;
@@ -364,10 +363,11 @@ public class DataHelper {
 		String position = "";
 		String value = "";
 		for (String keyVal : keyVals) {
-			
+
 			// if empty, skip
-			if(keyVal.isEmpty()) continue;
-			
+			if (keyVal.isEmpty())
+				continue;
+
 			List<String> parts = splitToKeyPositionValue(keyVal, ":", 3);
 			if (parts.size() == 1) {
 				key = Helper.stringRemoveLines(parts.get(0));
@@ -435,15 +435,16 @@ public class DataHelper {
 	 * @return
 	 */
 	public static String validateCommand(String command, String responseString, String expectedString) {
-		String error =  validateExpectedCommand(command, responseString, expectedString, StringUtils.EMPTY);
-		if(error.isEmpty())
-			TestLog.ConsoleLog("validation passed for command: " + responseString + " " + command + " " + expectedString);
+		String error = validateExpectedCommand(command, responseString, expectedString, StringUtils.EMPTY);
+		if (error.isEmpty())
+			TestLog.ConsoleLog(
+					"validation passed for command: " + responseString + " " + command + " " + expectedString);
 		else
 			TestLog.ConsoleLog("validation failed for command: " + command + " with error: " + error);
 
 		return error;
 	}
-	
+
 	/**
 	 * validates response against expected values
 	 * 
@@ -455,8 +456,8 @@ public class DataHelper {
 	 */
 	public static String validateCommand(String command, String responseString, String expectedString,
 			String position) {
-		String error =   validateExpectedCommand(command, responseString, expectedString, position);
-		if(error.isEmpty())
+		String error = validateExpectedCommand(command, responseString, expectedString, position);
+		if (error.isEmpty())
 			TestLog.ConsoleLog("validation passed for command: response " + command + " " + expectedString);
 		else
 			TestLog.ConsoleLog("validation failed for command: " + command + " with error: " + error);
@@ -485,9 +486,9 @@ public class DataHelper {
 		String actualString = "";
 
 		int positionInt = 0;
-		
+
 		// if response is single item, it is same as command with position 1
-		if(actualArray.size() == 1) {
+		if (actualArray.size() == 1) {
 			position = "1";
 		}
 
@@ -502,7 +503,8 @@ public class DataHelper {
 			}
 
 			actualString = actualArray.get(positionInt - 1);
-		// if response is single array element, set position to 1, treat as string comparison
+			// if response is single array element, set position to 1, treat as string
+			// comparison
 		}
 
 		if (getCommandFromExpectedString(command).isEmpty()) {
@@ -699,7 +701,8 @@ public class DataHelper {
 						+ Arrays.toString(expectedArray.toArray());
 			break;
 		case jsonbody:
-			TestLog.logPass("verifying response: \n" + ServiceObject.normalize(responseString) + "\n against expected: \n" + expectedString);
+			TestLog.logPass("verifying response: \n" + ServiceObject.normalize(responseString)
+					+ "\n against expected: \n" + expectedString);
 			String error = JsonHelper.validateByJsonBody(expectedString, responseString);
 			if (!error.isEmpty())
 				return error;
@@ -724,7 +727,7 @@ public class DataHelper {
 
 	/**
 	 * converts string separated by "," to array[] trims each value and removes
-	 * quotes or array brackets 
+	 * quotes or array brackets
 	 * 
 	 * @param array
 	 * @return
@@ -734,7 +737,7 @@ public class DataHelper {
 		String[] responses = array.split(",");
 		for (String response : responses) {
 			response = response.trim().replace("\"", "");
-			response = response.replace("[", "").replace("]","");
+			response = response.replace("[", "").replace("]", "");
 			list.add(response);
 		}
 		return list;
@@ -838,9 +841,10 @@ public class DataHelper {
 
 		return stringVal;
 	}
-	
+
 	/**
 	 * split based on key position value
+	 * 
 	 * @param keyvalue
 	 * @param regex
 	 * @param limit
@@ -848,37 +852,36 @@ public class DataHelper {
 	 */
 	public static List<String> splitToKeyPositionValue(String keyvalue, String regex, int limit) {
 		List<String> result = new ArrayList<String>();
-		
+
 		// if no key value pair
-		if(!keyvalue.contains(":")) {
+		if (!keyvalue.contains(":")) {
 			result.add(keyvalue);
 			return result;
 		}
-		
+
 		// if json validation command, return format path:position:command or
 		// path:command
 		String commandValue = getCommandFromExpectedString(keyvalue);
 		if (!commandValue.isEmpty()) {
 			return getJsonKeyValue(keyvalue, commandValue);
 		}
-		
+
 		String position = StringUtils.EMPTY;
-		
-		// position has format :position: 
+
+		// position has format :position:
 		boolean hasPosition = Pattern.compile(":\\d{1}:").matcher(keyvalue).find();
 
 		// split based on position, and add to result list
-		if(hasPosition) {
+		if (hasPosition) {
 			String[] resultArray = keyvalue.split(":\\d{1}:");
 			Pattern pattern = Pattern.compile(":\\d{1}:");
 			Matcher matcher = pattern.matcher(keyvalue);
-			if(matcher.find())
+			if (matcher.find())
 				position = matcher.group(0);
 			result.add(resultArray[0]);
-			result.add(removeFirstAndLastChars(position,":"));
+			result.add(removeFirstAndLastChars(position, ":"));
 			result.add(resultArray[1]);
-		}
-		else{ // split left to right
+		} else { // split left to right
 			String[] resultArray = keyvalue.split(":", 2);
 			result.add(resultArray[0]);
 			result.add(resultArray[1]);
@@ -887,8 +890,7 @@ public class DataHelper {
 	}
 
 	public static List<String> splitRight(String value, String regex, int limit) {
-		
-		
+
 		String string = value;
 		List<String> result = new ArrayList<String>();
 		String[] temp = new String[0];
@@ -994,7 +996,7 @@ public class DataHelper {
 	public static String getRequestBodyIncludingTemplate(ServiceObject serviceObject) {
 
 		String requestbody = StringUtils.EMPTY;
-		
+
 		// load data file to config
 		loadDataFile(serviceObject);
 
@@ -1020,17 +1022,17 @@ public class DataHelper {
 
 		return requestbody;
 	}
-	
-	
+
 	/**
-	 * loads template data info based on value set on request body
-	 * format: DataFile:file:dataId
+	 * loads template data info based on value set on request body format:
+	 * DataFile:file:dataId
+	 * 
 	 * @param serviceObject
 	 */
 	public static void loadDataFile(ServiceObject serviceObject) {
 		if (serviceObject.getRequestBody().isEmpty())
 			return;
-		
+
 		final String DataFile = "DataFile";
 
 		// get key value mapping of header parameters
@@ -1042,17 +1044,15 @@ public class DataHelper {
 			// if additional options
 			switch (keyword.key) {
 			case DataFile:
-				
+
 				// remove DataFile value from request body
-				String updateRequest = serviceObject.getRequestBody()
-				.replace(keyword.value.toString(), "")
-				.replace(keyword.value.toString() + ";", "")
-				.replace(DataFile + ":", "");
-				
+				String updateRequest = serviceObject.getRequestBody().replace(keyword.value.toString(), "")
+						.replace(keyword.value.toString() + ";", "").replace(DataFile + ":", "");
+
 				String[] dataInfo = keyword.value.toString().split(":");
 				if (dataInfo.length != 2)
 					Helper.assertFalse("format must be file:dataId. actual value: " + keyword.value.toString());
-				
+
 				String dataFilename = dataInfo[0];
 				String expectedDataId = dataInfo[1];
 
@@ -1069,9 +1069,9 @@ public class DataHelper {
 					int dataId = CsvReader.getColumnIndexByName("dataId", header);
 
 					// add semicolon to separate from the rest of the data
-					if(header.length > 1 && !updateRequest.isEmpty())
+					if (header.length > 1 && !updateRequest.isEmpty())
 						updateRequest = updateRequest + ";";
-					
+
 					// if dataId matches expected dataId, add all row data
 					String[] line;
 					while ((line = reader.readNext()) != null) {
@@ -1086,16 +1086,16 @@ public class DataHelper {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				
+
 				serviceObject.withRequestBody(updateRequest);
 				break;
 			default:
 				break;
 			}
-			
+
 		}
 	}
-	
+
 	/**
 	 * stores value in config format: value:<$key> separated by colon ';'
 	 * 

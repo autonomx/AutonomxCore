@@ -69,43 +69,42 @@ public class WebDriverSetup {
 			break;
 		case IOS_DRIVER:
 			// if external server is used
-			AppiumDriverLocalService service;			
-			if(Config.getBooleanValue("appium.useExternalAppiumServer"))
-			{
+			AppiumDriverLocalService service;
+			if (Config.getBooleanValue("appium.useExternalAppiumServer")) {
 				int port = Config.getIntValue("appium.externalPort");
 				TestLog.ConsoleLog("Connecting to external appium server at port " + port);
-				driver = new IOSDriver(new URL("http://localhost:"+ port + "/wd/hub"), driverObject.capabilities);
-			}
-			else {
+				driver = new IOSDriver(new URL("http://localhost:" + port + "/wd/hub"), driverObject.capabilities);
+			} else {
 				TestLog.ConsoleLog("Connecting to internal appium server");
 				service = AppiumServer.startAppiumServer(driverObject);
-			//	driver = new IOSDriver(new URL("http://localhost:4723/wd/hub"), driverObject.capabilities);
+				// driver = new IOSDriver(new URL("http://localhost:4723/wd/hub"),
+				// driverObject.capabilities);
 				driver = new IOSDriver(service.getUrl(), driverObject.capabilities);
 			}
 			break;
 		case ANDROID_DRIVER:
-			
+
 			// if external server is used
-			if(Config.getBooleanValue("appium.useExternalAppiumServer"))
-			{
+			if (Config.getBooleanValue("appium.useExternalAppiumServer")) {
 				int port = Config.getIntValue("appium.externalPort");
 				String server = Config.getValue("appium.externalServer");
-				driver = new AndroidDriver(new URL("http://" +server + ":"+ port + "/wd/hub"), driverObject.capabilities);
+				driver = new AndroidDriver(new URL("http://" + server + ":" + port + "/wd/hub"),
+						driverObject.capabilities);
 			}
 			// if microsoft app center
 			else if (PropertiesReader.isUsingCloud()) {
 				EnhancedAndroidDriver<MobileElement> appcenterDriver = Factory
 						.createAndroidDriver(new URL("http://localhost:8001/wd/hub"), driverObject.capabilities);
 				return appcenterDriver;
-			// if internal server is used	
+				// if internal server is used
 			} else {
 				service = AppiumServer.startAppiumServer(driverObject);
 				driver = new AndroidDriver(service.getUrl(), driverObject.capabilities);
 			}
 			break;
 		case WINAPP_DRIVER:
-		    service = AppiumServer.startAppiumServer(driverObject);
-			driver = new WindowsDriver(service.getUrl(),  driverObject.capabilities);
+			service = AppiumServer.startAppiumServer(driverObject);
+			driver = new WindowsDriver(service.getUrl(), driverObject.capabilities);
 			break;
 		default:
 			throw new IllegalStateException("Unsupported driverype " + type);
@@ -125,7 +124,7 @@ public class WebDriverSetup {
 		// print the browser capabilities
 		Map<String, Object> cap = driverObject.capabilities.asMap();
 		TestLog.ConsoleLog("capabilities: " + Arrays.toString(cap.entrySet().toArray()));
-		
+
 		switch (browserType) {
 		case FIREFOX:
 			setDriverManager(driverObject, WebDriverManager.firefoxdriver());
@@ -174,19 +173,19 @@ public class WebDriverSetup {
 		case SAFARI:
 			SafariOptions safairOptions = new SafariOptions();
 			safairOptions.merge(driverObject.capabilities);
-			driver = new SafariDriver(safairOptions); 
+			driver = new SafariDriver(safairOptions);
 			break;
 		default:
 			throw new IllegalStateException("Unsupported browsertype " + browserType);
 		}
-		
+
 		printBrowserVersion(driver);
 		return driver;
 	}
-	
+
 	/**
-	 * set driver manager options
-	 * values found in web.property config file
+	 * set driver manager options values found in web.property config file
+	 * 
 	 * @param driverObject
 	 * @param manager
 	 */
@@ -197,27 +196,23 @@ public class WebDriverSetup {
 		String proxyPassword = Config.getValue(TestObject.PROXY_PASS);
 		boolean isForceCache = Config.getBooleanValue("web.driver.manager.proxy.forceCache");
 		int timeout_seconds = Config.getIntValue("web.driver.manager.timeoutSeconds");
-		
+
 		// force cache, not checking online
-		if(isForceCache)
+		if (isForceCache)
 			manager = manager.forceCache();
-		
-		// set proxy enabled value based on proxy auto detection. if auto detect enabled,
+
+		// set proxy enabled value based on proxy auto detection. if auto detect
+		// enabled,
 		// attempt to connect to url with proxy info. if able to connect, enable proxy
 		Helper.setProxyAutoDetection(manager.config().getChromeDriverMirrorUrl());
 		boolean isProxyEnabled = Config.getBooleanValue(TestObject.PROXY_ENABLED);
-		
-		if(isProxyEnabled) {	
-			manager.proxy(proxyServer + ":" + proxyPort)
-			.proxyUser(proxyUser)
-			.proxyPass(proxyPassword)
-			.version(driverObject.driverVersion)
-			.timeout(timeout_seconds)
-			.setup();
-		}else
-			manager
-			.setup();
-		
+
+		if (isProxyEnabled) {
+			manager.proxy(proxyServer + ":" + proxyPort).proxyUser(proxyUser).proxyPass(proxyPassword)
+					.version(driverObject.driverVersion).timeout(timeout_seconds).setup();
+		} else
+			manager.setup();
+
 		TestLog.ConsoleLog("using driver version: " + manager.getDownloadedVersion());
 	}
 
@@ -228,13 +223,14 @@ public class WebDriverSetup {
 	public String getServerPort() {
 		return Config.getValue(SERVER_PORT);
 	}
-	
+
 	public void printBrowserVersion(WebDriver driver) {
-		if(driver == null) return;
-		
+		if (driver == null)
+			return;
+
 		Capabilities caps = ((RemoteWebDriver) driver).getCapabilities();
 		String browserName = caps.getBrowserName();
 		String browserVersion = caps.getVersion();
-		TestLog.ConsoleLog("browser name: '" + browserName + "' browser version: "+ browserVersion);	
+		TestLog.ConsoleLog("browser name: '" + browserName + "' browser version: " + browserVersion);
 	}
 }

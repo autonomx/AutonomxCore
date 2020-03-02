@@ -48,11 +48,11 @@ public class PageHelper {
 	 * reload page
 	 */
 	public void refreshPage() {
-		if(Helper.isWebDriver())
+		if (Helper.isWebDriver())
 			AbstractDriver.getWebDriver().navigate().refresh();
-		if(Helper.mobile_isMobile())
+		if (Helper.mobile_isMobile())
 			Helper.refreshMobileApp();
-		
+
 		Helper.wait.waitForSeconds(1);
 	}
 
@@ -74,40 +74,42 @@ public class PageHelper {
 	public void switchToDefaultFrame() {
 		AbstractDriver.getWebDriver().switchTo().defaultContent();
 	}
-	
+
 	/**
 	 * switch windows handle based on index
+	 * 
 	 * @param index
 	 */
 	public static void switchWindowHandle(int index) {
 		// wait for the window handle to be available
 		waitForWindowHandle(index);
-		
+
 		// switch window handle
 		Set<String> handles = Helper.mobile.getAppiumDriver().getWindowHandles();
 		List<String> handleList = new ArrayList<>(handles);
 		Helper.mobile.getAppiumDriver().switchTo().window(handleList.get(index));
 	}
-	
+
 	/**
 	 * waits for the window handle at index to be available
+	 * 
 	 * @param index index of window handle
 	 */
-	private static void waitForWindowHandle(int index){
+	private static void waitForWindowHandle(int index) {
 		int retryWaitInSeconds = 3;
 		int retry = AbstractDriver.TIMEOUT_SECONDS / retryWaitInSeconds;
 		Set<String> handles = Helper.mobile.getAppiumDriver().getWindowHandles();
 		List<String> handleList = new ArrayList<>(handles);
 
-		while(index >= handleList.size() && retry > 0){	
-			retry --;
+		while (index >= handleList.size() && retry > 0) {
+			retry--;
 			handles = Helper.mobile.getAppiumDriver().getWindowHandles();
 			handleList = new ArrayList<>(handles);
 			Helper.waitForSeconds(retryWaitInSeconds);
 		}
 
-		if(index >= handleList.size()){
-			Helper.assertFalse("window handle not available. size: " +  handleList.size()  + "index: " +   index);
+		if (index >= handleList.size()) {
+			Helper.assertFalse("window handle not available. size: " + handleList.size() + "index: " + index);
 		}
 	}
 
@@ -352,91 +354,92 @@ public class PageHelper {
 			e.getMessage();
 		}
 	}
-	
+
 	/**
 	 * navigate to a different url
+	 * 
 	 * @param url destination url
 	 */
 	public void swtichUrl(String url) {
 		navigateToUrl(url);
 	}
-	
+
 	/**
 	 * navigate to a different url
+	 * 
 	 * @param url destination url
 	 */
 	public void navigateToUrl(String url) {
 		AbstractDriver.getWebDriver().get(url);
 	}
-	
-	 /**
-     * retrieves the clip board data
-     * @return
-     */
-    public String getClipboardData(){
-        String myText = "";
-        try {
-            myText = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
-        } catch (Exception e) {
-            e.getMessage();
-        }
-        return myText;
-    } 
-    
 
-    /**
-     * quits the current web driver
-     */
-    public void quitCurrentDriver(){
-    	DriverObject.quitWebDriver(AbstractDriver.getWebDriver());
-    }
-    
-    /**
-     * quit driver
-     * @param driver
-     */
-    public void quitDriver(WebDriver driver){
-    	DriverObject.quitWebDriver(driver);
-    }
-    
-    /**
-     * quits all drivers in the current test
-     */
-    public void quitAllCurrentTestDrivers() {
-    	DriverObject.quitTestDrivers();
-    }
-    
-    /**
-     * returns true if the element is visible in the current page
-     * only for web applications
-     * @param by
-     * @return
-     */
-    public Boolean isVisibleInViewport(EnhancedBy by) {
-    	return isVisibleInViewport(by, 0);
-    }
-    
-    /**
-     * returns true if the element is visible in the current page
-     * only for web applications
-     * @param by
-     * @return
-     */
-    public Boolean isVisibleInViewport(EnhancedBy by, int index) {
-    	  if(!Helper.isWebDriver()) return false;
-    	  
-		  EnhancedWebElement targetElement = Element.findElements(by);
-    	  return (Boolean)((JavascriptExecutor) AbstractDriver.getWebDriver()).executeScript(
-    	      "var elem = arguments[0],                 " +
-    	      "  box = elem.getBoundingClientRect(),    " +
-    	      "  cx = box.left + box.width / 2,         " +
-    	      "  cy = box.top + box.height / 2,         " +
-    	      "  e = document.elementFromPoint(cx, cy); " +
-    	      "for (; e; e = e.parentElement) {         " +
-    	      "  if (e === elem)                        " +
-    	      "    return true;                         " +
-    	      "}                                        " +
-    	      "return false;                            "
-    	      , targetElement.get(index));
-    	}
+	/**
+	 * retrieves the clip board data
+	 * 
+	 * @return
+	 */
+	public String getClipboardData() {
+		String myText = "";
+		try {
+			myText = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
+		} catch (Exception e) {
+			e.getMessage();
+		}
+		return myText;
+	}
+
+	/**
+	 * quits the current web driver
+	 */
+	public void quitCurrentDriver() {
+		DriverObject.quitWebDriver(AbstractDriver.getWebDriver());
+	}
+
+	/**
+	 * quit driver
+	 * 
+	 * @param driver
+	 */
+	public void quitDriver(WebDriver driver) {
+		DriverObject.quitWebDriver(driver);
+	}
+
+	/**
+	 * quits all drivers in the current test
+	 */
+	public void quitAllCurrentTestDrivers() {
+		DriverObject.quitTestDrivers();
+	}
+
+	/**
+	 * returns true if the element is visible in the current page only for web
+	 * applications
+	 * 
+	 * @param by
+	 * @return
+	 */
+	public Boolean isVisibleInViewport(EnhancedBy by) {
+		return isVisibleInViewport(by, 0);
+	}
+
+	/**
+	 * returns true if the element is visible in the current page only for web
+	 * applications
+	 * 
+	 * @param by
+	 * @return
+	 */
+	public Boolean isVisibleInViewport(EnhancedBy by, int index) {
+		if (!Helper.isWebDriver())
+			return false;
+
+		EnhancedWebElement targetElement = Element.findElements(by);
+		return (Boolean) ((JavascriptExecutor) AbstractDriver.getWebDriver()).executeScript(
+				"var elem = arguments[0],                 " + "  box = elem.getBoundingClientRect(),    "
+						+ "  cx = box.left + box.width / 2,         " + "  cy = box.top + box.height / 2,         "
+						+ "  e = document.elementFromPoint(cx, cy); " + "for (; e; e = e.parentElement) {         "
+						+ "  if (e === elem)                        " + "    return true;                         "
+						+ "}                                        " + "return false;                            ",
+				targetElement.get(index));
+	}
 }

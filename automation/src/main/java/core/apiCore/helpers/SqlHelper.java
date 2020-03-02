@@ -136,12 +136,12 @@ public class SqlHelper {
 	 * 
 	 * @param keywords
 	 * @param response
-	 * @return 
+	 * @return
 	 * @throws SQLException
 	 */
 	public static List<String> validateSqlKeywords(List<KeyValue> keywords, ResultSet resSet) throws SQLException {
 		List<String> errorMessages = new ArrayList<String>();
-		
+
 		for (KeyValue keyword : keywords) {
 			String key = Helper.removeSurroundingQuotes(keyword.key);
 			String position = Helper.stringNormalize(keyword.position);
@@ -170,7 +170,7 @@ public class SqlHelper {
 			// validate response
 			errorMessages.add(DataHelper.validateCommand(command, responseString, expectedValue));
 		}
-		
+
 		return errorMessages;
 	}
 

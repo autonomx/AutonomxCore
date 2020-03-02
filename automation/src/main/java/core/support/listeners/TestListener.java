@@ -35,15 +35,15 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 	public static boolean isTestNG = false;
 	public static final String PARALLEL_TEST_TYPE = "global.parallel.type";
-	
+
 	// Before starting all tests, below method runs.
 	@SuppressWarnings("deprecation")
 	@Override
 	public void onStart(ITestContext iTestContext) {
 		isTestNG = true;
 		iTestContext.setAttribute("WebDriver", AbstractDriverTestNG.getWebDriver());
-		
-		// print out suite console logs  if batch logging is enabled
+
+		// print out suite console logs if batch logging is enabled
 		String testId = getSuiteName(iTestContext.getSuite().getName().toString()) + TestObject.BEFORE_SUITE_PREFIX;
 		TestLog.printBatchToConsole(testId);
 
@@ -64,31 +64,31 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		// delete old reports
 		ExtentManager.clearOldTestReports();
-		
+
 		// delete screen recorder temp directory
 		ScreenRecorderHelper.deleteScreenRecorderTempDir();
 	}
 
 	/**
-	 * sets parallel run count
-	 * sets parallel count for Tests and Data Provider tests
+	 * sets parallel run count sets parallel count for Tests and Data Provider tests
 	 * 
 	 * @param iTestContext
 	 */
 	private void setParallelRun(ITestContext iTestContext) {
-		
+
 		// set parallel test type
-		String parallelType =  CrossPlatformProperties.getParallelTestType();
-		if(parallelType.equals("CLASSES"))
+		String parallelType = CrossPlatformProperties.getParallelTestType();
+		if (parallelType.equals("CLASSES"))
 			iTestContext.getCurrentXmlTest().setParallel(ParallelMode.CLASSES);
-		else 
+		else
 			iTestContext.getCurrentXmlTest().setParallel(ParallelMode.METHODS);
 
 		// set parallel thread count for tests
 		int threadCount = CrossPlatformProperties.getParallelTests();
 		iTestContext.getCurrentXmlTest().setThreadCount(threadCount);
-		
-		// set parallel thread count for data provider tests, not including service tests
+
+		// set parallel thread count for data provider tests, not including service
+		// tests
 		iTestContext.getCurrentXmlTest().getSuite().setDataProviderThreadCount(threadCount);
 		iTestContext.getCurrentXmlTest().getSuite().setPreserveOrder(true);
 	}
@@ -104,49 +104,52 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		ExtentManager.launchReportAfterTest();
 		ExtentManager.printReportLink();
 		sendReport(iTestContext);
-		
+
 		// get suite name, removing spaces
 		String suitename = getSuiteName(iTestContext.getSuite().getName());
 
 		// setup after suite driver
 		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
 		new AbstractDriverTestNG().setupWebDriver(suitename + TestObject.AFTER_SUITE_PREFIX, driver);
-		
+
 		// if tests passed, print success autonomx logo if enabled
-		if(iTestContext.getFailedTests().size() == 0)
+		if (iTestContext.getFailedTests().size() == 0)
 			TestLog.printLogoOnSuccess();
 	}
-	
+
 	/**
-	 * send slack or email report
-	 * depend on slack.notifyOnFailureOnly or email.notifyOnFailureOnly
-	 * email.enableEmailReport and slack.enableSlackNotification have to be set true for send to occur
+	 * send slack or email report depend on slack.notifyOnFailureOnly or
+	 * email.notifyOnFailureOnly email.enableEmailReport and
+	 * slack.enableSlackNotification have to be set true for send to occur
+	 * 
 	 * @param iTestContext
 	 */
 	private void sendReport(ITestContext iTestContext) {
 		String message = generateTestMessage(iTestContext); // generate report message
-		
+
 		boolean hasErrors = iTestContext.getFailedTests().size() > 0;
 		boolean slackNotifyOnFailOnly = Config.getBooleanValue(ExtentManager.NOTIFY_SLACK_ON_FAIL_ONLY);
 		boolean emailNotifyOnFailOnly = Config.getBooleanValue(ExtentManager.NOTIFY_EMAIL_ON_FAIL_ONLY);
 
-		// send slack notification if error only is set and test fails exist, else if error only is false, send slack
-		if(slackNotifyOnFailOnly && hasErrors) {
+		// send slack notification if error only is set and test fails exist, else if
+		// error only is false, send slack
+		if (slackNotifyOnFailOnly && hasErrors) {
 			ExtentManager.slackNotification(message); // send slack notification
-		}else if(!slackNotifyOnFailOnly) {
+		} else if (!slackNotifyOnFailOnly) {
 			ExtentManager.slackNotification(message); // send slack notification
 		}
-		
-		// send email notification if error only is set and test fails exist, else if error only is false, send slack	
-		if(emailNotifyOnFailOnly && hasErrors) {
+
+		// send email notification if error only is set and test fails exist, else if
+		// error only is false, send slack
+		if (emailNotifyOnFailOnly && hasErrors) {
 			ExtentManager.emailTestReport(message); // send email
-		}else if(!emailNotifyOnFailOnly) {
+		} else if (!emailNotifyOnFailOnly) {
 			ExtentManager.emailTestReport(message); // send email
 		}
 	}
 
 	public void onTestStart(ITestResult iTestResult) {
-		
+
 		setTestClassName(iTestResult);
 		ScreenRecorderHelper.startRecording();
 	}
@@ -156,14 +159,14 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		// sets the class name for logging before class
 		setTestClassName(iTestResult);
-		
+
 		// set test status to pass
 		TestObject.getTestInfo().withIsTestPass(true);
 		TestObject.getTestInfo().withIsTestComplete(ApiTestDriver.isCsvTestComplete());
 
 		TestLog.Then("Test is finished successfully");
 		TestLog.printBatchLogsToConsole();
-		
+
 		// stop screen recording if enabled
 		ScreenRecorderHelper.stopRecording();
 
@@ -182,7 +185,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 	@Override
 	public void onTestFailure(ITestResult iTestResult) {
-		
+
 		// sets the class name for logging before class
 		setTestClassName(iTestResult);
 
@@ -193,10 +196,10 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		TestObject.getTestInfo().isFirstRun = true;
 		TestObject.getTestInfo().withIsTestPass(false);
 		TestObject.getTestInfo().withIsTestComplete(ApiTestDriver.isCsvTestComplete());
-		
+
 		// mobile device is now available again
 		DeviceManager.setDeviceAvailability(true);
-		
+
 		// stop screen recording if enabled
 		ScreenRecorderHelper.stopRecording();
 	}
@@ -212,7 +215,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		// mobile device is now available again
 		DeviceManager.setDeviceAvailability(true);
-		
+
 		// stop screen recording if enabled
 		ScreenRecorderHelper.stopRecording();
 
@@ -229,16 +232,16 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 	 * kills all process for clean start
 	 */
 	public void cleanupProcessess() {
-		if(Helper.isWindows()) {
+		if (Helper.isWindows()) {
 			if (Helper.mobile.isMobile())
 				Helper.killWindowsProcess("node.exe");
 			Helper.killWindowsProcess("IEDriverServer.exe");
 			Helper.killWindowsProcess("chromedriver.exe");
 			Helper.killWindowsProcess("MicrosoftWebDriver.exe");
-		}else if (Helper.isMac()) {
+		} else if (Helper.isMac()) {
 			Helper.killMacProcess("chromedriver");
 		}
-		
+
 	}
 
 	public String generateTestMessage(ITestContext iTestContext) {
@@ -268,7 +271,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 	@Override
 	public void onBeforeClass(ITestClass testClass) {
-		
+
 		String classname = getClassName(testClass.getName());
 
 		// setup before class driver
@@ -310,10 +313,10 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 	public void onStart(ISuite suite) {
 
 		TestLog.setupLog4j();
-		
+
 		// setup default drivers
 		TestObject.setupDefaultDriver();
-		
+
 		TestLog.ConsoleLog("Autonomx initiating...");
 
 		// get suite name, remove spaces
@@ -327,21 +330,23 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		// setup before suite driver
 		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
 		new AbstractDriverTestNG().setupWebDriver(TestObject.SUITE_NAME + TestObject.BEFORE_SUITE_PREFIX, driver);
-		
+
 		// run service before suite if test method is serviceRunner
-		if(isServiceSuite(suite))
+		if (isServiceSuite(suite))
 			ServiceManager.runServiceBeforeSuite();
 	}
-	
+
 	/**
 	 * return true if service runner method is the only method is service runner
+	 * 
 	 * @param suite
 	 * @return
 	 */
 	private boolean isServiceSuite(ISuite suite) {
 		List<ITestNGMethod> methods = suite.getAllMethods();
-		if(methods.size() == 0 || methods.size() > 1) return false;
-		if(methods.get(0).getMethodName().contains("serviceRunner"))
+		if (methods.size() == 0 || methods.size() > 1)
+			return false;
+		if (methods.get(0).getMethodName().contains("serviceRunner"))
 			return true;
 		return false;
 	}
@@ -368,23 +373,23 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 	@Override
 	public void onFinish(ISuite suite) {
-		// print out suite console logs  if batch logging is enabled
+		// print out suite console logs if batch logging is enabled
 		String testId = getSuiteName(suite.getName()) + TestObject.AFTER_SUITE_PREFIX;
 		TestLog.printBatchToConsole(testId);
-		
+
 		// run service before suite if test method is serviceRunner
-		if(isServiceSuite(suite))
+		if (isServiceSuite(suite))
 			ServiceManager.runServiceAfterSuite();
-		
+
 		// print list of missing config variables
 		Config.printMissingConfigVariables();
 	}
-	
+
 	private String getSuiteName(String suitename) {
 		suitename = suitename.replaceAll("\\s", "");
 		return suitename;
 	}
-	
+
 	private String getClassName(String className) {
 		className = className.substring(className.lastIndexOf(".") + 1);
 		return className;

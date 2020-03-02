@@ -67,7 +67,7 @@ public class ElementHelper {
 	protected static void setAttribute(EnhancedBy by, String attribute, String value) {
 		setAttribute(by, 0, attribute, value);
 	}
-	
+
 	/**
 	 * sets attribute value of an element
 	 * 
@@ -77,9 +77,10 @@ public class ElementHelper {
 	 * @param value
 	 */
 	protected static void setAttribute(EnhancedBy by, int index, String attribute, String value) {
-		
-		if(StringUtils.isBlank(value)) return;
-		
+
+		if (StringUtils.isBlank(value))
+			return;
+
 		Helper.waitForElementToLoad(by);
 		String attributeValue = StringUtils.EMPTY;
 		int retry = 3;
@@ -89,7 +90,8 @@ public class ElementHelper {
 			EnhancedWebElement element = Element.findElements(by);
 			element.setAttribute(attribute, index, value);
 			attributeValue = Helper.getAttribute(by, index, attribute);
-			if(currentRetryCount > 1) Helper.waitForSeconds(0.5);
+			if (currentRetryCount > 1)
+				Helper.waitForSeconds(0.5);
 		} while ((attributeValue == null || attributeValue.isEmpty()) && currentRetryCount <= retry);
 	}
 
@@ -104,19 +106,20 @@ public class ElementHelper {
 		EnhancedWebElement element = Element.findElements(by);
 		return element.getSize();
 	}
-	
-	/**
-	 * 	get element position on display
 
+	/**
+	 * get element position on display
+	 * 
 	 * @param by
 	 * @return
 	 */
 	protected static Point getElementPosition(EnhancedBy by) {
 		return getElementPosition(by, 0);
 	}
-	
+
 	/**
 	 * get element position on display
+	 * 
 	 * @param by
 	 * @param index
 	 * @return
@@ -126,9 +129,10 @@ public class ElementHelper {
 		EnhancedWebElement element = Element.findElements(by);
 		return element.getLocation(index);
 	}
-	
+
 	/**
 	 * returns the center coordinates of the target element
+	 * 
 	 * @param target
 	 * @return
 	 */
@@ -137,7 +141,7 @@ public class ElementHelper {
 
 		EnhancedWebElement targetElement = Element.findElements(target);
 		int x = targetElement.get(0).getLocation().x;
-		int y =  targetElement.get(0).getLocation().y;
+		int y = targetElement.get(0).getLocation().y;
 		TestLog.ConsoleLog("Center at: point x: " + x + " point y: " + y);
 		return new int[] { x, y };
 	}

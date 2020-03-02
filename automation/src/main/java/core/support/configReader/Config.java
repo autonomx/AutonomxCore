@@ -32,7 +32,6 @@ public class Config {
 	private static final String PROFILE_PREFIX = "profile.";
 	private static final String GROUP_PREFIX = "profile.group.";
 
-	
 	public static String RESOURCE_PATH = PropertiesReader.getLocalResourcePath();
 
 	/**
@@ -126,8 +125,8 @@ public class Config {
 		configPath.addAll(getConfigs(propertiesMap));
 		configPath.addAll(getConfigProfiles(propertiesMap));
 		configPath.addAll(getConfigGroup(propertiesMap));
-		
-		// load config/properties values 
+
+		// load config/properties values
 		for (String path : configPath) {
 			propertiesMap = getAllKeys(PropertiesReader.getLocalRootPath() + path);
 			config.putAll(propertiesMap);
@@ -137,15 +136,16 @@ public class Config {
 		checkForDuplicateKeys();
 		return config;
 	}
-	
+
 	/**
 	 * check for config duplicate keys and print out the key + property file name
-	 * @return 
+	 * 
+	 * @return
 	 */
 	public static List<String> checkForDuplicateKeys() {
 		Multimap<String, String> keys = TestObject.getTestInfo().configKeys;
 		List<String> dupicateKeys = new ArrayList<String>();
-		
+
 		Set<String> keySet = keys.keySet();
 		Iterator<String> keyIterator = keySet.iterator();
 		while (keyIterator.hasNext()) {
@@ -174,8 +174,7 @@ public class Config {
 		// get list of profiles from key: config.profile
 		for (Entry<String, String> entry : propertiesMap.entrySet()) {
 			String key = entry.getKey().toString();
-			boolean isConfig = key.startsWith(CONFIG_PREFIX) 
-					&& !key.startsWith(CONFIG_PROFILE_PREFIX) 
+			boolean isConfig = key.startsWith(CONFIG_PREFIX) && !key.startsWith(CONFIG_PROFILE_PREFIX)
 					&& !key.startsWith(CONFIG_GROUP_PREFIX);
 			if (isConfig) {
 				configPath.add(entry.getValue());
@@ -185,8 +184,8 @@ public class Config {
 	}
 
 	/**
-	 * get the list of profile path specified by profile. in
-	 * properties.property file multiple profiles can be separated by ","
+	 * get the list of profile path specified by profile. in properties.property
+	 * file multiple profiles can be separated by ","
 	 * 
 	 * @param propertiesMap
 	 * @return
@@ -198,26 +197,26 @@ public class Config {
 		// get list of profiles from key: profile.
 		for (Entry<String, String> entry : propertiesMap.entrySet()) {
 			boolean isProfile = entry.getKey().toString().startsWith(PROFILE_PREFIX);
-			boolean isCorrectLength =  entry.getKey().toString().split("\\.").length == 2;
+			boolean isCorrectLength = entry.getKey().toString().split("\\.").length == 2;
 			if (isProfile && isCorrectLength) {
 				String profile = entry.getKey().split("\\.")[1];
-				// add profile name to value. eg. environment.dev 
+				// add profile name to value. eg. environment.dev
 				List<String> values = new ArrayList<String>(Arrays.asList(entry.getValue().split(",")));
 				profiles.addAll(values.stream().map(c -> profile + "." + c).collect(Collectors.toList()));
 
 			}
 		}
 		// property value: profile.environment = dev
-		// add profile path to list. eg. 'environment.dev'. profile is environment, 
+		// add profile path to list. eg. 'environment.dev'. profile is environment,
 		// dev is the property file name: dev.property
 		for (String profile : profiles) {
 			String profileValue = profile.split("\\.")[0];
 			String propertyFile = profile.split("\\.")[1];
-			
+
 			// continue to next profile if value set to none
-			if(propertyFile.equals("none"))
+			if (propertyFile.equals("none"))
 				continue;
-			
+
 			if (propertiesMap.get(CONFIG_PROFILE_PREFIX + profileValue) == null)
 				Helper.assertFalse("profile not found: " + profile
 						+ ". Please add profile to properties.property file as profile." + profile);
@@ -228,8 +227,7 @@ public class Config {
 
 		return profilePath;
 	}
-	
-	
+
 	/**
 	 * get the list of group path specified by profile.group.groupName. in
 	 * properties.property file multiple profiles can be separated by ","
@@ -244,10 +242,10 @@ public class Config {
 		// get list of groups from key: profile.
 		for (Entry<String, String> entry : propertiesMap.entrySet()) {
 			boolean isProfile = entry.getKey().toString().startsWith(GROUP_PREFIX);
-			boolean isCorrectLength =  entry.getKey().toString().split("\\.").length == 3;
+			boolean isCorrectLength = entry.getKey().toString().split("\\.").length == 3;
 			if (isProfile && isCorrectLength) {
 				String group = entry.getKey().split("\\.")[2];
-				
+
 				// add group name to value. eg. repot.value
 				List<String> values = new ArrayList<String>(Arrays.asList(entry.getValue().split(",")));
 				profiles.addAll(values.stream().map(c -> group + "." + c).collect(Collectors.toList()));
@@ -257,11 +255,11 @@ public class Config {
 		// add group path to list
 		for (String profile : profiles) {
 			String value = profile.split("\\.")[1];
-			
+
 			// continue to next profile if value set to none
-			if(value.equals("none"))
+			if (value.equals("none"))
 				continue;
-			
+
 			if (propertiesMap.get(CONFIG_GROUP_PREFIX + profile) == null)
 				Helper.assertFalse("profile not found: " + profile
 						+ ". Please add groups to properties.property file as " + CONFIG_GROUP_PREFIX + profile);
@@ -271,7 +269,6 @@ public class Config {
 
 		return groupPath;
 	}
-
 
 	/**
 	 * returns config value

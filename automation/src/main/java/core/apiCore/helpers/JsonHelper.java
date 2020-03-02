@@ -112,7 +112,7 @@ public class JsonHelper {
 	public static String getJsonValue(String json, String path) {
 		return getJsonValue(json, path, true);
 	}
-	
+
 	/**
 	 * gets json value as list if applicable, or string if single item converts to
 	 * string separated by "," https://github.com/json-path/JsonPath
@@ -124,7 +124,7 @@ public class JsonHelper {
 	 */
 	public static String getJsonValue(String json, String path, boolean isAlwaysReturnList) {
 		Object values = getJsonPathValue(json, path, isAlwaysReturnList);
-		
+
 		// return json response without normalizing
 		if (isValidJsonkeyValue(values)) {
 			return values.toString();
@@ -169,7 +169,8 @@ public class JsonHelper {
 		try {
 			values = ctx.read(prefix + path);
 		} catch (Exception e) {
-			// in case always return list is not applicable to json and we need to turn it off and rerun
+			// in case always return list is not applicable to json and we need to turn it
+			// off and rerun
 			if (e.getMessage().contains(Option.ALWAYS_RETURN_LIST.name()) && isAlwaysReturnList)
 				values = getJsonValue(json, path, false);
 			else
@@ -184,36 +185,34 @@ public class JsonHelper {
 
 		return values;
 	}
-	
+
 	public static boolean isJsonPathValueString(String json, String path) {
 		String prefix = "$.";
 		Object jsonResponse = null;
 		Object value = "";
 		// in case user forgets to remove prefix
-			if (path.startsWith(prefix))
-				path = path.replace(prefix, "");
-			
-			Configuration config = Configuration.defaultConfiguration().addOptions(Option.ALWAYS_RETURN_LIST);
-			ReadContext ctx = JsonPath.using(config).parse(json);
+		if (path.startsWith(prefix))
+			path = path.replace(prefix, "");
 
-			try {
-				jsonResponse = ctx.read(prefix + path);
-			} catch (Exception e) {
-				e.getCause();
-			}
-			
-			if(jsonResponse instanceof List) {
-				net.minidev.json.JSONArray array = (net.minidev.json.JSONArray) jsonResponse;
-				if(!array.isEmpty())
-					value = array.get(0);
-			}
-			
-	
-			
-			if(value instanceof String) 
-				return true;
-			return false;
-			
+		Configuration config = Configuration.defaultConfiguration().addOptions(Option.ALWAYS_RETURN_LIST);
+		ReadContext ctx = JsonPath.using(config).parse(json);
+
+		try {
+			jsonResponse = ctx.read(prefix + path);
+		} catch (Exception e) {
+			e.getCause();
+		}
+
+		if (jsonResponse instanceof List) {
+			net.minidev.json.JSONArray array = (net.minidev.json.JSONArray) jsonResponse;
+			if (!array.isEmpty())
+				value = array.get(0);
+		}
+
+		if (value instanceof String)
+			return true;
+		return false;
+
 	}
 
 	/**
@@ -543,9 +542,9 @@ public class JsonHelper {
 
 		// replace parameters
 		jsonString = DataHelper.replaceParameters(jsonString);
-		
+
 		// if request body is json, will not replace template
-		if(isJSONValid(serviceObject.getRequestBody(), false))
+		if (isJSONValid(serviceObject.getRequestBody(), false))
 			return serviceObject.getRequestBody();
 
 		// get key value mapping of header parameters
@@ -570,7 +569,7 @@ public class JsonHelper {
 		DocumentContext doc = JsonPath.parse(jsonString);
 		String prefix = "$.";
 		boolean isJsonPathValueString = JsonHelper.isJsonPathValueString(jsonString, path);
-		
+
 		// if json path data type is other than string, remove quotes
 		Object replacementValue = convertToObject(value, isJsonPathValueString);
 
@@ -586,34 +585,35 @@ public class JsonHelper {
 		JsonObject jsonObj = new GsonBuilder().serializeNulls().create().toJsonTree(doc.json()).getAsJsonObject();
 		return jsonObj.toString();
 	}
-	
+
 	/**
-	 * convert string to object
-	 * converts string to appropriate object type
-	 * json supports string, number, boolean, null, object, array
+	 * convert string to object converts string to appropriate object type json
+	 * supports string, number, boolean, null, object, array
+	 * 
 	 * @param value
-	 * @param isPathValueString the path value to replace. if string, then replacement type will be string
+	 * @param isPathValueString the path value to replace. if string, then
+	 *                          replacement type will be string
 	 * @return
 	 */
 	public static Object convertToObject(String value, boolean isPathValueString) {
 		Object objectvalue = null;
-		
-		if(isPathValueString)
+
+		if (isPathValueString)
 			objectvalue = value;
 		else {
-		    ObjectMapper ob = new ObjectMapper();
-		    ob.configure(Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-		    try {		
+			ObjectMapper ob = new ObjectMapper();
+			ob.configure(Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+			try {
 				objectvalue = ob.readValue(value, Object.class);
 			} catch (IOException e) {
 				objectvalue = value;
 			}
 		}
-		
+
 		// if path value string is string and being replaced with null
-		if(objectvalue != null && objectvalue.equals("null"))
+		if (objectvalue != null && objectvalue.equals("null"))
 			objectvalue = null;
-		    
+
 		return objectvalue;
 	}
 

@@ -28,10 +28,10 @@ public class DeviceManager {
 			if (entry.getValue().deviceType == deviceType && entry.getValue().isAvailable.equals(true)) {
 				entry.getValue().isAvailable = false;
 				devices.put(entry.getKey(), entry.getValue());
-				
+
 				// set device name
 				TestObject.getTestInfo().deviceName = entry.getValue().deviceName;
-				
+
 				return entry.getValue().deviceName;
 			}
 		}
@@ -46,8 +46,9 @@ public class DeviceManager {
 	public static void loadDevices(List<String> deviceList, DeviceType type) {
 
 		for (String deviceName : deviceList) {
-			if(devices.get(deviceName) == null) {
-				DeviceObject device = new DeviceObject().withDeviceName(deviceName).withIsAvailable(true).withDeviceType(type);
+			if (devices.get(deviceName) == null) {
+				DeviceObject device = new DeviceObject().withDeviceName(deviceName).withIsAvailable(true)
+						.withDeviceType(type);
 				devices.put(deviceName, device);
 			}
 		}
@@ -67,7 +68,7 @@ public class DeviceManager {
 
 		if (devices.get(deviceName) != null)
 			devices.put(deviceName, devices.get(deviceName).withIsAvailable(true));
-		else 
+		else
 			Helper.assertFalse("device not found: " + deviceName);
 	}
 }

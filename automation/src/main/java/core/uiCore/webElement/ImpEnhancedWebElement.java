@@ -196,7 +196,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				String message = e.getLocalizedMessage();
 				String rootCause = message.substring(0, message.indexOf("\n"));
 				exception.add(rootCause);
-				TestLog.ConsoleLog("click failed for element: " + elementName + ": "  + rootCause);
+				TestLog.ConsoleLog("click failed for element: " + elementName + ": " + rootCause);
 			}
 		} while (!success && retry > 0);
 	}
@@ -210,8 +210,8 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	public void scrollToView(int index) {
 		if (isExist(index)) {
 			scrollToView_Web(index);
-			//TODO: currently disable, since scroll is only from center
-		//	mobileScroll(index);
+			// TODO: currently disable, since scroll is only from center
+			// mobileScroll(index);
 		}
 	}
 
@@ -219,16 +219,16 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	 * @param element
 	 */
 	public void mobileScroll(int index) {
-			if (Helper.mobile_isMobile()) {
-				int scrollCount = 5;
-				while (!isExist() && scrollCount > 0) {
-					Helper.scrollDown();
-					Helper.refreshMobileApp();
-					scrollCount--;
-				}
+		if (Helper.mobile_isMobile()) {
+			int scrollCount = 5;
+			while (!isExist() && scrollCount > 0) {
+				Helper.scrollDown();
+				Helper.refreshMobileApp();
+				scrollCount--;
+			}
 		}
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	public void scrollTo_mobile(int index) {
 		if (Helper.mobile.isAndroid()) {
@@ -247,11 +247,11 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	 * scroll to element on web
 	 */
 	public void scrollToView_Web(int index) {
-		if (!Helper.mobile.isWebDriver()) return;
-		
+		if (!Helper.mobile.isWebDriver())
+			return;
 
 		// if visible in view, return
-		if(Helper.isVisibleInViewport(element, index)) 
+		if (Helper.isVisibleInViewport(element, index))
 			return;
 
 		webDriver.manage().timeouts().implicitlyWait(1, TimeUnit.MILLISECONDS);
@@ -259,7 +259,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		WebElement element = getElement(index);
 		Actions action = new Actions(AbstractDriver.getWebDriver());
 		action.moveToElement(element);
-		
+
 		webDriver.manage().timeouts().implicitlyWait(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
 	}
 
@@ -275,10 +275,11 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 			isExist = isElementExist(index[0]);
 		} else {
 			isExist = isListExist();
-		}		
-		// reset element if no element found. 
-		if(!isExist) resetElement();
-		
+		}
+		// reset element if no element found.
+		if (!isExist)
+			resetElement();
+
 		webDriver.manage().timeouts().implicitlyWait(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
 		return isExist;
 	}
@@ -371,42 +372,42 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				String message = e.getLocalizedMessage();
 				String rootCause = message.substring(0, message.indexOf("\n"));
 				exception.add(rootCause);
-				TestLog.ConsoleLog("send keys failed for element: " + elementName + ": "  + rootCause);
+				TestLog.ConsoleLog("send keys failed for element: " + elementName + ": " + rootCause);
 
 			}
 		} while (!success && retry > 0);
 	}
-	
-    @Override
-    public void sendKeysByAction(int index, CharSequence... keysToSend) {
-        int retry = 3;
 
-        boolean success = false;
-        do {
-            retry--;
-            try {
-                scrollToView(index);
-                isDisplayed(index);
-                if (isExist()) {
-                    sendKeyByAction(index, keysToSend);
-                    success = true;
-                }
-            } catch (Exception e) {
-                resetElement();
-    			String message = e.getLocalizedMessage();
+	@Override
+	public void sendKeysByAction(int index, CharSequence... keysToSend) {
+		int retry = 3;
+
+		boolean success = false;
+		do {
+			retry--;
+			try {
+				scrollToView(index);
+				isDisplayed(index);
+				if (isExist()) {
+					sendKeyByAction(index, keysToSend);
+					success = true;
+				}
+			} catch (Exception e) {
+				resetElement();
+				String message = e.getLocalizedMessage();
 				String rootCause = message.substring(0, message.indexOf("\n"));
 				TestLog.ConsoleLog("sendkey failed: " + rootCause);
-            }
-        } while (!success && retry > 0);
+			}
+		} while (!success && retry > 0);
 
-        Helper.assertTrue("send key was not successful", success);
-    }
-    
-    @Override
+		Helper.assertTrue("send key was not successful", success);
+	}
+
+	@Override
 	public void sendKeyByJs(int index, CharSequence[] keysToSend) {
 
 		WebElement element = getElement(index);
-		Helper.executeJs("arguments[0].setAttribute('value', '"+ String.valueOf(keysToSend[0]) +"')", element);
+		Helper.executeJs("arguments[0].setAttribute('value', '" + String.valueOf(keysToSend[0]) + "')", element);
 	}
 
 	/*
@@ -450,8 +451,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 
 	public void setAttribute(String attribute, int index, String value) {
 		WebElement element = getElement(index);
-		Helper.executeJs("arguments[0].setAttribute('" + attribute + "', '"
-				+ value + "')", element);
+		Helper.executeJs("arguments[0].setAttribute('" + attribute + "', '" + value + "')", element);
 	}
 
 	@Override
@@ -475,11 +475,14 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 			try {
 				WebElement element = getElement(index);
 				value = element.getText();
-				if(value.isEmpty()) value = getAttribute("textContent", index);
-				if(value.isEmpty()) value = getAttribute("value", index);
-				if(value.isEmpty()) value = getAttribute("innerText", index);
-				
-				if(!value.isEmpty())
+				if (value.isEmpty())
+					value = getAttribute("textContent", index);
+				if (value.isEmpty())
+					value = getAttribute("value", index);
+				if (value.isEmpty())
+					value = getAttribute("innerText", index);
+
+				if (!value.isEmpty())
 					isSuccess = true;
 			} catch (Exception e) {
 				e.getMessage();
@@ -493,7 +496,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	public List<String> getTextList() {
 		List<String> stringList = new ArrayList<String>();
 		List<WebElement> elementList = getElements();
-		
+
 		int listSize = elementList.size();
 		for (int i = 0; i < listSize; i++) {
 			stringList.add(elementList.get(i).getText().trim());
@@ -522,12 +525,12 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		WebElement element;
 
 		if (index == 0)
-			 element =  getElement().get(0);
+			element = getElement().get(0);
 		else
 			element = getElements().get(index);
 		return element;
 	}
-	
+
 	/**
 	 * gets parent elements and stores in parentElements list
 	 */
@@ -555,28 +558,30 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 			}
 		}
 	}
-	
+
 	/**
-	 * gets the list of elements, then selects the first visible element from the list
-	 * in situation where the first elements are not visible, out of view
+	 * gets the list of elements, then selects the first visible element from the
+	 * list in situation where the first elements are not visible, out of view
+	 * 
 	 * @return
 	 */
 	public List<WebElement> getElement() {
 		List<WebElement> elements = new ArrayList<WebElement>();
-		if (current != null && !current.isEmpty() ) return this.current;
+		if (current != null && !current.isEmpty())
+			return this.current;
 
 		// get parent elements if applicable
 		getParentElement();
-		
-		// if  multiple element objects, we need to iterate through them quickly
-		if(this.element.elementObject.size() > 1) {
+
+		// if multiple element objects, we need to iterate through them quickly
+		if (this.element.elementObject.size() > 1) {
 			webDriver.manage().timeouts().implicitlyWait(1, TimeUnit.MILLISECONDS);
 		}
-		
+
 		for (ElementObject elementObject : this.element.elementObject) {
 			this.by = elementObject.by;
 			this.locatorType = elementObject.locatorType;
-			
+
 			try {
 				if (!this.parentElements.isEmpty()) {
 					this.current = new ArrayList<WebElement>();
@@ -598,15 +603,16 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		webDriver.manage().timeouts().implicitlyWait(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
 		return this.current;
 	}
-	
+
 	public List<WebElement> getElements() {
-		if (current != null && !current.isEmpty() ) return this.current;
-		
+		if (current != null && !current.isEmpty())
+			return this.current;
+
 		// get parent elements if applicable
 		getParentElement();
-		
-		// if  multiple element objects, we need to iterate through them quickly
-		if(this.element.elementObject.size() > 1) {
+
+		// if multiple element objects, we need to iterate through them quickly
+		if (this.element.elementObject.size() > 1) {
 			webDriver.manage().timeouts().implicitlyWait(1, TimeUnit.MILLISECONDS);
 		}
 

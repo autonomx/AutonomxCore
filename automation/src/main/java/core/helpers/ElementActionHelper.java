@@ -40,10 +40,11 @@ public class ElementActionHelper {
 		Actions action = new Actions(AbstractDriver.getWebDriver());
 		action.doubleClick(targetElement.get(0)).perform();
 	}
-	
+
 	/**
-	 * Hover on the x,y points
-	 * Reset mouse position to 0,0 after hover action is complete with Helper.click.resetMouse(x, y);
+	 * Hover on the x,y points Reset mouse position to 0,0 after hover action is
+	 * complete with Helper.click.resetMouse(x, y);
+	 * 
 	 * @param x
 	 * @param y
 	 */
@@ -55,9 +56,10 @@ public class ElementActionHelper {
 		action.moveByOffset(x, y).build().perform();
 		Helper.waitForSeconds(0.5);
 	}
-	
+
 	/**
 	 * move to element by using action
+	 * 
 	 * @param target
 	 * @param index
 	 */
@@ -66,9 +68,10 @@ public class ElementActionHelper {
 		EnhancedWebElement targetElement = Element.findElements(target);
 		action.moveToElement(targetElement.get(index));
 	}
-	
+
 	/**
 	 * move to element by using action
+	 * 
 	 * @param target
 	 * @param index
 	 */

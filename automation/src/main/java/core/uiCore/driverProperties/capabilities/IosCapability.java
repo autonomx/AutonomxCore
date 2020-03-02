@@ -21,7 +21,6 @@ import core.uiCore.drivers.AbstractDriver;
 import io.appium.java_client.remote.MobileCapabilityType;
 import io.github.bonigarcia.wdm.WebDriverManager;
 
-
 /**
  * @author ehsan.matean
  *
@@ -34,7 +33,7 @@ public class IosCapability {
 
 	public static String IS_HYBRID_APP = "appium.isHybridApp";
 	public static String CHROME_VERSION = "appium.chromeVersion";
-	
+
 	public List<String> simulatorList = new ArrayList<String>();
 
 	private static final String CAPABILITIES_PREFIX = "ios.capabilties.";
@@ -53,9 +52,10 @@ public class IosCapability {
 	public DesiredCapabilities getCapability() {
 		return capabilities;
 	}
-	
+
 	/**
 	 * device: property name from property file. eg. device1, device2
+	 * 
 	 * @param device
 	 * @return
 	 */
@@ -67,10 +67,10 @@ public class IosCapability {
 	public String getAppPath() {
 		String appRootPath = PropertiesReader.getLocalRootPath() + Config.getValue(APP_DIR_PATH);
 		File appPath = new File(appRootPath, Config.getValue(APP_NAME));
-		
-		if(!appPath.exists())
+
+		if (!appPath.exists())
 			TestLog.ConsoleLogWarn("app not found at: " + appPath.getAbsolutePath());
-		
+
 		return appPath.getAbsolutePath();
 	}
 
@@ -84,7 +84,7 @@ public class IosCapability {
 
 		// https://github.com/appium/appium
 		// use appium desktop app for locator
-		
+
 		// sets capabilties from properties files
 		capabilities = setiOSCapabilties();
 
@@ -92,28 +92,30 @@ public class IosCapability {
 
 		// download chrome driver if hybrid
 		setChromeDriver();
-		
-		// set device using device manager. device manager handles multiple devices in parallel
+
+		// set device using device manager. device manager handles multiple devices in
+		// parallel
 		setIosDevice();
-		
-		// set port for appium 
+
+		// set port for appium
 		setPort(TestObject.getTestInfo().deviceName);
-		
+
 		// does not reset app between tests. on failed tests, it resets app
 		setSingleSignIn();
 
 		return this;
 	}
-	
+
 	/**
-	 * set capabilties with prefix ios.capabilties.
-	 * eg. ios.capabilties.fullReset="false
-	 * iterates through all property values with such prefix And adds them to android desired capabilities
-	 * @return 
+	 * set capabilties with prefix ios.capabilties. eg.
+	 * ios.capabilties.fullReset="false iterates through all property values with
+	 * such prefix And adds them to android desired capabilities
+	 * 
+	 * @return
 	 */
 	public DesiredCapabilities setiOSCapabilties() {
 
-		// get all keys from config 
+		// get all keys from config
 		Map<String, Object> propertiesMap = TestObject.getTestInfo().config;
 
 		// load config/properties values from entries with "ios.capabilities." prefix
@@ -123,7 +125,7 @@ public class IosCapability {
 				String fullKey = entry.getKey().toString();
 				String key = fullKey.substring(fullKey.lastIndexOf(".") + 1).trim();
 				String value = entry.getValue().toString().trim();
-				
+
 				capabilities.setCapability(key, value);
 			}
 		}
@@ -169,14 +171,14 @@ public class IosCapability {
 
 		List<String> results = new ArrayList<String>();
 		results = Config.getValueList("ios.UDID");
-		
+
 		// if no device is set in properties, attempt to auto detect
-		if(results.isEmpty()) {
+		if (results.isEmpty()) {
 			results = Helper.executeCommand(cmd);
 			if (!results.isEmpty() && results.get(0).contains("command not found"))
 				Helper.assertFalse("idevice not installed. install: brew install ideviceinstaller");
 		}
-		if(!results.isEmpty())
+		if (!results.isEmpty())
 			TestLog.ConsoleLog("ios device list: " + Arrays.toString(results.toArray()));
 		return results;
 	}
@@ -198,7 +200,8 @@ public class IosCapability {
 
 		// adds all devices
 		DeviceManager.loadDevices(devices, DeviceType.iOS);
-		capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, DeviceManager.getFirstAvailableDevice(DeviceType.iOS));
+		capabilities.setCapability(MobileCapabilityType.DEVICE_NAME,
+				DeviceManager.getFirstAvailableDevice(DeviceType.iOS));
 	}
 
 	/**
@@ -208,8 +211,8 @@ public class IosCapability {
 	public void setRealDevices() {
 		List<String> devices = getIosDeviceList();
 		List<String> deviceNames = this.simulatorList;
-		if(deviceNames.size() == 0) Helper.assertFalse("device name is empty. set ios.mobile  or ios.tablet");
-
+		if (deviceNames.size() == 0)
+			Helper.assertFalse("device name is empty. set ios.mobile  or ios.tablet");
 
 		int threads = CrossPlatformProperties.getParallelTests();
 		if (threads > devices.size())
@@ -239,40 +242,42 @@ public class IosCapability {
 			}
 		}
 	}
-	
+
 	/**
-	 * if device has port assigned, use assigned port
-	 * else generate new port number
+	 * if device has port assigned, use assigned port else generate new port number
+	 * 
 	 * @param deviceName
 	 */
 	public synchronized void setPort(String deviceName) {
-		
+
 		// if device port is already set
-		if(DeviceManager.devices.get(deviceName) != null && (DeviceManager.devices.get(deviceName).devicePort != -1))
+		if (DeviceManager.devices.get(deviceName) != null && (DeviceManager.devices.get(deviceName).devicePort != -1))
 			capabilities.setCapability("wdaLocalPort", DeviceManager.devices.get(deviceName).devicePort);
 		else {
 			int wdaLocalPort = ++WDA_LOCAL_PORT;
 			capabilities.setCapability("wdaLocalPort", wdaLocalPort);
 			DeviceManager.devices.get(deviceName).withDevicePort(wdaLocalPort);
 		}
-		
-		TestLog.ConsoleLog("deviceName " + deviceName + " wdaLocalPort: " + DeviceManager.devices.get(deviceName).devicePort);
+
+		TestLog.ConsoleLog(
+				"deviceName " + deviceName + " wdaLocalPort: " + DeviceManager.devices.get(deviceName).devicePort);
 	}
 
 	/**
-	 * download chrome driver if hybrid app is enabled 
-	 * if Version is LATEST, download latest driver unless set in config
+	 * download chrome driver if hybrid app is enabled if Version is LATEST,
+	 * download latest driver unless set in config
 	 */
 	public void setChromeDriver() {
 
 		boolean isHybridApp = Config.getBooleanValue(IS_HYBRID_APP);
-		
+
 		if (isHybridApp) {
 			String chromeVersion = Config.getValue(CHROME_VERSION);
 
 			// if version is LATEST, set version to null to download latest version
-			if(chromeVersion.equals("LATEST")) chromeVersion = null;
-			
+			if (chromeVersion.equals("LATEST"))
+				chromeVersion = null;
+
 			WebDriverManager.chromedriver().version(chromeVersion).setup();
 			String chromePath = WebDriverManager.chromedriver().getBinaryPath();
 			capabilities.setCapability("chromedriverExecutable", chromePath);

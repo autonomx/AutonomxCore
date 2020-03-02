@@ -149,8 +149,9 @@ public class ServiceBusInterface {
 		if (serviceObject.getOption().isEmpty()) {
 			return;
 		}
-		
-		// store value to config directly using format: value:<$key> separated by colon ';'
+
+		// store value to config directly using format: value:<$key> separated by colon
+		// ';'
 		DataHelper.saveDataToConfig(serviceObject.getOption());
 
 		// replace parameters for options
@@ -226,11 +227,11 @@ public class ServiceBusInterface {
 		String topic = Config.getValue(SERVICEBUS_TOPIC);
 		String outboundTopic = Config.getValue(SERVICEBUS_OUTBOUND_TOPIC);
 		String host = Config.getValue(SERVICEBUS_HOST);
-		
+
 		// set outbound topic if defined
-		if(!outboundTopic.isEmpty())
+		if (!outboundTopic.isEmpty())
 			topic = outboundTopic;
-		
+
 		String entityPath = topic + "/subscriptions/" + host;
 		SubscriptionClient subscription1Client = new SubscriptionClient(
 				new ConnectionStringBuilder(connectionString, entityPath), ReceiveMode.PEEKLOCK);

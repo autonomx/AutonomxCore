@@ -50,19 +50,19 @@ public class SqlInterface {
 
 		// get and keep track of all the databases from config
 		setDatabaseMap();
-		
+
 		// set default database at position 0(no position) or 1(position 1)
 		setDefaultDatabase();
-		
+
 		// evaluate options
 		evaluateOption(serviceObject);
-		
+
 		// connect to db
 		connectDB();
 
 		// evaluate the response
 		ResultSet resSet = evaluateRequestAndValidateResponse(serviceObject);
-		
+
 		return resSet;
 	}
 
@@ -108,16 +108,17 @@ public class SqlInterface {
 	}
 
 	public static void evaluateOption(ServiceObject serviceObject) {
-	
+
 		// reset validation timeout. will be overwritten by option value if set
 		resetValidationTimeout();
-		
+
 		// if no option specified
 		if (serviceObject.getOption().isEmpty()) {
 			return;
 		}
-		
-		// store value to config directly using format: value:<$key> separated by colon ';'
+
+		// store value to config directly using format: value:<$key> separated by colon
+		// ';'
 		DataHelper.saveDataToConfig(serviceObject.getOption());
 
 		// replace parameters for request body
@@ -141,10 +142,10 @@ public class SqlInterface {
 			case ServiceManager.OPTION_NO_VALIDATION_TIMEOUT:
 				Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, false);
 				break;
-				
+
 			case ServiceManager.OPTION_WAIT_FOR_RESPONSE:
 				Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, true);
-				Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS, keyword.value);	
+				Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS, keyword.value);
 				break;
 			case ServiceManager.OPTION_WAIT_FOR_RESPONSE_DELAY:
 				Config.putValue(ServiceManager.SERVICE_RESPONSE_DELAY_BETWEEN_ATTEMPTS_SECONDS, keyword.value);
@@ -156,17 +157,16 @@ public class SqlInterface {
 	}
 
 	/**
-	 * set database values from config into database object hashmap
-	 * format: db.1.driver = org.postgresql.Driver
-	 * 1 is position
-	 * driver is key (command)
+	 * set database values from config into database object hashmap format:
+	 * db.1.driver = org.postgresql.Driver 1 is position driver is key (command)
 	 * org.postgresql.Driver is value
 	 */
 	public static void setDatabaseMap() {
-		
-		// if already set, 
-		if(DatabaseObject.DATABASES.size() > 0) return;
-		
+
+		// if already set,
+		if (DatabaseObject.DATABASES.size() > 0)
+			return;
+
 		// get all keys from config
 		Map<String, Object> propertiesMap = TestObject.getTestInfo().config;
 
@@ -180,17 +180,18 @@ public class SqlInterface {
 			if (isDatabase) {
 				String fullKey = entry.getKey().toString();
 				int position = Helper.getIntFromString(fullKey);
-				
+
 				// if position is not set, set to 0 (default)
 				String splitter = SQL_PREFIX + position + ".";
-				if(position == -1) {
+				if (position == -1) {
 					position = 0;
 					splitter = SQL_PREFIX;
 				}
 				String[] split = fullKey.split(splitter);
-				
-				if(split.length == 1) continue;
-				
+
+				if (split.length == 1)
+					continue;
+
 				String command = split[1].trim();
 				String value = entry.getValue().toString().trim();
 
@@ -199,20 +200,20 @@ public class SqlInterface {
 			}
 		}
 	}
-	
+
 	/**
-	 * set default database to be from position 0 or 1
-	 * if db 0 is set, set as default else set db 1
-	 * fail if no position 0 or 1 is not set
+	 * set default database to be from position 0 or 1 if db 0 is set, set as
+	 * default else set db 1 fail if no position 0 or 1 is not set
 	 */
 	public static void setDefaultDatabase() {
-		
-		if(DatabaseObject.DATABASES.get(0) != null && !DatabaseObject.DATABASES.get(0).getDriver().isEmpty()) {
+
+		if (DatabaseObject.DATABASES.get(0) != null && !DatabaseObject.DATABASES.get(0).getDriver().isEmpty()) {
 			Config.putValue(SQL_CURRENT_DATABASE, DatabaseObject.DATABASES.get(0));
-		}else if(DatabaseObject.DATABASES.get(1) != null) {
+		} else if (DatabaseObject.DATABASES.get(1) != null) {
 			Config.putValue(SQL_CURRENT_DATABASE, DatabaseObject.DATABASES.get(1));
-		}else {
-			Helper.assertFalse("database position must be set. eg. db.1.driver = value where 1 is position of database " );
+		} else {
+			Helper.assertFalse(
+					"database position must be set. eg. db.1.driver = value where 1 is position of database ");
 		}
 	}
 
@@ -247,7 +248,7 @@ public class SqlInterface {
 			database.withPassword(value);
 			break;
 		default:
-			
+
 		}
 
 		DatabaseObject.DATABASES.put(position, database);
@@ -278,7 +279,7 @@ public class SqlInterface {
 		ResultSet resSet = null;
 		try {
 			resSet = executeAndWaitForDbResponse(sqlStmt, serviceObject);
-		}catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			Helper.assertFalse(e.getMessage());
 		}
@@ -296,7 +297,7 @@ public class SqlInterface {
 	public static List<String> evaluateReponse(ServiceObject serviceObject, ResultSet resSet) throws Exception {
 
 		List<String> errorMessages = new ArrayList<String>();
-		
+
 		// return if expected response is empty
 		if (serviceObject.getExpectedResponse().isEmpty() && serviceObject.getOutputParams().isEmpty())
 			return errorMessages;
@@ -311,12 +312,12 @@ public class SqlInterface {
 
 		// saves response values to config object
 		SqlHelper.saveOutboundSQLParameters(resSet, serviceObject.getOutputParams());
-		
+
 		errorMessages = validateExpectedResponse(serviceObject.getExpectedResponse(), resSet);
 
 		// Clean-up environment
 		resSet.close();
-		
+
 		// remove all empty response strings
 		errorMessages = DataHelper.removeEmptyElements(errorMessages);
 		return errorMessages;
@@ -358,12 +359,12 @@ public class SqlInterface {
 	}
 
 	public static List<String> validateExpectedResponse(String expected, ResultSet resSet) throws SQLException {
-		
+
 		List<String> errorMessages = new ArrayList<String>();
 
 		if (expected.isEmpty())
 			return errorMessages;
-		
+
 		// validate response body against expected string
 		expected = DataHelper.replaceParameters(expected);
 		TestLog.logPass("expected result: " + Helper.stringRemoveLines(expected));
@@ -378,17 +379,17 @@ public class SqlInterface {
 				errorMessages.addAll(SqlHelper.validateSqlKeywords(keywords, resSet));
 			}
 		}
-		
+
 		return errorMessages;
 	}
-	
+
 	/**
 	 * evaluate request and validate response retry until validation timeout period
 	 * in seconds
 	 * 
 	 * @param serviceObject
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public static ResultSet evaluateRequestAndValidateResponse(ServiceObject serviceObject) throws Exception {
 		List<String> errorMessages = new ArrayList<String>();
@@ -402,9 +403,9 @@ public class SqlInterface {
 		int currentRetryCount = 0;
 
 		do {
-			
+
 			// evaluate the sql query
-			 resSet = evaluateDbQuery(serviceObject);
+			resSet = evaluateDbQuery(serviceObject);
 
 			// evaluate the response
 			errorMessages = evaluateReponse(serviceObject, resSet);
@@ -428,7 +429,7 @@ public class SqlInterface {
 		} while (!errorMessages.isEmpty() && passedTimeInSeconds < maxRetrySeconds);
 
 		if (!errorMessages.isEmpty()) {
-			TestLog.ConsoleLog("Validation failed after: " +  passedTimeInSeconds + " seconds");
+			TestLog.ConsoleLog("Validation failed after: " + passedTimeInSeconds + " seconds");
 			String errorString = StringUtils.join(errorMessages, "\n error: ");
 			TestLog.ConsoleLog(errorString);
 			Helper.assertFalse(StringUtils.join(errorMessages, "\n error: "));
@@ -436,20 +437,25 @@ public class SqlInterface {
 
 		return resSet;
 	}
-	
+
 	/**
 	 * reset validation timeout
 	 */
 	private static void resetValidationTimeout() {
 		// reset validation timeout option
-		String defaultValidationTimeoutIsEnabled = Config.getGlobalValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED);
-		int defaultValidationTimeoutIsSeconds = Config.getGlobalIntValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS);
-		if(defaultValidationTimeoutIsSeconds == -1) defaultValidationTimeoutIsSeconds = 60;
-		
-		// delay timeout reset 
-		int defaultValidationTimeoutDelay = Config.getGlobalIntValue(ServiceManager.SERVICE_RESPONSE_DELAY_BETWEEN_ATTEMPTS_SECONDS);
-		if(defaultValidationTimeoutDelay == -1) defaultValidationTimeoutDelay = 3;
-		
+		String defaultValidationTimeoutIsEnabled = Config
+				.getGlobalValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED);
+		int defaultValidationTimeoutIsSeconds = Config
+				.getGlobalIntValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS);
+		if (defaultValidationTimeoutIsSeconds == -1)
+			defaultValidationTimeoutIsSeconds = 60;
+
+		// delay timeout reset
+		int defaultValidationTimeoutDelay = Config
+				.getGlobalIntValue(ServiceManager.SERVICE_RESPONSE_DELAY_BETWEEN_ATTEMPTS_SECONDS);
+		if (defaultValidationTimeoutDelay == -1)
+			defaultValidationTimeoutDelay = 3;
+
 		Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, defaultValidationTimeoutIsEnabled);
 		Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS, defaultValidationTimeoutIsSeconds);
 		Config.putValue(ServiceManager.SERVICE_RESPONSE_DELAY_BETWEEN_ATTEMPTS_SECONDS, defaultValidationTimeoutDelay);

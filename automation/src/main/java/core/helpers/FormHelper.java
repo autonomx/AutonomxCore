@@ -15,6 +15,7 @@ public class FormHelper {
 
 	/**
 	 * clears and set field
+	 * 
 	 * @param field
 	 * @param value
 	 */
@@ -22,19 +23,22 @@ public class FormHelper {
 		clearField(field, 0);
 		setField(field, 0, value);
 	}
-	
+
 	/**
 	 * clear and sets field
+	 * 
 	 * @param field
 	 * @param index
 	 * @param value
 	 */
 	public void clearAndSetField(EnhancedBy field, int index, CharSequence... value) {
-		if(value.length == 0) return;
-		
+		if (value.length == 0)
+			return;
+
 		clearField(field, index);
 		setField(field, index, value);
 	}
+
 	/**
 	 * sets field clears field before setting the value
 	 * 
@@ -53,21 +57,22 @@ public class FormHelper {
 	 * @param value
 	 */
 	public void setField(EnhancedBy field, int index, CharSequence... value) {
-		if(value.length == 0) return;
-		
+		if (value.length == 0)
+			return;
+
 		TestLog.logPass("I set field '" + field.name + "' with value '" + Arrays.toString(value) + "'");
 
 		if (!StringUtils.isBlank(value.toString())) {
 			EnhancedWebElement fieldElement = Element.findElements(field);
-			
+
 			// attempt to hide keyboard if element is not visible
 			Helper.mobile.smartHideKeyboard(field);
-		
+
 			Helper.wait.waitForElementToLoad(field);
 			fieldElement.sendKeys(index, value);
 		}
 	}
-	
+
 	/**
 	 * sets and clears field before setting the value by actions
 	 *
@@ -75,10 +80,10 @@ public class FormHelper {
 	 * @param index
 	 * @param value
 	 */
-	public void setFieldByAction(EnhancedBy field,  CharSequence... value) {
+	public void setFieldByAction(EnhancedBy field, CharSequence... value) {
 		setFieldByAction(field, 0, value);
 	}
-	
+
 	/**
 	 * sets and clears field before setting the value by actions
 	 *
@@ -87,79 +92,82 @@ public class FormHelper {
 	 * @param value
 	 */
 	public void setFieldByAction(EnhancedBy field, int index, CharSequence... value) {
-		if(value.length == 0) return;
-		
+		if (value.length == 0)
+			return;
+
 		TestLog.logPass("I set field '" + field.name + "' with value '" + Arrays.toString(value) + "'");
 
 		if (!StringUtils.isBlank(value.toString())) {
 			EnhancedWebElement fieldElement = Element.findElements(field);
 			Helper.wait.waitForElementToLoad(field);
-			
+
 			fieldElement.sendKeysByAction(index, value);
 
 			// hides keyboard if on mobile device (ios/android)
 			Helper.mobile.hideKeyboard();
 		}
 	}
-	
+
 	/**
 	 * set field through javascript
+	 * 
 	 * @param field
 	 * @param value
 	 */
-	public void setFieldByJs(EnhancedBy field,  CharSequence... value) {
+	public void setFieldByJs(EnhancedBy field, CharSequence... value) {
 		setFieldByJs(field, 0, value);
 	}
-	
+
 	/**
 	 * set field through javascript
+	 * 
 	 * @param field
 	 * @param index
 	 * @param value
 	 */
 	public void setFieldByJs(EnhancedBy field, int index, CharSequence... value) {
-		if(value.length == 0) return;
+		if (value.length == 0)
+			return;
 
 		TestLog.logPass("I set field '" + field.name + "' with value '" + Arrays.toString(value) + "'");
 
 		if (!StringUtils.isBlank(value.toString())) {
 			EnhancedWebElement fieldElement = Element.findElements(field);
 			Helper.wait.waitForElementToLoad(field);
-			
+
 			fieldElement.sendKeyByJs(index, value);
 
 			// hides keyboard if on mobile device (ios/android)
 			Helper.mobile.hideKeyboard();
 		}
 	}
-	
+
 	/**
-	 * use multiple strategies to clear the filed
-	 * 1. element.clear()
-	 * 2. send escape key
-	 * 3. press backspace to delete the value
+	 * use multiple strategies to clear the filed 1. element.clear() 2. send escape
+	 * key 3. press backspace to delete the value
+	 * 
 	 * @param field
 	 * @param index
 	 */
 	private void clearField(EnhancedBy field, int index) {
 		EnhancedWebElement fieldElement = Element.findElements(field);
 		Helper.waitForElementToLoad(field);
-			
+
 		String value = fieldElement.getText(index);
-		if(value.isEmpty()) return;
-		
+		if (value.isEmpty())
+			return;
+
 		Helper.clickAndWait(field, 0);
 		fieldElement.clear(index);
-		
-		 value = fieldElement.getText(index);
-		if(!value.isEmpty())
-		{
-			for(int i = 0; i< value.length(); i++)
+
+		value = fieldElement.getText(index);
+		if (!value.isEmpty()) {
+			for (int i = 0; i < value.length(); i++)
 				fieldElement.sendKeys(Keys.BACK_SPACE);
 		}
 		Helper.wait.waitForSeconds(0.1);
 	}
-	
+
 	/**
 	 * sets field text value by index hides keyboard if on ios device
 	 * 
@@ -182,8 +190,9 @@ public class FormHelper {
 	 */
 	public void setKeyChildField(EnhancedBy parent, int parentIndex, EnhancedBy child, int childIndex,
 			CharSequence... value) {
-		
-		if(value.length == 0) return;
+
+		if (value.length == 0)
+			return;
 
 		TestLog.logPass("I set field '" + child.name + "' with value '" + Arrays.toString(value) + "'");
 
@@ -205,7 +214,8 @@ public class FormHelper {
 	 * @param value
 	 */
 	public void setFieldAndEnter(EnhancedBy field, CharSequence... value) {
-		if(value.length == 0) return;
+		if (value.length == 0)
+			return;
 
 		setField(field, value);
 
@@ -241,21 +251,23 @@ public class FormHelper {
 	public void formSubmit(EnhancedBy button, EnhancedBy expected) {
 		Helper.click.clickAndExpect(button, expected, false);
 	}
-	
+
 	/**
 	 * submit form with retrying selecting the element
+	 * 
 	 * @param button
 	 * @param expected
 	 */
-	public void formSubmitNoRetry(EnhancedBy button,  EnhancedBy expected) {
+	public void formSubmitNoRetry(EnhancedBy button, EnhancedBy expected) {
 		// attempt to hide keyboard if element is not visible
 		Helper.mobile.smartHideKeyboard(button);
-		
+
 		Helper.click.clickAndExpectNoRetry(button, 0, expected);
 	}
-	
+
 	/**
 	 * submit form with retrying selecting the element
+	 * 
 	 * @param button
 	 * @param index
 	 * @param expected
@@ -275,7 +287,7 @@ public class FormHelper {
 	public void formSubmit(EnhancedBy button, EnhancedBy expected, EnhancedBy spinner) {
 		// attempt to hide keyboard if element is not visible
 		Helper.mobile.smartHideKeyboard(button);
-		
+
 		Helper.click.clickAndExpect(button, expected, spinner);
 	}
 
@@ -298,28 +310,27 @@ public class FormHelper {
 	 * @param list
 	 */
 	public void selectDropDownWithDoubleClick(String option, EnhancedBy field, int index, EnhancedBy list) {
-		if(StringUtils.isBlank(option)) return;
-		
+		if (StringUtils.isBlank(option))
+			return;
+
 		TestLog.logPass("I select drop down option '" + option + "'");
 
-			Helper.click.clickAndWait(field, index, 0.1);
-			Helper.click.clickAndExpect(field, index, list, true);
-			Helper.list.selectListItemEqualsByName(list, option);
+		Helper.click.clickAndWait(field, index, 0.1);
+		Helper.click.clickAndExpect(field, index, list, true);
+		Helper.list.selectListItemEqualsByName(list, option);
 	}
 
 	/**
 	 * selects drop down
 	 * 
-	 * @param option
-	 *            : list option we want to select
-	 * @param field
-	 *            : the drop down field
-	 * @param list
-	 *            : the list items in the drop down list
+	 * @param option : list option we want to select
+	 * @param field  : the drop down field
+	 * @param list   : the list items in the drop down list
 	 */
 	public void selectDropDown(String option, EnhancedBy field, EnhancedBy list) {
-		
-		if(StringUtils.isBlank(option)) return;
+
+		if (StringUtils.isBlank(option))
+			return;
 
 		TestLog.logPass("I select drop down option '" + option + "'");
 
@@ -336,8 +347,9 @@ public class FormHelper {
 	 * @param list
 	 */
 	public void selectDropDown(String option, EnhancedBy field, String field_Identifier, EnhancedBy list) {
-		
-		if(StringUtils.isBlank(option)) return;
+
+		if (StringUtils.isBlank(option))
+			return;
 
 		Helper.list.selectListItemContainsByName(field, field_Identifier);
 		Helper.list.selectListItemEqualsByName(list, option);
@@ -357,31 +369,31 @@ public class FormHelper {
 			Helper.list.selectListItemByIndex(list, index);
 		}
 	}
-	
+
 	/**
-	 * select drop down field based on index
-	 * select option field based on index
+	 * select drop down field based on index select option field based on index
+	 * 
 	 * @param field
 	 * @param index
 	 * @param list
 	 * @param optionIndex
 	 */
-	public void selectDropDown(EnhancedBy field,int index, EnhancedBy list, int optionIndex) {
+	public void selectDropDown(EnhancedBy field, int index, EnhancedBy list, int optionIndex) {
 		if (index != -1) {
 			Helper.click.clickAndExpect(field, index, list);
 			Helper.list.selectListItemByIndex(list, index);
 		}
 	}
-	
+
 	/**
-	 * select drop down field based on index
-	 * select option field based on text
+	 * select drop down field based on index select option field based on text
+	 * 
 	 * @param field
 	 * @param index
 	 * @param list
 	 * @param text
 	 */
-	public void selectDropDown(EnhancedBy field,int index, EnhancedBy list, String text) {
+	public void selectDropDown(EnhancedBy field, int index, EnhancedBy list, String text) {
 		if (index != -1) {
 			Helper.click.clickAndExpect(field, index, list);
 			Helper.list.selectListItemEqualsByName(list, text);
@@ -407,11 +419,12 @@ public class FormHelper {
 	 * @param index
 	 * @param list
 	 */
-	public void selectDropDown(String option, EnhancedBy field, int index, EnhancedBy list) {		
-			if(StringUtils.isBlank(option)) return;
+	public void selectDropDown(String option, EnhancedBy field, int index, EnhancedBy list) {
+		if (StringUtils.isBlank(option))
+			return;
 
-			Helper.click.clickAndExpect(field, index, list, true);
-			Helper.list.selectListItemEqualsByName(list, option);
+		Helper.click.clickAndExpect(field, index, list, true);
+		Helper.list.selectListItemEqualsByName(list, option);
 	}
 
 	/**
@@ -425,13 +438,15 @@ public class FormHelper {
 	 * @param listIndex
 	 */
 	public void selectDropDown(String option, EnhancedBy field, EnhancedBy list, int listIndex) {
-			if(StringUtils.isBlank(option)) return;
+		if (StringUtils.isBlank(option))
+			return;
 
-			Helper.click.clickAndExpect(field, list);
-			EnhancedWebElement fieldElement = Element.findElements(list);
+		Helper.click.clickAndExpect(field, list);
+		EnhancedWebElement fieldElement = Element.findElements(list);
 
-			fieldElement.sendKeys(listIndex, option);
+		fieldElement.sendKeys(listIndex, option);
 	}
+
 	/**
 	 * select drop down based on index of the drop down list eg. used for date
 	 * selection where each date value: day, month, year, is separate list send key
@@ -443,13 +458,14 @@ public class FormHelper {
 	 * @param list
 	 * @param listIndex
 	 */
-	public void selectDropDown(String option, EnhancedBy field, int index,  EnhancedBy list, int listIndex) {
-			if(StringUtils.isBlank(option)) return;
+	public void selectDropDown(String option, EnhancedBy field, int index, EnhancedBy list, int listIndex) {
+		if (StringUtils.isBlank(option))
+			return;
 
-			Helper.click.clickAndExpect(field, index, list);
-			EnhancedWebElement fieldElement = Element.findElements(list);
+		Helper.click.clickAndExpect(field, index, list);
+		EnhancedWebElement fieldElement = Element.findElements(list);
 
-			fieldElement.sendKeys(listIndex, option);
+		fieldElement.sendKeys(listIndex, option);
 	}
 
 	/**
@@ -459,8 +475,9 @@ public class FormHelper {
 	 * @param buttons
 	 */
 	public void selectRadioButton(String option, EnhancedBy buttons) {
-		if(StringUtils.isBlank(option)) return;
-	
+		if (StringUtils.isBlank(option))
+			return;
+
 		Helper.list.selectListItemEqualsByName(buttons, option);
 	}
 
@@ -484,12 +501,12 @@ public class FormHelper {
 	public void selectRadioButton(EnhancedBy button) {
 		Helper.click.clickAndExpect(button, button);
 	}
-	
+
 	/**
 	 * select toggle button, on or off
 	 */
 	public void selectToggle(EnhancedBy on, EnhancedBy off, boolean isOn) {
-		if(isOn) 
+		if (isOn)
 			Helper.clickAndWait(on, 0);
 		else
 			Helper.clickAndWait(off, 0);
@@ -540,8 +557,7 @@ public class FormHelper {
 	 * 
 	 * @param location
 	 * @param imageButton
-	 * @param images
-	 *            : uploaded image
+	 * @param images      : uploaded image
 	 */
 	public void uploadImage(String location, EnhancedBy imageButton, EnhancedBy images) {
 		TestLog.logPass("uploaded file: " + location);

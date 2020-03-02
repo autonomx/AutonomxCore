@@ -88,8 +88,7 @@ public class Helper {
 	 * This method is to write in the Excel cell, Row num And Col num are the
 	 * parameters
 	 * 
-	 * @param excel
-	 *            - required: excel.row, excel.column, excel.value, excel.file
+	 * @param excel - required: excel.row, excel.column, excel.value, excel.file
 	 * @throws Exception
 	 */
 	public static void excel_setCellData(ExcelObject excel) throws Exception {
@@ -98,8 +97,7 @@ public class Helper {
 
 	/**
 	 * 
-	 * @param excelObjects
-	 *            - contains data info
+	 * @param excelObjects - contains data info
 	 * @throws Exception
 	 */
 	public static void excel_setCellData(List<ExcelObject> excelObjects) throws Exception {
@@ -111,8 +109,7 @@ public class Helper {
 	/**
 	 * assert true
 	 * 
-	 * @param message
-	 *            if fail
+	 * @param message if fail
 	 * @param value
 	 */
 	public static void assertTrue(String message, boolean value) {
@@ -132,7 +129,7 @@ public class Helper {
 	public static void assertEquals(String expected, String actual) {
 		AssertHelper.assertEquals(expected, actual);
 	}
-	
+
 	/**
 	 * assert expected equals actual
 	 * 
@@ -162,15 +159,15 @@ public class Helper {
 	public static void assertContains(String actual, String expected) {
 		AssertHelper.assertContains(actual, expected);
 	}
-	
+
 	public static void softAssertTrue(String message, boolean value) {
 		AssertHelper.softAssertTrue(message, value);
 	}
-	
+
 	public static void softAssertEqual(String expected, String actual) {
 		AssertHelper.softAssertEqual(actual, expected);
 	}
-	
+
 	public static void softAssertEqual(int expected, int actual) {
 		AssertHelper.softAssertEqual(actual, expected);
 	}
@@ -274,7 +271,7 @@ public class Helper {
 	public static void clickAndExpect(EnhancedBy target, String text, EnhancedBy expected) {
 		click.clickAndExpectByText(target, text, expected);
 	}
-	
+
 	/**
 	 * click And expect based on the text value on the element. eg. button with "OK"
 	 * text
@@ -365,88 +362,93 @@ public class Helper {
 	public static void clickAndNotExpect(EnhancedBy target, int index, EnhancedBy expected) {
 		click.clickAndNotExpect(target, index, expected);
 	}
-	
+
 	/**
 	 * Click on an element's specific x,y location
 	 * 
-	 * @param by
-	 *            by element
-	 * @param x
-	 *            x offset coordinate
-	 * @param y
-	 *            y offset coordinate
+	 * @param by by element
+	 * @param x  x offset coordinate
+	 * @param y  y offset coordinate
 	 */
 	public static void clickElementLocationBy(EnhancedBy by, int x, int y) {
 		click.clickElementLocationBy(by, x, y);
 	}
-	
+
 	/**
 	 * click at position x, y
+	 * 
 	 * @param x
 	 * @param y
 	 */
-    public static void clickPoints(int x ,int y) {
-    	click.clickPoints(x, y);
-    }
-    
-    /**
-     * click point at x,y coordinates and expect and element to be present
-     * retry every 5 seconds for duration of explicit timeout
-     * @param x
-     * @param y
-     * @param expected
-     */
-    public static void clickPointsAndExpect(int x ,int y, EnhancedBy expected) {
-    	click.clickPointsAndExpect(x, y, expected);
-    }
-    
-    /**
-     * double click at position
-     * @param x
-     * @param y
-     */
-    public static void doubleClickPoints(int x, int y) {
-    	click.doubleClickPoints(x, y);
-    }
-    
+	public static void clickPoints(int x, int y) {
+		click.clickPoints(x, y);
+	}
+
+	/**
+	 * click point at x,y coordinates and expect and element to be present retry
+	 * every 5 seconds for duration of explicit timeout
+	 * 
+	 * @param x
+	 * @param y
+	 * @param expected
+	 */
+	public static void clickPointsAndExpect(int x, int y, EnhancedBy expected) {
+		click.clickPointsAndExpect(x, y, expected);
+	}
+
+	/**
+	 * double click at position
+	 * 
+	 * @param x
+	 * @param y
+	 */
+	public static void doubleClickPoints(int x, int y) {
+		click.doubleClickPoints(x, y);
+	}
+
 	/**
 	 * double click on element
+	 * 
 	 * @param target
 	 * @param index
 	 */
 	public static void doubleClick(EnhancedBy target, int index) {
 		clickAction.doubleClick(target, index);
-    }
-    
+	}
+
 	/**
 	 * right click on element at index
+	 * 
 	 * @param target
 	 * @param index
 	 */
 	public static void rightClick(EnhancedBy target, int index) {
 		clickAction.rightClick(target, index);
 	}
-    
-    /**
-     * click element with text containing
-     * @param by
-     * @param text
-     */
-	public static void clickElementContinsByText(EnhancedBy by,String text) {
+
+	/**
+	 * click element with text containing
+	 * 
+	 * @param by
+	 * @param text
+	 */
+	public static void clickElementContinsByText(EnhancedBy by, String text) {
 		click.clickElementContinsByText(by, text);
 	}
-	
+
 	/**
 	 * click And hold element
+	 * 
 	 * @param target
 	 * @param seconds
 	 */
 	public static void clickAndHold(EnhancedBy target, double seconds) {
 		click.clickAndHold(target, seconds);
 	}
-	
+
 	/**
 	 * click And hold based on element index
+	 * 
 	 * @param target
 	 * @param index
 	 * @param seconds
@@ -454,22 +456,24 @@ public class Helper {
 	public static void clickAndHold(EnhancedBy target, int index, double seconds) {
 		click.clickAndHold(target, index, seconds);
 	}
-	
+
 	/**
 	 * drag And drop from src element to target element
+	 * 
 	 * @param src
 	 * @param target
 	 */
 	public static void dragAndDrop(EnhancedBy src, EnhancedBy target) {
 		click.dragAndDrop(src, target);
 	}
-	
+
 	/**
 	 * drag And drop from src element to target element
+	 * 
 	 * @param src
 	 * @param target
 	 */
-	public static void dragAndDrop(EnhancedBy src,int xOffset, int yOffset) {
+	public static void dragAndDrop(EnhancedBy src, int xOffset, int yOffset) {
 		click.dragAndDrop(src, xOffset, yOffset);
 	}
 
@@ -482,7 +486,7 @@ public class Helper {
 	public static void verifyElementIsDisplayed(EnhancedBy by) {
 		verify.verifyElementIsDisplayed(by);
 	}
-	
+
 	/**
 	 * returns true if element is displayed
 	 * 
@@ -513,26 +517,29 @@ public class Helper {
 	public static boolean isElementContainingText(EnhancedBy element, String text) {
 		return verify.isElementContainingText(element, text);
 	}
-	
+
 	/**
 	 * verify if element contains text
+	 * 
 	 * @param element
 	 * @param text
 	 */
 	public static void verifyElementContainingText(EnhancedBy element, String text) {
 		verify.verifyElementContainingText(element, text);
 	}
-	
+
 	/**
 	 * verify if text is displayed on page
+	 * 
 	 * @param text
 	 */
 	public static void verifyTextDisplayed(String text) {
 		verify.verifyTextDisplayed(text);
 	}
-	
+
 	/**
 	 * is text displayed on page
+	 * 
 	 * @param text
 	 * @return
 	 */
@@ -568,22 +575,24 @@ public class Helper {
 	public static void verifyElementCount(EnhancedBy by, int value, int... correction) {
 		verify.verifyElementCount(by, value, correction);
 	}
-	
+
 	/**
 	 * verifies if text contains any of values in list
+	 * 
 	 * @param target
 	 * @param values
 	 */
 	public static void verifyAnyTextContaining(EnhancedBy target, String... values) {
 		verify.verifyAnyTextContaining(target, values);
 	}
-	
+
 	/**
 	 * verifies if text contains any of values in list
+	 * 
 	 * @param target
 	 * @param values
 	 */
-	public  static void verifyAnyText(EnhancedBy target, String... values) {
+	public static void verifyAnyText(EnhancedBy target, String... values) {
 		verify.verifyAnyText(target, values);
 	}
 
@@ -609,19 +618,19 @@ public class Helper {
 	public static void setField(EnhancedBy field, CharSequence... value) {
 		form.setField(field, value);
 	}
-	
+
 	public static void setFieldByAction(EnhancedBy field, int index, CharSequence... value) {
 		form.setFieldByAction(field, index, value);
 	}
-	
+
 	public static void setFieldByAction(EnhancedBy field, CharSequence... value) {
 		form.setFieldByAction(field, 0, value);
 	}
-	
+
 	public static void setFieldByJs(EnhancedBy field, int index, CharSequence... value) {
 		form.setFieldByJs(field, index, value);
 	}
-	
+
 	public static void setFieldByJs(EnhancedBy field, CharSequence... value) {
 		form.setFieldByJs(field, 0, value);
 	}
@@ -729,12 +738,9 @@ public class Helper {
 	/**
 	 * selects drop down
 	 * 
-	 * @param option
-	 *            : list option we want to select
-	 * @param field
-	 *            : the drop down field
-	 * @param list
-	 *            : the list items in the drop down list
+	 * @param option : list option we want to select
+	 * @param field  : the drop down field
+	 * @param list   : the list items in the drop down list
 	 */
 	public static void selectDropDown(String option, EnhancedBy field, EnhancedBy listValue) {
 		form.selectDropDown(option, field, listValue);
@@ -787,7 +793,7 @@ public class Helper {
 	public static void selectDropDown(String option, EnhancedBy field, EnhancedBy listValue, int listIndex) {
 		form.selectDropDown(option, field, listValue, listIndex);
 	}
-	
+
 	/**
 	 * select drop down based on index of the drop down list eg. used for date
 	 * selection where each date value: day, month, year, is separate list send key
@@ -799,8 +805,8 @@ public class Helper {
 	 * @param list
 	 * @param listIndex
 	 */
-	public static void selectDropDown(String option, EnhancedBy field, int index,  EnhancedBy list, int listIndex) {
-	   form.selectDropDown(option, field, index, list, listIndex);
+	public static void selectDropDown(String option, EnhancedBy field, int index, EnhancedBy list, int listIndex) {
+		form.selectDropDown(option, field, index, list, listIndex);
 	}
 
 	/**
@@ -853,7 +859,8 @@ public class Helper {
 	public static void selectMultipleCheckboxOptions(List<String> selections, EnhancedBy checkboxes) {
 		form.selectMultipleCheckboxOptions(selections, checkboxes);
 	}
-  // uploadHelper
+
+	// uploadHelper
 	/**
 	 * uploads file by specifying file location relative to main path
 	 * 
@@ -869,8 +876,7 @@ public class Helper {
 	 * 
 	 * @param location
 	 * @param imageButton
-	 * @param images
-	 *            : uploaded image
+	 * @param images      : uploaded image
 	 */
 	public static void uploadImages(List<String> locations, EnhancedBy imageButton, EnhancedBy images) {
 		form.uploadImages(locations, imageButton, images);
@@ -881,8 +887,7 @@ public class Helper {
 	 * 
 	 * @param location
 	 * @param imageButton
-	 * @param images
-	 *            : uploaded image
+	 * @param images      : uploaded image
 	 */
 	public static void uploadImage(String location, EnhancedBy imageButton, EnhancedBy images) {
 		form.uploadImage(location, imageButton, images);
@@ -977,10 +982,11 @@ public class Helper {
 	public static void selectListItemContainsByName(EnhancedBy listValue, String option, EnhancedBy target) {
 		list.selectListItemContainsByName(listValue, option, target);
 	}
-	
+
 	/**
-	 * 	  find the index of the target element in list
-		eg. list A, 5 rows, has element B in row 2. therefore, index 1 is returned @param list
+	 * find the index of the target element in list eg. list A, 5 rows, has element
+	 * B in row 2. therefore, index 1 is returned @param list
+	 * 
 	 * @param list
 	 * @param target
 	 * @return index of element in list
@@ -988,44 +994,47 @@ public class Helper {
 	public static int getElementIndexInList(EnhancedBy srcList, EnhancedBy target) {
 		return list.getElementIndexInList(srcList, target);
 	}
-	
+
 	/**
-	 * returns the list of string values for a row of elements 
+	 * returns the list of string values for a row of elements
+	 * 
 	 * @param list
 	 * @param index
 	 * @param rows
 	 * @return
 	 */
-	public List<String> getRowValuesFromList(EnhancedBy list, int index,  EnhancedBy rows) {
+	public List<String> getRowValuesFromList(EnhancedBy list, int index, EnhancedBy rows) {
 		return getRowValuesFromList(list, index, rows);
 	}
-	
+
 	/**
 	 * gets hashmap representation of data column with row values
+	 * 
 	 * @param columns
 	 * @param dataRows
 	 * @return
 	 */
-	public HashMap<String, List<String>> getTableMap(EnhancedBy columns, EnhancedBy dataRows, EnhancedBy dataCells){
+	public HashMap<String, List<String>> getTableMap(EnhancedBy columns, EnhancedBy dataRows, EnhancedBy dataCells) {
 		return getTableMap(columns, dataRows, dataCells);
 	}
-	
+
 	/**
 	 * gets hashmap representation of data column with row values
-
+	 * 
 	 * @param columns
 	 * @param dataRows
 	 * @param dataCells
 	 * @param maxRows
 	 * @return
 	 */
-	public HashMap<String, List<String>> getTableMap(EnhancedBy columns, EnhancedBy dataRows, EnhancedBy dataCells, int maxRows){
+	public HashMap<String, List<String>> getTableMap(EnhancedBy columns, EnhancedBy dataRows, EnhancedBy dataCells,
+			int maxRows) {
 		return getTableMap(columns, dataRows, dataCells, maxRows);
 	}
-	
+
 	/**
 	 * gets hashmap representation of data column with row values
-
+	 * 
 	 * @param columns
 	 * @param columnInitialIndex
 	 * @param dataRows
@@ -1034,18 +1043,20 @@ public class Helper {
 	 * @param maxRows
 	 * @return
 	 */
-	public HashMap<String, List<String>> getTableMap(EnhancedBy columns, int columnInitialIndex, EnhancedBy dataRows, int rowInitialIndex, EnhancedBy dataCells, int maxRows){
-		return getTableMap(columns, columnInitialIndex,  dataRows, rowInitialIndex, dataCells, maxRows);
+	public HashMap<String, List<String>> getTableMap(EnhancedBy columns, int columnInitialIndex, EnhancedBy dataRows,
+			int rowInitialIndex, EnhancedBy dataCells, int maxRows) {
+		return getTableMap(columns, columnInitialIndex, dataRows, rowInitialIndex, dataCells, maxRows);
 	}
-	
+
 	/**
-	 * gets hashmap of table rows
-	 * map will return row index and row values as arraylist
+	 * gets hashmap of table rows map will return row index and row values as
+	 * arraylist
+	 * 
 	 * @param dataRows
 	 * @param dataCells
 	 * @return
 	 */
-	public HashMap<Integer, List<String>> getTableMap(EnhancedBy dataRows, EnhancedBy dataCells){
+	public HashMap<Integer, List<String>> getTableMap(EnhancedBy dataRows, EnhancedBy dataCells) {
 		return getTableMap(dataRows, dataCells);
 	}
 
@@ -1120,10 +1131,8 @@ public class Helper {
 	/**
 	 * returns the index of string value in list of strings
 	 * 
-	 * @param stringList
-	 *            normalized
-	 * @param option
-	 *            normalized
+	 * @param stringList normalized
+	 * @param option     normalized
 	 * @return
 	 */
 	public static int getStringIndexContainByText(List<String> stringList, String option) {
@@ -1133,10 +1142,8 @@ public class Helper {
 	/**
 	 * returns the index of string value in list of strings
 	 * 
-	 * @param stringList
-	 *            normalized
-	 * @param option
-	 *            normalized
+	 * @param stringList normalized
+	 * @param option     normalized
 	 * @return
 	 */
 	public static int getStringIndexEqualsByText(List<String> stringList, String option) {
@@ -1271,11 +1278,13 @@ public class Helper {
 
 	/**
 	 * returns true if browser is ie
+	 * 
 	 * @return
 	 */
 	public static boolean isInternetExplorer() {
 		return mobile.isIeExplorer();
 	}
+
 	/**
 	 * is ios driver
 	 * 
@@ -1319,49 +1328,49 @@ public class Helper {
 	public void mobile_swipeRight(double durationInSeconds) {
 		mobile.mobile_swipeRight(durationInSeconds);
 	}
-	
+
 	/**
 	 * swipe right on the screen based on element position
 	 */
 	public void mobile_swipeRight(EnhancedBy element, int index, double durationInSeconds) {
 		mobile.mobile_swipeRight(element, index, durationInSeconds);
 	}
-	
+
 	/**
 	 * swipe right on the screen
 	 */
 	public void mobile_swipeLeft(double durationInSeconds) {
 		mobile.mobile_swipeLeft(durationInSeconds);
 	}
-	
+
 	/**
 	 * swipe left on the screen based on element position
 	 */
 	public void mobile_swipeLeft(EnhancedBy element, int index, double durationInSeconds) {
 		mobile.mobile_swipeLeft(element, index, durationInSeconds);
 	}
-	
+
 	/**
 	 * swipe up on the screen based on element position
 	 */
 	public void mobile_swipeUp(EnhancedBy element, int index, double durationInSeconds) {
 		mobile.mobile_swipeUp(element, index, durationInSeconds);
 	}
-	
+
 	/**
 	 * swipe up on the screen
 	 */
 	public void mobile_swipeUp(double durationInSeconds) {
 		mobile.mobile_swipeUp(durationInSeconds);
 	}
-	
+
 	/**
-	 * swipe down on the screen 
+	 * swipe down on the screen
 	 */
 	public void mobile_swipeDown(double durationInSeconds) {
 		mobile.mobile_swipeDown(durationInSeconds);
 	}
-	
+
 	/**
 	 * swipe down on the screen based on element position
 	 */
@@ -1387,20 +1396,22 @@ public class Helper {
 		mobile.mobile_switchToWebView();
 
 	}
-	
+
 	/**
 	 * switch to view
+	 * 
 	 * @param view
 	 */
 	public void mobile_switchToView(String view) {
 		mobile.mobile_switchToView(view);
 	}
-	
+
 	/**
 	 * returns the list of mobile context. eg. webview, native view
+	 * 
 	 * @return
 	 */
-	public Set<String> mobile_getContextList(){
+	public Set<String> mobile_getContextList() {
 		return mobile.mobile_getContextList();
 	}
 
@@ -1686,79 +1697,85 @@ public class Helper {
 	public static void deleteCookieNamed(String name) {
 		page.deleteCookieNamed(name);
 	}
-	
+
 	/**
 	 * brings current browser to front
 	 */
 	public static void bringPageToFront() {
-		 page.bringPageToFront();
+		page.bringPageToFront();
 	}
-	
+
 	/**
 	 * navigate to a different url
+	 * 
 	 * @param url
 	 */
 	public static void swtichUrl(String url) {
 		page.swtichUrl(url);
 	}
-	
+
 	/**
 	 * navigate to a different url
+	 * 
 	 * @param url
 	 */
 	public static void navigateToUrl(String url) {
 		page.navigateToUrl(url);
 	}
-	
-	 /**
-     * retrieves the clip board data
-     * @return
-     */
-    public static String getClipboardData(){
-    	return page.getClipboardData();
-    }
-    
-    /**
-     * quits the current web driver
-     */
-    public static void quitCurrentDriver(){
-    	page.quitCurrentDriver();
-    }
-    
-    /**
-     * quit driver
-     * @param driver
-     */
-    public static void quitDriver(WebDriver driver){
-    	page.quitDriver(driver);
-    }
-    
-    /**
-     * quits all drivers in the current test
-     */
-    public static void quitAllCurrentTestDrivers() {
-    	page.quitAllCurrentTestDrivers();
-    }
-    
-    /**
-     * returns true if the element is visible in the current page
-     * only for web applications
-     * @param by
-     * @return
-     */
-    public static Boolean isVisibleInViewport(EnhancedBy by, int index) {
-    	return page.isVisibleInViewport(by, index);
-    }
-    
-    /**
-     * returns true if the element is visible in the current page
-     * only for web applications
-     * @param by
-     * @return
-     */
-    public static Boolean isVisibleInViewport(EnhancedBy by) {
-    	return page.isVisibleInViewport(by);
-    }
+
+	/**
+	 * retrieves the clip board data
+	 * 
+	 * @return
+	 */
+	public static String getClipboardData() {
+		return page.getClipboardData();
+	}
+
+	/**
+	 * quits the current web driver
+	 */
+	public static void quitCurrentDriver() {
+		page.quitCurrentDriver();
+	}
+
+	/**
+	 * quit driver
+	 * 
+	 * @param driver
+	 */
+	public static void quitDriver(WebDriver driver) {
+		page.quitDriver(driver);
+	}
+
+	/**
+	 * quits all drivers in the current test
+	 */
+	public static void quitAllCurrentTestDrivers() {
+		page.quitAllCurrentTestDrivers();
+	}
+
+	/**
+	 * returns true if the element is visible in the current page only for web
+	 * applications
+	 * 
+	 * @param by
+	 * @return
+	 */
+	public static Boolean isVisibleInViewport(EnhancedBy by, int index) {
+		return page.isVisibleInViewport(by, index);
+	}
+
+	/**
+	 * returns true if the element is visible in the current page only for web
+	 * applications
+	 * 
+	 * @param by
+	 * @return
+	 */
+	public static Boolean isVisibleInViewport(EnhancedBy by) {
+		return page.isVisibleInViewport(by);
+	}
 
 	/**
 	 * gets specified attribute of the element
@@ -1815,7 +1832,7 @@ public class Helper {
 	public static void setAttribute(EnhancedBy by, String attribute, String value) {
 		ElementHelper.setAttribute(by, attribute, value);
 	}
-	
+
 	/**
 	 * sets attribute value of an element
 	 * 
@@ -1837,19 +1854,20 @@ public class Helper {
 	public static Dimension getElementSize(EnhancedBy by) {
 		return ElementHelper.getElementSize(by);
 	}
-	
-	/**
-	 * 	get element position on display
 
+	/**
+	 * get element position on display
+	 * 
 	 * @param by
 	 * @return
 	 */
 	public static Point getElementPosition(EnhancedBy by) {
 		return ElementHelper.getElementPosition(by);
 	}
-	
+
 	/**
 	 * get element position on display
+	 * 
 	 * @param by
 	 * @param index
 	 * @return
@@ -1857,18 +1875,20 @@ public class Helper {
 	public static Point getElementPosition(EnhancedBy by, int index) {
 		return ElementHelper.getElementPosition(by, index);
 	}
-	
+
 	/**
 	 * returns the center coordinates of the target element
+	 * 
 	 * @param target
 	 * @return
 	 */
 	public static int[] findElementCoordinates(EnhancedBy target) {
 		return ElementHelper.findMiddleOfElement(target);
 	}
-	
+
 	/**
 	 * returns the center coordinates of the target element
+	 * 
 	 * @param target
 	 * @return
 	 */
@@ -1947,14 +1967,14 @@ public class Helper {
 	public static boolean waitForFirstElementToLoad(final EnhancedBy element1, final EnhancedBy element2) {
 		return wait.waitForFirstElementToLoad(element1, element2);
 	}
-	
+
 	/**
 	 * waits for element to load And refreshes the app each time to renew the dom
 	 * 
 	 * @param target
 	 */
 	public static void mobile_waitAndRefreshForElementToLoad(final EnhancedBy target, int time) {
-		 wait.mobile_waitAndRefreshForElementToLoad(target, time);
+		wait.mobile_waitAndRefreshForElementToLoad(target, time);
 	}
 
 	/**
@@ -1963,25 +1983,22 @@ public class Helper {
 	 * @param target
 	 */
 	public static void mobile_waitAndRefreshForElementToLoad(final EnhancedBy target) {
-		 wait.mobile_waitAndRefreshForElementToLoad(target);
+		wait.mobile_waitAndRefreshForElementToLoad(target);
 	}
 
 	/**
 	 * waits for element to load If mobile device, scrolls down the page until
 	 * element is visible
 	 * 
-	 * @param target:
-	 *            element to wait for
-	 * @param time:
-	 *            max time to wait
-	 * @param count:
-	 *            minimum count of elements to wait for in list
+	 * @param target: element to wait for
+	 * @param time:   max time to wait
+	 * @param count:  minimum count of elements to wait for in list
 	 * @return
 	 */
 	public static boolean waitForElementToLoad(final EnhancedBy target, int time, int count) {
 		return wait.waitForElementToLoad(target, time, count);
 	}
-	
+
 	/**
 	 * waits for element count to increase from the originalCount Usefull When
 	 * waiting for a list to expand with additional items
@@ -2017,8 +2034,7 @@ public class Helper {
 	 * waits for element to not be displayed
 	 * 
 	 * @param target
-	 * @param time
-	 *            : maximum amount of time in seconds to wait
+	 * @param time   : maximum amount of time in seconds to wait
 	 */
 	public static boolean waitForElementToBeRemoved(final EnhancedBy target, int time) {
 		return wait.waitForElementToBeRemoved(target, time);
@@ -2072,8 +2088,9 @@ public class Helper {
 	}
 
 	/**
-	 * wait for element to become clickable
-	 * causes instability with hybrid mobile app
+	 * wait for element to become clickable causes instability with hybrid mobile
+	 * app
+	 * 
 	 * @param selector
 	 * @return
 	 */
@@ -2082,17 +2099,19 @@ public class Helper {
 	}
 
 	/**
-	 * wait for element to become clickable
-	 * causes instability with hybrid mobile app
+	 * wait for element to become clickable causes instability with hybrid mobile
+	 * app
+	 * 
 	 * @param selector
 	 * @return
 	 */
 	public static boolean waitForElementToBeClickable(EnhancedBy selector, int timeInSeconds) {
 		return wait.waitForElementToBeClickable(selector, timeInSeconds);
 	}
-	
+
 	/**
 	 * wait for class to contain
+	 * 
 	 * @param target
 	 * @param index
 	 * @param value
@@ -2101,9 +2120,10 @@ public class Helper {
 	public boolean waitForClassContain(final EnhancedBy target, int index, String value) {
 		return wait.waitForClassContain(target, index, value);
 	}
-	
+
 	/**
 	 * wait for class to contain value
+	 * 
 	 * @param target
 	 * @param index
 	 * @param value
@@ -2113,9 +2133,10 @@ public class Helper {
 	public boolean waitForClassContain(final EnhancedBy target, int index, String value, int time) {
 		return wait.waitForClassContain(target, index, value, time);
 	}
-	
+
 	/**
 	 * wait for any text strings to become available
+	 * 
 	 * @param target
 	 * @param time
 	 * @param text
@@ -2124,37 +2145,40 @@ public class Helper {
 	public static boolean waitForAnyTextToLoadContaining(final EnhancedBy target, String... text) {
 		return wait.waitForAnyTextToLoad(target, text);
 	}
-	
+
 	/**
 	 * wait for any text strings to become available
+	 * 
 	 * @param target
 	 * @param time
 	 * @param text
 	 * @return
 	 */
-	public static  boolean waitForAnyTextToLoadContaining(final EnhancedBy target, int time, String... text) {
+	public static boolean waitForAnyTextToLoadContaining(final EnhancedBy target, int time, String... text) {
 		return wait.waitForAnyTextToLoad(target, time, text);
 	}
-	
+
 	/**
 	 * wait for any text strings to become available
+	 * 
 	 * @param target
 	 * @param time
 	 * @param text
 	 * @return
 	 */
 	public static boolean waitForAnyTextToLoad(final EnhancedBy target, String... text) {
-		return wait.waitForAnyTextToLoad(target,  text);
+		return wait.waitForAnyTextToLoad(target, text);
 	}
-	
+
 	/**
 	 * wait for any text strings to become available
+	 * 
 	 * @param target
 	 * @param time
 	 * @param text
 	 * @return
 	 */
-	public static  boolean waitForAnyTextToLoad(final EnhancedBy target, int time, String... text) {
+	public static boolean waitForAnyTextToLoad(final EnhancedBy target, int time, String... text) {
 		return wait.waitForAnyTextToLoad(target, time, text);
 	}
 
@@ -2191,9 +2215,10 @@ public class Helper {
 	public static String generateRandomInteger(int len) {
 		return UtilityHelper.generateRandomInteger(len);
 	}
-	
+
 	/**
 	 * generates random number between two numbers, min, max
+	 * 
 	 * @param min
 	 * @param max
 	 * @return
@@ -2201,105 +2226,116 @@ public class Helper {
 	public static int generateRandomNumber(int min, int max) {
 		return UtilityHelper.generateRandomNumber(min, max);
 	}
-	
+
 	/**
-	 * highlights the web element 
-	 * use on clicks and send key elements
+	 * highlights the web element use on clicks and send key elements
+	 * 
 	 * @param by
 	 * @param index
 	 */
 	public static void highLightWebElement(EnhancedBy by, int index) {
 		UtilityHelper.highLightWebElement(by, index);
 	}
-	
+
 	/**
 	 * returns true if OS is mac
+	 * 
 	 * @return
 	 */
 	public static boolean isMac() {
 		return UtilityHelper.isMac();
 	}
-	
+
 	/**
 	 * returns true if OS is windows
+	 * 
 	 * @return
 	 */
 	public static boolean isWindows() {
 		return UtilityHelper.isWindows();
 	}
-	
+
 	/**
 	 * returns true if OS is unix or linux
+	 * 
 	 * @return
 	 */
 	public static boolean isUnix() {
 		return UtilityHelper.isUnix();
 	}
-	
+
 	/**
 	 * is the string value UDID
+	 * 
 	 * @param value
 	 * @return
 	 */
 	public static boolean isUUID(String value) {
 		return UtilityHelper.isUUID(value);
 	}
-	
+
 	/**
 	 * returns if string is boolean
+	 * 
 	 * @param value
 	 * @return
 	 */
 	public static boolean isBoolean(String value) {
 		return UtilityHelper.isBoolean(value);
 	}
-	
+
 	/**
 	 * return if string is a number
+	 * 
 	 * @param str
 	 * @return
 	 */
-	public static boolean isNumeric(String value) { 
+	public static boolean isNumeric(String value) {
 		return UtilityHelper.isNumeric(value);
 	}
-	
+
 	/**
-	 * execute javascript 
+	 * execute javascript
+	 * 
 	 * @param script
 	 */
 	public static Object executeJs(String script, Object... args) {
 		return UtilityHelper.executeJs(script, args);
 	}
-	
+
 	/**
-	 * execute javascript 
+	 * execute javascript
+	 * 
 	 * @param script
 	 */
 	public static List<String> executeJsWithListReturn(String script, Object... args) {
 		return UtilityHelper.executeJsWithListReturn(script, args);
 	}
-	
+
 	/**
-	 * execute javascript 
+	 * execute javascript
+	 * 
 	 * @param script
 	 */
 	public static String executeJsWithStringReturn(String script, Object... args) {
 		return UtilityHelper.executeJsWithStringReturn(script, args);
 	}
-	
+
 	/**
 	 * get numeric value from string
+	 * 
 	 * @param value
 	 * @param isFailOnNoInt
 	 * @return
 	 */
 	public static int getIntFromString(String value) {
 		return UtilityHelper.getIntFromString(value, false);
-		
+
 	}
-	
+
 	/**
 	 * get numeric value from string
+	 * 
 	 * @param value
 	 * @param isFailOnNoInt
 	 * @return
@@ -2307,9 +2343,10 @@ public class Helper {
 	public static int getIntFromString(String value, boolean isFailOnNoInt) {
 		return UtilityHelper.getIntFromString(value, isFailOnNoInt);
 	}
-	
+
 	/**
 	 * get int value from string
+	 * 
 	 * @param value
 	 * @param isFailOnNoInt
 	 * @return
@@ -2317,66 +2354,72 @@ public class Helper {
 	public static double getDoubleFromString(String value) {
 		return UtilityHelper.getDoubleFromString(value, false);
 	}
-	
+
 	/**
 	 * does string have only numeric value
+	 * 
 	 * @param value
 	 * @return
 	 */
 	public static boolean isStringContainOnlyNumber(String value) {
 		return UtilityHelper.isStringContainOnlyNumber(value);
 	}
-	
+
 	/**
 	 * does string have numeric value
+	 * 
 	 * @param value
 	 * @return
 	 */
 	public static boolean isStringContainNumber(String value) {
 		return UtilityHelper.isStringContainNumber(value);
 	}
-	
+
 	/**
 	 * remove surrounding double quotes from the string
+	 * 
 	 * @param value
 	 * @return
 	 */
 	public static String removeSurroundingQuotes(String value) {
 		return UtilityHelper.removeSurroundingQuotes(value);
 	}
-	
+
 	/**
 	 * converts url string to url object
+	 * 
 	 * @param url
 	 * @return
 	 */
 	public static URL convertToUrl(String url) {
 		return UtilityHelper.convertToUrl(url);
 	}
-	
+
 	/**
 	 * check if able to connect to source url
 	 * 
 	 * @param source
-	 * @param proxy   set to null if no proxy
+	 * @param proxy  set to null if no proxy
 	 * @return
 	 */
 	public static boolean isUrlAbleToConnect(URL source, Proxy proxy) {
 		return UtilityHelper.isUrlAbleToConnect(source, proxy);
 	}
-	
+
 	/**
-	 * checks if proxy is required
-	 * first attempt without proxy, second with proxy, checking the validity of the proxy connection
+	 * checks if proxy is required first attempt without proxy, second with proxy,
+	 * checking the validity of the proxy connection
+	 * 
 	 * @param source
 	 * @return
 	 */
 	public static boolean setProxyAutoDetection(URL source) {
 		return UtilityHelper.setProxyAutoDetection(source);
 	}
-	
+
 	/**
-	 * get numeric value from string 
+	 * get numeric value from string
+	 * 
 	 * @param value
 	 * @param isFailOnNoInt
 	 * @return
@@ -2415,7 +2458,7 @@ public class Helper {
 	public static void killWindowsProcess(String serviceName) {
 		UtilityHelper.killWindowsProcess(serviceName);
 	}
-	
+
 	/**
 	 * returns kills the process if running
 	 * 
@@ -2426,34 +2469,32 @@ public class Helper {
 	public static void killMacProcess(String serviceName) {
 		UtilityHelper.killMacProcess(serviceName);
 	}
-	
+
 	/**
 	 * create directories and files based on absolute path
+	 * 
 	 * @param path
 	 */
 	public static void createFileFromPath(String absolutePath) {
 		UtilityHelper.createFileFromPath(absolutePath);
 	}
-	
+
 	/**
 	 * Create file with path starting from root directory (where pom.xml is) and
 	 * write to it. eg. writeFile("something","", "myFile", "txt");
 	 * 
-	 * @param value
-	 *            value in file
-	 * @param path
-	 *            path from root
-	 * @param filename
-	 *            name of the file
-	 * @param type
-	 *            type of file
+	 * @param value    value in file
+	 * @param path     path from root
+	 * @param filename name of the file
+	 * @param type     type of file
 	 */
 	public static void writeFile(String value, String path, String filename, String type) {
 		UtilityHelper.writeFile(value, path, filename, type);
 	}
-	
+
 	/**
-	 * Create file  (where pom.xml is) and write to it
+	 * Create file (where pom.xml is) and write to it
+	 * 
 	 * @param value
 	 * @param absolutePath
 	 */
@@ -2461,26 +2502,28 @@ public class Helper {
 		UtilityHelper.writeFile(value, absolutePath);
 	}
 
-	
 	/**
 	 * delete file
+	 * 
 	 * @param absolutePath
 	 */
 	public static void deleteFile(String absolutePath) {
 		UtilityHelper.deleteFile(absolutePath);
 	}
-	
+
 	/**
 	 * appends to existing file
+	 * 
 	 * @param value
 	 * @param absolutePath
 	 */
 	public static void appendToFile(String value, String absolutePath) {
 		UtilityHelper.appendToFile(value, absolutePath);
 	}
-	
+
 	/**
 	 * appends to existing file
+	 * 
 	 * @param value
 	 * @param directory
 	 * @param filename
@@ -2492,25 +2535,25 @@ public class Helper {
 	}
 
 	/**
-	 * run command and return results as array list
-	 * will run bash on linux or mac
+	 * run command and return results as array list will run bash on linux or mac
 	 * will run batch command on windows
+	 * 
 	 * @param command
 	 * @return
 	 * @throws IOException
 	 */
-	public static ArrayList<String> executeCommand(String command){
+	public static ArrayList<String> executeCommand(String command) {
 		return UtilityHelper.excuteCommand(command);
 	}
-	
+
 	/**
-	 * run script file and return results as array list
-	 * will run bash on linux or mac
-	 * will run batch command on windows
+	 * run script file and return results as array list will run bash on linux or
+	 * mac will run batch command on windows
+	 * 
 	 * @param filePath path from the root directory ( where pom.xml is )
 	 * @return the results as arraylist
 	 */
-	public static ArrayList<String> executeCommandFromFile(String filePath){
+	public static ArrayList<String> executeCommandFromFile(String filePath) {
 		return UtilityHelper.excuteCommandFromFile(filePath);
 	}
 
@@ -2577,8 +2620,7 @@ public class Helper {
 	/**
 	 * 
 	 * @param str
-	 * @param pattern
-	 *            regular expression pattern
+	 * @param pattern regular expression pattern
 	 * @return
 	 */
 	public static String getValueFromPattern(String str, String pattern) {
@@ -2588,8 +2630,7 @@ public class Helper {
 	/**
 	 * 
 	 * @param str
-	 * @param pattern
-	 *            regular expression pattern
+	 * @param pattern regular expression pattern
 	 * @return
 	 */
 	public static List<String> getValuesFromPattern(String str, String pattern) {
@@ -2604,18 +2645,20 @@ public class Helper {
 	public static String getRootDir() {
 		return UtilityHelper.getRootDir();
 	}
-	
+
 	/**
 	 * get file from file path
+	 * 
 	 * @param directoryPath
 	 * @return
 	 */
 	public static File getFile(String directoryPath) {
 		return UtilityHelper.getFile(directoryPath);
 	}
-	
+
 	/**
 	 * get file by name
+	 * 
 	 * @param path
 	 * @param filename
 	 * @return
@@ -2623,7 +2666,7 @@ public class Helper {
 	public static File getFileByName(String path, String filename) {
 		return UtilityHelper.getFileByName(path, filename);
 	}
-	
+
 	/**
 	 * gets the list of files
 	 * 
@@ -2641,35 +2684,39 @@ public class Helper {
 	public static ArrayList<File> getFileListByType(String directoryPath, String type) {
 		return UtilityHelper.getFileListByType(directoryPath, type);
 	}
-	
+
 	/**
 	 * returns the list of files in directory
+	 * 
 	 * @param directoryPath
 	 * @return
 	 */
 	public static ArrayList<File> getFileList(String directoryPath) {
 		return UtilityHelper.getFileList(directoryPath);
 	}
-	
+
 	/**
 	 * gets list of files including from sub folder based on type. eg. ".csv"
-	 * @return 
+	 * 
+	 * @return
 	 */
 	public static List<File> getFileListWithSubfolders(String directoryName, String type, List<File> files) {
 		return UtilityHelper.getFileListWithSubfolders(directoryName, type, files);
 	}
-	
+
 	/**
 	 * gets file content as String
+	 * 
 	 * @param absolutePath
 	 * @return
 	 */
 	public static String readFileContent(String absolutePath) {
 		return UtilityHelper.readFileContent(absolutePath);
 	}
-	
+
 	/**
 	 * gets file content as String
+	 * 
 	 * @param absolutePath
 	 * @return
 	 */
@@ -2685,7 +2732,7 @@ public class Helper {
 	public synchronized static void captureExtentReportScreenshot() {
 		UtilityHelper.captureExtentReportScreenshot();
 	}
-	
+
 	// action helper
 
 	/**
@@ -2696,7 +2743,7 @@ public class Helper {
 	public static void hoverBy(EnhancedBy by) {
 		ElementActionHelper.hoverBy(by, 0);
 	}
-	
+
 	/**
 	 * hover over element
 	 * 
@@ -2705,21 +2752,21 @@ public class Helper {
 	public static void hoverBy(EnhancedBy by, int index) {
 		ElementActionHelper.hoverBy(by, index);
 	}
-	
+
 	/*
 	 * Enter text to an element by action
 	 */
 	public void inputTextByAction(EnhancedBy by, String text) {
 		ElementActionHelper.inputTextByAction(by, text);
 	}
-	
+
 	/*
 	 * Double click an element
 	 */
 	public static void doubleClickBy(EnhancedBy by) {
 		ElementActionHelper.doubleClickBy(by);
 	}
-	
+
 	/**
 	 * Hover on the x,y points
 	 *
@@ -2729,18 +2776,20 @@ public class Helper {
 	public static void hoverPoints(int x, int y) {
 		ElementActionHelper.hoverPoints(x, y);
 	}
-	
+
 	/**
 	 * move to element by using action
+	 * 
 	 * @param target
 	 * @param index
 	 */
 	public static void moveToElement(EnhancedBy target, int index) {
 		ElementActionHelper.moveToElement(target, index);
 	}
-	
+
 	/**
 	 * move to element by using action
+	 * 
 	 * @param target
 	 * @param index
 	 */
@@ -2806,18 +2855,13 @@ public class Helper {
 	 * zzz_, Then gets id of these companies, stores them in companyId variable And
 	 * calls deleteCompany
 	 * 
-	 * @param getApi:
-	 *            api to search for identifier. eg. name containing "zzz"
-	 * @param prefix:
-	 *            value containing in getApi. eg. name containing "zzz"
-	 * @param identifier:
-	 *            api to call to get all values. eg. getCompanies
-	 * @param targetApiId:
-	 *            id used to call target api.eg. id for deleteCompany api
-	 * @param variable:
-	 *            variable the id is stored in csv keyword file. eg companyId
-	 * @param targerApi:
-	 *            api to call. eg. deleteCompany
+	 * @param getApi:      api to search for identifier. eg. name containing "zzz"
+	 * @param prefix:      value containing in getApi. eg. name containing "zzz"
+	 * @param identifier:  api to call to get all values. eg. getCompanies
+	 * @param targetApiId: id used to call target api.eg. id for deleteCompany api
+	 * @param variable:    variable the id is stored in csv keyword file. eg
+	 *                     companyId
+	 * @param targerApi:   api to call. eg. deleteCompany
 	 * @throws JSONException
 	 */
 	public static void runApiContaining(String identifier, String prefix, String getApi, String targetApiId,
@@ -2830,18 +2874,13 @@ public class Helper {
 	 * "id","companyId","deleteCompany") get all companies with name equals test123,
 	 * Then gets id of these companies And calls delete with id
 	 * 
-	 * @param getApi:
-	 *            api to search for identifier. eg. name equals "test123"
-	 * @param value:
-	 *            value containing in getApi. eg. name equals "test123"
-	 * @param identifier:
-	 *            api to call to get all values. eg. getCompanies
-	 * @param targetApiId:
-	 *            id used to call target api.eg. id for deleteCompany api
-	 * @param variable:
-	 *            variable the id is stored in csv keyword file. eg companyId
-	 * @param targerApi:
-	 *            api to call. eg. deleteCompany
+	 * @param getApi:      api to search for identifier. eg. name equals "test123"
+	 * @param value:       value containing in getApi. eg. name equals "test123"
+	 * @param identifier:  api to call to get all values. eg. getCompanies
+	 * @param targetApiId: id used to call target api.eg. id for deleteCompany api
+	 * @param variable:    variable the id is stored in csv keyword file. eg
+	 *                     companyId
+	 * @param targerApi:   api to call. eg. deleteCompany
 	 * @throws JSONException
 	 */
 	public static void runApiEquals(String identifier, String value, String getApi, String targetApiId, String variable,

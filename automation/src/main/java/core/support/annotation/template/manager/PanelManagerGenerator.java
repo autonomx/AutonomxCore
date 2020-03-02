@@ -15,7 +15,7 @@ import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PackageHelper;
 
 public class PanelManagerGenerator {
-	
+
 	public static void writePanelManagerClass(Map<String, List<Element>> panelMap) {
 		try {
 			writePanelManagerClassImplementation(panelMap);
@@ -23,8 +23,6 @@ public class PanelManagerGenerator {
 			e.printStackTrace();
 		}
 	}
-
-		
 
 	public static void writePanelManagerClassImplementation(Map<String, List<Element>> panelMap) throws IOException {
 
@@ -59,7 +57,7 @@ public class PanelManagerGenerator {
 			bw.append("import core.support.configReader.Config;\n");
 			bw.append("import core.support.objects.DriverObject;\n");
 			bw.append("import core.helpers.Helper;\n");
-			
+
 			bw.newLine();
 			bw.newLine();
 
@@ -84,7 +82,7 @@ public class PanelManagerGenerator {
 		}
 		Logger.debug("<<<<complete generating panel manager class>>>>>");
 	}
-	
+
 	/**
 	 * public DriverObject getWebDriver() { return new
 	 * DriverObject().withWebDriver("webApp", Config.getValue("webApp")); }
@@ -112,32 +110,23 @@ public class PanelManagerGenerator {
 	 * 
 	 * public DriverObject getGenericDriver() { return new
 	 * DriverObject().withDriverType(DriverType.API); }
-	 
-	public DriverObject getHybridDriver() {
-		return getHybridDriver(Config.getValue("webApp"));
-	}
-	
-	public DriverObject getHybridDriver(String url) {
-		String hybridDriver = Config.getValue("appium.hybrid.driver");
-		if(hybridDriver.equals("WEB"))
-			return getWebDriver(url);
-		else if(hybridDriver.equals("ANDROID_MOBILE"))
-			return getAndroidMobileDriver();
-		else if(hybridDriver.equals("ANDROID_TABLET"))
-			return getAndroidTabletDriver();
-		else if(hybridDriver.equals("IOS_MOBILE"))
-			return getIosMobileDriver();
-		else if(hybridDriver.equals("IOS_TABLET"))
-			return getIosTabletDriver();
-		else if(hybridDriver.equals("WINAPP"))
-			return getWinAppDriver();
-		Helper.assertFalse("Correct driver not selected at appium.hybrid.driver option at appium.property ");
-		return null;
-	}
-	
-	return new DriverObject().withGenericDriver("webApp");
-}
-	 
+	 * 
+	 * public DriverObject getHybridDriver() { return
+	 * getHybridDriver(Config.getValue("webApp")); }
+	 * 
+	 * public DriverObject getHybridDriver(String url) { String hybridDriver =
+	 * Config.getValue("appium.hybrid.driver"); if(hybridDriver.equals("WEB"))
+	 * return getWebDriver(url); else if(hybridDriver.equals("ANDROID_MOBILE"))
+	 * return getAndroidMobileDriver(); else
+	 * if(hybridDriver.equals("ANDROID_TABLET")) return getAndroidTabletDriver();
+	 * else if(hybridDriver.equals("IOS_MOBILE")) return getIosMobileDriver(); else
+	 * if(hybridDriver.equals("IOS_TABLET")) return getIosTabletDriver(); else
+	 * if(hybridDriver.equals("WINAPP")) return getWinAppDriver();
+	 * Helper.assertFalse("Correct driver not selected at appium.hybrid.driver
+	 * option at appium.property "); return null; }
+	 * 
+	 * return new DriverObject().withGenericDriver("webApp"); }
+	 * 
 	 * @throws IOException
 	 */
 
@@ -188,29 +177,31 @@ public class PanelManagerGenerator {
 		bw.append("	public DriverObject getGenericDriver() {\n");
 		bw.append("		return new DriverObject().withGenericDriver(\"" + moduleName + "\");\n");
 		bw.append("	}\n");
-	
+
 		// hybrid driver
 		bw.append("	public DriverObject getHybridDriver() {" + "\n");
 		bw.append("		return getHybridDriver(Config.getValue(\"webApp\"));" + "\n");
-		bw.append("	}" + "\n" );
-		
+		bw.append("	}" + "\n");
+
 		// hybrid driver
 		bw.append("	public DriverObject getHybridDriver(String url) {" + "\n");
 		bw.append("		String hybridDriver = Config.getValue(\"appium.hybrid.driver\");" + "\n");
-		bw.append("		if(hybridDriver.equals(\"WEB\"))" + "\n" );
-		bw.append("			return getWebDriver(url);" + "\n" );
-		bw.append("		else if(hybridDriver.equals(\"ANDROID_MOBILE\"))" + "\n" );
-		bw.append("			return getAndroidMobileDriver();" + "\n" );
-		bw.append("		else if(hybridDriver.equals(\"ANDROID_TABLET\"))" + "\n" );
-		bw.append("			return getAndroidTabletDriver();" + "\n" );
-		bw.append("		else if(hybridDriver.equals(\"IOS_MOBILE\"))" + "\n" );
-		bw.append("			return getIosMobileDriver();" + "\n" );
-		bw.append("		else if(hybridDriver.equals(\"IOS_TABLET\"))" + "\n" );
-		bw.append("			return getIosTabletDriver();" + "\n" );
-		bw.append("		else if(hybridDriver.equals(\"WINAPP\"))" + "\n" );
-		bw.append("			return getWinAppDriver();" + "\n" );
-		bw.append("		Helper.assertFalse(\"Correct driver not selected at appium.hybrid.driver option at appium.property \");" + "\n" );
-		bw.append("		return null;" + "\n" );
-		bw.append("	}" + "\n" );
+		bw.append("		if(hybridDriver.equals(\"WEB\"))" + "\n");
+		bw.append("			return getWebDriver(url);" + "\n");
+		bw.append("		else if(hybridDriver.equals(\"ANDROID_MOBILE\"))" + "\n");
+		bw.append("			return getAndroidMobileDriver();" + "\n");
+		bw.append("		else if(hybridDriver.equals(\"ANDROID_TABLET\"))" + "\n");
+		bw.append("			return getAndroidTabletDriver();" + "\n");
+		bw.append("		else if(hybridDriver.equals(\"IOS_MOBILE\"))" + "\n");
+		bw.append("			return getIosMobileDriver();" + "\n");
+		bw.append("		else if(hybridDriver.equals(\"IOS_TABLET\"))" + "\n");
+		bw.append("			return getIosTabletDriver();" + "\n");
+		bw.append("		else if(hybridDriver.equals(\"WINAPP\"))" + "\n");
+		bw.append("			return getWinAppDriver();" + "\n");
+		bw.append(
+				"		Helper.assertFalse(\"Correct driver not selected at appium.hybrid.driver option at appium.property \");"
+						+ "\n");
+		bw.append("		return null;" + "\n");
+		bw.append("	}" + "\n");
 	}
 }

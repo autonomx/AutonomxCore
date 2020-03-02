@@ -23,7 +23,7 @@ public interface EnhancedWebElement extends WebElement {
 	void sendKeys(CharSequence... keysToSend);
 
 	void sendKeys(int index, CharSequence... keysToSend);
-	
+
 	void sendKeysByAction(int index, CharSequence... keysToSend);
 
 	void scrollToView();
@@ -63,7 +63,7 @@ public interface EnhancedWebElement extends WebElement {
 	String getAttribute(String name, int index);
 
 	void setAttribute(String attribute, String value);
-	
+
 	void setAttribute(String attribute, int index, String value);
 
 	WebElement get(int index);

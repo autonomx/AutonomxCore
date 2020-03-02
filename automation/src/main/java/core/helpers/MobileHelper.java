@@ -33,18 +33,17 @@ import io.appium.java_client.touch.LongPressOptions;
 import io.appium.java_client.touch.WaitOptions;
 import io.appium.java_client.touch.offset.PointOption;
 
-@SuppressWarnings({ "rawtypes", "unchecked"})
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class MobileHelper {
-	
+
 	public enum DIRECTION {
-	    DOWN, UP, LEFT, RIGHT;
+		DOWN, UP, LEFT, RIGHT;
 	}
 
 	private static final String DISMISS_IF_BLOCKING = "ios.keyboard.dismissIfBlocking";
 	private static final String DISMISS_BY_KEY_PRESS = "ios.keyboard.dismissByKeyPress";
 	private static final String DISMISS_STRATEGY = "ios.keyboard.dismiss.Strategy";
 
-	
 	public AppiumDriver getAppiumDriver() {
 		return ((AppiumDriver) AbstractDriver.getWebDriver());
 	}
@@ -66,19 +65,21 @@ public class MobileHelper {
 			dimissIosKeyboard();
 		}
 	}
-	
+
 	/**
 	 * if element is not visible, attempt to hide keyboard
+	 * 
 	 * @param element
 	 */
 	public void smartHideKeyboard(EnhancedBy element) {
-		
+
 		// if dismiss keyboard when blocking is enable, proceed
 		boolean enableSmartDismissKeyboard = Config.getBooleanValue(DISMISS_IF_BLOCKING);
-		if(!enableSmartDismissKeyboard) return;
-		
+		if (!enableSmartDismissKeyboard)
+			return;
+
 		// if element is not visible, attempt to dismiss keyboard
-		if(!Helper.isPresent(element))
+		if (!Helper.isPresent(element))
 			dimissIosKeyboard();
 	}
 
@@ -159,18 +160,19 @@ public class MobileHelper {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * returns true if browser is ie
+	 * 
 	 * @return
 	 */
 	public boolean isIeExplorer() {
 		if (isIOS() || isAndroid())
 			return false;
-		
-		if(!isWebDriver())
+
+		if (!isWebDriver())
 			return false;
-		
+
 		String browser = Config.getValue("web.browserType");
 		return browser.equals(BrowserType.INTERNET_EXPLORER.name());
 	}
@@ -232,14 +234,15 @@ public class MobileHelper {
 			return false;
 		}
 	}
- 
+
 	/**
 	 * does not function properly
+	 * 
 	 * @param element
 	 * @param direction
 	 * @return
 	 */
-	@Deprecated 
+	@Deprecated
 	@SuppressWarnings("unused")
 	private boolean scrollToDirection_iOS_XCTest(EnhancedBy element, String direction) {
 		// The main difference from swipe call with the same argument is that scroll
@@ -275,61 +278,65 @@ public class MobileHelper {
 	public void mobile_swipeRight(double durationInSeconds) {
 		swipe(null, 0, DIRECTION.RIGHT, durationInSeconds);
 	}
-	
+
 	/**
 	 * swipe right on the screen
 	 */
 	public void mobile_swipeRight(EnhancedBy element, int index, double durationInSeconds) {
-		swipe( element, 0, DIRECTION.RIGHT, durationInSeconds);
+		swipe(element, 0, DIRECTION.RIGHT, durationInSeconds);
 	}
-	
+
 	/**
 	 * swipe right using actions
+	 * 
 	 * @param durationInSeconds
 	 */
 	public void mobile_swipeLeft(double durationInSeconds) {
 		swipe(null, 0, DIRECTION.LEFT, durationInSeconds);
 	}
-	
+
 	/**
 	 * swipe left on the screen
 	 */
 	public void mobile_swipeLeft(EnhancedBy element, int index, double durationInSeconds) {
-		swipe( element, 0, DIRECTION.LEFT, durationInSeconds);
+		swipe(element, 0, DIRECTION.LEFT, durationInSeconds);
 	}
-	
+
 	/**
 	 * swipe up using actions
+	 * 
 	 * @param durationInSeconds
 	 */
 	public void mobile_swipeUp(double durationInSeconds) {
 		swipe(null, 0, DIRECTION.UP, durationInSeconds);
 	}
-	
+
 	/**
 	 * swipe up on the screen
 	 */
 	public void mobile_swipeUp(EnhancedBy element, int index, double durationInSeconds) {
-		swipe( element, 0, DIRECTION.UP, durationInSeconds);
+		swipe(element, 0, DIRECTION.UP, durationInSeconds);
 	}
-	
+
 	/**
 	 * swipe down using actions
+	 * 
 	 * @param durationInSeconds
 	 */
 	public void mobile_swipeDown(double durationInSeconds) {
 		swipe(null, 0, DIRECTION.DOWN, durationInSeconds);
 	}
-	
+
 	/**
 	 * swipe down on the screen
 	 */
 	public void mobile_swipeDown(EnhancedBy element, int index, double durationInSeconds) {
-		swipe( element, 0, DIRECTION.DOWN, durationInSeconds);
+		swipe(element, 0, DIRECTION.DOWN, durationInSeconds);
 	}
-	
+
 	/**
 	 * returns the occurrences of image based on partial image
+	 * 
 	 * @param fullImage
 	 * @param partialImage
 	 * @return
@@ -358,12 +365,13 @@ public class MobileHelper {
 			}
 		}
 	}
-	
+
 	/**
 	 * returns the list of mobile context. eg. webview, native view
+	 * 
 	 * @return
 	 */
-	public Set<String> mobile_getContextList(){
+	public Set<String> mobile_getContextList() {
 		Set<String> contextNames = getAppiumDriver().getContextHandles();
 		return contextNames;
 	}
@@ -375,7 +383,7 @@ public class MobileHelper {
 	public void mobile_switchToWebView() {
 		setAppiumContexts("WEBVIEW");
 	}
-	
+
 	public void mobile_switchToView(String view) {
 		setAppiumContexts(view);
 	}
@@ -506,9 +514,8 @@ public class MobileHelper {
 					.moveTo(PointOption.point(screenWidth / 2 - 95, screenWidth / 2 - 95)).release();
 			break;
 		case "in":
-			touchAction0.press(PointOption.point(screenWidth / 2 -5, screenHeight / 2 -5))
-			.moveTo(PointOption.point(screenWidth / 2 - 10, screenWidth / 2 - 10))
-					.release();
+			touchAction0.press(PointOption.point(screenWidth / 2 - 5, screenHeight / 2 - 5))
+					.moveTo(PointOption.point(screenWidth / 2 - 10, screenWidth / 2 - 10)).release();
 			touchAction1.press(PointOption.point(screenWidth / 2 + 5, (screenHeight / 2) + 5))
 					.moveTo(PointOption.point(screenWidth / 2 + 10, screenWidth / 2 + 10)).release();
 			break;
@@ -566,7 +573,7 @@ public class MobileHelper {
 			}
 		}
 	}
-	
+
 	public void mobile_scrollToElementWithRefresh(EnhancedBy target) {
 
 		if (isMobile()) {
@@ -601,7 +608,7 @@ public class MobileHelper {
 		TouchAction touchAction = new TouchAction((AppiumDriver) AbstractDriver.getWebDriver());
 		touchAction.tap(PointOption.point(leftX, centerY)).perform();
 	}
-	
+
 	public void tapAtCenterRight() {
 		int leftX = (int) (AbstractDriver.getWebDriver().manage().window().getSize().width * 0.95);
 		int centerY = AbstractDriver.getWebDriver().manage().window().getSize().height * 1 / 2;
@@ -609,10 +616,11 @@ public class MobileHelper {
 		TouchAction touchAction = new TouchAction((AppiumDriver) AbstractDriver.getWebDriver());
 		touchAction.tap(PointOption.point(leftX, centerY)).perform();
 	}
-	
+
 	/**
 	 * returns the starting position for element based on element being set or not
 	 * if element is null, returns default start position
+	 * 
 	 * @param element
 	 * @param index
 	 * @param startX
@@ -621,150 +629,140 @@ public class MobileHelper {
 	 */
 	private Map<String, Integer> setStarterPositionForSwipe(EnhancedBy element, int index, int startX, int startY) {
 		Map<String, Integer> coordinates = new HashMap<String, Integer>();
-		if(element == null) {
+		if (element == null) {
 			coordinates.put("x", startX);
 			coordinates.put("y", startY);
 			return coordinates;
 		}
-	
+
 		EnhancedWebElement targetElement = Element.findElements(element);
-	    Point p = targetElement.get(index).getLocation();
-	    coordinates.put("x", p.getX());
-	    coordinates.put("y", p.getY());
-	    return coordinates;
-	    
+		Point p = targetElement.get(index).getLocation();
+		coordinates.put("x", p.getX());
+		coordinates.put("y", p.getY());
+		return coordinates;
+
 	}
-	
+
 	/**
-	 * swipes to direction specified either from element or from a starting position in the app
+	 * swipes to direction specified either from element or from a starting position
+	 * in the app
+	 * 
 	 * @param element
 	 * @param index
 	 * @param direction
 	 * @param durationSec
 	 */
 	private void swipe(EnhancedBy element, int index, DIRECTION direction, double durationSec) {
-	    Dimension size = getAppiumDriver().manage().window().getSize();
+		Dimension size = getAppiumDriver().manage().window().getSize();
 
-	    int startX = 0;
-	    int endX = 0;
-	    int startY = 0;
-	    int endY = 0;
-	    
+		int startX = 0;
+		int endX = 0;
+		int startY = 0;
+		int endY = 0;
 
-	    switch (direction) {
-	        case RIGHT:
-	            startY = (int) (size.height / 2);
-	            startX = (int) (size.width * 0.90);
-	            endX = (int) (size.width * 0.05);
-	            Map<String, Integer> startPoint = setStarterPositionForSwipe(element, index, startX, startY);
-	            
-	            new TouchAction(getAppiumDriver())
-	                    .press(PointOption.point(startPoint.get("x"), startPoint.get("y")))
-	                    .waitAction(WaitOptions.waitOptions(Duration.ofSeconds((long) durationSec)))              
-	                    .moveTo(PointOption.point(endX, startPoint.get("y")))
-	                    .release()
-	                    .perform();
-	            break;
+		switch (direction) {
+		case RIGHT:
+			startY = (int) (size.height / 2);
+			startX = (int) (size.width * 0.90);
+			endX = (int) (size.width * 0.05);
+			Map<String, Integer> startPoint = setStarterPositionForSwipe(element, index, startX, startY);
 
-	        case LEFT:
-	            startY = (int) (size.height / 2);
-	            startX = (int) (size.width * 0.05);
-	            endX = (int) (size.width * 0.90);
-	            startPoint = setStarterPositionForSwipe(element, index, startX, startY);
-	            
-	            new TouchAction(getAppiumDriver())
-	            		.press(PointOption.point(startPoint.get("x"), startPoint.get("y")))
-	            		.waitAction(WaitOptions.waitOptions(Duration.ofSeconds((long) durationSec)))       
-	                    .moveTo(PointOption.point(endX, startPoint.get("y")))
-	                    .release()
-	                    .perform();
+			new TouchAction(getAppiumDriver()).press(PointOption.point(startPoint.get("x"), startPoint.get("y")))
+					.waitAction(WaitOptions.waitOptions(Duration.ofSeconds((long) durationSec)))
+					.moveTo(PointOption.point(endX, startPoint.get("y"))).release().perform();
+			break;
 
-	            break;
+		case LEFT:
+			startY = (int) (size.height / 2);
+			startX = (int) (size.width * 0.05);
+			endX = (int) (size.width * 0.90);
+			startPoint = setStarterPositionForSwipe(element, index, startX, startY);
 
-	        case UP:
-	            endY = (int) (size.height * 0.70);
-	            startY = (int) (size.height * 0.30);
-	            startX = (size.width / 2);
-	            startPoint = setStarterPositionForSwipe(element, index, startX, startY);
+			new TouchAction(getAppiumDriver()).press(PointOption.point(startPoint.get("x"), startPoint.get("y")))
+					.waitAction(WaitOptions.waitOptions(Duration.ofSeconds((long) durationSec)))
+					.moveTo(PointOption.point(endX, startPoint.get("y"))).release().perform();
 
-	            new TouchAction(getAppiumDriver())
-        				.press(PointOption.point(startPoint.get("x"), startPoint.get("y")))
-        				.waitAction(WaitOptions.waitOptions(Duration.ofSeconds((long) durationSec)))       
-	                    .moveTo(PointOption.point(endX, startPoint.get("y")))
-	                    .release()
-	                    .perform();
-	            break;
+			break;
 
+		case UP:
+			endY = (int) (size.height * 0.70);
+			startY = (int) (size.height * 0.30);
+			startX = (size.width / 2);
+			startPoint = setStarterPositionForSwipe(element, index, startX, startY);
 
-	        case DOWN:
-	            startY = (int) (size.height * 0.70);
-	            endY = (int) (size.height * 0.30);
-	            startX = (size.width / 2);
-	            startPoint = setStarterPositionForSwipe(element, index, startX, startY);
+			new TouchAction(getAppiumDriver()).press(PointOption.point(startPoint.get("x"), startPoint.get("y")))
+					.waitAction(WaitOptions.waitOptions(Duration.ofSeconds((long) durationSec)))
+					.moveTo(PointOption.point(endX, startPoint.get("y"))).release().perform();
+			break;
 
-	            new TouchAction(getAppiumDriver())
-        				.press(PointOption.point(startPoint.get("x"), startPoint.get("y")))
-        				.waitAction(WaitOptions.waitOptions(Duration.ofSeconds((long) durationSec)))    
-	                    .moveTo(PointOption.point(startX, endY))
-	                    .release()
-	                    .perform();
+		case DOWN:
+			startY = (int) (size.height * 0.70);
+			endY = (int) (size.height * 0.30);
+			startX = (size.width / 2);
+			startPoint = setStarterPositionForSwipe(element, index, startX, startY);
 
-	            break;
+			new TouchAction(getAppiumDriver()).press(PointOption.point(startPoint.get("x"), startPoint.get("y")))
+					.waitAction(WaitOptions.waitOptions(Duration.ofSeconds((long) durationSec)))
+					.moveTo(PointOption.point(startX, endY)).release().perform();
 
-	    }
+			break;
+
+		}
 	}
-	
+
 	/**
-	 * strategies:
-	 * if no keyboard displayed, return
-	 * Strategy1: tap outside the keyboard. just above the keyboard, left side
-	 * Strategy2: if keys: "Hide keyboard", "DONE", "Done", "Return", "Next" displayed, click them
-	 * Strategy3: if keyboard still exists, use appium.hideKeyboard()
+	 * strategies: if no keyboard displayed, return Strategy1: tap outside the
+	 * keyboard. just above the keyboard, left side Strategy2: if keys: "Hide
+	 * keyboard", "DONE", "Done", "Return", "Next" displayed, click them Strategy3:
+	 * if keyboard still exists, use appium.hideKeyboard()
 	 */
 	private void dimissIosKeyboard() {
-		if(isIOS()) {
-			
-			//if no keyboard displayed, return
-            EnhancedBy KEYBOARD_IOS = Element.byClass("XCUIElementTypeKeyboard","Keyboard");
-            if(!Element.findElements(KEYBOARD_IOS).isExist()) return;
-              
-            String dismissStrategy = Config.getValue(DISMISS_STRATEGY);
-            
-            switch(dismissStrategy) {
-            case "tapOutside":
-            	
-            	// Strategy1: tap outside the keyboard. just above the keyboard, left side
+		if (isIOS()) {
+
+			// if no keyboard displayed, return
+			EnhancedBy KEYBOARD_IOS = Element.byClass("XCUIElementTypeKeyboard", "Keyboard");
+			if (!Element.findElements(KEYBOARD_IOS).isExist())
+				return;
+
+			String dismissStrategy = Config.getValue(DISMISS_STRATEGY);
+
+			switch (dismissStrategy) {
+			case "tapOutside":
+
+				// Strategy1: tap outside the keyboard. just above the keyboard, left side
 				EnhancedWebElement targetElement = Element.findElements(KEYBOARD_IOS);
-	            Point p = targetElement.get(0).getLocation();
-	            int xPosition = 1;
+				Point p = targetElement.get(0).getLocation();
+				int xPosition = 1;
 				int topY = p.getY() - 10;
-				
+
 				// Strategy1: implementation
 				TouchAction touchAction = new TouchAction((AppiumDriver) AbstractDriver.getWebDriver());
 				touchAction.tap(PointOption.point(xPosition, topY)).perform();
-              break;
-              
-            case "keyPress":
-            	
-            	// TODO: Strategy2 is too slow. isExist takes too long
-	            //Strategy2: if keys: "Hide keyboard", "DONE", "Done", "Return", "Next" displayed, click them
-	            List<String> keys = Config.getValueList(DISMISS_BY_KEY_PRESS);
-	            for(String key : keys) {
-	                EnhancedBy ios_keys = Element.byAccessibility(key,"keyboard key: " +  key);
-	                if(Element.findElements(ios_keys).isExist()) {
-	                	Helper.clickAndWait(ios_keys, 0);
-	                	break;
-	                }
-	            }
-              break;
-              
-            default:
-            	getAppiumDriver().hideKeyboard();
-            }
-            
-            if(!Element.findElements(KEYBOARD_IOS).isExist()) return;
+				break;
 
-           // Strategy3: if keyboard still exists, use appium.hideKeyboard()
+			case "keyPress":
+
+				// TODO: Strategy2 is too slow. isExist takes too long
+				// Strategy2: if keys: "Hide keyboard", "DONE", "Done", "Return", "Next"
+				// displayed, click them
+				List<String> keys = Config.getValueList(DISMISS_BY_KEY_PRESS);
+				for (String key : keys) {
+					EnhancedBy ios_keys = Element.byAccessibility(key, "keyboard key: " + key);
+					if (Element.findElements(ios_keys).isExist()) {
+						Helper.clickAndWait(ios_keys, 0);
+						break;
+					}
+				}
+				break;
+
+			default:
+				getAppiumDriver().hideKeyboard();
+			}
+
+			if (!Element.findElements(KEYBOARD_IOS).isExist())
+				return;
+
+			// Strategy3: if keyboard still exists, use appium.hideKeyboard()
 			getAppiumDriver().hideKeyboard();
 		}
 	}

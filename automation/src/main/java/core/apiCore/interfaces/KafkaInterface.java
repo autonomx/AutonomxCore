@@ -53,13 +53,14 @@ public class KafkaInterface {
 
 		// evaluate options
 		evaluateOption(serviceObject);
-		
+
 		// replace parameters for request body, including template file (json, xml, or
 		// other)
 		serviceObject.withRequestBody(DataHelper.getRequestBodyIncludingTemplate(serviceObject));
-		
+
 		// generate message id
-		String messageId = MessageQueueHelper.generateMessageId(serviceObject, Config.getValue(KAFKA_MESSAGE_ID_PREFIX));
+		String messageId = MessageQueueHelper.generateMessageId(serviceObject,
+				Config.getValue(KAFKA_MESSAGE_ID_PREFIX));
 
 		// send message
 		sendKafkaMessage(serviceObject, messageId);
@@ -98,7 +99,7 @@ public class KafkaInterface {
 
 			producer.send(record).get();
 
-			TestLog.logPass("sent messageId : " +  messageId + "\n message : " + messageBody);
+			TestLog.logPass("sent messageId : " + messageId + "\n message : " + messageBody);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -128,11 +129,11 @@ public class KafkaInterface {
 
 		String topic = Config.getValue(KFAKA_TOPIC);
 		String outboundTopic = Config.getValue(KFAKA_OUTBOUND_TOPIC);
-		
+
 		// set outbound topic if defined
-		if(!outboundTopic.isEmpty())
+		if (!outboundTopic.isEmpty())
 			topic = outboundTopic;
-		
+
 		KafkaConsumer consumer = new KafkaConsumer(props);
 		consumer.subscribe(Collections.singletonList(topic));
 
@@ -151,21 +152,19 @@ public class KafkaInterface {
 
 			// add received message on this thread to outboundMessages
 			consumerRecords.forEach(record -> {
-				
+
 				List<String> headers = new ArrayList<String>();
 				for (Header header : record.headers()) {
 					headers.add(header.value().toString());
 				}
 
-		    	 MessageObject message = new MessageObject()
-		    			 .withMessageType(messageType.KAFKA)
-		    			 .withMessageId(record.key())
-		    			 .withMessage(record.value())
-		    			 .withTopic(record.topic())
-		    			 .withHeader(headers);
-		        
-		        TestLog.logPass("Received messageId '" + message.getMessageId() + "\n with message content: " + message.getMessage());
-		        MessageObject.outboundMessages.put(message, true);
+				MessageObject message = new MessageObject().withMessageType(messageType.KAFKA)
+						.withMessageId(record.key()).withMessage(record.value()).withTopic(record.topic())
+						.withHeader(headers);
+
+				TestLog.logPass("Received messageId '" + message.getMessageId() + "\n with message content: "
+						+ message.getMessage());
+				MessageObject.outboundMessages.put(message, true);
 			});
 			TestLog.logPass("global message size in outbound list: " + outboundMessages.size());
 			consumer.commitAsync();
@@ -184,8 +183,9 @@ public class KafkaInterface {
 		if (serviceObject.getOption().isEmpty()) {
 			return;
 		}
-		
-		// store value to config directly using format: value:<$key> separated by colon ';'
+
+		// store value to config directly using format: value:<$key> separated by colon
+		// ';'
 		DataHelper.saveDataToConfig(serviceObject.getOption());
 
 		// replace parameters for options

@@ -42,7 +42,7 @@ public class ClickHelper extends Element {
 		boolean isExpectedFound = false;
 		int targetWaitTimeInSeconds = 5;
 		int retry = AbstractDriver.TIMEOUT_SECONDS / targetWaitTimeInSeconds;
-		
+
 		do {
 			retry--;
 			if (Helper.isPresent(target))
@@ -52,7 +52,7 @@ public class ClickHelper extends Element {
 
 		Helper.assertTrue("expected element not found: " + expected.name, isExpectedFound);
 	}
-	
+
 	/**
 	 * click And expect based on the text value on the element. eg. button with "OK"
 	 * text
@@ -68,7 +68,7 @@ public class ClickHelper extends Element {
 		boolean isExpectedFound = false;
 		int targetWaitTimeInSeconds = 5;
 		int retry = AbstractDriver.TIMEOUT_SECONDS / targetWaitTimeInSeconds;
-		
+
 		do {
 			retry--;
 			if (Helper.isPresent(target))
@@ -85,8 +85,7 @@ public class ClickHelper extends Element {
 	 * @param target
 	 * @param index
 	 * @param expected
-	 * @param mobileRefresh
-	 *            TODO
+	 * @param mobileRefresh TODO
 	 */
 	public void clickAndExpect(EnhancedBy target, int index, EnhancedBy expected, boolean mobileRefresh) {
 
@@ -110,10 +109,10 @@ public class ClickHelper extends Element {
 
 		Helper.assertTrue("expected element not found: " + expected.name, isExpectedFound);
 	}
-	
-	
+
 	/**
 	 * click and expect with retrying to click the elmeent on failure
+	 * 
 	 * @param target
 	 * @param index
 	 * @param expected
@@ -132,18 +131,20 @@ public class ClickHelper extends Element {
 
 		Helper.assertTrue("expected element not found: " + expected.name, isExpectedFound);
 	}
-	
+
 	/**
 	 * click And expect using action click
+	 * 
 	 * @param target
 	 * @param expected
 	 */
 	public void clickAndExpectByAction(EnhancedBy target, EnhancedBy expected) {
-		clickAndExpectByAction( target, 0,  expected);
+		clickAndExpectByAction(target, 0, expected);
 	}
-	
+
 	/**
 	 * click And expect using action click
+	 * 
 	 * @param target
 	 * @param index
 	 * @param expected
@@ -161,8 +162,8 @@ public class ClickHelper extends Element {
 		do {
 			retry--;
 			if (Helper.isPresent(target)) {
-				 Actions action = new Actions(AbstractDriver.getWebDriver());   
-				 action.click(targetElement.get(0)).perform(); 
+				Actions action = new Actions(AbstractDriver.getWebDriver());
+				action.click(targetElement.get(0)).perform();
 			}
 			isExpectedFound = Helper.wait.waitForElementToLoad(expected, targetWaitTimeInSeconds);
 			TestLog.ConsoleLog("clickAndExpect: expected: " + expected.name + " : " + isExpectedFound);
@@ -170,7 +171,7 @@ public class ClickHelper extends Element {
 
 		Helper.assertTrue("expected element not found: " + expected.name, isExpectedFound);
 	}
-	
+
 	/**
 	 * clicks element based on index And waits for expected element to be displayed
 	 * 
@@ -181,9 +182,10 @@ public class ClickHelper extends Element {
 	public void clickAndExpect(EnhancedBy target, int index, EnhancedBy expected) {
 		clickAndExpect(target, index, expected, true);
 	}
-    
+
 	/**
 	 * click And expect for either element
+	 * 
 	 * @param target
 	 * @param index
 	 * @param expected1
@@ -230,7 +232,7 @@ public class ClickHelper extends Element {
 		boolean isExpectedFound = false;
 		int targetWaitTimeInSeconds = 5;
 		int retry = AbstractDriver.TIMEOUT_SECONDS / targetWaitTimeInSeconds;
-		
+
 		do {
 			retry--;
 			if (Helper.isPresent(target))
@@ -300,16 +302,13 @@ public class ClickHelper extends Element {
 		targetElement.click(index);
 		Helper.wait.waitForSeconds(timeInSeconds);
 	}
-	
+
 	/**
 	 * Click on an element's specific x,y location
 	 * 
-	 * @param by
-	 *            by element
-	 * @param x
-	 *            x offset coordinate
-	 * @param y
-	 *            y offset coordinate
+	 * @param by by element
+	 * @param x  x offset coordinate
+	 * @param y  y offset coordinate
 	 */
 	public void clickElementLocationBy(EnhancedBy by, int x, int y) {
 		EnhancedWebElement targetElement = Element.findElements(by);
@@ -317,95 +316,102 @@ public class ClickHelper extends Element {
 		Helper.wait.waitForElementToBeClickable(by);
 		actions.moveToElement(targetElement.get(0), x, y).click().perform();
 	}
-	
+
 	/**
 	 * click at position x, y
+	 * 
 	 * @param x
 	 * @param y
 	 */
-    public void clickPoints(int x ,int y) {
-    	
-    	TestLog.logPass("I click point at x: " + x + " y: " + y);
-        Actions action = new Actions(AbstractDriver.getWebDriver());
+	public void clickPoints(int x, int y) {
 
-        // offset from 0,0 position
-        action.moveByOffset(x, y).click().build().perform();
-        
-        // return back to 0,0 position
-        resetMouse(x, y);
-    }
-    
-    /**
-     * click point at x,y coordinates and expect and element to be present
-     * retry every 5 seconds for duration of explicit timeout
-     * @param x
-     * @param y
-     * @param expected
-     */
-    public void clickPointsAndExpect(int x ,int y, EnhancedBy expected) {
+		TestLog.logPass("I click point at x: " + x + " y: " + y);
+		Actions action = new Actions(AbstractDriver.getWebDriver());
 
-    	EnhancedWebElement expectedElement = null;
+		// offset from 0,0 position
+		action.moveByOffset(x, y).click().build().perform();
+
+		// return back to 0,0 position
+		resetMouse(x, y);
+	}
+
+	/**
+	 * click point at x,y coordinates and expect and element to be present retry
+	 * every 5 seconds for duration of explicit timeout
+	 * 
+	 * @param x
+	 * @param y
+	 * @param expected
+	 */
+	public void clickPointsAndExpect(int x, int y, EnhancedBy expected) {
+
+		EnhancedWebElement expectedElement = null;
 		int targetWaitTimeInSeconds = 5;
 		int retry = AbstractDriver.TIMEOUT_SECONDS / targetWaitTimeInSeconds;
 
 		do {
 			retry--;
-			clickPoints(x ,y);
+			clickPoints(x, y);
 			Helper.wait.waitForSeconds(0.5);
 			Helper.wait.waitForElementToLoad(expected, targetWaitTimeInSeconds);
 			expectedElement = Element.findElements(expected);
 		} while (!expectedElement.isExist() && retry > 0);
 
 		Helper.assertTrue("expected element not found", expectedElement.isExist());
-    }
-    
-    /**
-     * moves mouse back to original position
-     * @param x
-     * @param y
-     */
-    public void resetMouse(int x ,int y) {
-        Actions action = new Actions(AbstractDriver.getWebDriver());
-
-    	 // return back to 0,0 position
-        action.moveByOffset(-x, -y).build().perform();
-    }
-
-    /**
-     * double click at position
-     * @param x
-     * @param y
-     */
-    public void doubleClickPoints(int x, int y) {
-
-        Actions action = new Actions(AbstractDriver.getWebDriver());
-        action.moveByOffset(x, y).click().release().pause(Duration.ofMillis(250)).click().release().build().perform();
-       
-        // return back to 0,0 position
-        resetMouse(x, y);
-    }
-	
-    /**
-     * click element with text containing
-     * @param by
-     * @param text
-     */
-	public void clickElementContinsByText(EnhancedBy by,String text) {
-		TestLog.ConsoleLog("I click element " + by.name + " with text containing: " +  text);
-		Helper.list.selectListItemContainsByName(by,text);
 	}
-	
+
+	/**
+	 * moves mouse back to original position
+	 * 
+	 * @param x
+	 * @param y
+	 */
+	public void resetMouse(int x, int y) {
+		Actions action = new Actions(AbstractDriver.getWebDriver());
+
+		// return back to 0,0 position
+		action.moveByOffset(-x, -y).build().perform();
+	}
+
+	/**
+	 * double click at position
+	 * 
+	 * @param x
+	 * @param y
+	 */
+	public void doubleClickPoints(int x, int y) {
+
+		Actions action = new Actions(AbstractDriver.getWebDriver());
+		action.moveByOffset(x, y).click().release().pause(Duration.ofMillis(250)).click().release().build().perform();
+
+		// return back to 0,0 position
+		resetMouse(x, y);
+	}
+
+	/**
+	 * click element with text containing
+	 * 
+	 * @param by
+	 * @param text
+	 */
+	public void clickElementContinsByText(EnhancedBy by, String text) {
+		TestLog.ConsoleLog("I click element " + by.name + " with text containing: " + text);
+		Helper.list.selectListItemContainsByName(by, text);
+	}
+
 	/**
 	 * click And hold element
+	 * 
 	 * @param target
 	 * @param seconds
 	 */
 	public void clickAndHold(EnhancedBy target, double seconds) {
-		clickAndHold(target,0,seconds);
+		clickAndHold(target, 0, seconds);
 	}
-	
+
 	/**
 	 * click And hold based on element index
+	 * 
 	 * @param target
 	 * @param index
 	 * @param seconds
@@ -414,41 +420,43 @@ public class ClickHelper extends Element {
 		Helper.wait.waitForElementToBeClickable(target);
 
 		EnhancedWebElement targetElement = Element.findElements(target);
-		
- 		Actions action = new Actions(AbstractDriver.getWebDriver());   
- 		action.clickAndHold(targetElement.get(index)).perform();
- 		Helper.wait.waitForSeconds(seconds);
- 		action.release(targetElement.get(index)).perform();
+
+		Actions action = new Actions(AbstractDriver.getWebDriver());
+		action.clickAndHold(targetElement.get(index)).perform();
+		Helper.wait.waitForSeconds(seconds);
+		action.release(targetElement.get(index)).perform();
 	}
-	
+
 	/**
 	 * drag And drop from src element to target element
+	 * 
 	 * @param src
 	 * @param target
 	 */
 	public void dragAndDrop(EnhancedBy src, EnhancedBy target) {
 		Helper.wait.waitForElementToBeClickable(src);
-		
+
 		EnhancedWebElement srcElement = Element.findElements(src);
 		EnhancedWebElement targetElement = Element.findElements(target);
 
 		Actions actions = new Actions(AbstractDriver.getWebDriver());
-		actions.dragAndDrop(srcElement.get(0), targetElement.get(0)); 
+		actions.dragAndDrop(srcElement.get(0), targetElement.get(0));
 		actions.build().perform();
 	}
-	
+
 	/**
 	 * drag And drop from src element to target element
+	 * 
 	 * @param src
 	 * @param target
 	 */
-	public void dragAndDrop(EnhancedBy src,int xOffset, int yOffset) {
+	public void dragAndDrop(EnhancedBy src, int xOffset, int yOffset) {
 		Helper.wait.waitForElementToBeClickable(src);
 
 		EnhancedWebElement srcElement = Element.findElements(src);
 
 		Actions actions = new Actions(AbstractDriver.getWebDriver());
-		actions.dragAndDropBy(srcElement.get(0), xOffset, yOffset); 
+		actions.dragAndDropBy(srcElement.get(0), xOffset, yOffset);
 		actions.build().perform();
 	}
 }

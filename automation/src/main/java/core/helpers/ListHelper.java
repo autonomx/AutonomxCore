@@ -235,9 +235,10 @@ public class ListHelper {
 	 * @param dataCells
 	 * @return
 	 */
-	public HashMap<Integer, List<String>> getTableRowValues(EnhancedBy dataRows, EnhancedBy dataCells){
-		 return getTableRowValues(dataRows, dataCells, -1);
+	public HashMap<Integer, List<String>> getTableRowValues(EnhancedBy dataRows, EnhancedBy dataCells) {
+		return getTableRowValues(dataRows, dataCells, -1);
 	}
+
 	/**
 	 * gets hashmap of table rows map will return row index and row values as
 	 * arraylist
@@ -251,12 +252,15 @@ public class ListHelper {
 		HashMap<Integer, List<String>> table = new HashMap<Integer, List<String>>();
 
 		int rowCount = Helper.getListCount(dataRows);
-		
-		// if max rows is greater than the actual number of rows, set max rows to row count
-		if(maxRows > rowCount) maxRows = rowCount;
+
+		// if max rows is greater than the actual number of rows, set max rows to row
+		// count
+		if (maxRows > rowCount)
+			maxRows = rowCount;
 		// -1 denotes all the rows
-		if(maxRows == -1) maxRows = rowCount;
-		
+		if (maxRows == -1)
+			maxRows = rowCount;
+
 		for (int j = 0; j < maxRows; j++) {
 			EnhancedWebElement targetElement = Element.findElements(dataRows, j, dataCells);
 			List<String> rowValues = targetElement.getTextList();
@@ -331,8 +335,8 @@ public class ListHelper {
 			if (index != -1)
 				break;
 		} while (passedTimeInSeconds < AbstractDriver.TIMEOUT_SECONDS);
-		
-		if(index == -1)
+
+		if (index == -1)
 			TestLog.logWarning("option: " + option + " not found in list: " + Arrays.toString(stringList.toArray()));
 
 		return index;
@@ -360,10 +364,10 @@ public class ListHelper {
 			if (index != -1)
 				break;
 		} while (passedTimeInSeconds < AbstractDriver.TIMEOUT_SECONDS);
-		
-		if(index == -1)
+
+		if (index == -1)
 			TestLog.logWarning("option: " + option + " not found in list: " + Arrays.toString(stringList.toArray()));
-		
+
 		return index;
 	}
 

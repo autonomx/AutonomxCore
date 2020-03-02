@@ -15,15 +15,12 @@ import com.opencsv.CSVWriter;
 
 import core.helpers.Helper;
 
-
-
 public class CsvHelper {
 
 	/**
 	 * gets single cell data in csv file
 	 * 
-	 * @param csv
-	 *            - requires. csv.row, csv.column, csv.csvFile
+	 * @param csv - requires. csv.row, csv.column, csv.csvFile
 	 * @return
 	 * @throws Exception
 	 */
@@ -41,59 +38,51 @@ public class CsvHelper {
 	/**
 	 * gets all csv data in list of string arrays
 	 * 
-	 * @param csv
-	 *            - requires. csv.csvFile
+	 * @param csv - requires. csv.csvFile
 	 * @return
 	 * @throws Exception
 	 */
 	public List<String[]> getAllCsvData(String filePath, CsvObject csv) {
 		return getAllCsvData(filePath + File.separator + csv, 0, true);
 	}
-	
+
 	/**
 	 * gets all csv data in list of string arrays
 	 * 
-	 * @param csv
-	 *            - requires. csv.csvFile
+	 * @param csv - requires. csv.csvFile
 	 * @return
 	 * @throws Exception
 	 */
 	public List<String[]> getAllCsvData(String filePath) {
 		return getAllCsvData(filePath, 0, true);
 	}
-	
+
 	/**
 	 * gets all csv data in list of string arrays
 	 * 
-	 * @param csv
-	 *            - requires. csv.csvFile
+	 * @param csv - requires. csv.csvFile
 	 * @return
 	 * @throws Exception
 	 */
 	public List<String[]> getAllCsvData(String filePath, int startingRow, boolean skipEmptyRows) {
 		List<String[]> csvList = new ArrayList<String[]>();
 		CSVReader readcsv;
-		CSVParser parser = new CSVParserBuilder()
-			    .withSeparator(',')
-			    .withIgnoreQuotations(true)
-			    .withIgnoreLeadingWhiteSpace(true)
-			    .build();
+		CSVParser parser = new CSVParserBuilder().withSeparator(',').withIgnoreQuotations(true)
+				.withIgnoreLeadingWhiteSpace(true).build();
 		try {
-			
-			readcsv = new CSVReaderBuilder(new FileReader(filePath))
-					.withSkipLines(startingRow)
-				    .withCSVParser(parser)
-				    .build();
-			
+
+			readcsv = new CSVReaderBuilder(new FileReader(filePath)).withSkipLines(startingRow).withCSVParser(parser)
+					.build();
+
 			// add csv rows. skip if skipEmptyRows is true
-			 String[] line;
-			  while ((line = readcsv.readNext()) != null) {
-				  if(!skipEmptyRows)
-					  csvList.add(line);
-				  else if(!line[0].isEmpty() )
-					  csvList.add(line);
-				 
-			  }
+			String[] line;
+			while ((line = readcsv.readNext()) != null) {
+				if (!skipEmptyRows)
+					csvList.add(line);
+				else if (!line[0].isEmpty())
+					csvList.add(line);
+
+			}
 			readcsv.close();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -101,9 +90,10 @@ public class CsvHelper {
 
 		return csvList;
 	}
-	
+
 	/**
 	 * gets all csv data files skipping first row as header
+	 * 
 	 * @param filePath
 	 * @return
 	 */
@@ -113,9 +103,8 @@ public class CsvHelper {
 
 	/**
 	 * file path: csv.path + csv.csvFile using csvObject
-
-	 * @param csv
-	 *            - required: csv.csvFile, csv.value value: String [] record =
+	 * 
+	 * @param csv - required: csv.csvFile, csv.value value: String [] record =
 	 *            "3,David,Feezor,USA,40".split(",");
 	 * @throws Exception
 	 */
@@ -131,12 +120,11 @@ public class CsvHelper {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
-	 * adds row to csv file
-	 * file path: csv.path + csv.csvFile using csvObject
-	 * eg. csv.value:  String [] record =
-	 *            "3,David,Feezor,USA,40".split(",");
+	 * adds row to csv file file path: csv.path + csv.csvFile using csvObject eg.
+	 * csv.value: String [] record = "3,David,Feezor,USA,40".split(",");
+	 * 
 	 * @param csv
 	 * @throws Exception
 	 */
@@ -152,39 +140,38 @@ public class CsvHelper {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
-	 * update cell based on row and column. csv object must containe filename, row and column
-	 * @param csv csv file to update
-	 * @param value value to write 
+	 * update cell based on row and column. csv object must containe filename, row
+	 * and column
+	 * 
+	 * @param csv   csv file to update
+	 * @param value value to write
 	 */
 	public void writeToCell(CsvObject csv, String value) {
 		String csvPath = csv.path + File.separator + csv.csvFile;
 		writeToCell(csv, value, csvPath);
 	}
-	
+
 	/**
-	 * update cell based on row and column. csv object must contain filename, row and column
-	 * @param csv csv file to update
-	 * @param value value to write 
+	 * update cell based on row and column. csv object must contain filename, row
+	 * and column
+	 * 
+	 * @param csv     csv file to update
+	 * @param value   value to write
 	 * @param csvPath path to the csv data relative to root directory
 	 */
 	public void writeToCell(CsvObject csv, String value, String csvPath) {
 
 		try {
-			
+
 			// Read existing file
-			CSVParser parser = new CSVParserBuilder()
-				    .withSeparator(',')
-				    .withIgnoreQuotations(true)
-				    .withIgnoreLeadingWhiteSpace(true)
-				    .build();
-			
-			CSVReader reader = new CSVReaderBuilder(new FileReader(csvPath))
-					.withSkipLines(0)
-				    .withCSVParser(parser)
-				    .build();
-	
+			CSVParser parser = new CSVParserBuilder().withSeparator(',').withIgnoreQuotations(true)
+					.withIgnoreLeadingWhiteSpace(true).build();
+
+			CSVReader reader = new CSVReaderBuilder(new FileReader(csvPath)).withSkipLines(0).withCSVParser(parser)
+					.build();
+
 			List<String[]> csvBody = reader.readAll();
 			// get CSV row column and replace with by using row and column
 			csvBody.get(csv.row)[csv.column] = value;
@@ -202,8 +189,7 @@ public class CsvHelper {
 
 	/**
 	 * 
-	 * @param csv
-	 *            - required: csv.csvFile, csv.value value: String [] record =
+	 * @param csv - required: csv.csvFile, csv.value value: String [] record =
 	 *            "3,David,Feezor,USA,40".split(",");
 	 * @throws Exception
 	 */
@@ -217,27 +203,29 @@ public class CsvHelper {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * get row index in csv file that equal id value
+	 * 
 	 * @param id
 	 * @param filePath
 	 * @return
 	 */
 	public int getRowIndex(String id, String filePath) {
 		List<String[]> rows = getAllCsvData(filePath, 0, false);
-		
-		for(int i = 0; i< rows.size(); i++) {
+
+		for (int i = 0; i < rows.size(); i++) {
 			String rowId = rows.get(i)[0];
-			if(rowId.equals(id))
+			if (rowId.equals(id))
 				return i;
-			}
-		  Helper.assertFalse("row not found: '" + id + "' at path: " + filePath);
-		  return -1;	  
 		}
-	
+		Helper.assertFalse("row not found: '" + id + "' at path: " + filePath);
+		return -1;
+	}
+
 	/**
 	 * get column index by column value
+	 * 
 	 * @param column
 	 * @param filePath
 	 * @return
@@ -245,12 +233,12 @@ public class CsvHelper {
 	public int getColumnIndex(String column, String filePath) {
 		List<String[]> rows = getAllCsvData(filePath, 0, false);
 		int columnSize = rows.get(0).length;
-		for(int i = 0; i < columnSize; i++) {
+		for (int i = 0; i < columnSize; i++) {
 			String columnValue = rows.get(0)[i].trim();
-			if(columnValue.equals(column))
+			if (columnValue.equals(column))
 				return i;
-			}
-		  Helper.assertFalse("column not found: '" + column + "' at path: " + filePath);
-		  return -1;	  
-		}	
+		}
+		Helper.assertFalse("column not found: '" + column + "' at path: " + filePath);
+		return -1;
+	}
 }

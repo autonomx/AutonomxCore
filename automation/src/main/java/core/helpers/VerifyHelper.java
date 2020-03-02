@@ -22,7 +22,7 @@ public class VerifyHelper {
 		EnhancedWebElement elements = Element.findElements(by);
 		AssertHelper.assertTrue("element '" + by.name + "' is not displayed", elements.count() > 0);
 	}
-	
+
 	/**
 	 * returns true if element is displayed
 	 *
@@ -33,7 +33,7 @@ public class VerifyHelper {
 		EnhancedWebElement expectedElement = Element.findElements(element);
 		expectedElement.scrollToView();
 		boolean isPresent = expectedElement.isExist();
-		if(!isPresent)
+		if (!isPresent)
 			TestLog.ConsoleLog("isPresent:  " + element.name + " :" + isPresent);
 		return isPresent;
 	}
@@ -48,7 +48,7 @@ public class VerifyHelper {
 	public boolean isElementContainingText(EnhancedBy element, String text) {
 		return Helper.list.isContainedInList(element, text);
 	}
-	
+
 	/**
 	 * returns true if element has exact text value
 	 *
@@ -61,9 +61,10 @@ public class VerifyHelper {
 		String actualText = Helper.getTextValue(element, index);
 		return actualText.equals(text);
 	}
-	
+
 	/**
 	 * return true if element is in list of elements. eg. delete button in a table
+	 * 
 	 * @param list
 	 * @param target
 	 * @return
@@ -71,10 +72,11 @@ public class VerifyHelper {
 	public boolean isElementInList(EnhancedBy list, EnhancedBy target) {
 		return Helper.list.getElementIndexInList(list, target) != -1;
 	}
-	
+
 	/**
-	 * return true if element is in list of elements. 
-	 * eg. delete button in a table with user row identified by name: bob
+	 * return true if element is in list of elements. eg. delete button in a table
+	 * with user row identified by name: bob
+	 * 
 	 * @param list
 	 * @param target
 	 * @return
@@ -87,7 +89,7 @@ public class VerifyHelper {
 		EnhancedWebElement targetElement = Element.findElements(list, index, target);
 		return targetElement.isExist();
 	}
-	
+
 	/**
 	 * verify if element has exact text value
 	 *
@@ -100,10 +102,10 @@ public class VerifyHelper {
 		String actualText = Helper.getTextValue(element, index);
 		Helper.assertEquals(text, actualText);
 	}
-	
-	
+
 	/**
 	 * verify if element contains text
+	 * 
 	 * @param element
 	 * @param text
 	 */
@@ -111,18 +113,20 @@ public class VerifyHelper {
 		Helper.waitForElementToLoad(element);
 		Helper.assertTrue("element does not contain text: " + text, isElementContainingText(element, text));
 	}
-	
+
 	/**
 	 * verify if text is displayed on page
+	 * 
 	 * @param text
 	 */
 	public void verifyTextDisplayed(String text) {
 		boolean isText = isTextDisplayed(text);
 		Helper.assertTrue("text: " + "text is not displayed", isText);
 	}
-	
+
 	/**
 	 * is text displayed on page
+	 * 
 	 * @param text
 	 * @return
 	 */
@@ -180,49 +184,53 @@ public class VerifyHelper {
 		int count = Helper.list.getListCount(by);
 		Helper.assertEquals(value, count);
 	}
-	
+
 	/**
 	 * verifies if text contains any of values in list
+	 * 
 	 * @param target
 	 * @param values
 	 */
 	public void verifyAnyTextContaining(EnhancedBy target, String... values) {
 		TestLog.logPass("I verify element '" + target.name + "' " + " contains " + Arrays.toString(values));
 		Helper.waitForAnyTextToLoadContaining(target, values);
-		
+
 		EnhancedWebElement elements = Element.findElements(target);
 		String actualValue = elements.getText();
-		
-		for(String value : values) {
-			if(actualValue.contains(value)) {
+
+		for (String value : values) {
+			if (actualValue.contains(value)) {
 				TestLog.logPass("value found: " + value);
 				return;
 			}
 		}
-		Helper.assertFalse("element: " + target.name + " did not display any text, text values: " + Arrays.toString(values));
+		Helper.assertFalse(
+				"element: " + target.name + " did not display any text, text values: " + Arrays.toString(values));
 	}
-	
+
 	/**
 	 * verifies if text contains any of values in list
+	 * 
 	 * @param target
 	 * @param values
 	 */
 	public void verifyAnyText(EnhancedBy target, String... values) {
 		TestLog.logPass("I verify element '" + target.name + "' " + " contains " + Arrays.toString(values));
 		Helper.waitForAnyTextToLoadContaining(target, values);
-		
+
 		EnhancedWebElement elements = Element.findElements(target);
 		String actualValue = elements.getText();
-		
-		for(String value : values) {
-			if(actualValue.equals(value)) {
+
+		for (String value : values) {
+			if (actualValue.equals(value)) {
 				TestLog.logPass("value found: " + value);
 				return;
 			}
 		}
-		Helper.assertFalse("element: " + target.name + " did not display any text, text values: " + Arrays.toString(values));
+		Helper.assertFalse(
+				"element: " + target.name + " did not display any text, text values: " + Arrays.toString(values));
 	}
-	
+
 	/**
 	 * return if element is contained in list
 	 * 
@@ -233,7 +241,7 @@ public class VerifyHelper {
 	public boolean isContainedInList(EnhancedBy list, String option) {
 		return Helper.isContainedInList(list, option);
 	}
-	
+
 	/**
 	 * return if element is an exact match in list
 	 * 

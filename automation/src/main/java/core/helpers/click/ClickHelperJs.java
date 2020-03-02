@@ -58,8 +58,7 @@ public class ClickHelperJs extends Element {
 	 * @param target
 	 * @param index
 	 * @param expected
-	 * @param mobileRefresh
-	 *            TODO
+	 * @param mobileRefresh TODO
 	 */
 	public void clickAndExpect(EnhancedBy target, int index, EnhancedBy expected, boolean mobileRefresh) {
 
@@ -82,14 +81,14 @@ public class ClickHelperJs extends Element {
 
 		Helper.assertTrue("expected element not found: " + expected.name, isExpectedFound);
 	}
-	
+
 	public void clickJs(EnhancedBy target, int index) {
 		EnhancedWebElement targetElement = Element.findElements(target);
 
 		WebElement element = targetElement.get(index);
 		((JavascriptExecutor) AbstractDriver.getWebDriver()).executeScript("arguments[0].click()= true;", element);
 	}
-	
+
 	/**
 	 * clicks element based on index And waits for expected element to be displayed
 	 * 
@@ -100,9 +99,10 @@ public class ClickHelperJs extends Element {
 	public void clickAndExpect(EnhancedBy target, int index, EnhancedBy expected) {
 		clickAndExpect(target, index, expected, true);
 	}
-    
+
 	/**
 	 * click And expect for either element
+	 * 
 	 * @param target
 	 * @param index
 	 * @param expected1
@@ -215,14 +215,15 @@ public class ClickHelperJs extends Element {
 		clickJs(target, index);
 		Helper.wait.waitForSeconds(timeInSeconds);
 	}
-	
-    /**
-     * click element with text containing
-     * @param by
-     * @param text
-     */
-	public void clickElementContinsByText(EnhancedBy by,String text) {
-		TestLog.ConsoleLog("I click element " + by.name + " with text containing: " +  text);
-		Helper.list.selectListItemContainsByName(by,text);
+
+	/**
+	 * click element with text containing
+	 * 
+	 * @param by
+	 * @param text
+	 */
+	public void clickElementContinsByText(EnhancedBy by, String text) {
+		TestLog.ConsoleLog("I click element " + by.name + " with text containing: " + text);
+		Helper.list.selectListItemContainsByName(by, text);
 	}
 }

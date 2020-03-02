@@ -59,8 +59,7 @@ public class ClickHelperAction extends Element {
 	 * @param target
 	 * @param index
 	 * @param expected
-	 * @param mobileRefresh
-	 *            TODO
+	 * @param mobileRefresh TODO
 	 */
 	public void clickAndExpect(EnhancedBy target, int index, EnhancedBy expected, boolean mobileRefresh) {
 
@@ -86,6 +85,7 @@ public class ClickHelperAction extends Element {
 
 	/**
 	 * click using actions
+	 * 
 	 * @param target
 	 * @param index
 	 */
@@ -225,12 +225,9 @@ public class ClickHelperAction extends Element {
 	/**
 	 * Click on an element's specific x,y location
 	 * 
-	 * @param by
-	 *            by element
-	 * @param x
-	 *            x offset coordinate
-	 * @param y
-	 *            y offset coordinate
+	 * @param by by element
+	 * @param x  x offset coordinate
+	 * @param y  y offset coordinate
 	 */
 	public void clickElementLocationBy(EnhancedBy by, int x, int y) {
 		EnhancedWebElement targetElement = Element.findElements(by);
@@ -241,37 +238,38 @@ public class ClickHelperAction extends Element {
 
 	/**
 	 * click at position x, y
+	 * 
 	 * @param x
 	 * @param y
 	 */
-    public void clickPoints(int x ,int y) {
-        Actions action = new Actions(AbstractDriver.getWebDriver());
+	public void clickPoints(int x, int y) {
+		Actions action = new Actions(AbstractDriver.getWebDriver());
 
-        // offset from 0,0 position
-        action.moveByOffset(x, y).click().build().perform();
-        
-        // return back to 0,0 position
-        Helper.click.resetMouse(x, y);
-    }
-    
+		// offset from 0,0 position
+		action.moveByOffset(x, y).click().build().perform();
 
+		// return back to 0,0 position
+		Helper.click.resetMouse(x, y);
+	}
 
-    /**
-     * double click at position
-     * @param x
-     * @param y
-     */
-    public void doubleClickPoints(int x, int y) {
+	/**
+	 * double click at position
+	 * 
+	 * @param x
+	 * @param y
+	 */
+	public void doubleClickPoints(int x, int y) {
 
-        Actions action = new Actions(AbstractDriver.getWebDriver());
-        action.moveByOffset(x, y).click().release().pause(Duration.ofMillis(250)).click().release().build().perform();
-       
-        // return back to 0,0 position
-        Helper.click.resetMouse(x, y);
-    }
-    
-    /**
+		Actions action = new Actions(AbstractDriver.getWebDriver());
+		action.moveByOffset(x, y).click().release().pause(Duration.ofMillis(250)).click().release().build().perform();
+
+		// return back to 0,0 position
+		Helper.click.resetMouse(x, y);
+	}
+
+	/**
 	 * double click on element
+	 * 
 	 * @param target
 	 * @param index
 	 */
@@ -281,9 +279,10 @@ public class ClickHelperAction extends Element {
 		EnhancedWebElement targetElement = Element.findElements(target);
 		action.doubleClick(targetElement.get(index)).perform();
 	}
-	
+
 	/**
 	 * right click on element at index
+	 * 
 	 * @param target
 	 * @param index
 	 */
@@ -293,9 +292,10 @@ public class ClickHelperAction extends Element {
 		EnhancedWebElement targetElement = Element.findElements(target);
 		action.contextClick(targetElement.get(index)).perform();
 	}
-	
+
 	/**
 	 * right click on x, y points
+	 * 
 	 * @param x
 	 * @param y
 	 */
@@ -303,9 +303,9 @@ public class ClickHelperAction extends Element {
 
 		Actions action = new Actions(AbstractDriver.getWebDriver());
 		action.moveByOffset(x, y).contextClick().release();
-		
-        // return back to 0,0 position
-        Helper.click.resetMouse(x, y);
+
+		// return back to 0,0 position
+		Helper.click.resetMouse(x, y);
 	}
 
 	/**

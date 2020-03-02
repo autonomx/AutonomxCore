@@ -67,7 +67,7 @@ public class ExtentManager {
 
 		return extent;
 	}
-	
+
 	public static String getScreenshotsFolderFullPath() {
 		return getReportRootFullPath() + "screenshots/";
 	}
@@ -83,9 +83,9 @@ public class ExtentManager {
 	public static String getMediaFolderRelativePathFromHtmlReport() {
 		return "media/";
 	}
-	
+
 	public static String getMediaFolderRelativePathFromRoot() {
-		return getReportRootRelativePath() +  getMediaFolderRelativePathFromHtmlReport();
+		return getReportRootRelativePath() + getMediaFolderRelativePathFromHtmlReport();
 	}
 
 	public static String getReportHTMLFullPath() {
@@ -105,7 +105,7 @@ public class ExtentManager {
 		DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
 		Date date = new Date();
 		String folderName = dateFormat.format(date);
-		return TEST_OUTPUT_PATH + "testReports"+ File.separator + folderName + File.separator
+		return TEST_OUTPUT_PATH + "testReports" + File.separator + folderName + File.separator
 				+ TestObject.getTestInfo(TestObject.getDefaultTestObjectId()).app + File.separator;
 	}
 
@@ -113,7 +113,7 @@ public class ExtentManager {
 
 		extent = new ExtentReports();
 		extent.setAnalysisStrategy(AnalysisStrategy.BDD);
-		
+
 		// setup html reporter
 		ExtentHtmlReporter htmlReporter = new ExtentHtmlReporter(fileName);
 		htmlReporter.config().setAutoCreateRelativePathMedia(true);
@@ -144,14 +144,16 @@ public class ExtentManager {
 	}
 
 	/**
-	 * setup report only for test methods, including before and after test
-	 * not including: before suite, after suite, before class, after class
-	 * this means only logs for test methods will show up in the reports
-	 * reason: test report treats before/after suite, before/after class as tests and increases test count
+	 * setup report only for test methods, including before and after test not
+	 * including: before suite, after suite, before class, after class this means
+	 * only logs for test methods will show up in the reports reason: test report
+	 * treats before/after suite, before/after class as tests and increases test
+	 * count
 	 */
 	public static void reportSetup() {
 
-		// Only setup report for test method. Ignores before suite, after suite, before class, after class
+		// Only setup report for test method. Ignores before suite, after suite, before
+		// class, after class
 		String testId = TestObject.getTestInfo().testId;
 		testState state = TestObject.getTestState(testId);
 		if (!state.equals(testState.testMethod))
@@ -164,11 +166,12 @@ public class ExtentManager {
 		// will create parent once per class
 		// initializes the test instance
 		String className = TestObject.getTestInfo().getClassName();
-		
-		// if service test runner, return. Service tests have different test names once the test starts, based on csv data
-		if(className.equals(ServiceManager.SERVICE_TEST_RUNNER_ID))
+
+		// if service test runner, return. Service tests have different test names once
+		// the test starts, based on csv data
+		if (className.equals(ServiceManager.SERVICE_TEST_RUNNER_ID))
 			return;
-		
+
 		if (!classList.containsKey(className)) {
 			String testParent = className.substring(className.lastIndexOf('.') + 1).trim();
 			testParent = parseTestName(testParent);
@@ -194,15 +197,15 @@ public class ExtentManager {
 	 * outside of suite, use the module/app name
 	 */
 	public static void setKlovReportReporter() {
-		
-		if(!Config.getValue(REPORT_TYPE).equals(KLOV_REPORT_TYPE))
+
+		if (!Config.getValue(REPORT_TYPE).equals(KLOV_REPORT_TYPE))
 			return;
-		
+
 		// setup klov reporter
 		klovReporter = new ExtentKlovReporter();
 		klovReporter.initMongoDbConnection(Config.getValue(KLOV_MONGODB_URL));
 		klovReporter.initKlovServerConnection(Config.getValue(KLOV_SERVER_URL));
-		
+
 		klovReporter.setAnalysisStrategy(AnalysisStrategy.BDD);
 
 		// set project name. if suite name is set (from suite file) Then use, else get
@@ -260,11 +263,11 @@ public class ExtentManager {
 	}
 
 	/**
-	 * Note: currently disabled as we're only adding test nodes to report
-	 * removes empty logs from the test report these are logs that are initialized,
-	 * But no test steps have been added to them note: test suite is removed, cause
-	 * the feature When empty cannot be removed. feature in code is not associated
-	 * with test steps TODO: find a way to preserve suite logs
+	 * Note: currently disabled as we're only adding test nodes to report removes
+	 * empty logs from the test report these are logs that are initialized, But no
+	 * test steps have been added to them note: test suite is removed, cause the
+	 * feature When empty cannot be removed. feature in code is not associated with
+	 * test steps TODO: find a way to preserve suite logs
 	 */
 	public static void removeEmptyTestNodesFromReport() {
 
@@ -287,7 +290,7 @@ public class ExtentManager {
 				}
 			}
 		}
-		
+
 		for (Entry<String, TestObject> entry : TestObject.testInfo.entrySet()) {
 			if (entry.getValue().testName.contains("Beforeclass") || entry.getValue().testName.contains("Aftersuite")) {
 				try {

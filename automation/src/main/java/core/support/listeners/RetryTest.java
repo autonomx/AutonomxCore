@@ -61,17 +61,18 @@ public class RetryTest implements IRetryAnalyzer {
 
 	@Override
 	public boolean retry(ITestResult iTestResult) {
-		
+
 		// update retry count from config
 		int maxRetryCount = CrossPlatformProperties.getRetryCount();
-				
+
 		setExtendReport();
 		TestObject.getTestInfo().withCaughtThrowable(iTestResult.getThrowable());
-		
+
 		// if the max retry has not been reached, log the failure And quite the browser
 		maxRetryCount = processTestResult();
-		
-		// if the max retry has not been reached, increment test count and continue to retry the test
+
+		// if the max retry has not been reached, increment test count and continue to
+		// retry the test
 		if (TestObject.getTestInfo().runCount < maxRetryCount + 1) {
 			TestObject.getTestInfo().incremenetRunCount();
 			return true;
@@ -89,26 +90,27 @@ public class RetryTest implements IRetryAnalyzer {
 	/**
 	 * 
 	 * if the max retry has not been reached, log the failure And quite the browser
-	 * @return 
+	 * 
+	 * @return
 	 */
 	public int processTestResult() {
 		logReport(ReportType.info, "run " + (TestObject.getTestInfo().runCount) + " failed ", null);
-		
+
 		logReport(ReportType.code, TestObject.getTestInfo().caughtThrowable.toString(), null);
 
 		// handle exception by adding extra retries
 		int maxRetryCount = errorHandling(TestObject.getTestInfo().caughtThrowable);
-		
+
 		// capture error screenshot
 		Helper.captureExtentReportScreenshot();
-				
+
 		logError("run " + (TestObject.getTestInfo().runCount) + " failed");
-		
+
 		if (TestObject.getTestInfo().runCount == maxRetryCount + 1) {
 			logReport(ReportType.fail, "giving up after " + (maxRetryCount + 1) + " failures", null);
 			logError("giving up after " + (maxRetryCount + 1) + " failures");
 		}
-		
+
 		return maxRetryCount;
 	}
 
@@ -164,7 +166,7 @@ public class RetryTest implements IRetryAnalyzer {
 	 * PageErrors exists, Then the test will be retried
 	 * 
 	 * @param t
-	 * @return 
+	 * @return
 	 */
 	public int errorHandling(Throwable t) {
 		int maxRetryCount = CrossPlatformProperties.getRetryCount();

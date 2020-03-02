@@ -44,7 +44,7 @@ public class LocalizationHelper {
 		} else if (localFile.endsWith(".json")) {
 			translation = localizeFromJson(key);
 		}
-		if (translation != null && !translation.isEmpty() )
+		if (translation != null && !translation.isEmpty())
 			return translation;
 		return key;
 	}
@@ -92,7 +92,7 @@ public class LocalizationHelper {
 		TestObject.getTestInfo().languageMap = jsonFileToMap(filePath);
 		TestObject.getTestInfo().config.put(CrossPlatformProperties.LOCALIZATION_FILE, fileName);
 	}
-	
+
 	@SuppressWarnings("serial")
 	protected static Map<String, String> jsonStringToMap(String jsonString) {
 		Type type = new TypeToken<Map<String, String>>() {

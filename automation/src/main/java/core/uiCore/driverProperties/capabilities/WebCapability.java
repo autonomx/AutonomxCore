@@ -1,6 +1,5 @@
 package core.uiCore.driverProperties.capabilities;
 
-
 /**
  */
 import java.io.IOException;
@@ -31,7 +30,6 @@ public class WebCapability {
 	private static final String FIREFOX_PREF_PREFIX = "firefox.pref";
 	private static final String WEB_CAPABILITIES_PREFIX = "web.capabilities.";
 
-
 	public DesiredCapabilities capabilities;
 	public ChromeOptions chromeOptions;
 	FirefoxOptions firefoxOptions;
@@ -61,37 +59,39 @@ public class WebCapability {
 		System.setProperty("webdriver.chrome.silentOutput", "true");
 
 		capabilities.setCapability("recordVideo", true);
-		//capabilities.setCapability("takesScreenshot", true);
+		// capabilities.setCapability("takesScreenshot", true);
 		capabilities.setBrowserName(getBrowserName());
 		capabilities.setCapability("name", TestObject.getTestInfo().testName);
-		
+
 		// set web capabilities based on prefix web.capabilities
 		setWebCapabilties();
-		
-		// set chrome or firefox options based on prefix chrome.options or firefox.options
+
+		// set chrome or firefox options based on prefix chrome.options or
+		// firefox.options
 		setOptions();
-		
+
 		// set chrome or firefox preferences based on prefix chrome.pref or firefox.pref
 		setPreferences();
-		
+
 		// set logging for browser to severe only
 		LoggingPreferences logs = new LoggingPreferences();
 		logs.enable(LogType.DRIVER, Level.SEVERE);
 
-		capabilities.setCapability(CapabilityType.LOGGING_PREFS, logs);		
-		
+		capabilities.setCapability(CapabilityType.LOGGING_PREFS, logs);
+
 		return this;
 	}
-	
+
 	/**
-	 * set capabilties with prefix android.capabilties.
-	 * eg. android.capabilties.fullReset="false
-	 * iterates through all property values with such prefix And adds them to android desired capabilities
-	 * @return 
+	 * set capabilties with prefix android.capabilties. eg.
+	 * android.capabilties.fullReset="false iterates through all property values
+	 * with such prefix And adds them to android desired capabilities
+	 * 
+	 * @return
 	 */
 	public DesiredCapabilities setWebCapabilties() {
-		
-		// get all keys from config 
+
+		// get all keys from config
 		Map<String, Object> propertiesMap = TestObject.getTestInfo().config;
 
 		// load config/properties values from entries with "android.capabilties." prefix
@@ -101,15 +101,16 @@ public class WebCapability {
 				String fullKey = entry.getKey().toString();
 				String key = fullKey.substring(fullKey.lastIndexOf(".") + 1).trim();
 				String value = entry.getValue().toString().trim();
-				
+
 				capabilities.setCapability(key, value);
 			}
 		}
 		return capabilities;
 	}
-	
+
 	/**
 	 * set preferences with prefix chrome.pref. or firefox.pref.
+	 * 
 	 * @return
 	 */
 	private DesiredCapabilities setPreferences() {
@@ -117,39 +118,37 @@ public class WebCapability {
 		// get all keys from config
 		Map<String, Object> propertiesMap = TestObject.getTestInfo().config;
 		Map<String, Object> chromePreferences = new HashMap<>();
-		
+
 		FirefoxProfile fireFoxProfile = new FirefoxProfile();
-		
+
 		// load config/properties values from entries with "chrome.pref." or
 		// "firefox.pref." prefix
 		for (Entry<String, Object> entry : propertiesMap.entrySet()) {
-			
+
 			// if starts with chrome.pref or firefox.pref prefix
-			boolean isPref = entry.getKey().toString().startsWith(CHROME_PREF_PREFIX) 
+			boolean isPref = entry.getKey().toString().startsWith(CHROME_PREF_PREFIX)
 					|| entry.getKey().toString().startsWith(FIREFOX_PREF_PREFIX);
-			
+
 			if (isPref) {
 				String fullKey = entry.getKey().toString();
 				String[] split = fullKey.split("pref.");
 				String key = split[1].trim();
 				String value = entry.getValue().toString().trim();
 				if (isChrome() && fullKey.contains(CHROME_PREF_PREFIX)) {
-					chromePreferences.put(key, value);	
+					chromePreferences.put(key, value);
 				}
-				
+
 				else if (isFirefox() && fullKey.contains(FIREFOX_PREF_PREFIX)) {
-					fireFoxProfile.setPreference(key,value);
+					fireFoxProfile.setPreference(key, value);
 				}
 
 			}
 		}
-		
-		
+
 		if (isChrome()) {
 			chromeOptions.setExperimentalOption("prefs", chromePreferences);
 			capabilities.setCapability(ChromeOptions.CAPABILITY, chromeOptions);
-		}
-		else if (isFirefox()) {
+		} else if (isFirefox()) {
 			firefoxOptions.setProfile(fireFoxProfile);
 			capabilities.setCapability(FirefoxOptions.FIREFOX_OPTIONS, firefoxOptions);
 		}
@@ -157,14 +156,13 @@ public class WebCapability {
 		return capabilities;
 	}
 
-	
 	/**
-	 * set chrome options with prefix chrome.options
-	 * set firefox options with prefix firefox.options
-	 * https://peter.sh/experiments/chromium-command-line-switches/
-	 * eg. chrome.options="--start-maximized"
-	 * iterates through all property values with such prefix And adds them to android desired capabilities
-	 * @return 
+	 * set chrome options with prefix chrome.options set firefox options with prefix
+	 * firefox.options https://peter.sh/experiments/chromium-command-line-switches/
+	 * eg. chrome.options="--start-maximized" iterates through all property values
+	 * with such prefix And adds them to android desired capabilities
+	 * 
+	 * @return
 	 */
 	private DesiredCapabilities setOptions() {
 
@@ -174,11 +172,11 @@ public class WebCapability {
 		// load config/properties values from entries with "chrome.options." or
 		// "firefox.options." prefix
 		for (Entry<String, Object> entry : propertiesMap.entrySet()) {
-			
+
 			// if starts with chrome.options or firefox.options prefix
-			boolean isOption = entry.getKey().toString().startsWith(CHROME_OPTIONS_PREFIX) 
+			boolean isOption = entry.getKey().toString().startsWith(CHROME_OPTIONS_PREFIX)
 					|| entry.getKey().toString().startsWith(FIREFOX_OPTIONS_PREFIX);
-			
+
 			if (isOption) {
 				String fullKey = entry.getKey().toString();
 				String[] split = fullKey.split("options.");
@@ -228,22 +226,24 @@ public class WebCapability {
 		String value = Config.getValue("web.browserType");
 		return Enum.valueOf(BrowserType.class, value);
 	}
-	
+
 	public String getBrowserName() {
 		String browsername = getBrowser().toString().toLowerCase();
-		browsername =  browsername.replace("_", "");
-		
+		browsername = browsername.replace("_", "");
+
 		// account for headless browsers
-		if(browsername.contains("chrome")) browsername = "chrome";
-		if(browsername.contains("firefox")) browsername = "firefox";
+		if (browsername.contains("chrome"))
+			browsername = "chrome";
+		if (browsername.contains("firefox"))
+			browsername = "firefox";
 
 		return browsername;
 	}
-	
+
 	public boolean isChrome() {
 		return getBrowserName().equals("chrome");
 	}
-	
+
 	public boolean isFirefox() {
 		return getBrowserName().equals("firefox");
 	}

@@ -12,15 +12,15 @@ import core.support.annotation.helper.PackageHelper;
 import core.support.annotation.processor.MainGenerator;
 
 public class ConfigManager {
-	
-	public static void writeConfigManagerClass()  {
+
+	public static void writeConfigManagerClass() {
 		try {
 			writeConfigModuleClassImplementation();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private static void writeConfigModuleClassImplementation() throws IOException {
 		Logger.debug("start generating config module class");
 
@@ -29,9 +29,10 @@ public class ConfigManager {
 			return;
 
 		// create file: ConfigManager.java
-		JavaFileObject fileObject = MainGenerator.PROCESS_ENV.getFiler().createSourceFile(PackageHelper.CONFIG_MANAGER_PATH + "." + PackageHelper.CONFIG_MANAGER_CLASS);
+		JavaFileObject fileObject = MainGenerator.PROCESS_ENV.getFiler()
+				.createSourceFile(PackageHelper.CONFIG_MANAGER_PATH + "." + PackageHelper.CONFIG_MANAGER_CLASS);
 		FileCreatorHelper.CONFIG_MODULE_FILE_OBJECT = fileObject;
-		
+
 		BufferedWriter bw = new BufferedWriter(fileObject.openWriter());
 		Date currentDate = new Date();
 		bw.append("/**Auto generated code,don't modify it.\n");
@@ -43,44 +44,32 @@ public class ConfigManager {
 		bw.newLine();
 		bw.newLine();
 
-	/*
-		package configManager;
-		
-		import core.helpers.Helper;
-		
-		public class ConfigManager {
-			
-			String value;
-			String key;
-			
-			public ConfigManager(String key, String val) {
-				this.key = key;
-				this.value = val;
-			}
-		
-			public String toString() {
-				return this.value.toString();
-			}
-			
-			public boolean toBoolean() {
-				if(!(this.value instanceof Boolean))
-					Helper.assertFalse(this.value + " is not a Boolean value" );
-				return (boolean) this.value;
-			}
-			
-			public int toInt() {
-				if(!(this.value instanceof Integer))
-					Helper.assertFalse(this.value + " is not an Integer value" );
-				return (Integer) this.value;
-			}
-			
-			public void setValue(String value) {
-				Config.putValue(key, value);
-			}
-		}
-		*/
-		bw.append("import core.helpers.Helper;"+ "\n");
-		bw.append("import core.support.configReader.Config;"+ "\n");
+		/*
+		 * package configManager;
+		 * 
+		 * import core.helpers.Helper;
+		 * 
+		 * public class ConfigManager {
+		 * 
+		 * String value; String key;
+		 * 
+		 * public ConfigManager(String key, String val) { this.key = key; this.value =
+		 * val; }
+		 * 
+		 * public String toString() { return this.value.toString(); }
+		 * 
+		 * public boolean toBoolean() { if(!(this.value instanceof Boolean))
+		 * Helper.assertFalse(this.value + " is not a Boolean value" ); return (boolean)
+		 * this.value; }
+		 * 
+		 * public int toInt() { if(!(this.value instanceof Integer))
+		 * Helper.assertFalse(this.value + " is not an Integer value" ); return
+		 * (Integer) this.value; }
+		 * 
+		 * public void setValue(String value) { Config.putValue(key, value); } }
+		 */
+		bw.append("import core.helpers.Helper;" + "\n");
+		bw.append("import core.support.configReader.Config;" + "\n");
 		bw.newLine();
 		bw.newLine();
 
@@ -90,7 +79,7 @@ public class ConfigManager {
 		bw.append("	String value;" + "\n");
 		bw.newLine();
 		bw.append("	public ConfigManager(String key, String val) {" + "\n");
-		bw.append("		this.key = key;" + "\n");		
+		bw.append("		this.key = key;" + "\n");
 		bw.append("		this.value = val;" + "\n");
 		bw.append("	}" + "\n");
 		bw.newLine();
@@ -119,12 +108,12 @@ public class ConfigManager {
 		bw.append("	public void setValue(Object value) {" + "\n");
 		bw.append("		Config.putValue(key, value.toString());" + "\n");
 		bw.append("	}" + "\n");
-		
+
 		bw.append("}\n");
-		
+
 		bw.flush();
 		bw.close();
-		
+
 		Logger.debug("complete generating config manager class");
 
 	}

@@ -15,15 +15,15 @@ import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PackageHelper;
 
 public class ModuleManager {
-	
-	public static void writeModuleManagerClass(Map<String, List<Element>> panelMap)  {
+
+	public static void writeModuleManagerClass(Map<String, List<Element>> panelMap) {
 		try {
 			writeModuleManagerClassImplementation(panelMap);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private static void writeModuleManagerClassImplementation(Map<String, List<Element>> panelMap) throws IOException {
 		Logger.debug("start generating module manager class");
 
@@ -63,15 +63,16 @@ public class ModuleManager {
 		// add panel declarations
 		for (Entry<String, List<Element>> entry : panelMap.entrySet()) {
 			Element firstElement = entry.getValue().get(0);
-			bw.append("	public " + PackageHelper.getPackagePath(firstElement) + "." + PackageHelper.PANEL_MANAGER_CLASS + " " + entry.getKey()
-					+ " = new " + PackageHelper.getPackagePath(firstElement) + "." + "PanelManager" + "();\n");
+			bw.append("	public " + PackageHelper.getPackagePath(firstElement) + "." + PackageHelper.PANEL_MANAGER_CLASS
+					+ " " + entry.getKey() + " = new " + PackageHelper.getPackagePath(firstElement) + "."
+					+ "PanelManager" + "();\n");
 		}
 
 		bw.append("}\n");
 
 		bw.flush();
 		bw.close();
-		
+
 		Logger.debug("complete generating module manager class");
 
 	}

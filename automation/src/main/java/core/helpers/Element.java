@@ -12,10 +12,9 @@ import core.uiCore.webElement.ImpEnhancedWebElement;
  *
  */
 public class Element {
-	
-	
+
 	public enum LocatorType {
-	    css, xpath, id, classType, accessibiliy, mobileClass, name
+		css, xpath, id, classType, accessibiliy, mobileClass, name
 	}
 
 	/**
@@ -36,12 +35,12 @@ public class Element {
 	 * @param parent
 	 * @return
 	 */
-	
+
 	protected static EnhancedWebElement findElements(EnhancedBy parent, int parentIndex, EnhancedBy child) {
 
 		return new ImpEnhancedWebElement(parent, parentIndex, AbstractDriver.getWebDriver(), child);
 	}
-	
+
 	protected static EnhancedWebElement findElements(EnhancedBy parent, EnhancedBy child) {
 
 		return new ImpEnhancedWebElement(parent, 0, AbstractDriver.getWebDriver(), child);
@@ -70,10 +69,10 @@ public class Element {
 
 		return new EnhancedBy().byId(element, name);
 	}
-	
-	
+
 	/**
 	 * get element by name
+	 * 
 	 * @param element
 	 * @param name
 	 * @return
@@ -94,7 +93,6 @@ public class Element {
 
 		return new EnhancedBy().byXpath(element, name);
 	}
-	
 
 	public static EnhancedBy byTextXpath(String element, String name) {
 

@@ -257,7 +257,7 @@ public class RabbitMqInterface {
 		if (!outboundQueue.isEmpty())
 			queueName = outboundQueue;
 
-		if(isDeclareQueue)
+		if (isDeclareQueue)
 			channel.queueDeclare(queueName, queueDurable, false, false, null);
 
 		String exchangeName = Config.getValue(RABBIT_MQ_EXCHANGE);
@@ -275,19 +275,18 @@ public class RabbitMqInterface {
 
 		GetResponse delivery = channel.basicGet(queueName, true);
 
-		if(delivery != null) {
-	    	String messageString = new String(delivery.getBody(), "UTF-8");
+		if (delivery != null) {
+			String messageString = new String(delivery.getBody(), "UTF-8");
 
-	    	 MessageObject message = new MessageObject()
-	    			 .withMessageType(messageType.RABBITMQ)
-	    			 .withMessageId(delivery.getProps().getMessageId())
-	    			 .withCorrelationId(delivery.getProps().getCorrelationId())
-	    			 .withMessage(messageString);
-	    	 
-	        if(message!=null) {
-		        TestLog.logPass("Received message with Id: " + message.getMessageId() + " message: "  + message.getMessage());
-		        MessageObject.outboundMessages.put(message, true);
-	        }
+			MessageObject message = new MessageObject().withMessageType(messageType.RABBITMQ)
+					.withMessageId(delivery.getProps().getMessageId())
+					.withCorrelationId(delivery.getProps().getCorrelationId()).withMessage(messageString);
+
+			if (message != null) {
+				TestLog.logPass(
+						"Received message with Id: " + message.getMessageId() + " message: " + message.getMessage());
+				MessageObject.outboundMessages.put(message, true);
+			}
 		}
 	}
 

@@ -17,7 +17,7 @@ public class ImageProcessingHelper {
 	static final Object ai = new Object();
 
 	public static final String IMAGE_PATH = "testImages/";
-	
+
 	/**
 	 * click based on image using Sikuli path base is resource folder
 	 * 

@@ -25,7 +25,6 @@ public class Authentication {
 	public static final String NTLM_AUTHORIZATION = "NTLM";
 	public static final String AUTHENTICATION_DISABLE = "authentication.disabled";
 
-
 	public static final String AUTHENTICATION = "auth";
 
 	/**
@@ -38,9 +37,9 @@ public class Authentication {
 
 		if (serviceObject == null)
 			Helper.assertFalse("apiobject is null");
-		
+
 		// if authentication is disabled, return
-		if(Config.getBooleanValue(AUTHENTICATION_DISABLE))
+		if (Config.getBooleanValue(AUTHENTICATION_DISABLE))
 			return;
 
 		// set timeout from api config
@@ -107,7 +106,7 @@ public class Authentication {
 			List<String> credentials = new ArrayList<String>();
 			credentials.add(username);
 			credentials.add(password);
-			
+
 			// store basic request in config
 			saveOutboundParameter(serviceObject, credentials);
 			break;
@@ -117,7 +116,7 @@ public class Authentication {
 			password = parameterMap.get("password");
 			String workstation = parameterMap.get("workstation");
 			String domain = parameterMap.get("domain");
-			
+
 			credentials = new ArrayList<String>();
 			credentials.add(username);
 			credentials.add(password);
@@ -149,10 +148,10 @@ public class Authentication {
 	}
 
 	private static Map<String, String> getParameters(ServiceObject serviceObject) {
-		
+
 		Map<String, String> parameterMap = new HashMap<String, String>();
-		
-		if(serviceObject.getRequestBody().isEmpty())
+
+		if (serviceObject.getRequestBody().isEmpty())
 			return parameterMap;
 
 		String[] formData = serviceObject.getRequestBody().split(",");
@@ -188,32 +187,34 @@ public class Authentication {
 
 		return request;
 	}
-	
+
 	/**
 	 * save authorization object in user defined variables with format:
-	 * AUTH:<$variable> 
-	 * Authorization is stored in variable
+	 * AUTH:<$variable> Authorization is stored in variable
+	 * 
 	 * @param serviceObject
 	 * @param authorization
 	 */
 	private static void saveOutboundParameter(ServiceObject serviceObject, Object authorization) {
 		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getOutputParams());
-		
-		// fail if incorrect format for AUTH:<$variable>
-		if(keywords.isEmpty()) Helper.assertFalse("Autehntication value must be stored in a variable. eg. " + AUTHENTICATION + ":<$variable>" );
-		if (!keywords.get(0).key.equals(AUTHENTICATION)) 
-			Helper.assertFalse("Authentication storing format: " +  AUTHENTICATION + ":<$variable>");
-		
-		KeyValue keyword = keywords.get(0);
-			// fail if value is wrong format
-			if (!keyword.value.toString().startsWith("<") || !keyword.value.toString().contains("$")
-					|| !keyword.value.toString().endsWith(">"))
-				Helper.assertFalse("variable placement must of format path: <$variable>. invalid value: "
-						+ keyword.value.toString());
 
-			String key = (String) keyword.value;
-			key = key.replace("$", "").replace("<", "").replace(">", "").trim();
-			Config.putValue(key, authorization);
+		// fail if incorrect format for AUTH:<$variable>
+		if (keywords.isEmpty())
+			Helper.assertFalse(
+					"Autehntication value must be stored in a variable. eg. " + AUTHENTICATION + ":<$variable>");
+		if (!keywords.get(0).key.equals(AUTHENTICATION))
+			Helper.assertFalse("Authentication storing format: " + AUTHENTICATION + ":<$variable>");
+
+		KeyValue keyword = keywords.get(0);
+		// fail if value is wrong format
+		if (!keyword.value.toString().startsWith("<") || !keyword.value.toString().contains("$")
+				|| !keyword.value.toString().endsWith(">"))
+			Helper.assertFalse(
+					"variable placement must of format path: <$variable>. invalid value: " + keyword.value.toString());
+
+		String key = (String) keyword.value;
+		key = key.replace("$", "").replace("<", "").replace(">", "").trim();
+		Config.putValue(key, authorization);
 	}
 
 }

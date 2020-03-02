@@ -20,11 +20,11 @@ import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PackageHelper;
 
 public class DataClass {
-	
+
 	public static JavaFileObject CSV_File_Object = null;
 	public static String MODULE_ROOT = "module";
 	public static String DATA_ROOT = "data";
-	
+
 	public static void writeDataClass(Map<String, List<Element>> panelMap) {
 		try {
 			writeDataClassImplementation(panelMap);
@@ -50,8 +50,7 @@ public class DataClass {
 
 		Logger.debug("<<<< completed generating data class >>>>>");
 	}
-	  
-		
+
 //	package data;
 //
 //	public class Data {
@@ -59,10 +58,10 @@ public class DataClass {
 //		public static androidApp androidApp = new androidApp();
 //	}
 	private static void writeDataClass(Set<String> modules) throws Exception {
-		
+
 		String filePath = PackageHelper.DATA_PATH + "." + StringUtils.capitalize(DATA_ROOT);
 		JavaFileObject fileObject = FileCreatorHelper.createFileAbsolutePath(filePath);
-		
+
 		BufferedWriter bw = new BufferedWriter(fileObject.openWriter());
 
 		Date currentDate = new Date();
@@ -71,43 +70,44 @@ public class DataClass {
 		bw.append("* Date  And Time     ---- > " + currentDate.toString() + "\n");
 		bw.append("*");
 		bw.append("**/\n\n\n\n");
-		bw.append("package " +  DATA_ROOT + ";\n");
+		bw.append("package " + DATA_ROOT + ";\n");
 		bw.newLine();
 		bw.newLine();
-		
+
 		// import data.webApp.webApp;
-		for(String module : modules) {
-			bw.append("import " + DATA_ROOT + "." + module + "." +  module + ";" + "\n" );
+		for (String module : modules) {
+			bw.append("import " + DATA_ROOT + "." + module + "." + module + ";" + "\n");
 		}
 		bw.newLine();
 		bw.newLine();
-		
+
 		bw.append("public class " + StringUtils.capitalize(DATA_ROOT) + " {" + "\n");
 		bw.newLine();
 		bw.newLine();
-		
-		for(String module : modules) {
+
+		for (String module : modules) {
 			bw.append("    public static " + module + " " + module + " = new " + module + "();" + "\n");
 		}
-		
+
 		bw.newLine();
 		bw.newLine();
 		bw.append("}\n");
 
 		bw.flush();
-		bw.close();	
+		bw.close();
 	}
-	
-	  /**
-	   * gets a list of modules from data object map
-	   * @param dataObjectMap
-	   * @return
-	   */
-	  private static Set<String> convertDataObjectToSet(Map<String, List<Element>> dataObjectMap) {
-		  Set<String> modules = new TreeSet<>();
-		  for (Entry<String, List<Element>> entry : dataObjectMap.entrySet()) {
-			  modules.add(entry.getKey());
-		  }
-		  return modules;
-	  }
+
+	/**
+	 * gets a list of modules from data object map
+	 * 
+	 * @param dataObjectMap
+	 * @return
+	 */
+	private static Set<String> convertDataObjectToSet(Map<String, List<Element>> dataObjectMap) {
+		Set<String> modules = new TreeSet<>();
+		for (Entry<String, List<Element>> entry : dataObjectMap.entrySet()) {
+			modules.add(entry.getKey());
+		}
+		return modules;
+	}
 }

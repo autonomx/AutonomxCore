@@ -19,12 +19,11 @@ import core.support.annotation.helper.PackageHelper;
 import core.support.annotation.helper.annotationMap.DataMapHelper;
 
 public class ModuleClass {
-	
+
 	public static JavaFileObject CSV_File_Object = null;
 	public static String MODULE_ROOT = "module";
 	public static String DATA_ROOT = "data";
 
-	
 	public static void writeModuleClass(Map<String, List<Element>> panelMap) {
 		try {
 			writeModuleClassImplementation(panelMap);
@@ -32,7 +31,7 @@ public class ModuleClass {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private static void writeModuleClassImplementation(Map<String, List<Element>> dataObjectMap) throws Exception {
 
 		Logger.debug("<<<< start generating data objects module classes >>>>");
@@ -44,16 +43,18 @@ public class ModuleClass {
 		Logger.debug("<<<< completed generating data objects module classes >>>>");
 
 	}
-	
+
 	/**
 	 * write module class, initiating all csv data files
+	 * 
 	 * @param files
 	 * @throws Exception
 	 */
-	private static void writeModuleClasses(List<File> files, Map<String, List<Element>> dataObjectMap) throws Exception {
-		
+	private static void writeModuleClasses(List<File> files, Map<String, List<Element>> dataObjectMap)
+			throws Exception {
+
 		Map<String, List<File>> moduleMap = DataMapHelper.getDataModuleMap(files);
-		
+
 		// convert both maps (csv, data object) to common map type for processing
 		Map<String, List<String>> simpleModuleMap = convertCsvModuleMap(moduleMap);
 
@@ -61,51 +62,45 @@ public class ModuleClass {
 
 		// combine both maps
 		Map<String, List<String>> combinedMap = DataMapHelper.mergeMaps(simpleModuleMap, simpleDataObjectMap);
-	
-		
+
 		// log data object count
 		Logger.debug("writeModuleClasses: data objects: " + simpleDataObjectMap.size());
-		
+
 		// log csv data object count
 		Logger.debug("writeModuleClasses: csv objects: " + simpleModuleMap.size());
-		
+
 		// log combined data object count
 		Logger.debug("writeModuleClasses: combined data objects: " + combinedMap.size());
-		
+
 		for (Entry<String, List<String>> entry : combinedMap.entrySet()) {
 			writeModuleClass(entry);
 		}
 	}
-	
-	
+
 	/**
-	 * 	// import data module package
-		for (Entry<String, List<Element>> entry : dataObjectMap.entrySet()) {
-			Element firstElement = entry.getValue().get(0);
-			bw.append("import "+ PackageHelper.getPackagePath(firstElement) + ";" + "\n");
-		}
+	 * // import data module package for (Entry<String, List<Element>> entry :
+	 * dataObjectMap.entrySet()) { Element firstElement = entry.getValue().get(0);
+	 * bw.append("import "+ PackageHelper.getPackagePath(firstElement) + ";" +
+	 * "\n"); }
 	 */
 
 	/**
 	 * 
 	 * 
-		package data.webApp;
-		
-		public class webApp {
-			
-			public User login() {
-				return new User();
-			}
-		}
-
+	 * package data.webApp;
+	 * 
+	 * public class webApp {
+	 * 
+	 * public User login() { return new User(); } }
+	 * 
 	 * 
 	 * @param file
 	 * @throws Exception
 	 */
 	private static void writeModuleClass(Entry<String, List<String>> entry) throws Exception {
-		
+
 		String module = entry.getKey();
-		
+
 		Logger.debug("writing module class: " + module);
 
 		// create file: data.webApp.webApp.java
@@ -120,32 +115,30 @@ public class ModuleClass {
 		bw.append("* Date  And Time     ---- > " + currentDate.toString() + "\n");
 		bw.append("*");
 		bw.append("**/\n\n\n\n");
-		bw.append("package " +  DATA_ROOT +"." + module + ";\n");
+		bw.append("package " + DATA_ROOT + "." + module + ";\n");
 		bw.newLine();
 		bw.newLine();
-		
+
 		// import data object classes. csv files do not need imports
-		for(String filename : entry.getValue()) {
-			if(PackageHelper.hasPackagePath(filename)) {
-				bw.append("import " + filename + ";" + "\n" );	
+		for (String filename : entry.getValue()) {
+			if (PackageHelper.hasPackagePath(filename)) {
+				bw.append("import " + filename + ";" + "\n");
 			}
 		}
 		bw.newLine();
 		bw.newLine();
-		
+
 		bw.append("public class " + module + " {" + "\n");
 		bw.newLine();
 		bw.newLine();
-		
-		
-		
+
 //		public User login() {
 //			return new User();
 //		}
-		for(String filename : entry.getValue()) {
+		for (String filename : entry.getValue()) {
 			filename = PackageHelper.getClassName(filename);
-			
-			bw.append("public " + filename + " " +  filename.toLowerCase() +"() {" + "\n" );
+
+			bw.append("public " + filename + " " + filename.toLowerCase() + "() {" + "\n");
 			bw.append("    return new " + filename + "();" + "\n");
 			bw.append("}");
 			bw.newLine();
@@ -154,55 +147,56 @@ public class ModuleClass {
 		bw.newLine();
 		bw.newLine();
 
-
 		bw.append("}\n");
 
 		bw.flush();
-		bw.close();	
-		
+		bw.close();
+
 	}
-	
-	
-	
+
 	/**
-	 * converts csv module map from key:String value: files to key:String ,  value: file names
+	 * converts csv module map from key:String value: files to key:String , value:
+	 * file names
+	 * 
 	 * @param moduleMap
 	 * @return
 	 */
 	private static Map<String, List<String>> convertCsvModuleMap(Map<String, List<File>> moduleMap) {
 		Map<String, List<String>> map = new HashMap<String, List<String>>();
 		List<String> classes = new ArrayList<String>();
-		
+
 		for (Entry<String, List<File>> entry : moduleMap.entrySet()) {
 			classes = new ArrayList<String>();
-			
-			for(File file : entry.getValue()) {
-				String csvName =  file.getName().replaceFirst("[.][^.]+$", "");
+
+			for (File file : entry.getValue()) {
+				String csvName = file.getName().replaceFirst("[.][^.]+$", "");
 				classes.add(csvName);
 			}
 			map.put(entry.getKey(), classes);
-		}	
+		}
 		return map;
 	}
-	
+
 	/**
-	 * converts data object module map from key:String, value: element to key:String , value: file names
+	 * converts data object module map from key:String, value: element to key:String
+	 * , value: file names
+	 * 
 	 * @param moduleMap
 	 * @return
 	 */
 	private static Map<String, List<String>> convertDataObjectModuleMap(Map<String, List<Element>> moduleMap) {
 		Map<String, List<String>> map = new HashMap<String, List<String>>();
 		List<String> classes = new ArrayList<String>();
-		
+
 		for (Entry<String, List<Element>> entry : moduleMap.entrySet()) {
 			classes = new ArrayList<String>();
-			
-			for(Element element : entry.getValue()) {
+
+			for (Element element : entry.getValue()) {
 				String classname = element.asType().toString();
 				classes.add(classname);
 			}
 			map.put(entry.getKey(), classes);
-		}	
+		}
 		return map;
 	}
 }

@@ -8,13 +8,13 @@ public class KeyValue {
 
 	public KeyValue() {
 	}
-	
+
 	public KeyValue(String key, String position, Object value) {
 		this.key = key;
 		this.position = position;
 		this.value = value;
 	}
-	
+
 	public KeyValue(String key, String position, String value) {
 		this.key = key;
 		this.position = position;
@@ -25,18 +25,18 @@ public class KeyValue {
 		this.key = key;
 		this.value = value;
 	}
-	
+
 	public KeyValue(String key, String value) {
 		this.key = key;
 		this.value = value;
 	}
-	
+
 	public void add(String key, String position, Object value) {
 		this.key = key;
 		this.position = position;
 		this.value = value;
 	}
-	
+
 	public void add(String key, String position, String value) {
 		this.key = key;
 		this.position = position;
@@ -47,7 +47,7 @@ public class KeyValue {
 		this.key = key;
 		this.value = value;
 	}
-	
+
 	public void add(String key, String value) {
 		this.key = key;
 		this.value = value;

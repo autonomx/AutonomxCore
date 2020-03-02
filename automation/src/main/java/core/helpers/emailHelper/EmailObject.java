@@ -54,22 +54,22 @@ public class EmailObject {
 		this.body = body;
 		return this;
 	}
-	
+
 	public EmailObject withSmtpHost(String smtpHost) {
 		this.smtpHost = smtpHost;
 		return this;
 	}
-	
+
 	public EmailObject withSmtpPort(String smtpPort) {
 		this.smtpPort = smtpPort;
 		return this;
 	}
-	
+
 	public EmailObject withSmtpStarttlsEnabled(Boolean smtpStarttlsEnabled) {
 		this.smtpStarttlsEnabled = smtpStarttlsEnabled;
 		return this;
 	}
-	
+
 	public EmailObject withSmtpAuth(Boolean smtpAuth) {
 		this.smtpAuth = smtpAuth;
 		return this;

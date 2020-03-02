@@ -1,4 +1,4 @@
- package core.support.objects;
+package core.support.objects;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,8 +38,8 @@ public class ServiceObject {
 	public ServiceObject setServiceObject(String TestSuite, String TestCaseID, String RunFlag, String Description,
 			String InterfaceType, String UriPath, String ContentType, String Method, String Option,
 			String RequestHeaders, String TemplateFile, String RequestBody, String OutputParams, String RespCodeExp,
-			 String ExpectedResponse, String TcComments,
-			String tcName, String tcIndex, String testType, Object serviceSteps) {
+			String ExpectedResponse, String TcComments, String tcName, String tcIndex, String testType,
+			Object serviceSteps) {
 		this.TestSuite = TestSuite;
 		this.TestCaseID = TestCaseID;
 		this.RunFlag = RunFlag;
@@ -60,12 +60,12 @@ public class ServiceObject {
 		this.tcIndex = tcIndex;
 		this.testType = testType;
 		this.serviceSteps = serviceSteps;
-		
+
 		return this;
 	}
-	
+
 	public ServiceObject setServiceObject(Object[] testData) {
-		
+
 		this.TestSuite = getArrayValue(testData, 0);
 		this.TestCaseID = getArrayValue(testData, 1);
 		this.RunFlag = getArrayValue(testData, 2);
@@ -86,255 +86,254 @@ public class ServiceObject {
 		this.tcIndex = getArrayValue(testData, 17);
 		this.testType = getArrayValue(testData, 18);
 		this.serviceSteps = getObjectValue(testData, 19);
-		
+
 		return this;
 	}
-	
+
 	private String getArrayValue(Object[] testData, int index) {
-		if(index >= testData.length)
+		if (index >= testData.length)
 			return StringUtils.EMPTY;
-		
+
 		String value = testData[index].toString();
-		
-		if(StringUtils.isBlank(value))
+
+		if (StringUtils.isBlank(value))
 			return StringUtils.EMPTY;
 		return value;
 	}
-	
+
 	private Object getObjectValue(Object[] testData, int index) {
-		if(index >= testData.length)
+		if (index >= testData.length)
 			return StringUtils.EMPTY;
-		
+
 		Object value = testData[index];
-		
-		if(StringUtils.isBlank(value.toString()))
+
+		if (StringUtils.isBlank(value.toString()))
 			return StringUtils.EMPTY;
 		return value;
 	}
-			
-	
+
 // getters setters
 //-----------------------------------------------------------------------------------------------------------------------	
-	public ServiceObject withTestSuite(String testSuite){
+	public ServiceObject withTestSuite(String testSuite) {
 		this.TestSuite = testSuite;
 		return this;
 	}
-	
-	public String getTestSuite(){
+
+	public String getTestSuite() {
 		return this.TestSuite;
 	}
-	
-	public ServiceObject withTestCaseID(String testCaseID){
+
+	public ServiceObject withTestCaseID(String testCaseID) {
 		this.TestCaseID = testCaseID;
 		return this;
 	}
-	
-	public String getTestCaseID(){
+
+	public String getTestCaseID() {
 		return this.TestCaseID;
 	}
-	
-	public ServiceObject withRunFlag(String runFlag){
+
+	public ServiceObject withRunFlag(String runFlag) {
 		this.RunFlag = runFlag;
 		return this;
 	}
-	
-	public String getRunFlag(){
+
+	public String getRunFlag() {
 		return this.RunFlag.trim();
 	}
-	
-	public ServiceObject withDescription(String Description){
+
+	public ServiceObject withDescription(String Description) {
 		this.Description = Description;
 		return this;
 	}
-	
-	public String getDescription(){
+
+	public String getDescription() {
 		return this.Description;
 	}
-	
-	public ServiceObject withInterfaceType(String InterfaceType){
+
+	public ServiceObject withInterfaceType(String InterfaceType) {
 		this.InterfaceType = InterfaceType;
 		return this;
 	}
-	
-	public String getInterfaceType(){
+
+	public String getInterfaceType() {
 		return this.InterfaceType.trim();
 	}
-	
-	public ServiceObject withUriPath(String UriPath){
+
+	public ServiceObject withUriPath(String UriPath) {
 		this.UriPath = UriPath;
 		return this;
 	}
-	
-	public String getUriPath(){
+
+	public String getUriPath() {
 		return this.UriPath.trim();
 	}
-	
-	public ServiceObject withContentType(String ContentType){
+
+	public ServiceObject withContentType(String ContentType) {
 		this.ContentType = ContentType;
 		return this;
 	}
-	
-	public String getContentType(){
+
+	public String getContentType() {
 		return this.ContentType.trim();
 	}
-	
-	public ServiceObject withMethod(String Method){
+
+	public ServiceObject withMethod(String Method) {
 		this.Method = Method;
 		return this;
 	}
-	
-	public String getMethod(){
+
+	public String getMethod() {
 		return normalize(this.Method);
 	}
-	
-	public ServiceObject withOption(String Option){
+
+	public ServiceObject withOption(String Option) {
 		this.Option = Option;
 		return this;
 	}
-	
-	public ServiceObject withParent(String parent){
+
+	public ServiceObject withParent(String parent) {
 		this.parent = parent;
 		return this;
 	}
-	
-	public String getParent(){
-		if(StringUtils.isBlank(this.parent))
+
+	public String getParent() {
+		if (StringUtils.isBlank(this.parent))
 			return TestObject.DEFAULT_TEST;
 		return this.parent;
 	}
-	
-	public String getOption(){
+
+	public String getOption() {
 		return this.Option.trim();
 	}
-	
-	public ServiceObject withRequestHeaders(String RequestHeaders){
+
+	public ServiceObject withRequestHeaders(String RequestHeaders) {
 		this.RequestHeaders = RequestHeaders;
 		return this;
 	}
-	
-	public String getRequestHeaders(){
+
+	public String getRequestHeaders() {
 		return normalize(this.RequestHeaders);
 	}
-	
-	public ServiceObject withTemplateFile(String TemplateFile){
+
+	public ServiceObject withTemplateFile(String TemplateFile) {
 		this.TemplateFile = TemplateFile;
 		return this;
 	}
-	
-	public String getTemplateFile(){
+
+	public String getTemplateFile() {
 		return this.TemplateFile.trim();
 	}
-	
-	public ServiceObject withRequestBody(String RequestBody){
+
+	public ServiceObject withRequestBody(String RequestBody) {
 		this.RequestBody = RequestBody;
 		return this;
 	}
-	
-	public ServiceObject withResponse(Response response){
+
+	public ServiceObject withResponse(Response response) {
 		this.response = response;
 		return this;
 	}
-	
-	public ServiceObject withRequest(RequestSpecification request){
+
+	public ServiceObject withRequest(RequestSpecification request) {
 		this.request = request;
 		return this;
 	}
-	
-	public ServiceObject withErrorMessages(List<String> errorMessages){
+
+	public ServiceObject withErrorMessages(List<String> errorMessages) {
 		this.errorMessages = errorMessages;
 		return this;
 	}
-	
-	public ServiceObject withOutputParams(String OutputParams){
+
+	public ServiceObject withOutputParams(String OutputParams) {
 		this.OutputParams = OutputParams;
 		return this;
 	}
-	
-	public String getOutputParams(){
+
+	public String getOutputParams() {
 		return normalize(this.OutputParams);
 	}
-	
-	public ServiceObject withRespCodeExp(String RespCodeExp){
+
+	public ServiceObject withRespCodeExp(String RespCodeExp) {
 		this.RespCodeExp = RespCodeExp;
 		return this;
 	}
-	
-	public String getRespCodeExp(){
+
+	public String getRespCodeExp() {
 		return this.RespCodeExp.trim();
 	}
-	
-	public ServiceObject withExpectedResponse(String ExpectedResponse){
+
+	public ServiceObject withExpectedResponse(String ExpectedResponse) {
 		this.ExpectedResponse = ExpectedResponse;
 		return this;
 	}
-	
-	public String getExpectedResponse(){
+
+	public String getExpectedResponse() {
 		return this.ExpectedResponse;
 	}
-	
-	public ServiceObject withTcComments(String TcComments){
+
+	public ServiceObject withTcComments(String TcComments) {
 		this.TcComments = TcComments;
 		return this;
 	}
-	
-	public String getTcComments(){
+
+	public String getTcComments() {
 		return this.TcComments;
 	}
-	
-	public ServiceObject withTcName(String tcName){
+
+	public ServiceObject withTcName(String tcName) {
 		this.tcName = tcName.trim();
 		return this;
 	}
-	
-	public Response getResponse(){	
+
+	public Response getResponse() {
 		return this.response;
 	}
-	
+
 	public RequestSpecification getRequest() {
 		return this.request;
 	}
-	
-	public List<String> getErrorMessages(){	
+
+	public List<String> getErrorMessages() {
 		return this.errorMessages;
 	}
-	
-	public String getRequestBody(){
+
+	public String getRequestBody() {
 		return normalize(this.RequestBody);
 	}
-	
-	public String getTcName(){
+
+	public String getTcName() {
 		return this.tcName.trim();
 	}
-	
-	public String getTcType(){
+
+	public String getTcType() {
 		return this.testType;
 	}
-	
-	public Object getServiceSteps(){
+
+	public Object getServiceSteps() {
 		Object[] Objects = (Object[]) this.serviceSteps;
-		if(Objects != null && Objects.length > 0)
+		if (Objects != null && Objects.length > 0)
 			return Objects[0];
 		return null;
 	}
-	
-	public ServiceObject withTcIndex(String tcIndex){
+
+	public ServiceObject withTcIndex(String tcIndex) {
 		this.tcIndex = tcIndex;
 		return this;
 	}
-	
-	public String getTcIndex(){
+
+	public String getTcIndex() {
 		return this.tcIndex.split(":")[0];
 	}
-	
-	public String getTcCount(){
+
+	public String getTcCount() {
 		return this.tcIndex.split(":")[1];
 	}
-	
+
 	public static String normalize(String value) {
 		// remove new lines
 		value = value.replaceAll("\\R+", " ");
-		
-		// reduces spaces to single space. eg. "    " to " "
+
+		// reduces spaces to single space. eg. " " to " "
 		value = value.trim().replaceAll(" +", " ");
 		return value.replaceAll("[\\u2018\\u2019]", "'").replaceAll("[\\u201C\\u201D]", "\"");
 	}

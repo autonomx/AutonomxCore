@@ -19,18 +19,13 @@ public class RestApiHelper {
 	 * zzz_, Then gets id of these companies, stores them in companyId variable And
 	 * calls deleteCompany
 	 * 
-	 * @param getApi:
-	 *            api to search for identifier. eg. name containing "zzz"
-	 * @param prefix:
-	 *            value containing in getApi. eg. name containing "zzz"
-	 * @param identifier:
-	 *            api to call to get all values. eg. getCompanies
-	 * @param targetApiId:
-	 *            id used to call target api.eg. id for deleteCompany api
-	 * @param variable:
-	 *            variable the id is stored in csv keyword file. eg companyId
-	 * @param targerApi:
-	 *            api to call. eg. deleteCompany
+	 * @param getApi:      api to search for identifier. eg. name containing "zzz"
+	 * @param prefix:      value containing in getApi. eg. name containing "zzz"
+	 * @param identifier:  api to call to get all values. eg. getCompanies
+	 * @param targetApiId: id used to call target api.eg. id for deleteCompany api
+	 * @param variable:    variable the id is stored in csv keyword file. eg
+	 *                     companyId
+	 * @param targerApi:   api to call. eg. deleteCompany
 	 * @throws JSONException
 	 */
 	protected static void runApiContaining(String identifier, String prefix, String getApi, String targetApiId,
@@ -42,7 +37,7 @@ public class RestApiHelper {
 		String responseString = response.body().asString();
 
 		for (int i = 0; i < valueArray.length(); i++) {
-			
+
 			String name = JsonHelper.getJsonValue(responseString, identifier).split(",")[i];
 			String id = JsonHelper.getJsonValue(responseString, targetApiId).split(",")[i];
 
@@ -61,18 +56,13 @@ public class RestApiHelper {
 	 * "id","companyId","deleteCompany") get all companies with name equals test123,
 	 * Then gets id of these companies And calls delete with id
 	 * 
-	 * @param getApi:
-	 *            api to search for identifier. eg. name equals "test123"
-	 * @param value:
-	 *            value containing in getApi. eg. name equals "test123"
-	 * @param identifier:
-	 *            api to call to get all values. eg. getCompanies
-	 * @param targetApiId:
-	 *            id used to call target api.eg. id for deleteCompany api
-	 * @param variable:
-	 *            variable the id is stored in csv keyword file. eg companyId
-	 * @param targerApi:
-	 *            api to call. eg. deleteCompany
+	 * @param getApi:      api to search for identifier. eg. name equals "test123"
+	 * @param value:       value containing in getApi. eg. name equals "test123"
+	 * @param identifier:  api to call to get all values. eg. getCompanies
+	 * @param targetApiId: id used to call target api.eg. id for deleteCompany api
+	 * @param variable:    variable the id is stored in csv keyword file. eg
+	 *                     companyId
+	 * @param targerApi:   api to call. eg. deleteCompany
 	 * @throws JSONException
 	 */
 	protected static void runApiEquals(String identifier, String value, String getApi, String targetApiId,

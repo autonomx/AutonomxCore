@@ -83,7 +83,6 @@ public class ExternalInterface {
 		Object[] parameters = getParameterValues(parameterList);
 		Object[] parameterNames = getParameterNames(parameterList);
 
-
 		String[] methodInfo = classmethod.split("\\.");
 		if (methodInfo.length < 2)
 			Helper.assertFalse("wrong method format. must be class.method");
@@ -103,14 +102,14 @@ public class ExternalInterface {
 		// validate parameter count
 		if (parameterNames.length != paramTypes.length)
 			Helper.assertFalse("number of parameters must match method parameters");
-		
+
 		parameters = convertObjectToMethodType(paramTypes, parameters);
 
 		// call the method with parameters
 		method.invoke(external, parameters);
 		groovyClassLoader.close();
 	}
-	
+
 	/**
 	 * casts objects to object type
 	 * 
@@ -120,13 +119,13 @@ public class ExternalInterface {
 	 */
 	public static Object[] convertObjectToMethodType(Class<?>[] paramTypes, Object[] parameterValues) {
 
-		Object[] paramArr = new Object[parameterValues.length];		
-		
-		for(int i = 0; i < parameterValues.length; i++) {
+		Object[] paramArr = new Object[parameterValues.length];
+
+		for (int i = 0; i < parameterValues.length; i++) {
 			Object parameter = JsonHelper.convertToObject(parameterValues[i].toString(), false);
 			paramArr[i] = (Object) parameter;
 		}
-		
+
 		return paramArr;
 	}
 
@@ -151,11 +150,10 @@ public class ExternalInterface {
 	 * @param methodName
 	 * @return
 	 */
-	public static Class<?>[] getMethodParameterTypes(Class<?> external, String methodName,
-			Object[] parameterList) {
+	public static Class<?>[] getMethodParameterTypes(Class<?> external, String methodName, Object[] parameterList) {
 		Paranamer info = new CachingParanamer(new AnnotationParanamer(new BytecodeReadingParanamer()));
 		List<String> methodList = new ArrayList<String>();
-		
+
 		for (Method m : external.getMethods()) {
 			if (m.getName().equals(methodName)) {
 				String[] parameterNames = info.lookupParameterNames(m);
@@ -170,8 +168,8 @@ public class ExternalInterface {
 
 		}
 		if (!methodList.isEmpty()) {
-			TestLog.logPass("method: " + methodName + "(" +  Arrays.toString(parameterList) + ") not found. methods found: "
-					+ Arrays.toString(methodList.toArray()));
+			TestLog.logPass("method: " + methodName + "(" + Arrays.toString(parameterList)
+					+ ") not found. methods found: " + Arrays.toString(methodList.toArray()));
 		}
 		return null;
 	}
@@ -227,7 +225,7 @@ public class ExternalInterface {
 		Object[] paramArr = new String[parameterList.size()];
 		return parameterList.toArray(paramArr);
 	}
-	
+
 	private static Object[] getParameterNames(List<KeyValue> paramters) {
 		List<Object> parameterList = new ArrayList<Object>();
 		for (KeyValue parameter : paramters) {

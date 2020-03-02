@@ -25,13 +25,10 @@ public class FileUploadHelper {
 
 	/**
 	 * 
-	 * @param location
-	 *            eg. "/jenkins.png" in the seleniumCl folder
-	 * @param fileButton
-	 *            the button to press When selection the file explorer to find the
-	 *            image
-	 * @param accept
-	 *            the accept button.
+	 * @param location   eg. "/jenkins.png" in the seleniumCl folder
+	 * @param fileButton the button to press When selection the file explorer to
+	 *                   find the image
+	 * @param accept     the accept button.
 	 */
 	protected static void uploadAndAcceptFile(String location, EnhancedBy fileButton, EnhancedBy accept) {
 		File file = new File("");
@@ -57,8 +54,7 @@ public class FileUploadHelper {
 	 * 
 	 * @param location
 	 * @param imageButton
-	 * @param images
-	 *            : uploaded image
+	 * @param images      : uploaded image
 	 */
 	protected static void uploadImage(String location, EnhancedBy imageButton, EnhancedBy images) {
 		int imageCount = Helper.list.getListCount(images);

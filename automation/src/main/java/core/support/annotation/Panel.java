@@ -1,7 +1,5 @@
 package core.support.annotation;
 
-
-
 /**
  * 
  */

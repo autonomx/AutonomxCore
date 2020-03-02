@@ -4,6 +4,7 @@ public class MavenReader {
 
 	/**
 	 * gets key value from maven properties. format: -Dkey value
+	 * 
 	 * @param key key in properties file
 	 * @return integer value of property key
 	 */
@@ -17,8 +18,9 @@ public class MavenReader {
 	}
 
 	/**
- 	 * gets the value of the properties file based on key value, And sets default
+	 * gets the value of the properties file based on key value, And sets default
 	 * value if value is missing
+	 * 
 	 * @param key key in properties file
 	 * @return string value of property value
 	 */
@@ -33,6 +35,7 @@ public class MavenReader {
 
 	/**
 	 * gets key value from maven properties. format: -Dkey value
+	 * 
 	 * @param key key in properties file
 	 * @return boolean value of proeprlty value
 	 */

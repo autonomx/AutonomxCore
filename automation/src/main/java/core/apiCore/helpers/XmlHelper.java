@@ -60,7 +60,7 @@ public class XmlHelper {
 			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 			transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
 			transformer.transform(new DOMSource(doc), new StreamResult(sw));
-			
+
 			return sw.toString();
 		} catch (IllegalArgumentException | TransformerException ex) {
 			throw new RuntimeException("Error converting to String", ex);
@@ -182,8 +182,9 @@ public class XmlHelper {
 	}
 
 	/**
-	 * get xpath value form xml string
-	 * test out xpath values at: https://www.freeformatter.com/xpath-tester.html#ad-output
+	 * get xpath value form xml string test out xpath values at:
+	 * https://www.freeformatter.com/xpath-tester.html#ad-output
+	 * 
 	 * @param xml
 	 * @param xpath
 	 * @return result list as string separated by ","
@@ -231,52 +232,55 @@ public class XmlHelper {
 		}
 		return xml;
 	}
-	
+
 	/**
-	 * if request body is empty, return xml template string
-	 * if request body contains xml tag, replace tag with value
-	 * eg. "soi:EquipmentID:1:equip_<@_TIME_17>"
+	 * if request body is empty, return xml template string if request body contains
+	 * xml tag, replace tag with value eg. "soi:EquipmentID:1:equip_<@_TIME_17>"
+	 * 
 	 * @param serviceObject
 	 * @return
 	 */
 	public static String getRequestBodyFromXmlTemplate(ServiceObject serviceObject) {
 		Path templatePath = DataHelper.getTemplateFilePath(serviceObject.getTemplateFile());
 		String xmlFileValue = convertXmlFileToString(templatePath);
-        xmlFileValue = DataHelper.replaceParameters(xmlFileValue);
-        
-		if(serviceObject.getRequestBody().isEmpty()) {
+		xmlFileValue = DataHelper.replaceParameters(xmlFileValue);
+
+		if (serviceObject.getRequestBody().isEmpty()) {
 			return xmlFileValue;
-		}else {
+		} else {
 			return replaceRequestTagValues(serviceObject);
-		}	
+		}
 	}
-	
+
 	/**
 	 * replace tag value in xml string at index
+	 * 
 	 * @param position: starts at 1
 	 * @param tag
 	 * @param value
 	 * @return
 	 */
 	public static String replaceTagValue(String xml, String tag, String value, int position) {
-		xml = replaceGroup("<"+tag+">(.*?)<\\/"+tag+">", xml, 1, position, value);
+		xml = replaceGroup("<" + tag + ">(.*?)<\\/" + tag + ">", xml, 1, position, value);
 		return xml;
 	}
-	
+
 	/**
 	 * replace tag value in xml for all occurrences
+	 * 
 	 * @param xml
 	 * @param tag
 	 * @param value
 	 * @return
 	 */
 	public static String replaceTagValue(String xml, String tag, String value) {
-		xml = xml.replaceAll("<"+tag+">(.*?)<\\/"+tag+">", "<"+tag+">"+ value +"</"+tag+">");
+		xml = xml.replaceAll("<" + tag + ">(.*?)<\\/" + tag + ">", "<" + tag + ">" + value + "</" + tag + ">");
 		return xml;
 	}
 
 	/**
 	 * generic replace value using regex using index
+	 * 
 	 * @param regex
 	 * @param source
 	 * @param groupToReplace
@@ -284,45 +288,51 @@ public class XmlHelper {
 	 * @param replacement
 	 * @return
 	 */
-	public static String replaceGroup(String regex, String source, int groupToReplace, int groupOccurrence, String replacement) {
-	   
-		if(groupOccurrence == 0) Helper.assertFalse("position starts at 1");
-		
+	public static String replaceGroup(String regex, String source, int groupToReplace, int groupOccurrence,
+			String replacement) {
+
+		if (groupOccurrence == 0)
+			Helper.assertFalse("position starts at 1");
+
 		Matcher m = Pattern.compile(regex).matcher(source);
-	    for (int i = 0; i < groupOccurrence; i++)
-	        if (!m.find()) return source; // pattern not met, may also throw an exception here
-	    return new StringBuilder(source).replace(m.start(groupToReplace), m.end(groupToReplace), replacement).toString();
+		for (int i = 0; i < groupOccurrence; i++)
+			if (!m.find())
+				return source; // pattern not met, may also throw an exception here
+		return new StringBuilder(source).replace(m.start(groupToReplace), m.end(groupToReplace), replacement)
+				.toString();
 	}
-	
+
 	/**
-	 * replaces request header tag values 
-	 * eg. "soi:EquipmentID:1:<@_TIME_16>"
-	 * tag: soi:EquipmentID, position: 1, value: <@_TIME_16>
+	 * replaces request header tag values eg. "soi:EquipmentID:1:<@_TIME_16>" tag:
+	 * soi:EquipmentID, position: 1, value: <@_TIME_16>
+	 * 
 	 * @param serviceObject
 	 * @return
 	 */
 	public static String replaceRequestTagValues(ServiceObject serviceObject) {
 		String xmlString = DataHelper.getServiceObjectTemplateString(serviceObject);
 		Helper.assertTrue("xml string is empty", !xmlString.isEmpty());
-		
+
 		// replace parameters
 		xmlString = DataHelper.replaceParameters(xmlString);
-		
+
 		// if request is valid xml, do not update. only key value pair
-		if(isValidXmlString(serviceObject.getRequestBody())){
+		if (isValidXmlString(serviceObject.getRequestBody())) {
 			return serviceObject.getRequestBody();
 		}
 
 		// get key value mapping of header parameters
 		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getRequestBody());
-		for(KeyValue keyword : keywords) {
-			xmlString = replaceTagValue(xmlString, keyword.key, keyword.value.toString(), Integer.valueOf(keyword.position));
+		for (KeyValue keyword : keywords) {
+			xmlString = replaceTagValue(xmlString, keyword.key, keyword.value.toString(),
+					Integer.valueOf(keyword.position));
 		}
 		return xmlString;
 	}
-	
+
 	/**
-	 * get first matching tag value 
+	 * get first matching tag value
+	 * 
 	 * @param requestBody
 	 * @param tag
 	 * @return
@@ -330,9 +340,10 @@ public class XmlHelper {
 	public static String getXmlTagValue(String value, String tag) {
 		return getXmlTagValue(value, tag, 1);
 	}
-	
+
 	/**
-	 * get tag value 
+	 * get tag value
+	 * 
 	 * @param source
 	 * @param tag
 	 * @param position: starts at 1
@@ -341,34 +352,41 @@ public class XmlHelper {
 	public static String getXmlTagValue(String source, String tag, int position) {
 		List<String> values = new ArrayList<String>();
 		try {
-			String patternString = "<"+tag+">(.*?)<\\/"+tag+">";
+			String patternString = "<" + tag + ">(.*?)<\\/" + tag + ">";
 			final Pattern pattern = Pattern.compile(patternString);
 			final Matcher matcher = pattern.matcher(source);
-			while(matcher.find()) {
+			while (matcher.find()) {
 				values.add(matcher.group(1));
-		    }
+			}
 		} catch (Exception e) {
 			e.getMessage();
 		}
-		if(position == 0) Helper.assertFalse("position starts at 1. your position: " + position + ".");
-		if(values.isEmpty()) Helper.assertFalse("tag value: " + tag + " at position: " + position +  " was not found at xml: \n" + source + " \n\n");
-		if(position > values.size()) Helper.assertFalse("position is greater than response size. position: " + position + ". response size: " + values.size() + ". values: " + Arrays.toString(values.toArray()));
+		if (position == 0)
+			Helper.assertFalse("position starts at 1. your position: " + position + ".");
+		if (values.isEmpty())
+			Helper.assertFalse(
+					"tag value: " + tag + " at position: " + position + " was not found at xml: \n" + source + " \n\n");
+		if (position > values.size())
+			Helper.assertFalse("position is greater than response size. position: " + position + ". response size: "
+					+ values.size() + ". values: " + Arrays.toString(values.toArray()));
 		return values.get(position - 1);
 	}
-	
+
 	/**
 	 * return true if file is xml file
+	 * 
 	 * @param filename
 	 * @return
 	 */
 	public static boolean isXmlFile(String filename) {
-		if(filename.toLowerCase().endsWith("xml"))
-				return true;
+		if (filename.toLowerCase().endsWith("xml"))
+			return true;
 		return false;
 	}
-	
+
 	/**
 	 * validates if xml string is valid xml
+	 * 
 	 * @param xmlString
 	 * @return
 	 */
@@ -377,36 +395,41 @@ public class XmlHelper {
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			dbFactory.setValidating(false);
 			dbFactory.setSchema(null);
-			
+
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 			dBuilder.setErrorHandler(new ErrorHandler() {
 				@Override
-				public void warning(SAXParseException exception) throws SAXException {}
+				public void warning(SAXParseException exception) throws SAXException {
+				}
+
 				@Override
-				public void error(SAXParseException exception) throws SAXException {}
+				public void error(SAXParseException exception) throws SAXException {
+				}
+
 				@Override
-				public void fatalError(SAXParseException exception) throws SAXException {			}
-	        });
+				public void fatalError(SAXParseException exception) throws SAXException {
+				}
+			});
 			dBuilder.parse(new InputSource(new StringReader(xmlString)));
 			return true;
 		} catch (Exception e) {
-		    return false;
+			return false;
 		}
 	}
-	
+
 	public static String prettyFormat(String input, int indent) {
-	    try {
-	        Source xmlInput = new StreamSource(new StringReader(input));
-	        StringWriter stringWriter = new StringWriter();
-	        StreamResult xmlOutput = new StreamResult(stringWriter);
-	        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-	        transformerFactory.setAttribute("indent-number", indent);
-	        Transformer transformer = transformerFactory.newTransformer(); 
-	        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-	        transformer.transform(xmlInput, xmlOutput);
-	        return xmlOutput.getWriter().toString();
-	    } catch (Exception e) {
-	        throw new RuntimeException(e); // simple exception handling, please review it
-	    }
+		try {
+			Source xmlInput = new StreamSource(new StringReader(input));
+			StringWriter stringWriter = new StringWriter();
+			StreamResult xmlOutput = new StreamResult(stringWriter);
+			TransformerFactory transformerFactory = TransformerFactory.newInstance();
+			transformerFactory.setAttribute("indent-number", indent);
+			Transformer transformer = transformerFactory.newTransformer();
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.transform(xmlInput, xmlOutput);
+			return xmlOutput.getWriter().toString();
+		} catch (Exception e) {
+			throw new RuntimeException(e); // simple exception handling, please review it
+		}
 	}
 }

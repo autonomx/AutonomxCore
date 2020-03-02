@@ -29,15 +29,17 @@ public class ApiTestDriver {
 		String testClass = serviceObject.getTcName();
 		return getTestClass(testClass);
 	}
-	
+
 	/**
 	 * get test class name based on csv file name
+	 * 
 	 * @param csvFilename
 	 * @return
 	 */
 	public static String getTestClass(String csvFilename) {
-		if(StringUtils.isBlank(csvFilename)) return csvFilename;
-		
+		if (StringUtils.isBlank(csvFilename))
+			return csvFilename;
+
 		String testClass = csvFilename.split("\\.")[0];
 		testClass = testClass.replace(CsvReader.SERVICE_CSV_FILE_PREFIX, "");
 		return testClass;
@@ -54,14 +56,13 @@ public class ApiTestDriver {
 	public void initTest(ServiceObject serviceObject) {
 		String APP = "ServiceManager";
 
-		
 		setTestId(serviceObject);
 		String testId = TestObject.currentTestId.get();
 		TestLog.removeLogUtilHandler();
 
 		// initialize once per test in csv file
 		TestObject.initializeTest(testId);
-		
+
 		// pass the parent config And logs to new test. parameters are passed from one
 		// test to another this way
 		TestObject.getTestInfo().config = getParentTestObject(serviceObject).config;
@@ -75,19 +76,20 @@ public class ApiTestDriver {
 
 		TestObject.getTestInfo().testName = serviceObject.getTestCaseID();
 		TestObject.getTestInfo().currentTestIndex = Integer.valueOf(serviceObject.getTcIndex());
-		
+
 		// set testCount
 		TestObject.getTestInfo().testCountInCsvFile = Integer.valueOf(serviceObject.getTcCount());
-		
+
 		TestObject.getTestInfo().serviceObject = serviceObject;
 	}
-	
+
 	public static TestObject getParentTestObject(ServiceObject serviceObject) {
 		return TestObject.getTestInfo(serviceObject.getParent());
 	}
-	
+
 	/**
 	 * returns true if all tests in current csv file are completed
+	 * 
 	 * @return
 	 */
 	public static boolean isCsvTestComplete() {
@@ -97,9 +99,10 @@ public class ApiTestDriver {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * returns true if all tests in current csv file are completed
+	 * 
 	 * @return
 	 */
 	public static boolean isCsvTestComplete(ServiceObject service) {
@@ -108,9 +111,10 @@ public class ApiTestDriver {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * returns true if tests in csv file are starting
+	 * 
 	 * @return
 	 */
 	public static boolean isCsvTestStarted() {
@@ -119,9 +123,10 @@ public class ApiTestDriver {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * returns true if tests in csv file are starting
+	 * 
 	 * @return
 	 */
 	public static boolean isCsvTestStarted(int index) {
@@ -135,27 +140,33 @@ public class ApiTestDriver {
 		String className = getClass().toString().substring(getClass().toString().lastIndexOf(".") + 1);
 		return className;
 	}
-	
+
 	/**
 	 * is service test running
+	 * 
 	 * @return
 	 */
 	public static boolean isRunningServiceTest() {
 		return TestObject.getTestInfo().type.equals(TestObject.testType.service);
 	}
-	
-	/* is service test running
+
+	/*
+	 * is service test running
+	 * 
 	 * @return
 	 */
 	public static boolean isRunningServiceTest(Object[] testData) {
-		if(testData.length != CsvReader.SERVICE_CSV_COLUMN_COUNT) return false;
-		if(testData[testData.length - 1] == null) return false;
-		ServiceObject ServiceObject = CsvReader.mapToServiceObject(testData); 
+		if (testData.length != CsvReader.SERVICE_CSV_COLUMN_COUNT)
+			return false;
+		if (testData[testData.length - 1] == null)
+			return false;
+		ServiceObject ServiceObject = CsvReader.mapToServiceObject(testData);
 		return ServiceObject.getTcType().equals(TestObject.testType.service.name());
 	}
-	
+
 	/**
 	 * set service test name based on test name specified in test data
+	 * 
 	 * @param testData
 	 */
 	public static void setServiceTestName(Object[] testData) {

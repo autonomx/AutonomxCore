@@ -134,7 +134,7 @@ public class AbstractDriverJunit {
 	 * @param driverObject
 	 */
 	public void initTest(DriverObject driverObject) {
-		//setTestId();
+		// setTestId();
 
 		String testId = TestObject.getTestId();
 
@@ -164,7 +164,7 @@ public class AbstractDriverJunit {
 		TestObject.getTestInfo().withClassName(getClassName());
 		TestObject.getTestInfo().testFileClassName = getClassName();
 	}
-	
+
 	@Before
 	public void handleTestMethodName() {
 		TestObject.setTestName(testName.getMethodName());
@@ -187,10 +187,10 @@ public class AbstractDriverJunit {
 
 		// before test run
 		if (!setUpIsDone) {
-			
+
 			DriverObject driver = new DriverObject().withDriverType(DriverType.API).withApp(TestObject.DEFAULT_TEST);
 			new AbstractDriverJunit().setupWebDriver(TestObject.getDefaultTestObjectId(), driver);
-			
+
 			// deletes screenshots
 			ExtentManager.clearTestReport();
 			setUpIsDone = true;

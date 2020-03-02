@@ -15,12 +15,13 @@ import core.support.objects.TestObject;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 
 /**
- * Only runs through suite xml file
- * Running service runner directly will not go through AnnotationTransformer and only single csv file will run
+ * Only runs through suite xml file Running service runner directly will not go
+ * through AnnotationTransformer and only single csv file will run
+ * 
  * @author ehsan.matean
  *
  */
-@SuppressWarnings({"rawtypes"})
+@SuppressWarnings({ "rawtypes" })
 
 public class AnnotationTransformer implements IAnnotationTransformer {
 	public static final String THREAD_COUNT = "global.parallel_test_count";
@@ -29,11 +30,11 @@ public class AnnotationTransformer implements IAnnotationTransformer {
 	@SuppressWarnings("deprecation")
 	@Override
 	public void transform(ITestAnnotation annotation, Class testClass, Constructor testConstructor, Method testMethod) {
-		
+
 		// setup default driver after the test is complete
-		if (TestObject.getTestInfo().isTestComplete) 
+		if (TestObject.getTestInfo().isTestComplete)
 			TestObject.setupDefaultDriver();
-		
+
 		IRetryAnalyzer retry = annotation.getRetryAnalyzer();
 		if (retry == null) {
 			annotation.setRetryAnalyzer(RetryTest.class);

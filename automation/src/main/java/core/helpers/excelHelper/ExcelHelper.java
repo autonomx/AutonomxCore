@@ -80,8 +80,7 @@ public class ExcelHelper {
 	 * This method is to write in the Excel cell, Row num And Col num are the
 	 * parameters
 	 * 
-	 * @param excel
-	 *            - required: excel.row, excel.column, excel.value, excel.file
+	 * @param excel - required: excel.row, excel.column, excel.value, excel.file
 	 * @throws Exception
 	 */
 	public static void setCellData(ExcelObject excel) throws Exception {
@@ -109,8 +108,7 @@ public class ExcelHelper {
 
 	/**
 	 * 
-	 * @param excelObjects
-	 *            - contains data info
+	 * @param excelObjects - contains data info
 	 * @throws Exception
 	 */
 	public static void setCellData(List<ExcelObject> excelObjects) throws Exception {

@@ -30,7 +30,7 @@ public class CrossPlatformProperties {
 	public static int getParallelTests() {
 		return Config.getIntValue(PARALLEL_TEST_COUNT);
 	}
-	
+
 	public static String getParallelTestType() {
 		return Config.getValue(PARALLEL_TEST_TYPE);
 	}
@@ -38,7 +38,7 @@ public class CrossPlatformProperties {
 	public static int getGlobalTimeout() {
 		return Config.getIntValue(GLOBAL_TIMEOUT_SECONDS);
 	}
-	
+
 	public static int getGlobalTimeoutImplicitWait() {
 		return Config.getIntValue(GLOBAL_TIMEOUT_IMPLICIT_SECONDS);
 	}

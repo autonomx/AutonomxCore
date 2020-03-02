@@ -38,7 +38,7 @@ public class AndroidCapability {
 	public static boolean ANDROID_INIT = false; // first time android is setup
 	public static String ANDROID_HOME = "android.home";
 	public static String ANDROID_UDID = "android.UDID";
-	
+
 	public static String IS_HYBRID_APP = "appium.isHybridApp";
 	public static String CHROME_VERSION = "appium.chromeVersion";
 
@@ -55,9 +55,10 @@ public class AndroidCapability {
 		this.capabilities = Capabilities;
 		return this;
 	}
-	
+
 	/**
 	 * device: property name from property file. eg. device1, device2
+	 * 
 	 * @param device
 	 * @return
 	 */
@@ -73,10 +74,10 @@ public class AndroidCapability {
 	public String getAppPath() {
 		String appRootPath = PropertiesReader.getLocalRootPath() + Config.getValue(APP_DIR_PATH);
 		File appPath = new File(appRootPath, Config.getValue(APP_NAME));
-		
-		if(!appPath.exists())
+
+		if (!appPath.exists())
 			TestLog.ConsoleLogWarn("app not found at: " + appPath.getAbsolutePath());
-		
+
 		return appPath.getAbsolutePath();
 	}
 
@@ -87,43 +88,45 @@ public class AndroidCapability {
 	 * @return
 	 */
 	public AndroidCapability withAndroidCapability() {
-		
+
 		// run only once per test run
 		uninstallUiAutomator2();
-		
+
 		// sets capabilities from properties files
 		capabilities = setAndroidCapabilties();
-		
+
 		// set app path
 		capabilities.setCapability(MobileCapabilityType.APP, getAppPath());
 
 		// download chrome driver if hybrid
 		setChromeDriver();
-		
+
 		// sets android home value if not already set in properties
 		setAndroidHome();
 
-		// set device using device manager. device manager handles multiple devices in parallel
+		// set device using device manager. device manager handles multiple devices in
+		// parallel
 		setAndroidDevice();
-		
-		// set port for appium 
-		setPort(TestObject.getTestInfo().deviceName);	
-		
+
+		// set port for appium
+		setPort(TestObject.getTestInfo().deviceName);
+
 		// if single signin is set, Then do not reset the app after each test
 		setSingleSignIn();
-		
-        return this;
+
+		return this;
 	}
-	
+
 	/**
-	 * set capabilties with prefix android.capabilties.
-	 * eg. android.capabilties.fullReset="false
-	 * iterates through all property values with such prefix And adds them to android desired capabilities
-	 * @return 
+	 * set capabilties with prefix android.capabilties. eg.
+	 * android.capabilties.fullReset="false iterates through all property values
+	 * with such prefix And adds them to android desired capabilities
+	 * 
+	 * @return
 	 */
 	public DesiredCapabilities setAndroidCapabilties() {
-		
-		// get all keys from config 
+
+		// get all keys from config
 		Map<String, Object> propertiesMap = TestObject.getTestInfo().config;
 
 		// load config/properties values from entries with "android.capabilties." prefix
@@ -133,7 +136,7 @@ public class AndroidCapability {
 				String fullKey = entry.getKey().toString();
 				String key = fullKey.substring(fullKey.lastIndexOf(".") + 1).trim();
 				String value = entry.getValue().toString().trim();
-				
+
 				capabilities.setCapability(key, value);
 			}
 		}
@@ -141,19 +144,20 @@ public class AndroidCapability {
 	}
 
 	/**
-	 * download chrome driver if hybrid app is enabled 
-	 * if Version is LATEST, download latest driver unless set in config
+	 * download chrome driver if hybrid app is enabled if Version is LATEST,
+	 * download latest driver unless set in config
 	 */
 	public void setChromeDriver() {
 
 		boolean isHybridApp = Config.getBooleanValue(IS_HYBRID_APP);
-		
+
 		if (isHybridApp) {
 			String chromeVersion = Config.getValue(CHROME_VERSION);
 
 			// if version is LATEST, set version to null to download latest version
-			if(chromeVersion.equals("LATEST")) chromeVersion = null;
-			
+			if (chromeVersion.equals("LATEST"))
+				chromeVersion = null;
+
 			WebDriverManager.chromedriver().version(chromeVersion).setup();
 			String chromePath = WebDriverManager.chromedriver().getBinaryPath();
 			capabilities.setCapability("chromedriverExecutable", chromePath);
@@ -218,7 +222,7 @@ public class AndroidCapability {
 		String cmd = "adb devices | tail -n +2 | cut -sf 1";
 
 		if (!Config.getValue(AppiumServer.ANDROID_HOME).isEmpty())
-			cmd = Config.getValue(AppiumServer.ANDROID_HOME) + "/platform-tools/"+ cmd;
+			cmd = Config.getValue(AppiumServer.ANDROID_HOME) + "/platform-tools/" + cmd;
 
 		// get list of device udid
 		List<String> deviceList = new ArrayList<String>();
@@ -227,20 +231,18 @@ public class AndroidCapability {
 		if (deviceList.isEmpty()) {
 			deviceList = Helper.executeCommand(cmd);
 		}
-		
+
 		// log device list
-		if(!deviceList.isEmpty())
+		if (!deviceList.isEmpty())
 			TestLog.ConsoleLogDebug("Android device list: " + Arrays.toString(deviceList.toArray()));
 
 		return deviceList;
 	}
-	
+
 	public List<String> getAndroidRealDeviceList() {
 		List<String> devices = getAndroidDeviceList();
 		return getRealDevices(devices);
 	}
-	
-	
 
 	/**
 	 * sets ios device number of devices must be equal or greater than number of
@@ -255,53 +257,54 @@ public class AndroidCapability {
 		// check if more threads are called than devices under test
 		int threads = CrossPlatformProperties.getParallelTests();
 		if (threads > devices.size())
-			Helper.assertFalse(
-					"there are more threads than devices. global.parallelTestCount: " + threads + " devices: " + devices.size());
+			Helper.assertFalse("there are more threads than devices. global.parallelTestCount: " + threads
+					+ " devices: " + devices.size());
 
 		// adds all devices
 		DeviceManager.loadDevices(devices, DeviceType.Android);
 		capabilities.setCapability("avd", DeviceManager.getFirstAvailableDevice(DeviceType.Android));
 	}
-	
+
 	/**
-	 * if device has port assigned, use assigned port
-	 * else generate new port number
+	 * if device has port assigned, use assigned port else generate new port number
+	 * 
 	 * @param deviceName
 	 */
 	public synchronized void setPort(String deviceName) {
-		
+
 		// if device port is already set
-		if(DeviceManager.devices.get(deviceName) != null && (DeviceManager.devices.get(deviceName).devicePort != -1))
-			capabilities.setCapability(AndroidMobileCapabilityType.SYSTEM_PORT, DeviceManager.devices.get(deviceName).devicePort);
+		if (DeviceManager.devices.get(deviceName) != null && (DeviceManager.devices.get(deviceName).devicePort != -1))
+			capabilities.setCapability(AndroidMobileCapabilityType.SYSTEM_PORT,
+					DeviceManager.devices.get(deviceName).devicePort);
 		else {
 			int systemPort = ++SYSTEM_PORT;
 			capabilities.setCapability(AndroidMobileCapabilityType.SYSTEM_PORT, systemPort);
 			DeviceManager.devices.get(deviceName).withDevicePort(systemPort);
 		}
-		
-		TestLog.ConsoleLog("deviceName " + deviceName + " systemPort: " + DeviceManager.devices.get(deviceName).devicePort);
+
+		TestLog.ConsoleLog(
+				"deviceName " + deviceName + " systemPort: " + DeviceManager.devices.get(deviceName).devicePort);
 	}
-	
+
 	public static void restartAdb() {
-	    Helper.executeCommand("adb kill-server");
-	    Helper.executeCommand("adb start-server");
+		Helper.executeCommand("adb kill-server");
+		Helper.executeCommand("adb start-server");
 	}
 
 	/**
-	 * uninstalls the uiautomator2 server
-	 * only runs the first time android test is run
-	 * a device or emulator must be connected
+	 * uninstalls the uiautomator2 server only runs the first time android test is
+	 * run a device or emulator must be connected
 	 */
 	public static void uninstallUiAutomator2() {
 		// runs the first time android test is run
-		if(!ANDROID_INIT) {
+		if (!ANDROID_INIT) {
 			ANDROID_INIT = true;
 			boolean isAndroidConnected = !CollectionUtils.isEmpty(getAndroidDeviceList());
 
-			if(isAndroidConnected && Config.getValue(ANDROID_ENGINE).equals(UIAUTOMATOR2)) {
+			if (isAndroidConnected && Config.getValue(ANDROID_ENGINE).equals(UIAUTOMATOR2)) {
 				TestLog.ConsoleLog("Uninstalling uiautomator2.server");
 				TestLog.ConsoleLog("Uninstalling uiautomator2.server.test");
-				
+
 				Helper.executeCommand("adb uninstall io.appium.uiautomator2.server");
 				Helper.executeCommand("adb uninstall io.appium.uiautomator2.server.test");
 			}
@@ -339,21 +342,19 @@ public class AndroidCapability {
 			}
 		}
 	}
-	
+
 	public static void printAndroidHelp(Exception e) {
 		String androidError = "It is impossible to create a new session";
 		String androidSolution = "*******************************************************************\r\n" + "\r\n"
 				+ "\r\n" + "\r\n" + "*******************************************************************\r\n" + "\r\n"
 				+ " This could be an environment issue. Try the following solutions:\r\n"
 				+ "    1. Try running against appium desktop server\r\n"
-				+ "        1. Download And run appium desktop\r\n" + " "
-			    + "        2. Start the server\r\n"
+				+ "        1. Download And run appium desktop\r\n" + " " + "        2. Start the server\r\n"
 				+ "        3. In resources/properties/appium.property, set values\r\n"
-				+ "            1. appium.useExternalAppiumServer = true\r\n" 
-				+ "            2. appium.externalPort  = 4723\r\n"
-				+ "            3. run test\r\n"
+				+ "            1. appium.useExternalAppiumServer = true\r\n"
+				+ "            2. appium.externalPort  = 4723\r\n" + "            3. run test\r\n"
 				+ "    2. Is appium terminal installation correct?\r\n" + " "
-			    + "            1. command line: appium\r\n"
+				+ "            1. command line: appium\r\n"
 				+ "            2. Does it start. If not install: “npm install -g appium”  or “sudo npm install -g appium --unsafe-perm=true --allow-root”\r\n"
 				+ "            3. Run against appium terminal\r\n" + "                1. In properties set:\r\n"
 				+ "                    1. useExternalAppiumServer = true\r\n"
@@ -366,17 +367,17 @@ public class AndroidCapability {
 				+ "        1. download with command: npm install appium-doctor -g\r\n"
 				+ "        2. Run: appium-doctor -android\r\n"
 				+ "        3. Ensure the environment is setup properly\r\n" + "        4. Restart eclipse\r\n"
-				+ "        *******************************************************************\r\n"
-				+ "\r\n" + "\r\n" + "\r\n" + "*******************************************************************";
+				+ "        *******************************************************************\r\n" + "\r\n" + "\r\n"
+				+ "\r\n" + "*******************************************************************";
 		if (e.getMessage().contains(androidError)) {
 			System.out.println(androidSolution);
 		}
 	}
-	
+
 	/**
-	 * sets the value for android home based on its default location
-	 * sets android home based on user.home location on mac
-	 * checks if the generated android home location exists, if true, adds to android.home config value
+	 * sets the value for android home based on its default location sets android
+	 * home based on user.home location on mac checks if the generated android home
+	 * location exists, if true, adds to android.home config value
 	 */
 	public static void setAndroidHome() {
 

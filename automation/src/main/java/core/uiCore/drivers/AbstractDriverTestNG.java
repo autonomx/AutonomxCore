@@ -32,7 +32,7 @@ import core.uiCore.driverProperties.driverType.DriverType;
 import core.uiCore.driverProperties.capabilities.AndroidCapability;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 
-@Listeners({core.support.listeners.TestListener.class})
+@Listeners({ core.support.listeners.TestListener.class })
 
 public class AbstractDriverTestNG implements ITest {
 
@@ -40,17 +40,16 @@ public class AbstractDriverTestNG implements ITest {
 	public static ThreadLocal<ExtentTest> step = new ThreadLocal<ExtentTest>();
 
 	private static ThreadLocal<WebDriver> webDriver = new ThreadLocal<WebDriver>();
-	
-	public static ThreadLocal<String> testClassname = new ThreadLocal<String>();
-    public static ThreadLocal<String> testName = new ThreadLocal<String>();
 
+	public static ThreadLocal<String> testClassname = new ThreadLocal<String>();
+	public static ThreadLocal<String> testName = new ThreadLocal<String>();
 
 	public RetryTest retry = new RetryTest();
 
 	public AbstractDriverTestNG() {
 
 	}
-	
+
 	public void setupApiDriver(ServiceObject apiObject) throws Exception {
 		new ApiTestDriver().initTest(apiObject);
 
@@ -62,8 +61,9 @@ public class AbstractDriverTestNG implements ITest {
 	}
 
 	/**
-	 * setup driver for web and mobile testing
-	 * if single sign in is enabled, we try to reuse the existing drivers if available
+	 * setup driver for web and mobile testing if single sign in is enabled, we try
+	 * to reuse the existing drivers if available
+	 * 
 	 * @param driverObject
 	 * @return
 	 * @throws Exception
@@ -166,52 +166,57 @@ public class AbstractDriverTestNG implements ITest {
 	public synchronized void handleTestMethodName(Method method, ITestResult iTestResult, Object[] testData) {
 		TestObject.setTestName(method.getName());
 		TestObject.setTestId(getClassName(), TestObject.currentTestName.get());
-       
+
 		// set the test name for service tests based on test data values
 		ApiTestDriver.setServiceTestName(testData);
 
-		// append test invocation count to test name if data provider is running increments the invocation count
+		// append test invocation count to test name if data provider is running
+		// increments the invocation count
 		// not applicable to service tests
 		setAndIncremenetDataProviderTestExtention(method, testData);
-		
+
 		setUiTestname(method, testData);
 
 		// setup before class driver
 		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
 
 		new AbstractDriverTestNG().setupWebDriver(TestObject.getTestId(), driver);
-		
+
 		// set test name for reports. eg. junit report
 		setResultTestName(testData, iTestResult);
 	}
-	
+
 	/**
 	 * // set test name for reports. eg. junit report
+	 * 
 	 * @param result
 	 */
 	public void setResultTestName(Object[] testData, ITestResult result) {
-		if (!ApiTestDriver.isRunningServiceTest(testData)) return;
-	  
-		try {
-	    	 Field methodName = org.testng.internal.BaseTestMethod.class.getDeclaredField("m_methodName");
-	         methodName.setAccessible(true);
-	         methodName.set(result.getMethod(), testName.get());
+		if (!ApiTestDriver.isRunningServiceTest(testData))
+			return;
 
-	    } catch (Exception e) {
-	        Reporter.log("Exception : " + e.getMessage());
-	    }
+		try {
+			Field methodName = org.testng.internal.BaseTestMethod.class.getDeclaredField("m_methodName");
+			methodName.setAccessible(true);
+			methodName.set(result.getMethod(), testName.get());
+
+		} catch (Exception e) {
+			Reporter.log("Exception : " + e.getMessage());
+		}
 	}
-	
+
 	/**
 	 * append test invocation count to test name if data provider is running
 	 * increments the invocation count
+	 * 
 	 * @param method
 	 */
 	private void setAndIncremenetDataProviderTestExtention(Method method, Object[] testData) {
-		
+
 		// return if service test
-		if (ApiTestDriver.isRunningServiceTest(testData)) return;
-		
+		if (ApiTestDriver.isRunningServiceTest(testData))
+			return;
+
 		if (isDataProviderRunning(method)) {
 			int invocationCount = TestObject.getTestInvocationCount(TestObject.getTestId());
 			invocationCount++;
@@ -220,14 +225,16 @@ public class AbstractDriverTestNG implements ITest {
 			testName.set(TestObject.getTestId());
 		}
 	}
-	
+
 	private void setUiTestname(Method method, Object[] testData) {
 		// return if service test
-		if (ApiTestDriver.isRunningServiceTest(testData)) return;
-		if (isDataProviderRunning(method)) return;
+		if (ApiTestDriver.isRunningServiceTest(testData))
+			return;
+		if (isDataProviderRunning(method))
+			return;
 		testName.set(TestObject.getTestId());
 	}
-	
+
 	private boolean isDataProviderRunning(Method method) {
 		return method.getParameterCount() > 0;
 	}
@@ -245,7 +252,7 @@ public class AbstractDriverTestNG implements ITest {
 			try {
 				retry--;
 				driver = new WebDriverSetup().getWebDriverByType(driverObject);
-				
+
 				// set implicit Wait wait to be the minimum of our explicit wait
 				driver.manage().timeouts().implicitlyWait(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
 				driver.manage().timeouts().pageLoadTimeout(AbstractDriver.TIMEOUT_SECONDS, TimeUnit.SECONDS);
@@ -284,29 +291,29 @@ public class AbstractDriverTestNG implements ITest {
 
 	@AfterMethod
 	public void shutdown(ITestResult iTestResult) {
-		
-		// print after method 
+
+		// print after method
 		TestLog.printBatchLogsToConsole();
-		
+
 		letRetryKnowAboutReports();
-		
+
 		// shut down drivers after test
 		DriverObject.shutDownDriver(iTestResult.isSuccess());
-		
-		
+
 	}
-		
+
 	/**
-	 * After class batch log print is called here, cause this after class method is called after all other after class
-	 * methods
+	 * After class batch log print is called here, cause this after class method is
+	 * called after all other after class methods
+	 * 
 	 * @param iTestContext
 	 */
 	@AfterClass
 	public synchronized void afterClassMethod(ITestContext iTestContext) {
-			String name = getClassName();
-			// print after class logs
-			String testId = name + TestObject.AFTER_CLASS_PREFIX;
-			TestLog.printBatchToConsole(testId);
+		String name = getClassName();
+		// print after class logs
+		String testId = name + TestObject.AFTER_CLASS_PREFIX;
+		TestLog.printBatchToConsole(testId);
 	}
 
 	private void letRetryKnowAboutReports() {
@@ -316,8 +323,8 @@ public class AbstractDriverTestNG implements ITest {
 
 	@Override
 	public String getTestName() {
-		if(testName.get() == null)
-			 testName.set("");
+		if (testName.get() == null)
+			testName.set("");
 		return testName.get();
 
 	}

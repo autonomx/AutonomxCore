@@ -88,8 +88,8 @@ public class DateHelper {
 			return getTime(timeInstant, format);
 
 		if (StringUtils.isBlank(format) && !StringUtils.isBlank(zone)) {
-			LocalDateTime timelocal = LocalDateTime.ofInstant(timeInstant, ZoneId.of(zone));	
-			ZoneId systemZone =  ZoneId.of(zone);
+			LocalDateTime timelocal = LocalDateTime.ofInstant(timeInstant, ZoneId.of(zone));
+			ZoneId systemZone = ZoneId.of(zone);
 			ZoneOffset offset = systemZone.getRules().getOffset(timeInstant);
 			String dateString = timelocal.toInstant(offset).toString();
 			return dateString;
@@ -98,39 +98,42 @@ public class DateHelper {
 		formatter = DateTimeFormatter.ofPattern(format).withZone(ZoneId.of(zone));
 		return formatter.format(timeInstant);
 	}
-	
+
 	/**
-	 * get day of week 
+	 * get day of week
+	 * 
 	 * @param day
 	 * @return
 	 */
 	public int getDayOfWeekIndex(String day) {
-		DateTimeFormatter dayOfWeekFormatter= DateTimeFormatter.ofPattern("EEEE", Locale.ENGLISH);
-		
+		DateTimeFormatter dayOfWeekFormatter = DateTimeFormatter.ofPattern("EEEE", Locale.ENGLISH);
+
 		Locale loc = Locale.US;
 		WeekFields wf = WeekFields.of(loc);
-		
+
 		DayOfWeek dayOfWeek = DayOfWeek.from(dayOfWeekFormatter.parse(day));
 		int dayNumber = dayOfWeek.get(wf.dayOfWeek());
 		return dayNumber;
 	}
-	
+
 	/**
 	 * get day of week
+	 * 
 	 * @param time
 	 * @return
 	 */
 	public int getDayOfWeekIndex(LocalDateTime time) {
 		Locale loc = Locale.US;
 		WeekFields wf = WeekFields.of(loc);
-		
+
 		DayOfWeek dayOfWeek = time.getDayOfWeek();
 		int day = dayOfWeek.get(wf.dayOfWeek());
 		return day;
 	}
-	
+
 	/**
 	 * get month of year
+	 * 
 	 * @param time
 	 * @return
 	 */
@@ -138,14 +141,15 @@ public class DateHelper {
 		int monthNum = Month.valueOf(month.toUpperCase()).getValue();
 		return monthNum;
 	}
-	
+
 	/**
 	 * get month of year
+	 * 
 	 * @param time
 	 * @return
 	 */
 	public int getMonthOfYearIndex(LocalDateTime time) {
 		return time.getMonth().getValue();
 	}
-	
+
 }

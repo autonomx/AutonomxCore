@@ -1,6 +1,5 @@
 package core.support.annotation.template.service;
 
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.util.ArrayList;
@@ -25,64 +24,60 @@ import core.support.configReader.PropertiesReader;
 import core.support.objects.ServiceObject;
 
 public class Service {
-	
+
 	public static JavaFileObject CSV_File_Object = null;
 	public static String SERVICE_ROOT = "serviceManager";
 	public static String SERVICE_CLASS = "Service";
 
-	public static void writeServiceClass()  {
+	public static void writeServiceClass() {
 		try {
 			writeServiceClassImplementation();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private static void writeServiceClassImplementation() throws Exception {
-			String testFolderPath = Config.getValue(TestDataProvider.API_KEYWORD_PATH);
-			String csvTestPath = PropertiesReader.getLocalRootPath() + testFolderPath;
-			ArrayList<File> csvFiles = Helper.getFileListByType(csvTestPath, ".csv");
-			
-			Map<String, ServiceObject> completeServices = new HashMap<String, ServiceObject>();
+		String testFolderPath = Config.getValue(TestDataProvider.API_KEYWORD_PATH);
+		String csvTestPath = PropertiesReader.getLocalRootPath() + testFolderPath;
+		ArrayList<File> csvFiles = Helper.getFileListByType(csvTestPath, ".csv");
 
-			// get all service keyword
-			for (int i = 0; i < csvFiles.size(); i++) {
-				List<Object[]> testCases = CsvReader.getCsvTestList(csvFiles.get(i));
-				completeServices.putAll(CsvReader.mapToApiObject(testCases));
-			}
-		  
-			// create separate class for each keyword
-			writeServiceData(completeServices);
-	  }
-	
-	/**
-package service;
+		Map<String, ServiceObject> completeServices = new HashMap<String, ServiceObject>();
 
-import core.support.objects.ServiceObject;
+		// get all service keyword
+		for (int i = 0; i < csvFiles.size(); i++) {
+			List<Object[]> testCases = CsvReader.getCsvTestList(csvFiles.get(i));
+			completeServices.putAll(CsvReader.mapToApiObject(testCases));
+		}
 
-public class Service {
-	
-	public static GetToken getToken = new GetToken();
-	
-	public ServiceObject create() {
-		return new ServiceObject();
+		// create separate class for each keyword
+		writeServiceData(completeServices);
 	}
-}
 
+	/**
+	 * package service;
+	 * 
+	 * import core.support.objects.ServiceObject;
+	 * 
+	 * public class Service {
+	 * 
+	 * public static GetToken getToken = new GetToken();
+	 * 
+	 * public ServiceObject create() { return new ServiceObject(); } }
+	 * 
 	 * @param serviceMap
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	
+
 	private static void writeServiceData(Map<String, ServiceObject> completeServices) throws Exception {
-	   		
+
 		String serviceClassName = StringUtils.capitalize(SERVICE_CLASS);
-		
+
 		Logger.debug("<<<<< start generating service class " + serviceClassName + " >>>>");
 
-		
 		String filePath = PackageHelper.SERVICE_PATH + "." + serviceClassName;
 		JavaFileObject fileObject = FileCreatorHelper.createFileAbsolutePath(filePath);
-		
+
 		BufferedWriter bw = new BufferedWriter(fileObject.openWriter());
 
 		Date currentDate = new Date();
@@ -94,45 +89,43 @@ public class Service {
 		bw.append("package " + SERVICE_ROOT + ";\n");
 		bw.newLine();
 		bw.newLine();
-		
-		bw.append("import core.support.objects.ServiceObject;"+ "\n");
+
+		bw.append("import core.support.objects.ServiceObject;" + "\n");
 		bw.newLine();
 		bw.newLine();
 
-		
 		bw.append("public class " + serviceClassName + " {" + "\n");
 		bw.newLine();
 		bw.newLine();
 
-		
 		/*
-		public static GetToken getToken = new GetToken();
-
+		 * public static GetToken getToken = new GetToken();
+		 * 
 		 */
-		for (Entry<String, ServiceObject> entry : completeServices.entrySet()) {			
+		for (Entry<String, ServiceObject> entry : completeServices.entrySet()) {
 			String serviceName = StringUtils.capitalize(entry.getKey());
 
-			bw.append("public static " + serviceName + " " + entry.getKey() + " = new " + serviceName + "();"+ " \n" );
+			bw.append("public static " + serviceName + " " + entry.getKey() + " = new " + serviceName + "();" + " \n");
 		}
 		bw.newLine();
 		bw.newLine();
-		
+
 //		public ServiceObject create()
 //		{
 //			return new ServiceObject();
 //		}
 		bw.append("public static ServiceObject create()" + "\n");
-		bw.append("{"+ "\n");
+		bw.append("{" + "\n");
 		bw.append("    return new ServiceObject();" + "\n");
-		bw.append("}"+ "\n");
+		bw.append("}" + "\n");
 		bw.newLine();
 		bw.newLine();
 
 		bw.append("}\n");
 
 		bw.flush();
-		bw.close();		
-		
+		bw.close();
+
 		Logger.debug("<<<< completed generating service class: " + serviceClassName + ">>>>");
 
 	}

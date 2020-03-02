@@ -15,7 +15,7 @@ import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PackageHelper;
 
 public class PanelMapHelper {
-	
+
 	/**
 	 * maps the module with the panels containing the Panel annotation
 	 * 
@@ -60,9 +60,9 @@ public class PanelMapHelper {
 	}
 
 	/**
-	 * creates a map of modules, But does not add the elements
-	 * key: module
-	 * value: classes with Panel annotation
+	 * creates a map of modules, But does not add the elements key: module value:
+	 * classes with Panel annotation
+	 * 
 	 * @param roundEnv
 	 * @return
 	 */
