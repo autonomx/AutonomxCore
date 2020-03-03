@@ -488,6 +488,7 @@ public class DataHelper {
 		int positionInt = 0;
 
 		// if response is single item, it is same as command with position 1
+		actualArray = DataHelper.removeEmptyElements(actualArray);
 		if (actualArray.size() == 1) {
 			position = "1";
 		}
@@ -766,6 +767,13 @@ public class DataHelper {
 	 */
 	public static List<String> getResponseArray(String array) {
 		List<String> list = new ArrayList<String>();
+		
+		// if response is json, then return
+		if(JsonHelper.isJSONValid(array, false)) {
+			list.add(array);
+			return list;
+		}
+				
 		String[] responses = array.split(",");
 		for (String response : responses) {
 			response = response.trim().replace("\"", "");
