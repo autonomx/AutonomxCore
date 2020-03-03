@@ -597,6 +597,12 @@ public class DataHelper {
 				return Arrays.toString(actualArray.toArray()) + " are not all equal to: "+ expectedString;
 			break;
 		case notContain:
+			// if response is single item, it is same as command with position 1 and treated as string
+				actualArray = DataHelper.removeEmptyElements(actualArray);
+				if (actualArray.size() == 1) {
+					position = "1";
+				}
+						
 			if (!position.isEmpty() && positionInt > 0) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " does not contain " + expectedString);
 				val = !actualString.contains(expectedString);
