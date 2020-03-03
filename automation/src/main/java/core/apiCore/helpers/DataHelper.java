@@ -487,16 +487,9 @@ public class DataHelper {
 
 		int positionInt = 0;
 
-		// if response is single item, it is same as command with position 1
-		actualArray = DataHelper.removeEmptyElements(actualArray);
-		if (actualArray.size() == 1) {
-			position = "1";
-		}
-
 		// if position has value, Then get response at position
 		if (!position.isEmpty() && Helper.getIntFromString(position) > 0) {
 			positionInt = Helper.getIntFromString(position);
-			expectedString = expectedArray.get(0); // single item
 			boolean inBounds = (positionInt > 0) && (positionInt <= actualArray.size());
 			if (!inBounds) {
 				Helper.assertFalse("items returned are less than specified. returned: " + actualArray.size()
@@ -504,8 +497,6 @@ public class DataHelper {
 			}
 
 			actualString = actualArray.get(positionInt - 1);
-			// if response is single array element, set position to 1, treat as string
-			// comparison
 		}
 
 		if (getCommandFromExpectedString(command).isEmpty()) {
@@ -626,6 +617,12 @@ public class DataHelper {
 			}
 			break;
 		case contains:
+			// if response is single item, it is same as command with position 1 and treated as string
+			actualArray = DataHelper.removeEmptyElements(actualArray);
+			if (actualArray.size() == 1) {
+				position = "1";
+			}
+			
 			if (!position.isEmpty() && positionInt > 0) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " contains " + expectedString);
 				val = actualString.contains(expectedString);
@@ -766,13 +763,7 @@ public class DataHelper {
 	 * @return
 	 */
 	public static List<String> getResponseArray(String array) {
-		List<String> list = new ArrayList<String>();
-		
-		// if response is json, then return
-		if(JsonHelper.isJSONValid(array, false)) {
-			list.add(array);
-			return list;
-		}
+		List<String> list = new ArrayList<String>();	
 				
 		String[] responses = array.split(",");
 		for (String response : responses) {

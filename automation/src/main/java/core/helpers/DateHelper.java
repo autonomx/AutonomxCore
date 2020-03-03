@@ -185,7 +185,7 @@ public class DateHelper {
 		
 		for(String source : sources ) {
 			LocalDateTime sourceDate = getLocalDateTime(source);
-			if(sourceDate.isBefore(date1Date) || sourceDate.isAfter(date2Date))
+			if(!(sourceDate.isAfter(date1Date) && sourceDate.isBefore(date2Date)))
 				return false;
 				
 		}
@@ -201,7 +201,6 @@ public class DateHelper {
 	public LocalDateTime getLocalDateTime(String timeString) {
 		
 		List<String> formats = new ArrayList<String>();
-		formats.add("yyyy-MM-dd HH:mm");
 		formats.add("yyyy-MM-dd HH:mm:ss.SSSSSSSSS");
 		formats.add("yyyy-MM-dd HH:mm:ss.SSSSSSSS");
 		formats.add("yyyy-MM-dd HH:mm:ss.SSSSSS");
@@ -210,7 +209,13 @@ public class DateHelper {
 		formats.add("yyyy-MM-dd HH:mm:ss.SSS");
 		formats.add("yyyy-MM-dd HH:mm:ss.SS");
 		formats.add("yyyy-MM-dd HH:mm:ss.S");
+		formats.add("yyyy-MM-dd HH:mm:ss");
+		formats.add("yyyy-MM-dd HH:mm");
 		formats.add("yyyy-MM-dd");
+		formats.add("yyyy-MM-ddTHH:mm");
+		formats.add("yyyy-MM-ddTHH:mm:ss");
+		formats.add("yyyy-MM-dd'T'HH:mm");
+		formats.add("yyyy-MM-dd'T'HH:mm:ss");
 		formats.add("yyyy-MM-dd'T'HH:mm:ssZ");
 		formats.add("yyyy-MM-dd'T'HH:mm:ss'Z'");
 		formats.add("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
@@ -228,7 +233,7 @@ public class DateHelper {
 		for(String format : formats) {
 			try {
 				DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
-				LocalDateTime dateTime = LocalDateTime.parse(timeString, formatter);
+				LocalDateTime dateTime = LocalDateTime.parse(timeString.trim(), formatter);
 				return dateTime;
 			}catch(Exception e) {
 				e.getMessage();
