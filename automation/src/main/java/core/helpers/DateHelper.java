@@ -9,6 +9,8 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.WeekFields;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
@@ -150,6 +152,90 @@ public class DateHelper {
 	 */
 	public int getMonthOfYearIndex(LocalDateTime time) {
 		return time.getMonth().getValue();
+	}
+	
+	/**
+	 * is source date between date1 and date2
+	 * @param source
+	 * @param date1
+	 * @param date2
+	 * @return
+	 */
+	public boolean isBetweenDates(String source, String date1, String date2) {
+		LocalDateTime sourceDate = getLocalDateTime(source);
+		LocalDateTime date1Date = getLocalDateTime(date1);
+		LocalDateTime date2Date = getLocalDateTime(date2);
+
+		if(sourceDate.isAfter(date1Date) && sourceDate.isBefore(date2Date))
+			return true;
+		return false;
+	}
+	
+	/**
+	 * are source dates between date1 and date2
+	 * @param sources
+	 * @param date1
+	 * @param date2
+	 * @return
+	 */
+	public boolean isBetweenDates(List<String> sources, String date1, String date2) {
+		
+		LocalDateTime date1Date = getLocalDateTime(date1);
+		LocalDateTime date2Date = getLocalDateTime(date2);
+		
+		for(String source : sources ) {
+			LocalDateTime sourceDate = getLocalDateTime(source);
+			if(sourceDate.isBefore(date1Date) || sourceDate.isAfter(date2Date))
+				return false;
+				
+		}
+		return true;
+	}
+
+	
+	/**
+	 * get local date time from date string
+	 * @param timeString
+	 * @return
+	 */
+	public LocalDateTime getLocalDateTime(String timeString) {
+		
+		List<String> formats = new ArrayList<String>();
+		formats.add("yyyy-MM-dd HH:mm");
+		formats.add("yyyy-MM-dd HH:mm:ss.SSSSSSSSS");
+		formats.add("yyyy-MM-dd HH:mm:ss.SSSSSSSS");
+		formats.add("yyyy-MM-dd HH:mm:ss.SSSSSS");
+		formats.add("yyyy-MM-dd HH:mm:ss.SSSSS");
+		formats.add("yyyy-MM-dd HH:mm:ss.SSSS");
+		formats.add("yyyy-MM-dd HH:mm:ss.SSS");
+		formats.add("yyyy-MM-dd HH:mm:ss.SS");
+		formats.add("yyyy-MM-dd HH:mm:ss.S");
+		formats.add("yyyy-MM-dd");
+		formats.add("yyyy-MM-dd'T'HH:mm:ssZ");
+		formats.add("yyyy-MM-dd'T'HH:mm:ss'Z'");
+		formats.add("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+		formats.add("yyyy-MM-dd'T'HH:mm:ssX");
+		formats.add("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+		formats.add("yyMMddHHmmssZ");
+		formats.add("yyyyy.MMMMM.dd GGG hh:mm aaa");
+		formats.add("yyMMddHHmmssZ");
+		formats.add("yyMMddHHmm");
+		formats.add("yyyy.MM.dd G 'at' HH:mm:ss z");
+		formats.add("h:mm a");
+		formats.add("yyyyy.MMMMM.dd GGG hh:mm aaa");
+		formats.add("ccyy-mm-dd");
+
+		for(String format : formats) {
+			try {
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
+				LocalDateTime dateTime = LocalDateTime.parse(timeString, formatter);
+				return dateTime;
+			}catch(Exception e) {
+				e.getMessage();
+			}
+		}
+		Helper.assertFalse("no matching date format for string: " + timeString);
+		return null;
 	}
 
 }

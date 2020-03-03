@@ -349,7 +349,7 @@ public class JsonHelper {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * validates expected json string against json body from response
 	 * 
@@ -358,6 +358,17 @@ public class JsonHelper {
 	 * @return
 	 */
 	public static String validateByJsonBody(String expectedJson, String response) {
+		return validateByJsonBody(expectedJson, response, false);
+	}
+
+	/**
+	 * validates expected json string against json body from response
+	 * 
+	 * @param expectedJson
+	 * @param actualJson
+	 * @return
+	 */
+	public static String validateByJsonBody(String expectedJson, String response, boolean hasToBeJsonBody) {
 		expectedJson = Helper.stringRemoveLines(expectedJson);
 		if (JsonHelper.isJSONValid(expectedJson, false)) {
 			if (StringUtils.isBlank(response))
@@ -379,7 +390,10 @@ public class JsonHelper {
 						+ expectedJson + "\n\n response: " + response + "\n\n";
 
 			}
+		}else if(hasToBeJsonBody) {
+			return "expected String is not valid json: " + expectedJson;
 		}
+			
 		return StringUtils.EMPTY;
 	}
 

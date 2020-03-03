@@ -44,7 +44,7 @@ public class DataHelper {
 	public enum JSON_COMMAND {
 		hasItems, notHaveItems, notEqualTo, equalTo, notContain, contains, containsInAnyOrder, integerGreaterThan,
 		integerLessThan, integerEqual, integerNotEqual, nodeSizeGreaterThan, nodeSizeExact, sequence, jsonbody,
-		isNotEmpty, isEmpty, nodeSizeLessThan
+		isNotEmpty, isEmpty, nodeSizeLessThan, isBetweenDate, allValuesEqualTo
 	}
 
 	/**
@@ -599,6 +599,11 @@ public class DataHelper {
 							+ Arrays.toString(expectedArray.toArray());
 			}
 			break;
+		case allValuesEqualTo:
+			val = actualArray.get(0).equals(expectedString) && actualArray.stream().distinct().limit(2).count() == 1;
+			if (!val)
+				return Arrays.toString(actualArray.toArray()) + " are not all equal to: "+ expectedString;
+			break;
 		case notContain:
 			if (!position.isEmpty() && positionInt > 0) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " does not contain " + expectedString);
@@ -702,8 +707,8 @@ public class DataHelper {
 			break;
 		case jsonbody:
 			TestLog.logPass("verifying response: \n" + ServiceObject.normalize(responseString)
-					+ "\n against expected: \n" + expectedString);
-			String error = JsonHelper.validateByJsonBody(expectedString, responseString);
+					+ "\n against expected: \n" +  ServiceObject.normalize(expectedString));
+			String error = JsonHelper.validateByJsonBody(expectedString, responseString, true);
 			if (!error.isEmpty())
 				return error;
 			break;
@@ -716,6 +721,33 @@ public class DataHelper {
 			TestLog.logPass("verifying response for path is empty ");
 			if (!isEmpty(responseString))
 				return "value is not empty";
+			break;
+		case isBetweenDate:
+			if (!position.isEmpty() && positionInt > 0) { // if position is provided
+				TestLog.logPass("verifying date: " + actualString + " is in between dates: " + expectedString);
+				String[] expectedDates = expectedString.split(",");
+				if(expectedDates.length != 2) Helper.assertFalse("require 2 dates to validate inbewteen date");
+				val = Helper.date.isBetweenDates(actualString, expectedDates[0], expectedDates[1]);
+				if (!val)
+					return actualString + " is not in between dates: " + expectedString;
+			} else if (!position.isEmpty() && positionInt == 0) {
+				TestLog.logPass("verifying date: " + responseString + " is in between dates: " + expectedString);
+				String[] expectedDates = expectedString.split(",");
+				if(expectedDates.length != 2) Helper.assertFalse("require 2 dates to validate inbewteen date");
+				val = Helper.date.isBetweenDates(responseString, expectedDates[0], expectedDates[1]);
+				if (!val)
+					return responseString + " is not in between dates: " + expectedString;
+			} else {
+				TestLog.logPass("verifying dates: " + Arrays.toString(actualArray.toArray()) + " is in between dates: "
+						+ Arrays.toString(expectedArray.toArray()));
+				String[] expectedDates = expectedString.split(",");
+				if(expectedDates.length != 2) Helper.assertFalse("require 2 dates to validate inbewteen date");
+				val = Helper.date.isBetweenDates(actualArray, expectedDates[0], expectedDates[1]);
+
+				if (!val)
+					return Arrays.toString(actualArray.toArray()) + " is not in between dates: "
+							+ Arrays.toString(expectedArray.toArray());
+			}
 			break;
 		default:
 			Helper.assertFalse(
