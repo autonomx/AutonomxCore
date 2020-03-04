@@ -20,6 +20,7 @@ import org.json.JSONArray;
 import com.opencsv.CSVReader;
 
 import core.apiCore.TestDataProvider;
+import core.apiCore.interfaces.ExternalInterface;
 import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.configReader.PropertiesReader;
@@ -44,7 +45,7 @@ public class DataHelper {
 	public enum JSON_COMMAND {
 		hasItems, notHaveItems, notEqualTo, equalTo, notContain, contains, containsInAnyOrder, integerGreaterThan,
 		integerLessThan, integerEqual, integerNotEqual, nodeSizeGreaterThan, nodeSizeExact, sequence, jsonbody,
-		isNotEmpty, isEmpty, nodeSizeLessThan, isBetweenDate, allValuesEqualTo
+		isNotEmpty, isEmpty, nodeSizeLessThan, isBetweenDate, allValuesEqualTo, countGreaterThan, countLessThan, countExact, command
 	}
 
 	/**
@@ -507,6 +508,25 @@ public class DataHelper {
 		JSON_COMMAND jsonCommand = JSON_COMMAND.valueOf(command);
 
 		switch (jsonCommand) {
+		
+		//Jsonpath:command(External.testMethod, value)
+		// Jsonpath:command(Command.hasMethod, value1, value2)
+		case command:
+			if(expectedArray.size() < 1)
+				Helper.assertFalse("invalid command format. must be: Jsonpath:command(class.methodname, value) eg. Jsonpath:command(Command.hasMethod, value");
+			String method = expectedArray.get(0);
+			expectedArray.remove(0);
+			
+			expectedArray = removeEmptyElements(expectedArray);
+			String values = StringUtils.EMPTY;
+			if(!expectedArray.isEmpty())
+				values = "values:" + Arrays.toString(expectedArray.toArray());
+			
+			ServiceObject serviceObject = new ServiceObject()
+			.withMethod("METHOD:" + method)
+			.withRequestBody("response:"+ responseString +";" + values);
+			
+			return ExternalInterface.ExternalInterfaceRunner(serviceObject).toString();
 		case hasItems:
 			boolean val = false;
 			if (!position.isEmpty() && positionInt > 0) { // if position is provided
@@ -680,6 +700,7 @@ public class DataHelper {
 			if (!val)
 				return "actual: " + responseString + " is not equal to expected: " + expectedString;
 			break;
+		case countGreaterThan:
 		case nodeSizeGreaterThan:
 			int intValue = Integer.valueOf(expectedString);
 			int actualLength = getResponseArrayLength(actualArray, responseString);
@@ -687,6 +708,7 @@ public class DataHelper {
 			if (!(actualLength > intValue))
 				return "response node size is: " + actualLength + " expected it to be greater than: " + intValue;
 			break;
+		case countLessThan:
 		case nodeSizeLessThan:
 			intValue = Integer.valueOf(expectedString);
 			actualLength = getResponseArrayLength(actualArray, responseString);
@@ -694,6 +716,7 @@ public class DataHelper {
 			if (!(actualLength < intValue))
 				return "response node size is: " + actualLength + " expected it to be less than: " + intValue;
 			break;
+		case countExact:
 		case nodeSizeExact:
 			intValue = Integer.valueOf(expectedString);
 			actualLength = getResponseArrayLength(actualArray, responseString);

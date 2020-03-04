@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.thoughtworks.paranamer.AnnotationParanamer;
 import com.thoughtworks.paranamer.BytecodeReadingParanamer;
 import com.thoughtworks.paranamer.CachingParanamer;
@@ -30,10 +32,14 @@ public class ExternalInterface {
 	 * @return
 	 * @throws Exception
 	 */
-	public static void ExternalInterfaceRunner(ServiceObject serviceObject) throws Exception {
+	public static Object ExternalInterfaceRunner(ServiceObject serviceObject) {
 
-		evaluateTestMethod(serviceObject);
-
+		try {
+			return evaluateTestMethod(serviceObject);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**
@@ -43,11 +49,11 @@ public class ExternalInterface {
 	 * @throws SecurityException
 	 * @throws NoSuchMethodException
 	 */
-	public static void evaluateTestMethod(ServiceObject serviceObject) throws Exception {
+	public static Object evaluateTestMethod(ServiceObject serviceObject) throws Exception {
 
 		// if no method specified
 		if (serviceObject.getMethod().isEmpty()) {
-			return;
+			return null;
 		}
 
 		// replace parameters for request body, including template file (json, xml, or
@@ -61,13 +67,13 @@ public class ExternalInterface {
 
 			switch (keyword.key.toLowerCase()) {
 			case METHOD:
-				runExernalMethod(keyword.value.toString(), parameterList);
-				break;
+				Object object = runExernalMethod(keyword.value.toString(), parameterList);
+				return object;
 			default:
 				break;
 			}
-
 		}
+		return null;
 	}
 
 	/**
@@ -75,9 +81,10 @@ public class ExternalInterface {
 	 * method name are passed through options column: class.method
 	 * 
 	 * @param classmethod
+	 * @return 
 	 * @throws Exception
 	 */
-	public static void runExernalMethod(String classmethod, List<KeyValue> parameterList) throws Exception {
+	public static Object runExernalMethod(String classmethod, List<KeyValue> parameterList) throws Exception {
 		GroovyClassLoader groovyClassLoader = new GroovyClassLoader();
 
 		Object[] parameters = getParameterValues(parameterList);
@@ -97,7 +104,14 @@ public class ExternalInterface {
 
 		// get parameter types
 		Class<?>[] paramTypes = getMethodParameterTypes(externalClass, methodName, parameterNames);
-		Method method = externalClass.getMethod(methodName, paramTypes);
+		
+		Method method = null;
+		try {
+			method = externalClass.getMethod(methodName, paramTypes);
+		}catch(Exception e) {
+			e.printStackTrace();
+			Helper.assertFalse(e.getMessage());
+		}
 
 		// validate parameter count
 		if (parameterNames.length != paramTypes.length)
@@ -106,8 +120,16 @@ public class ExternalInterface {
 		parameters = convertObjectToMethodType(paramTypes, parameters);
 
 		// call the method with parameters
-		method.invoke(external, parameters);
+		Object object = null;
+		try {
+			object = method.invoke(external, parameters);
+		}catch(Exception e) {
+			e.printStackTrace();
+			Helper.assertFalse(e.getMessage());
+		}
 		groovyClassLoader.close();
+		
+		return object;
 	}
 
 	/**
@@ -120,13 +142,35 @@ public class ExternalInterface {
 	public static Object[] convertObjectToMethodType(Class<?>[] paramTypes, Object[] parameterValues) {
 
 		Object[] paramArr = new Object[parameterValues.length];
-
 		for (int i = 0; i < parameterValues.length; i++) {
-			Object parameter = JsonHelper.convertToObject(parameterValues[i].toString(), false);
-			paramArr[i] = (Object) parameter;
+			
+			paramArr[i] = (Object) convertToDataType(paramTypes[i], parameterValues[i]);
 		}
 
 		return paramArr;
+	}
+	
+	/**
+	 * converts data to their matching types
+	 * @param type
+	 * @param value
+	 * @return
+	 */
+	public static Object convertToDataType(Class<?> type, Object value) {
+		
+		if(type.toString().contains("java.util.ArrayList")) {
+			List<String> parameterListReconstruct = new ArrayList<String>();
+			
+			value = value.toString().replace("[", "").replace("]", "");
+			Object[] parameterList = value.toString().split(",");
+			for(Object listItem: parameterList)
+				parameterListReconstruct.add(listItem.toString().trim());
+			
+			return parameterListReconstruct;
+		}else if (type.toString().contains("java.lang.String")) {
+			return value.toString();
+		}else
+			return JsonHelper.convertToObject(value.toString(), false);
 	}
 
 	/**
