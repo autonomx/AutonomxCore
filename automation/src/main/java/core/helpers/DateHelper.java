@@ -9,14 +9,15 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.WeekFields;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
 
-public class DateHelper {
+import core.support.objects.DateFormats;
 
+public class DateHelper {
+	
 	// get time in milliseconds
 	public String getTimestampMiliseconds() {
 		return getTime("yyyyMMddHHmmssSSSSS");
@@ -67,6 +68,15 @@ public class DateHelper {
 	 * @return
 	 */
 	public String getTime(Instant time, String format) {
+		if(format.startsWith("cc") || format.startsWith("CC")) {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY").withZone(ZoneId.of("UTC"));
+			String year = formatter.format(time).substring(0, 2);
+			int cc = Integer.valueOf(year) + 1;
+			
+			format = format.replace("cc", "").replace("CC", "");
+			formatter = DateTimeFormatter.ofPattern(format).withZone(ZoneId.of("UTC"));
+			return String.valueOf(cc) + formatter.format(time);
+		}
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format).withZone(ZoneId.of("UTC"));
 		return formatter.format(time);
 	}
@@ -199,38 +209,8 @@ public class DateHelper {
 	 * @return
 	 */
 	public LocalDateTime getLocalDateTime(String timeString) {
-		
-		List<String> formats = new ArrayList<String>();
-		formats.add("yyyy-MM-dd HH:mm:ss.SSSSSSSSS");
-		formats.add("yyyy-MM-dd HH:mm:ss.SSSSSSSS");
-		formats.add("yyyy-MM-dd HH:mm:ss.SSSSSS");
-		formats.add("yyyy-MM-dd HH:mm:ss.SSSSS");
-		formats.add("yyyy-MM-dd HH:mm:ss.SSSS");
-		formats.add("yyyy-MM-dd HH:mm:ss.SSS");
-		formats.add("yyyy-MM-dd HH:mm:ss.SS");
-		formats.add("yyyy-MM-dd HH:mm:ss.S");
-		formats.add("yyyy-MM-dd HH:mm:ss");
-		formats.add("yyyy-MM-dd HH:mm");
-		formats.add("yyyy-MM-dd");
-		formats.add("yyyy-MM-ddTHH:mm");
-		formats.add("yyyy-MM-ddTHH:mm:ss");
-		formats.add("yyyy-MM-dd'T'HH:mm");
-		formats.add("yyyy-MM-dd'T'HH:mm:ss");
-		formats.add("yyyy-MM-dd'T'HH:mm:ssZ");
-		formats.add("yyyy-MM-dd'T'HH:mm:ss'Z'");
-		formats.add("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-		formats.add("yyyy-MM-dd'T'HH:mm:ssX");
-		formats.add("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-		formats.add("yyMMddHHmmssZ");
-		formats.add("yyyyy.MMMMM.dd GGG hh:mm aaa");
-		formats.add("yyMMddHHmmssZ");
-		formats.add("yyMMddHHmm");
-		formats.add("yyyy.MM.dd G 'at' HH:mm:ss z");
-		formats.add("h:mm a");
-		formats.add("yyyyy.MMMMM.dd GGG hh:mm aaa");
-		formats.add("ccyy-mm-dd");
 
-		for(String format : formats) {
+		for(String format : DateFormats.dateFormats) {
 			try {
 				DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
 				LocalDateTime dateTime = LocalDateTime.parse(timeString.trim(), formatter);
