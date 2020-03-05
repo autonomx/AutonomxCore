@@ -173,6 +173,9 @@ public class ServiceRunner {
 		bw.append("		// set parent object" + " \n");
 		bw.append("		ServiceManager.setupParentObject(serviceObject);" + " \n");
 		bw.newLine();
+		bw.append("		// evaluate options" + " \n");
+		bw.append("		ServiceManager.evaluateOption(serviceObject);" + " \n");
+		bw.newLine();
 		bw.append("		// set test base override" + " \n");
 		bw.append("		ServiceManager.setTestBaseOverride(serviceObject);" + " \n");
 		bw.newLine();

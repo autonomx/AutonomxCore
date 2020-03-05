@@ -123,6 +123,8 @@ public class TestObject {
 	public Map<String, ServiceObject> apiMap = new ConcurrentHashMap<String, ServiceObject>();// api keywords
 	public Map<String, Object> config = new ConcurrentHashMap<String, Object>();
 	public Multimap<String, String> configKeys = ArrayListMultimap.create();
+	public List<TestObject> testObjects = new ArrayList<TestObject>(); // parent test objects keeps track of child test objects
+
 
 	public static ThreadLocal<String> currentTestName = new ThreadLocal<String>();
 	public static ThreadLocal<String> currentTestId = new ThreadLocal<String>(); // key for testObject

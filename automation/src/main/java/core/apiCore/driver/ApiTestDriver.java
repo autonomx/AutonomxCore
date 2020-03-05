@@ -86,6 +86,30 @@ public class ApiTestDriver {
 	public static TestObject getParentTestObject(ServiceObject serviceObject) {
 		return TestObject.getTestInfo(serviceObject.getParent());
 	}
+	
+	public static TestObject getParentTestObject(String parentId) {
+		return TestObject.getTestInfo(parentId);
+	}
+	
+	public static TestObject getParentTestObject() {
+		return ApiTestDriver.getParentTestObject(TestObject.getTestInfo().serviceObject);
+	}
+	
+	
+	/**
+	 * store all child tests objects in parent object as list
+	 */
+	public static void parentTrackChildTests() {
+		
+		if(TestObject.getTestInfo().serviceObject == null) return;
+		String parentId = TestObject.getTestInfo().serviceObject.getParent();
+		if(!TestObject.isTestObjectSet(parentId)) return;
+		
+		// if service test, parent test objects keeps track of the child test objects
+		ApiTestDriver.getParentTestObject(parentId).testObjects.add(TestObject.getTestInfo());
+	}
+	
+	
 
 	/**
 	 * returns true if all tests in current csv file are completed

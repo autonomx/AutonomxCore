@@ -181,6 +181,9 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		// mobile device is now available again
 		DeviceManager.setDeviceAvailability(true);
+		
+		// if service test, parent test objects keeps track of the child test objects
+		ApiTestDriver.parentTrackChildTests();
 	}
 
 	@Override
@@ -202,6 +205,9 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		// stop screen recording if enabled
 		ScreenRecorderHelper.stopRecording();
+		
+		// if service test, parent test objects keeps track of the child test objects
+		ApiTestDriver.parentTrackChildTests();
 	}
 
 	@Override

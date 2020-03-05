@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.testng.SkipException;
 
 import core.apiCore.driver.ApiTestDriver;
 import core.apiCore.helpers.CsvReader;
@@ -72,6 +73,9 @@ public class ServiceManager {
 	public static final String OPTION_RETRY_AFTER_SECONDS = "RETRY_AFTER_SECONDS";
 	public static final String SERVICE_RETRY_COUNT = "service.retry.count";
 	public static final String SERVICE_RETRY_AFTER_SERCONDS = "service.retry.after.seconds";
+	
+	public static final String DEPENDS_ON_TEST = "DEPENDS_ON_TEST";
+
 
 	public static void runInterface(ServiceObject serviceObject) throws Exception {
 		runCsvInterface(serviceObject);
@@ -330,4 +334,57 @@ public class ServiceManager {
 
 		TestObject.getTestInfo().serviceObject = serviceObject;
 	}
+	/**
+	 * set run count for individual test case
+	 * 
+	 * @param serviceObject
+	 * @return
+	 */
+	public static void evaluateOption(ServiceObject serviceObject) {
+
+		// reset validation timeout. will be overwritten by option value if set
+		resetOptions();
+
+		// if no option specified
+		if (serviceObject.getOption().isEmpty()) {
+			return;
+		}
+
+		// store value to config directly using format: value:<$key> separated by colon
+		// ';'
+		DataHelper.saveDataToConfig(serviceObject.getOption());
+
+		// replace parameters for request body
+		serviceObject.withOption(DataHelper.replaceParameters(serviceObject.getOption()));
+
+		// get key value mapping of header parameters
+		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getOption());
+
+		// iterate through key value pairs for headers, separated by ";"
+		for (KeyValue keyword : keywords) {
+
+			// if additional options
+			switch (keyword.key) {
+			case DEPENDS_ON_TEST:
+				String testname = keyword.value.toString();
+				List<TestObject> childTests = ApiTestDriver.getParentTestObject(serviceObject).testObjects;
+				for(TestObject test: childTests) {
+					boolean isPass = test.caughtThrowable == null;
+					if(test.getTestName().equals(testname) && !isPass)
+						throw new SkipException("depends on failed test: " + testname);
+				}
+				break;
+			default:
+				break;
+			}
+		}
+	}
+	
+	/**
+	 * reset option values to default from config
+	 */
+	private static void resetOptions() {
+		// reset options
+	}
+	
 }
