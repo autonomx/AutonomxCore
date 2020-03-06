@@ -209,6 +209,7 @@ public class RestApiInterface {
 			TestLog.logPass("Validating page: " + index);
 
 			// update uri to include the incrementally increasing page numbers
+			// resets page number to <@PAGINATION> keyword which will get overwritten
 			serviceObject = serviceObject.withUriPath(uri);
 			Config.putValue(API_PAGINATION_COUNTER, index);
 
@@ -226,8 +227,6 @@ public class RestApiInterface {
 			// if errors (requirements not met), reset errors for next page
 			if (!serviceObject.getErrorMessages().isEmpty()) {
 				TestLog.logPass(Arrays.toString(serviceObject.getErrorMessages().toArray()));
-				List<String> errors = new ArrayList<String>();
-				serviceObject.withErrorMessages(errors);
 			} else if (serviceObject.getErrorMessages().isEmpty()) {
 				isCriteriaSuccess = true;
 				break;
@@ -275,6 +274,10 @@ public class RestApiInterface {
 
 		do {
 			currentRetryCount++;
+			
+			// reset error list
+			List<String> errors = new ArrayList<String>();
+			serviceObject.withErrorMessages(errors);
 
 			if (currentRetryCount > 1)
 				TestLog.ConsoleLog("attempt #" + (currentRetryCount));
@@ -289,7 +292,7 @@ public class RestApiInterface {
 			// other)
 			serviceObject.withRequestBody(DataHelper.getRequestBodyIncludingTemplate(serviceObject));
 
-			// send request And receive a response
+			// send request And receive a response. adds errors if exception
 			serviceObject = evaluateRequest(serviceObject, request);
 
 			// validate the response
@@ -298,7 +301,6 @@ public class RestApiInterface {
 			passedTimeInSeconds = watch.time(TimeUnit.SECONDS);
 
 			// if validation timeout is not enabled, break out of the loop
-			// retry only applicable to GET call
 			boolean isValidationTimeout = Config.getBooleanValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED);
 			maxRetrySeconds = Config.getIntValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS);
 			if (!isValidationTimeout)
