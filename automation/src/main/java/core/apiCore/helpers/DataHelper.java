@@ -625,7 +625,7 @@ public class DataHelper {
 						
 			if (!position.isEmpty() && positionInt > 0) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " does not contain " + expectedString);
-				val = !actualString.contains(expectedString);
+				val = !isListContain(actualString, expectedArray);
 				if (!val)
 					return actualString + " does contain " + expectedString;
 			} else if (!position.isEmpty() && positionInt == 0) {
@@ -651,12 +651,12 @@ public class DataHelper {
 			
 			if (!position.isEmpty() && positionInt > 0) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " contains " + expectedString);
-				val = actualString.contains(expectedString);
+				val = isListContain(actualString, expectedArray);
 				if (!val)
 					return actualString + " does not contain " + expectedString;
 			} else if (!position.isEmpty() && positionInt == 0) {
-				TestLog.logPass("verifying: '" + responseString + "' contains " + expectedString);
-				val = responseString.contains(expectedString);
+				TestLog.logPass("verifying1: '" + responseString + "' contains " + expectedString);
+				val = isListContain(responseString, expectedArray);
 				if (!val)
 					return responseString + " does not contain " + expectedString;
 			} else {
@@ -1418,6 +1418,22 @@ public class DataHelper {
 		}
 		array = list.toArray(new String[0]);
 		return array;
+	}
+	
+	/**
+	 * verifies actual string contains list of expected values
+	 * @param actual
+	 * @param expectedValues
+	 * @return
+	 */
+	public static boolean isListContain(String actual, List<String> expectedValues) {
+		actual = actual.trim().replace("\"", "");
+		
+		for(String expected : expectedValues) {
+			if(!actual.contains(expected))
+				return false;	
+		}
+		return true;
 	}
 
 }
