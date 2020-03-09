@@ -232,6 +232,9 @@ public class MessageQueueHelper {
 		// return if no validation required
 		if (serviceObject.getExpectedResponse().isEmpty())
 			return;
+		
+		// replace values in expected response
+		serviceObject.withExpectedResponse(DataHelper.replaceParameters(serviceObject.getExpectedResponse()));
 
 		CopyOnWriteArrayList<MessageObject> filteredMessages = new CopyOnWriteArrayList<>();
 		List<String> errorMessages = new ArrayList<String>();

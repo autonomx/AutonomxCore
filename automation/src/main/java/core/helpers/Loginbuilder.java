@@ -42,6 +42,13 @@ public class Loginbuilder {
 
 		return this;
 	}
+	
+	public Loginbuilder withOptionalSubmit(EnhancedBy element, EnhancedBy expected) {
+		ActionObject action = new ActionObject().withElement1(element).withElement2(expected).withAction(ACTION.OPTIONAL_CLICK_AND_EXPECT);
+		TestObject.getTestInfo().login.withLoginSequence(action);
+
+		return this;
+	}
 
 	public Loginbuilder withFormSubmit(EnhancedBy element, EnhancedBy expected) {
 		ActionObject action = new ActionObject().withElement1(element).withElement2(expected).withAction(ACTION.SUBMIT);
@@ -128,11 +135,11 @@ public class Loginbuilder {
 
 		// set login info at default test object level
 		setGlobalUserCredentials();
-
+		
 		List<ActionObject> sequence = TestObject.getTestInfo().login.getLoginSequence();
-
+	
 		ensurePageLoaded(sequence);
-
+		
 		for (ActionObject action : sequence) {
 
 			switch (action.getAction()) {
@@ -153,6 +160,10 @@ public class Loginbuilder {
 				if (Helper.isPresent(action.getElement1()))
 					Helper.clickAndWait(action.getElement1(), 0);
 				break;
+			case OPTIONAL_CLICK_AND_EXPECT:
+				if (Helper.isPresent(action.getElement1()))
+					Helper.form.formSubmitNoRetry(action.getElement1(), action.getElement2());
+				break;
 			case SUBMIT:
 				Helper.form.formSubmitNoRetry(action.getElement1(), action.getElement2());
 				break;
@@ -171,17 +182,16 @@ public class Loginbuilder {
 			}
 		}
 	}
-
+	
 	/**
-	 * store user credentials at global level this is used to keep track of user
-	 * login across different tests also store username field to check if user is at
-	 * login page
+	 * store user credentials at global level
+	 * this is used to keep track of user login across different tests
+	 * also store username field to check if user is at login page
 	 */
 	private void setGlobalUserCredentials() {
-		// if single sign in is disabled, return
-		if (!CrossPlatformProperties.isSingleSignIn())
-			return;
-
+		// if single sign in is disabled, return 
+		if (!CrossPlatformProperties.isSingleSignIn()) return;
+		
 		// set login info at suite level
 		String username = TestObject.getTestInfo().login.getUsername();
 		String password = TestObject.getTestInfo().login.getPassword();
@@ -189,9 +199,8 @@ public class Loginbuilder {
 	}
 
 	/**
-	 * looks for the first element in the login builder if not displayed, then retry
-	 * refreshing the page
-	 * 
+	 * looks for the first element in the login builder
+	 * if not displayed, then retry refreshing the page
 	 * @param sequence
 	 */
 	private void ensurePageLoaded(List<ActionObject> sequence) {
@@ -200,20 +209,20 @@ public class Loginbuilder {
 		if (sequence.size() == 0)
 			return;
 
-		int retry = 3;
+		int retry = 3;		
 		EnhancedBy firstElement = sequence.get(0).getElement1();
-
+		
 		do {
 			retry--;
 			Helper.waitForElementToLoad(firstElement, AbstractDriver.TIMEOUT_SECONDS - 1);
 			if (!Helper.isPresent(firstElement))
 				Helper.refreshPage();
-
+	
 		} while (!Helper.isPresent(firstElement) && retry > 0);
 
 		// if element is not displayed, through login exception
 		if (!Helper.isPresent(firstElement))
-			Helper.assertFalse("element '" + firstElement.name + "' did not load");
-
+				Helper.assertFalse("element '" + firstElement.name + "' did not load");
+		
 	}
 }

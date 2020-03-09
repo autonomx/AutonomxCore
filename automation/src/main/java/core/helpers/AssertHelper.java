@@ -15,32 +15,60 @@ public class AssertHelper {
 	 * @param value
 	 */
 	protected static void assertTrue(String message, boolean value) {
-		if (!value)
-			TestLog.ConsoleLog("Assertion failed: " + message);
-		Assert.assertTrue(value, TestObject.getTestId() + ": " + message);
+		try {
+			Assert.assertTrue(value, TestObject.getTestId() + ": " + message);
+		} catch (AssertionError e) {
+			e.printStackTrace();
+			throw e;
+		}
 	}
 
 	protected static void assertFalse(String message) {
-		Assert.assertTrue(false, TestObject.getTestId() + ": " + message);
+		try {
+			Assert.assertTrue(false, TestObject.getTestId() + ": " + message);
+		} catch (AssertionError e) {
+			e.printStackTrace();
+			throw e;
+		}
 	}
 
 	protected static void assertFalse(String message, boolean value) {
-		Assert.assertTrue(!value, TestObject.getTestId() + ": " + message);
+		try {
+			Assert.assertTrue(!value, TestObject.getTestId() + ": " + message);
+		} catch (AssertionError e) {
+			e.printStackTrace();
+			throw e;
+		}
 	}
 
 	protected static void assertEquals(String expected, String actual) {
 		TestLog.logPass("validating if expected: " + expected + " equals to actual: " + actual);
-		Assert.assertEquals(actual, expected);
+		try {
+			Assert.assertEquals(actual, expected);
+		} catch (AssertionError e) {
+			e.printStackTrace();
+			throw e;
+		}
 	}
 
 	protected static void assertEquals(boolean expected, boolean actual) {
 		TestLog.logPass("validating if expected: " + expected + " equals to actual: " + actual);
-		Assert.assertEquals(actual, expected);
+		try {
+			Assert.assertEquals(actual, expected);
+		} catch (AssertionError e) {
+			e.printStackTrace();
+			throw e;
+		}
 	}
 
 	protected static void assertEquals(int expected, int actual) {
 		TestLog.logPass("validating if expected: " + expected + " equals to actual: " + actual);
-		Assert.assertEquals(actual, expected);
+		try {
+			Assert.assertEquals(actual, expected);
+		} catch (AssertionError e) {
+			e.printStackTrace();
+			throw e;
+		}
 	}
 
 	protected static void softAssertTrue(String message, boolean value) {

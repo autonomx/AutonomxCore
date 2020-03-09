@@ -193,10 +193,9 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				}
 			} catch (Exception e) {
 				resetElement();
-				String message = e.getLocalizedMessage();
-				String rootCause = message.substring(0, message.indexOf("\n"));
-				exception.add(rootCause);
-				TestLog.ConsoleLog("click failed for element: " + elementName + ": " + rootCause);
+				String cause = e.getCause().toString();
+				exception.add(cause);
+				TestLog.ConsoleLog("click failed for element: " + elementName + ": " + cause);
 			}
 		} while (!success && retry > 0);
 	}
@@ -369,10 +368,9 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				}
 			} catch (Exception e) {
 				resetElement();
-				String message = e.getLocalizedMessage();
-				String rootCause = message.substring(0, message.indexOf("\n"));
-				exception.add(rootCause);
-				TestLog.ConsoleLog("send keys failed for element: " + elementName + ": " + rootCause);
+				String cause = e.getCause().toString();
+				exception.add(cause);
+				TestLog.ConsoleLog("send keys failed for element: " + elementName + ": " + cause);
 
 			}
 		} while (!success && retry > 0);
@@ -394,9 +392,8 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				}
 			} catch (Exception e) {
 				resetElement();
-				String message = e.getLocalizedMessage();
-				String rootCause = message.substring(0, message.indexOf("\n"));
-				TestLog.ConsoleLog("sendkey failed: " + rootCause);
+				String cause = e.getCause().toString();
+				TestLog.ConsoleLog("sendkey failed: " + cause);
 			}
 		} while (!success && retry > 0);
 

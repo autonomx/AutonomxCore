@@ -3,6 +3,7 @@ package core.helpers;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -386,6 +387,12 @@ public class MobileHelper {
 
 	public void mobile_switchToView(String view) {
 		setAppiumContexts(view);
+	}
+	
+	public void switchWindowsHandle(int index) {
+		Set<String> windowHandles = getAppiumDriver().getWindowHandles();
+		List<String> windowStrings = new ArrayList<>(windowHandles);
+		getAppiumDriver().switchTo().window(windowStrings.get(index));
 	}
 
 	public void mobile_longPress(EnhancedBy target, long miliSeconds) {

@@ -301,7 +301,7 @@ public class JsonHelper {
 				expectedValue = "";
 			}
 
-			TestLog.ConsoleLog("command: " + command + "json path: " + jsonPath);
+			TestLog.ConsoleLog("command: <" + command + "> json path: <" + jsonPath + ">");
 			// get response string from json path (eg. data.user.id) would return "2"
 			String jsonResponse = getJsonValue(responseString, jsonPath);
 

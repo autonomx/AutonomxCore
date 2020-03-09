@@ -42,8 +42,9 @@ public class TestLog {
 
 	public static final String ENABLE_EXTENT_SUBSTEPS = "report.enableDetailedReport";
 	public static final String ENABLE_DEBUG = "console.debug.enable";
+	public static final String IS_LOG_LIMIT = "log.limit.enabled";
+	public static final String LOG_MAX_LIMIT = "log.max.limit.char";
 
-	public static int MAX_LENGTH = 400; // in chars. currently disabled
 	public static String WATSON = "WATSON";
 	public static String MARY = "MARY";
 
@@ -313,8 +314,7 @@ public class TestLog {
 	 * @return formatted message based on value and arguments
 	 */
 	public static String formatMessage(String value, Object... args) {
-		// disabled. enable if we ever want to limit the value length
-		// value = setMaxLength(value);
+		 value = setMaxLength(value);
 
 		if (args == null || args.length == 0) {
 			return value;
@@ -334,7 +334,12 @@ public class TestLog {
 	 * @return truncated message to maximum length
 	 */
 	public static String setMaxLength(String value) {
-		return setMaxLength(value, MAX_LENGTH);
+		boolean isLogLimit = Config.getBooleanValue(IS_LOG_LIMIT);
+		int logMaxLimit = Config.getIntValue(LOG_MAX_LIMIT);
+		if(isLogLimit)
+			return setMaxLength(value, logMaxLimit);
+		else
+			return value;
 	}
 
 	/**
@@ -347,7 +352,7 @@ public class TestLog {
 		// limit the max size of string
 		int maxLength = (value.length() < length) ? value.length() : length;
 		if (maxLength == length)
-			return value.substring(0, maxLength) + " ...";
+			return value.substring(0, maxLength) + "...";
 		return value.substring(0, maxLength);
 	}
 
