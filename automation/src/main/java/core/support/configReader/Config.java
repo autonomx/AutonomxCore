@@ -513,24 +513,12 @@ public class Config {
 	 * @param value value associated with key
 	 */
 	public static void putValue(String key, Object value, boolean isLog) {
-		Object existingValue = TestObject.getTestInfo().config.get(key);
-
-		// don't add if value already exists
-		if (existingValue != null && existingValue.equals(value))
-			return;
-
 		if (isLog)
 			TestLog.logPass("storing in key: " + key + " value: " + value);
 		TestObject.getTestInfo().config.put(key, value);
 	}
 
 	public static void putValue(String key, Object value, String info) {
-		Object existingValue = TestObject.getTestInfo().config.get(key);
-
-		// don't add if value already exists
-		if (existingValue != null && existingValue.equals(value))
-			return;
-
 		TestLog.logPass("storing in key: " + key + " value: " + info);
 		TestObject.getTestInfo().config.put(key, value);
 	}

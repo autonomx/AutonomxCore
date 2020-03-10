@@ -221,8 +221,8 @@ public class KafkaInterface {
 
 		String defaultTopic = TestObject.getDefaultTestInfo().config.get(KFAKA_TOPIC).toString();
 		String ouboundTopic = TestObject.getDefaultTestInfo().config.get(KFAKA_OUTBOUND_TOPIC).toString();
-		Config.putValue(KFAKA_TOPIC, defaultTopic);
-		Config.putValue(KFAKA_OUTBOUND_TOPIC, ouboundTopic);
-		Config.putValue(MessageQueueHelper.RESPONSE_IDENTIFIER, StringUtils.EMPTY);
+		Config.putValue(KFAKA_TOPIC, defaultTopic, false);
+		Config.putValue(KFAKA_OUTBOUND_TOPIC, ouboundTopic, false);
+		Config.putValue(MessageQueueHelper.RESPONSE_IDENTIFIER, StringUtils.EMPTY, false);
 	}
 }

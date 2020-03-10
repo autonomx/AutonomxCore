@@ -196,11 +196,11 @@ public class ServiceBusInterface {
 		String defaultQueue = TestObject.getDefaultTestInfo().config.get(SERVICEBUS_QUEUE).toString();
 		String defaultHost = TestObject.getDefaultTestInfo().config.get(SERVICEBUS_HOST).toString();
 
-		Config.putValue(SERVICEBUS_TOPIC, defaultTopic);
-		Config.putValue(SERVICEBUS_OUTBOUND_TOPIC, outboundTopic);
-		Config.putValue(SERVICEBUS_QUEUE, defaultQueue);
-		Config.putValue(SERVICEBUS_HOST, defaultHost);
-		Config.putValue(MessageQueueHelper.RESPONSE_IDENTIFIER, StringUtils.EMPTY);
+		Config.putValue(SERVICEBUS_TOPIC, defaultTopic, false);
+		Config.putValue(SERVICEBUS_OUTBOUND_TOPIC, outboundTopic, false);
+		Config.putValue(SERVICEBUS_QUEUE, defaultQueue, false);
+		Config.putValue(SERVICEBUS_HOST, defaultHost, false);
+		Config.putValue(MessageQueueHelper.RESPONSE_IDENTIFIER, StringUtils.EMPTY, false);
 	}
 
 	/**

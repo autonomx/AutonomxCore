@@ -97,9 +97,14 @@ public class DataHelper {
 			if (value == null)
 				TestLog.logWarning("parameter value not found: " + parameter);
 			else {
-				TestLog.ConsoleLog("replacing value " + parameter + "  with: " + value);
-				source = source.replace("<@" + parameter + ">", Matcher.quoteReplacement(value.toString()));
-			}
+					// don't log if value already replaced
+					if(TestObject.getTestInfo().replacedValues.get(parameter) == null || !TestObject.getTestInfo().replacedValues.get(parameter).toString().equals(value.toString()))
+					{
+						TestLog.ConsoleLog("replacing value " + parameter + "  with: " + value);
+						TestObject.getTestInfo().replacedValues.put(parameter, value);
+					}
+					source = source.replace("<@" + parameter + ">", Matcher.quoteReplacement(value.toString()));
+				}
 		}
 
 		return source;

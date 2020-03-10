@@ -711,9 +711,9 @@ public class RestApiInterface {
 		if (defaultValidationTimeoutDelay == -1)
 			defaultValidationTimeoutDelay = 3;
 
-		Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, defaultValidationTimeoutIsEnabled);
-		Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS, defaultValidationTimeoutIsSeconds);
-		Config.putValue(ServiceManager.SERVICE_RESPONSE_DELAY_BETWEEN_ATTEMPTS_SECONDS, defaultValidationTimeoutDelay);
+		Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, defaultValidationTimeoutIsEnabled, false);
+		Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS, defaultValidationTimeoutIsSeconds, false);
+		Config.putValue(ServiceManager.SERVICE_RESPONSE_DELAY_BETWEEN_ATTEMPTS_SECONDS, defaultValidationTimeoutDelay, false);
 
 		// reset retry count
 		int defaultRetryCount = Config.getGlobalIntValue(ServiceManager.SERVICE_RETRY_COUNT);
@@ -724,13 +724,13 @@ public class RestApiInterface {
 		if (defaultRetryAfterSeconds == -1)
 			defaultRetryAfterSeconds = 1;
 
-		Config.putValue(ServiceManager.SERVICE_RETRY_COUNT, defaultRetryCount);
-		Config.putValue(ServiceManager.SERVICE_RETRY_AFTER_SERCONDS, defaultRetryAfterSeconds);
+		Config.putValue(ServiceManager.SERVICE_RETRY_COUNT, defaultRetryCount, false);
+		Config.putValue(ServiceManager.SERVICE_RETRY_AFTER_SERCONDS, defaultRetryAfterSeconds, false);
 
-		Config.putValue(API_PAGINATION_STOP_CRITERIA, "");
-		Config.putValue(API_PAGINATION_MAX_PAGES, 100);
-		Config.putValue(API_PAGINATION_PAGES_FROM, 1);
-		Config.putValue(API_PAGINATION_INCREMENT, 1);
+		Config.putValue(API_PAGINATION_STOP_CRITERIA, "", false);
+		Config.putValue(API_PAGINATION_MAX_PAGES, 100, false);
+		Config.putValue(API_PAGINATION_PAGES_FROM, 1, false);
+		Config.putValue(API_PAGINATION_INCREMENT, 1, false);
 	}
 
 	public static ServiceObject evaluateRequest(ServiceObject serviceObject, RequestSpecification request) {

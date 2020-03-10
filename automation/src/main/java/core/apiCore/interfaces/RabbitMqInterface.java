@@ -221,11 +221,11 @@ public class RabbitMqInterface {
 		String defaultQueue = TestObject.getDefaultTestInfo().config.get(RABBIT_MQ_QUEUE).toString();
 		String outboundQueue = TestObject.getDefaultTestInfo().config.get(RABBIT_MQ_OUTBOUND_QUEUE).toString();
 
-		Config.putValue(RABBIT_MQ_EXCHANGE, defaultExchange);
-		Config.putValue(RABBIT_MQ_QUEUE, defaultQueue);
-		Config.putValue(RABBIT_MQ_OUTBOUND_QUEUE, outboundQueue);
-		Config.putValue(RABBIT_MQ_OUTBOUND_EXCHANGE, outboundExchange);
-		Config.putValue(MessageQueueHelper.RESPONSE_IDENTIFIER, StringUtils.EMPTY);
+		Config.putValue(RABBIT_MQ_EXCHANGE, defaultExchange, false);
+		Config.putValue(RABBIT_MQ_QUEUE, defaultQueue, false);
+		Config.putValue(RABBIT_MQ_OUTBOUND_QUEUE, outboundQueue, false);
+		Config.putValue(RABBIT_MQ_OUTBOUND_EXCHANGE, outboundExchange, false);
+		Config.putValue(MessageQueueHelper.RESPONSE_IDENTIFIER, StringUtils.EMPTY, false);
 	}
 
 	/**
