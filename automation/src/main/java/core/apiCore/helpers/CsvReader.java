@@ -588,6 +588,6 @@ public class CsvReader {
 	 */
 	private static void resetOptions() {
 		// reset options
-		Config.putValue(SERVICE_RUN_COUNT, 1);
+		Config.putValue(SERVICE_RUN_COUNT, 1, false);
 	}
 }
