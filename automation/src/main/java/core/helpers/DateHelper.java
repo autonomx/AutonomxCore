@@ -210,15 +210,34 @@ public class DateHelper {
 	 */
 	public LocalDateTime getLocalDateTime(String timeString) {
 
+		LocalDateTime dateTime = null;
+		timeString = timeString.trim();
+		
+		// for date formats
 		for(String format : DateFormats.dateFormats) {
 			try {
 				DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
-				LocalDateTime dateTime = LocalDateTime.parse(timeString.trim(), formatter);
+				dateTime = LocalDateTime.parse(timeString.trim(), formatter);
 				return dateTime;
 			}catch(Exception e) {
 				e.getMessage();
 			}
 		}
+		
+		// for epoch time for seconds and milliseconds
+		if(Helper.isNumeric(timeString)) {
+			try {
+				Long epochTime = Long.valueOf(timeString);
+				if(timeString.length() <= 10)
+					dateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(epochTime), ZoneId.of("UTC"));
+				else 
+					dateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(epochTime), ZoneId.of("UTC"));
+				return dateTime;
+			}catch(Exception e) {
+				e.getMessage();
+			}
+		}
+		
 		Helper.assertFalse("no matching date format for string: " + timeString);
 		return null;
 	}
