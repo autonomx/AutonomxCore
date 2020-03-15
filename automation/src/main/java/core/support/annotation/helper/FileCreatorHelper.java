@@ -5,8 +5,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import javax.lang.model.element.Element;
-
 import org.apache.commons.lang3.StringUtils;
 
 import core.helpers.Helper;
