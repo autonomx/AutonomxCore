@@ -12,6 +12,8 @@ import core.support.configReader.PropertiesReader;
 public class DataObjectHelper {
 
 	public static String DATA_FOLDER = "data";
+	public static String OBJECT_FOLDER = "object";
+
 	private static String SOURCE_PATH = PropertiesReader.getLocalRootPath() + "src" + File.separator + "main";
 
 	/**
@@ -35,7 +37,7 @@ public class DataObjectHelper {
 	public static List<File> getTestDataCsvFiles(List<File> files) {
 		List<File> dataFiles = new ArrayList<File>();
 		for (File file : files) {
-			if (file.getAbsolutePath().contains(DATA_FOLDER)) {
+			if (file.getAbsolutePath().contains(DATA_FOLDER) || file.getAbsolutePath().contains(OBJECT_FOLDER)) {
 				dataFiles.add(file);
 			}
 		}

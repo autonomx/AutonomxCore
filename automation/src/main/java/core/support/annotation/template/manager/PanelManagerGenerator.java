@@ -1,14 +1,13 @@
 package core.support.annotation.template.manager;
 
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import javax.lang.model.element.Element;
-import javax.tools.JavaFileObject;
 
 import core.support.annotation.helper.FileCreatorHelper;
 import core.support.annotation.helper.Logger;
@@ -16,7 +15,7 @@ import core.support.annotation.helper.PackageHelper;
 
 public class PanelManagerGenerator {
 
-	public static void writePanelManagerClass(Map<String, List<Element>> panelMap) {
+	public static void writePanelManagerClass(Map<String, List<String>> panelMap) {
 		try {
 			writePanelManagerClassImplementation(panelMap);
 		} catch (Exception e) {
@@ -24,21 +23,22 @@ public class PanelManagerGenerator {
 		}
 	}
 
-	public static void writePanelManagerClassImplementation(Map<String, List<Element>> panelMap) throws IOException {
+	public static void writePanelManagerClassImplementation(Map<String, List<String>> panelMap) throws IOException {
 
 		Logger.debug("<<<<start generating panel manager class>>>>");
 
 		Logger.debug("writePanelManagerClass: panelManagers: " + panelMap.size());
-		for (Entry<String, List<Element>> entry : panelMap.entrySet()) {
+		for (Entry<String, List<String>> entry : panelMap.entrySet()) {
 
-			Element firstElement = entry.getValue().get(0);
+			String firstElement = entry.getValue().get(0);
 
 			Logger.debug("panel name: " + entry.getKey());
-			Logger.debug("panel value: " + entry.getValue().get(0).asType().toString());
+			Logger.debug("panel value: " + entry.getValue());
 
-			JavaFileObject fileObject = FileCreatorHelper.createFile(firstElement);
+			File file = FileCreatorHelper.createPanelManagerFile(firstElement);
+			FileWriter fw = new FileWriter(file);
+		    BufferedWriter  bw = new BufferedWriter(fw);
 
-			BufferedWriter bw = new BufferedWriter(fileObject.openWriter());
 			Date currentDate = new Date();
 			bw.append("/**Auto generated code,don't modify it.\n");
 			bw.append("* Author             ---- > Auto Generated.\n");
@@ -50,8 +50,8 @@ public class PanelManagerGenerator {
 			bw.newLine();
 
 			// add the panel imports
-			for (Element element : entry.getValue()) {
-				String panelPath = element.asType().toString();
+			for (String element : entry.getValue()) {
+				String panelPath = element.toString();
 				bw.append("import " + panelPath + ";\n");
 			}
 			bw.append("import core.support.configReader.Config;\n");
@@ -64,8 +64,8 @@ public class PanelManagerGenerator {
 			bw.append("public class " + "PanelManager {\n\n\n");
 
 			// add panel declarations
-			for (Element element : entry.getValue()) {
-				String panelName = element.getSimpleName().toString();
+			for (String element : entry.getValue()) {
+				String panelName = element.substring(element.lastIndexOf('.') + 1).trim();
 
 				bw.append("public " + panelName + " " + panelName.replace("Panel", "").toLowerCase() + " = new "
 						+ panelName + "(this);\n");

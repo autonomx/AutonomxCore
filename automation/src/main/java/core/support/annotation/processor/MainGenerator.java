@@ -7,30 +7,28 @@ package core.support.annotation.processor;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import javax.tools.JavaFileObject;
 
 import com.google.auto.service.AutoService;
 
 import core.helpers.Helper;
 import core.support.annotation.helper.FileCreatorHelper;
 import core.support.annotation.helper.Logger;
-import core.support.annotation.helper.annotationMap.DataMapHelper;
-import core.support.annotation.helper.annotationMap.PanelMapHelper;
-import core.support.annotation.helper.annotationMap.ServiceMapHelper;
+import core.support.annotation.helper.annotationMap.AnnotationObject;
+import core.support.annotation.helper.annotationMap.ModuleMapHelper;
 import core.support.annotation.template.config.ConfigManager;
 import core.support.annotation.template.config.ConfigVariableGenerator;
 import core.support.annotation.template.dataObject.CsvDataObject;
@@ -43,53 +41,57 @@ import core.support.annotation.template.service.ServiceData;
 import core.support.annotation.template.service.ServiceRunner;
 import core.support.configReader.PropertiesReader;
 
-@SupportedAnnotationTypes(value = { "core.support.annotation.Panel", "core.support.annotation.Data",
-		"core.support.annotation.Service" })
+@SupportedAnnotationTypes(value = { "core.support.annotation.Panel", "core.support.annotation.Data", "core.support.annotation.Service" })
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 @AutoService(javax.annotation.processing.Processor.class)
 public class MainGenerator extends AbstractProcessor {
 
 	private static boolean isAnnotationRun = false;
-	public static ProcessingEnvironment PROCESS_ENV;
 
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 
+		return runAnnotation();
+	}
+	
+	public static boolean runAnnotation() {
 		if (!isAnnotationRun) {
 			isAnnotationRun = true;
 
-			PROCESS_ENV = processingEnv;
-
-			System.out.println("Annotation called");
+			Logger.debug("Annotation called");
 
 			// map of modules and class with @Panel annotation
-			Map<String, List<Element>> appMap = PanelMapHelper.getPanelMap(roundEnv);
+			AnnotationObject annotation = new AnnotationObject().panel();
+			Map<String, List<String>> panelMap = ModuleMapHelper.getModuleMap(annotation);
 
 			// map of modules and classes with @Data annotation
-			Map<String, List<Element>> dataObjectMap = DataMapHelper.getDataObjectMap(roundEnv);
+			annotation = new AnnotationObject().data();
+			Map<String, List<String>> dataMap = ModuleMapHelper.getModuleMap(annotation);
 
-			// map of modules and classes with @Data annotation
-			Map<String, List<Element>> serviceObjectMap = ServiceMapHelper.getServiceObjectMap(roundEnv);
+			// map of modules and classes with @Service annotation
+			annotation = new AnnotationObject().service();
+			Map<String, List<String>> serviceMap = ModuleMapHelper.getModuleMap(annotation);
 
-			for (Entry<String, List<Element>> entry : dataObjectMap.entrySet()) {
-				Logger.debug("data object map: key " + entry.getKey());
-				Logger.debug("data object map: value " + entry.getValue().get(0));
+			// print out the map
+			for (Entry<String, List<String>> entry : dataMap.entrySet()) {
+				Logger.debug("module map: module: " + entry.getKey());
+				Logger.debug("module map: paths: " + Arrays.toString(entry.getValue().toArray())) ;
 
 			}
 
 			// generate managers
-			PanelManagerGenerator.writePanelManagerClass(appMap);
-			ModuleManager.writeModuleManagerClass(appMap);
+			PanelManagerGenerator.writePanelManagerClass(panelMap);
+			ModuleManager.writeModuleManagerClass(panelMap);
 
 			// generate data objects
 			CsvDataObject.writeCsvDataClass();
-			ModuleClass.writeModuleClass(dataObjectMap);
-			DataClass.writeDataClass(dataObjectMap);
+			ModuleClass.writeModuleClass(dataMap);
+			DataClass.writeDataClass(dataMap);
 
 			// generate service objects
 			Service.writeServiceClass();
 			ServiceData.writeServiceDataClass();
-			ServiceRunner.writeServiceClass(serviceObjectMap);
+			ServiceRunner.writeServiceClass(serviceMap);
 
 			// generate config objects
 			ConfigManager.writeConfigManagerClass();
@@ -102,6 +104,7 @@ public class MainGenerator extends AbstractProcessor {
 		}
 		return true;
 	}
+	
 
 	/**
 	 * a marker class is to indicate when the generated files have been created used
@@ -113,9 +116,11 @@ public class MainGenerator extends AbstractProcessor {
 			createFileList("src" + File.separator + "main", "src_dir", false);
 			createFileList("resources" + File.separator + "api" + File.separator + "keywords", "src_dir", true);
 
-			JavaFileObject fileObject = FileCreatorHelper.createMarkerFile();
+			File file = FileCreatorHelper.createMarkerFile();
+			
+			FileWriter fw = new FileWriter(file);
+		    BufferedWriter  bw = new BufferedWriter(fw);
 
-			BufferedWriter bw = new BufferedWriter(fileObject.openWriter());
 			bw.append("/**Auto generated code,don't modify it. */ \n");
 			bw.append("package marker;");
 			bw.append("public class marker {}");

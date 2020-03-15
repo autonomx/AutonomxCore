@@ -2,6 +2,7 @@ package core.support.annotation.template.service;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -107,10 +108,11 @@ public class ServiceData {
 
 		String serviceClassName = StringUtils.capitalize(serviceEntry.getKey());
 
-		String filePath = PackageHelper.SERVICE_PATH + "." + serviceClassName;
-		JavaFileObject fileObject = FileCreatorHelper.createFileAbsolutePath(filePath);
+		String filePath = PackageHelper.SERVICE_PATH + File.separator + serviceClassName;
+		File file = FileCreatorHelper.createFileAbsolutePath(filePath);
+		FileWriter fw = new FileWriter(file);
+	    BufferedWriter  bw = new BufferedWriter(fw);
 
-		BufferedWriter bw = new BufferedWriter(fileObject.openWriter());
 		List<String> parameters = getParameters(serviceEntry.getValue().getRequestBody());
 
 		Date currentDate = new Date();

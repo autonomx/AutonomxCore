@@ -2475,8 +2475,8 @@ public class Helper {
 	 * 
 	 * @param path
 	 */
-	public static void createFileFromPath(String absolutePath) {
-		UtilityHelper.createFileFromPath(absolutePath);
+	public static File createFileFromPath(String absolutePath) {
+		return UtilityHelper.createFileFromPath(absolutePath);
 	}
 
 	/**

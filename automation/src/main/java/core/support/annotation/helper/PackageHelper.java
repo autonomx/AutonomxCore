@@ -29,29 +29,25 @@ public class PackageHelper {
 	 * @param element
 	 * @return
 	 */
-	public static String getModuleName(Element element) {
-		String sourceClass = element.asType().toString();
+	public static String getModuleName(String element) {
+		String sourceClass = element.toString();
 		String module = sourceClass.split("\\.")[1];
 		return module;
 	}
 
-	public static String getPackagePath(Element element) {
-		String sourceClass = element.asType().toString();
+	public static String getPackagePath(String element) {
+		String sourceClass = element.toString();
 		String packagePath = MODULE_MANAGER_PATH + "." + sourceClass.split("\\.")[0] + "."
 				+ sourceClass.split("\\.")[1];
 		return packagePath;
 	}
 
-	/**
-	 * returns package name from file path eg. module.common.data.user will return
-	 * module.common.data
-	 * 
-	 * @param sourceClass
-	 * @return
-	 */
-	public static String getPackagePath(String sourceClass) {
-		int lastIndxDot = sourceClass.lastIndexOf('.');
-		return sourceClass.substring(0, lastIndxDot);
+	public static String getPackageDirectory(String element) {
+		String sourceClass = element.toString();
+		String packagePath = MODULE_MANAGER_PATH + "." + sourceClass.split("\\.")[0] + "."
+				+ sourceClass.split("\\.")[1];
+		packagePath = packagePath.replace(".", File.separator);
+		return packagePath;
 	}
 
 	/**
@@ -76,12 +72,12 @@ public class PackageHelper {
 	 * @param panelMap
 	 * @return
 	 */
-	public static String getFirstModuleFullPath(Map<String, List<Element>> panelMap) {
+	public static String getFirstModuleFullPath(Map<String, List<String>> panelMap) {
 		String sourceClass = "";
-		for (Entry<String, List<Element>> entry : panelMap.entrySet()) {
+		for (Entry<String, List<String>> entry : panelMap.entrySet()) {
 
-			Element firstElement = entry.getValue().get(0);
-			sourceClass = firstElement.asType().toString();
+			String firstElement = entry.getValue().get(0);
+			sourceClass = firstElement.toString();
 			break;
 		}
 		return sourceClass;

@@ -591,8 +591,9 @@ public class UtilityHelper {
 	 * rw-r--r-- set executable to true
 	 * 
 	 * @param path
+	 * @return 
 	 */
-	protected static void createFileFromPath(String absolutePath) {
+	protected static File createFileFromPath(String absolutePath) {
 
 		File file = new File(absolutePath);
 		Path pathToFile = Paths.get(absolutePath);
@@ -608,6 +609,8 @@ public class UtilityHelper {
 		file.setReadable(true);
 		file.setWritable(true);
 		file.setExecutable(true);
+		
+		return file;
 	}
 
 	/**

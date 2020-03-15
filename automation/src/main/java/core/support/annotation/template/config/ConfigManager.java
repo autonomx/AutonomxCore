@@ -1,15 +1,15 @@
 package core.support.annotation.template.config;
 
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 
-import javax.tools.JavaFileObject;
-
+import core.helpers.Helper;
 import core.support.annotation.helper.FileCreatorHelper;
 import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PackageHelper;
-import core.support.annotation.processor.MainGenerator;
 
 public class ConfigManager {
 
@@ -29,11 +29,12 @@ public class ConfigManager {
 			return;
 
 		// create file: ConfigManager.java
-		JavaFileObject fileObject = MainGenerator.PROCESS_ENV.getFiler()
-				.createSourceFile(PackageHelper.CONFIG_MANAGER_PATH + "." + PackageHelper.CONFIG_MANAGER_CLASS);
-		FileCreatorHelper.CONFIG_MODULE_FILE_OBJECT = fileObject;
+		File file = Helper.createFileFromPath(Helper.getRootDir() + FileCreatorHelper.GENERATED_SOURCE_PATH + PackageHelper.CONFIG_MANAGER_PATH + File.separator + PackageHelper.CONFIG_MANAGER_CLASS + ".java");
+		FileWriter fw = new FileWriter(file);
+	    BufferedWriter  bw = new BufferedWriter(fw);
+		
+		FileCreatorHelper.CONFIG_MODULE_FILE_OBJECT = file;
 
-		BufferedWriter bw = new BufferedWriter(fileObject.openWriter());
 		Date currentDate = new Date();
 		bw.append("/**Auto generated code,don't modify it.\n");
 		bw.append("* Author             ---- > Auto Generated.\n");

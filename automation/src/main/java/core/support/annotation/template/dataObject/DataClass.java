@@ -2,6 +2,7 @@ package core.support.annotation.template.dataObject;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +10,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.lang.model.element.Element;
 import javax.tools.JavaFileObject;
 
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +25,7 @@ public class DataClass {
 	public static String MODULE_ROOT = "module";
 	public static String DATA_ROOT = "data";
 
-	public static void writeDataClass(Map<String, List<Element>> panelMap) {
+	public static void writeDataClass(Map<String, List<String>> panelMap) {
 		try {
 			writeDataClassImplementation(panelMap);
 		} catch (Exception e) {
@@ -33,7 +33,7 @@ public class DataClass {
 		}
 	}
 
-	private static void writeDataClassImplementation(Map<String, List<Element>> dataObjectMap) throws Exception {
+	private static void writeDataClassImplementation(Map<String, List<String>> dataObjectMap) throws Exception {
 
 		Logger.debug("<<<< start generating data class >>>>");
 
@@ -59,10 +59,10 @@ public class DataClass {
 //	}
 	private static void writeDataClass(Set<String> modules) throws Exception {
 
-		String filePath = PackageHelper.DATA_PATH + "." + StringUtils.capitalize(DATA_ROOT);
-		JavaFileObject fileObject = FileCreatorHelper.createFileAbsolutePath(filePath);
-
-		BufferedWriter bw = new BufferedWriter(fileObject.openWriter());
+		String filePath = PackageHelper.DATA_PATH + File.separator + StringUtils.capitalize(DATA_ROOT);
+		File file = FileCreatorHelper.createFileAbsolutePath(filePath);
+		FileWriter fw = new FileWriter(file);
+	    BufferedWriter  bw = new BufferedWriter(fw);
 
 		Date currentDate = new Date();
 		bw.append("/**Auto generated code,don't modify it.\n");
@@ -103,9 +103,9 @@ public class DataClass {
 	 * @param dataObjectMap
 	 * @return
 	 */
-	private static Set<String> convertDataObjectToSet(Map<String, List<Element>> dataObjectMap) {
+	private static Set<String> convertDataObjectToSet(Map<String, List<String>> dataObjectMap) {
 		Set<String> modules = new TreeSet<>();
-		for (Entry<String, List<Element>> entry : dataObjectMap.entrySet()) {
+		for (Entry<String, List<String>> entry : dataObjectMap.entrySet()) {
 			modules.add(entry.getKey());
 		}
 		return modules;

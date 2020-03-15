@@ -1,14 +1,13 @@
 package core.support.annotation.template.manager;
 
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import javax.lang.model.element.Element;
-import javax.tools.JavaFileObject;
 
 import core.support.annotation.helper.FileCreatorHelper;
 import core.support.annotation.helper.Logger;
@@ -16,7 +15,7 @@ import core.support.annotation.helper.PackageHelper;
 
 public class ModuleManager {
 
-	public static void writeModuleManagerClass(Map<String, List<Element>> panelMap) {
+	public static void writeModuleManagerClass(Map<String, List<String>> panelMap) {
 		try {
 			writeModuleManagerClassImplementation(panelMap);
 		} catch (Exception e) {
@@ -24,7 +23,7 @@ public class ModuleManager {
 		}
 	}
 
-	private static void writeModuleManagerClassImplementation(Map<String, List<Element>> panelMap) throws IOException {
+	private static void writeModuleManagerClassImplementation(Map<String, List<String>> panelMap) throws IOException {
 		Logger.debug("start generating module manager class");
 
 		// returns module.android.panel
@@ -38,9 +37,10 @@ public class ModuleManager {
 			return;
 
 		// create file: module.appManager.java
-		JavaFileObject fileObject = FileCreatorHelper.createFile(rootModulePath);
+		File file = FileCreatorHelper.createFile(rootModulePath);
+		FileWriter fw = new FileWriter(file);
+	    BufferedWriter  bw = new BufferedWriter(fw);
 
-		BufferedWriter bw = new BufferedWriter(fileObject.openWriter());
 		Date currentDate = new Date();
 		bw.append("/**Auto generated code,don't modify it.\n");
 		bw.append("* Author             ---- > Auto Generated.\n");
@@ -61,8 +61,8 @@ public class ModuleManager {
 		bw.append("public class ModuleManager {\n");
 
 		// add panel declarations
-		for (Entry<String, List<Element>> entry : panelMap.entrySet()) {
-			Element firstElement = entry.getValue().get(0);
+		for (Entry<String, List<String>> entry : panelMap.entrySet()) {
+			String firstElement = entry.getValue().get(0);
 			bw.append("	public " + PackageHelper.getPackagePath(firstElement) + "." + PackageHelper.PANEL_MANAGER_CLASS
 					+ " " + entry.getKey() + " = new " + PackageHelper.getPackagePath(firstElement) + "."
 					+ "PanelManager" + "();\n");

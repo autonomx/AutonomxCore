@@ -1,12 +1,13 @@
 package core.support.annotation.template.service;
 
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.lang.model.element.Element;
 import javax.tools.JavaFileObject;
 
 import org.apache.commons.lang3.StringUtils;
@@ -21,7 +22,7 @@ public class ServiceRunner {
 	public static String SERVICE_ROOT = "serviceManager";
 	public static String SERVICE_RUNNER_CLASS = "ServiceRunner";
 
-	public static void writeServiceClass(Map<String, List<Element>> serviceMap) {
+	public static void writeServiceClass(Map<String, List<String>> serviceMap) {
 		try {
 			writeServiceClassImplementation(serviceMap);
 		} catch (Exception e) {
@@ -29,7 +30,7 @@ public class ServiceRunner {
 		}
 	}
 
-	private static void writeServiceClassImplementation(Map<String, List<Element>> serviceMap) throws Exception {
+	private static void writeServiceClassImplementation(Map<String, List<String>> serviceMap) throws Exception {
 
 		// create separate class for each keyword
 		writeServiceRunner(serviceMap);
@@ -78,16 +79,16 @@ public class ServiceRunner {
 	 * @throws Exception
 	 */
 
-	private static void writeServiceRunner(Map<String, List<Element>> serviceMap) throws Exception {
+	private static void writeServiceRunner(Map<String, List<String>> serviceMap) throws Exception {
 
 		String serviceClassName = StringUtils.capitalize(SERVICE_RUNNER_CLASS);
 
 		Logger.debug("<<<<< start generating service class " + serviceClassName + " >>>>");
 
-		String filePath = PackageHelper.SERVICE_PATH + "." + serviceClassName;
-		JavaFileObject fileObject = FileCreatorHelper.createFileAbsolutePath(filePath);
-
-		BufferedWriter bw = new BufferedWriter(fileObject.openWriter());
+		String filePath = PackageHelper.SERVICE_PATH + File.separator + serviceClassName;
+		File file = FileCreatorHelper.createFileAbsolutePath(filePath);
+		FileWriter fw = new FileWriter(file);
+	    BufferedWriter  bw = new BufferedWriter(fw);
 
 		Date currentDate = new Date();
 		bw.append("/**Auto generated code,don't modify it.\n");
@@ -110,9 +111,9 @@ public class ServiceRunner {
 		bw.append("import core.uiCore.drivers.AbstractDriverTestNG;" + "\n");
 		bw.append("import core.apiCore.ServiceManager;" + "\n");
 		// add the service imports
-		for (Entry<String, List<Element>> entry : serviceMap.entrySet()) {
-			for (Element element : entry.getValue()) {
-				String servicelPath = element.asType().toString();
+		for (Entry<String, List<String>> entry : serviceMap.entrySet()) {
+			for (String element : entry.getValue()) {
+				String servicelPath = element.toString();
 				bw.append("import " + servicelPath + ";\n");
 			}
 		}
@@ -239,9 +240,9 @@ public class ServiceRunner {
 		bw.newLine();
 		bw.append("		switch (serviceObject.getInterfaceType()) {");
 
-		for (Entry<String, List<Element>> entry : serviceMap.entrySet()) {
-			for (Element element : entry.getValue()) {
-				String serviceName = element.getSimpleName().toString();
+		for (Entry<String, List<String>> entry : serviceMap.entrySet()) {
+			for (String element : entry.getValue()) {
+				String serviceName = element.substring(element.lastIndexOf('.') + 1).trim();
 				// first letter is lower cased
 				String lowerCaseServiceName = Character.toLowerCase(serviceName.charAt(0)) + serviceName.substring(1);
 

@@ -2,6 +2,7 @@ package core.support.annotation.template.service;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -75,10 +76,10 @@ public class Service {
 
 		Logger.debug("<<<<< start generating service class " + serviceClassName + " >>>>");
 
-		String filePath = PackageHelper.SERVICE_PATH + "." + serviceClassName;
-		JavaFileObject fileObject = FileCreatorHelper.createFileAbsolutePath(filePath);
-
-		BufferedWriter bw = new BufferedWriter(fileObject.openWriter());
+		String filePath = PackageHelper.SERVICE_PATH + File.separator + serviceClassName;
+		File file = FileCreatorHelper.createFileAbsolutePath(filePath);
+		FileWriter fw = new FileWriter(file);
+	    BufferedWriter  bw = new BufferedWriter(fw);
 
 		Date currentDate = new Date();
 		bw.append("/**Auto generated code,don't modify it.\n");
