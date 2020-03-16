@@ -41,7 +41,7 @@ import core.support.annotation.template.service.ServiceData;
 import core.support.annotation.template.service.ServiceRunner;
 import core.support.configReader.PropertiesReader;
 
-@SupportedAnnotationTypes(value = { "core.support.annotation.Panel", "core.support.annotation.Data", "core.support.annotation.Service" })
+@SupportedAnnotationTypes(value = { "core.support.annotation.Module","core.support.annotation.Panel", "core.support.annotation.Data", "core.support.annotation.Service" })
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 @AutoService(javax.annotation.processing.Processor.class)
 public class MainGenerator extends AbstractProcessor {
