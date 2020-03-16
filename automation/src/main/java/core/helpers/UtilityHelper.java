@@ -650,7 +650,11 @@ public class UtilityHelper {
 	 */
 	protected static void deleteFile(String absolutePath) {
 		File file = new File(absolutePath);
-		file.delete();
+		try {
+			FileUtils.deleteDirectory(file);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
