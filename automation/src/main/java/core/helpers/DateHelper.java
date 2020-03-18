@@ -90,7 +90,9 @@ public class DateHelper {
 	 * @return
 	 */
 	public String getTime(String timeString, String format, String zone) {
-		Instant timeInstant = Instant.parse(timeString);
+		LocalDateTime date1Date = getLocalDateTime(timeString);
+		Instant timeInstant = date1Date.atZone(ZoneId.of("UTC")).toInstant();
+		
 		DateTimeFormatter formatter = null;
 
 		if (StringUtils.isBlank(format) && StringUtils.isBlank(zone))
