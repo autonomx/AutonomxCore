@@ -42,14 +42,6 @@ public class PackageHelper {
 		return packagePath;
 	}
 
-	public static String getPackageDirectory(String element) {
-		String sourceClass = element.toString();
-		String packagePath = MODULE_MANAGER_PATH + "." + sourceClass.split("\\.")[0] + "."
-				+ sourceClass.split("\\.")[1];
-		packagePath = packagePath.replace(".", File.separator);
-		return packagePath;
-	}
-
 	/**
 	 * path: module.android.panel
 	 * 

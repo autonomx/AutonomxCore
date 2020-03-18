@@ -1,13 +1,13 @@
 package core.support.annotation.template.manager;
 
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.tools.JavaFileObject;
 
 import core.support.annotation.helper.FileCreatorHelper;
 import core.support.annotation.helper.Logger;
@@ -37,9 +37,9 @@ public class ModuleManager {
 			return;
 
 		// create file: module.appManager.java
-		File file = FileCreatorHelper.createFile(rootModulePath);
-		FileWriter fw = new FileWriter(file);
-	    BufferedWriter  bw = new BufferedWriter(fw);
+		JavaFileObject file = FileCreatorHelper.createFile(rootModulePath);
+		BufferedWriter bw = new BufferedWriter(file.openWriter());
+
 
 		Date currentDate = new Date();
 		bw.append("/**Auto generated code,don't modify it.\n");

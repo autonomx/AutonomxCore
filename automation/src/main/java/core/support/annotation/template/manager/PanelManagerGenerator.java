@@ -1,13 +1,13 @@
 package core.support.annotation.template.manager;
 
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.tools.JavaFileObject;
 
 import core.support.annotation.helper.FileCreatorHelper;
 import core.support.annotation.helper.Logger;
@@ -35,9 +35,9 @@ public class PanelManagerGenerator {
 			Logger.debug("panel name: " + entry.getKey());
 			Logger.debug("panel value: " + entry.getValue());
 
-			File file = FileCreatorHelper.createPanelManagerFile(firstElement);
-			FileWriter fw = new FileWriter(file);
-		    BufferedWriter  bw = new BufferedWriter(fw);
+			JavaFileObject fileObject = FileCreatorHelper.createPanelManagerFile(firstElement);
+			BufferedWriter bw = new BufferedWriter(fileObject.openWriter());
+
 
 			Date currentDate = new Date();
 			bw.append("/**Auto generated code,don't modify it.\n");

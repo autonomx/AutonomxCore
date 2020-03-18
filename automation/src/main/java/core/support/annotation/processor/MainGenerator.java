@@ -7,7 +7,6 @@ package core.support.annotation.processor;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -16,11 +15,13 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
+import javax.tools.JavaFileObject;
 
 import com.google.auto.service.AutoService;
 
@@ -47,16 +48,19 @@ import core.support.configReader.PropertiesReader;
 public class MainGenerator extends AbstractProcessor {
 
 	private static boolean isAnnotationRun = false;
+	public static ProcessingEnvironment PROCESS_ENV;
 
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-
+		
+		PROCESS_ENV = processingEnv;
 		return runAnnotation();
 	}
 	
 	public static boolean runAnnotation() {
 		if (!isAnnotationRun) {
 			isAnnotationRun = true;
+			
 
 			Logger.debug("Annotation called");
 
@@ -116,10 +120,9 @@ public class MainGenerator extends AbstractProcessor {
 			createFileList("src" + File.separator + "main", "src_dir", false);
 			createFileList("resources" + File.separator + "api" + File.separator + "keywords", "src_dir", true);
 
-			File file = FileCreatorHelper.createMarkerFile();
-			
-			FileWriter fw = new FileWriter(file);
-		    BufferedWriter  bw = new BufferedWriter(fw);
+			JavaFileObject fileObject = FileCreatorHelper.createMarkerFile();
+			BufferedWriter bw = new BufferedWriter(fileObject.openWriter());
+
 
 			bw.append("/**Auto generated code,don't modify it. */ \n");
 			bw.append("package marker;");

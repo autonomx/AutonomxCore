@@ -1,12 +1,11 @@
 package core.support.annotation.template.config;
 
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 
-import core.helpers.Helper;
+import javax.tools.JavaFileObject;
+
 import core.support.annotation.helper.FileCreatorHelper;
 import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PackageHelper;
@@ -29,9 +28,9 @@ public class ConfigManager {
 			return;
 
 		// create file: ConfigManager.java
-		File file = Helper.createFileFromPath(Helper.getRootDir() + FileCreatorHelper.GENERATED_SOURCE_PATH + PackageHelper.CONFIG_MANAGER_PATH + File.separator + PackageHelper.CONFIG_MANAGER_CLASS + ".java");
-		FileWriter fw = new FileWriter(file);
-	    BufferedWriter  bw = new BufferedWriter(fw);
+		JavaFileObject file = FileCreatorHelper.createFileAbsolutePath(PackageHelper.CONFIG_MANAGER_PATH + "." + PackageHelper.CONFIG_MANAGER_CLASS);
+		BufferedWriter bw = new BufferedWriter(file.openWriter());
+
 		
 		FileCreatorHelper.CONFIG_MODULE_FILE_OBJECT = file;
 

@@ -2,7 +2,6 @@ package core.support.annotation.template.dataObject;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -105,10 +104,10 @@ public class ModuleClass {
 		Logger.debug("writing module class: " + module + ". values: " + Arrays.toString(entry.getValue().toArray()));
 
 		// create file: data.webApp.webApp.java
-		String filePath = PackageHelper.DATA_PATH + File.separator + module + File.separator + module;
-		File file = FileCreatorHelper.createFileAbsolutePath(filePath);
-		FileWriter fw = new FileWriter(file);
-	    BufferedWriter  bw = new BufferedWriter(fw);
+		String filePath = PackageHelper.DATA_PATH + "." + module + "." + module;
+		JavaFileObject fileObject = FileCreatorHelper.createFileAbsolutePath(filePath);
+		BufferedWriter bw = new BufferedWriter(fileObject.openWriter());
+
 
 		Date currentDate = new Date();
 		bw.append("/**Auto generated code,don't modify it.\n");

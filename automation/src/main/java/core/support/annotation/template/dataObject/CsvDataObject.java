@@ -3,7 +3,6 @@ package core.support.annotation.template.dataObject;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -99,11 +98,11 @@ public class CsvDataObject {
 
 		// create file: data.webApp.user.java
 		String csvName = file.getName().replaceFirst("[.][^.]+$", "");
-		String filePath = PackageHelper.DATA_PATH + File.separator + module + File.separator + csvName;
+		String filePath = PackageHelper.DATA_PATH + "." + module + "." + csvName;
 		
-		File fileObject = FileCreatorHelper.createFileAbsolutePath(filePath);
-		FileWriter fw = new FileWriter(fileObject);
-	    BufferedWriter  bw = new BufferedWriter(fw);
+		JavaFileObject fileObject = FileCreatorHelper.createFileAbsolutePath(filePath);
+		BufferedWriter bw = new BufferedWriter(fileObject.openWriter());
+
 
 
 		List<String[]> csvDataWithHeader = Helper.csv.getAllCsvData(file.getAbsolutePath());

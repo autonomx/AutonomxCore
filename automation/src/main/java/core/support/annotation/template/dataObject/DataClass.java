@@ -2,7 +2,6 @@ package core.support.annotation.template.dataObject;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -59,10 +58,10 @@ public class DataClass {
 //	}
 	private static void writeDataClass(Set<String> modules) throws Exception {
 
-		String filePath = PackageHelper.DATA_PATH + File.separator + StringUtils.capitalize(DATA_ROOT);
-		File file = FileCreatorHelper.createFileAbsolutePath(filePath);
-		FileWriter fw = new FileWriter(file);
-	    BufferedWriter  bw = new BufferedWriter(fw);
+		String filePath = PackageHelper.DATA_PATH + "." + StringUtils.capitalize(DATA_ROOT);
+		JavaFileObject fileObject = FileCreatorHelper.createFileAbsolutePath(filePath);
+		BufferedWriter bw = new BufferedWriter(fileObject.openWriter());
+
 
 		Date currentDate = new Date();
 		bw.append("/**Auto generated code,don't modify it.\n");
