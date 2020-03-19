@@ -123,7 +123,7 @@ public class CsvReader {
 	private static String getTestname(Object[] csvRow) {
 		if(!isContainTestStep(csvRow[1].toString()))
 			return csvRow[1].toString();
-		String testname = getTestnameWithoutTestStep(csvRow[1].toString());
+		String testname = getTestname(csvRow[1].toString());
 		return testname;
 	}
 	
@@ -132,7 +132,7 @@ public class CsvReader {
 	 * @param csvRow
 	 * @return
 	 */
-	public static String getTestnameWithoutTestStep(String fullTestname) {
+	public static String getTestname(String fullTestname) {
 		String testname = fullTestname.toString().split("(?i)_"+ SERVICE_STEP_PREFIX)[0];
 		if(isContainTestStep(testname))
 			testname = fullTestname.toString().split("(?i)-"+ SERVICE_STEP_PREFIX)[0];

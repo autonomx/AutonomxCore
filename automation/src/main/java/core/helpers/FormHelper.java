@@ -149,7 +149,7 @@ public class FormHelper {
 	 * @param field
 	 * @param index
 	 */
-	private void clearField(EnhancedBy field, int index) {
+	public void clearField(EnhancedBy field, int index) {
 		EnhancedWebElement fieldElement = Element.findElements(field);
 		Helper.waitForElementToLoad(field);
 
