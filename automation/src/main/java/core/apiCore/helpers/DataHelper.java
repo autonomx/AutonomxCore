@@ -1275,7 +1275,7 @@ public class DataHelper {
 		logJsonResponse(responseValues);
 
 		for (String criterion : criteria) {
-			Helper.assertTrue("expected response is not a valid json, xml or keyword:  " + criterion,
+			Helper.assertTrue("expected response is not valid xml or json, or section identifier, are you missing the section identifier? eg. _VERIFY_JSON_PART_:  " + criterion,
 					isValidExpectation(criterion));
 
 			// convert xml string to json for validation

@@ -336,6 +336,7 @@ public class TestLog {
 	public static String setMaxLength(String value) {
 		boolean isLogLimit = Config.getBooleanValue(IS_LOG_LIMIT);
 		int logMaxLimit = Config.getIntValue(LOG_MAX_LIMIT);
+		if(logMaxLimit == -1) logMaxLimit = value.length();
 		if(isLogLimit)
 			return setMaxLength(value, logMaxLimit);
 		else
