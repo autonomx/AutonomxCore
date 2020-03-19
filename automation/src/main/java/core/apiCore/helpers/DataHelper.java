@@ -5,18 +5,22 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 
+import com.google.common.collect.Sets;
 import com.opencsv.CSVReader;
 
 import core.apiCore.TestDataProvider;
@@ -45,7 +49,7 @@ public class DataHelper {
 	public enum JSON_COMMAND {
 		hasItems, notHaveItems, notEqualTo, equalTo, notContain, contains, containsInAnyOrder, integerGreaterThan,
 		integerLessThan, integerEqual, integerNotEqual, nodeSizeGreaterThan, nodeSizeExact, sequence, jsonbody,
-		isNotEmpty, isEmpty, nodeSizeLessThan, isBetweenDate, allValuesEqualTo, countGreaterThan, countLessThan, countExact, command
+		isNotEmpty, isEmpty, nodeSizeLessThan, isBetweenDate, allValuesEqualTo, countGreaterThan, countLessThan, countExact, command, notContains
 	}
 
 	/**
@@ -206,7 +210,8 @@ public class DataHelper {
 	 * @return
 	 */
 	public static String setTime(String parameter, String timeString) {
-		Instant time = Instant.parse(timeString);
+		LocalDateTime date = Helper.date.getLocalDateTime(timeString);
+		Instant time = date.atZone(ZoneId.of("UTC")).toInstant();
 
 		String[] parameters = parameter.split(":");
 		if (parameters.length != 3)
@@ -227,8 +232,7 @@ public class DataHelper {
 	 * @return
 	 */
 	public static String setDay(String dayName, String timeString) {
-		Instant timeinstance = Instant.parse(timeString);
-		LocalDateTime time = LocalDateTime.ofInstant(timeinstance, ZoneOffset.UTC);
+		LocalDateTime time = Helper.date.getLocalDateTime(timeString);
 
 		int currentDay = Helper.date.getDayOfWeekIndex(time);
 		int targetDay = Helper.date.getDayOfWeekIndex(dayName);
@@ -246,8 +250,7 @@ public class DataHelper {
 	 * @return
 	 */
 	public static String setMonth(String monthName, String timeString) {
-		Instant timeinstance = Instant.parse(timeString);
-		LocalDateTime time = LocalDateTime.ofInstant(timeinstance, ZoneOffset.UTC);
+		LocalDateTime time = Helper.date.getLocalDateTime(timeString);
 
 		int currentMonth = Helper.date.getMonthOfYearIndex(time);
 		int targetMonth = Helper.date.getMonthOfYearIndex(monthName);
@@ -621,6 +624,7 @@ public class DataHelper {
 			if (!val)
 				return Arrays.toString(actualArray.toArray()) + " are not all equal to: "+ expectedString;
 			break;
+		case notContains:
 		case notContain:
 			// if response is single item, it is same as command with position 1 and treated as string
 				actualArray = DataHelper.removeEmptyElements(actualArray);
@@ -641,7 +645,7 @@ public class DataHelper {
 			} else {
 				TestLog.logPass("verifying: " + Arrays.toString(actualArray.toArray()) + " does not contain "
 						+ Arrays.toString(expectedArray.toArray()));
-				val = !actualArray.containsAll(expectedArray);
+				val = !isListContain(responseString, expectedArray);
 				if (!val)
 					return Arrays.toString(actualArray.toArray()) + " does not contain "
 							+ Arrays.toString(expectedArray.toArray());
@@ -667,7 +671,7 @@ public class DataHelper {
 			} else {
 				TestLog.logPass("verifying: " + Arrays.toString(actualArray.toArray()) + " contains "
 						+ Arrays.toString(expectedArray.toArray()));
-				val = actualArray.containsAll(expectedArray);
+				val = isListContain(actualArray, expectedArray);
 				if (!val)
 					return Arrays.toString(actualArray.toArray()) + " does not contain "
 							+ Arrays.toString(expectedArray.toArray());
@@ -1439,6 +1443,22 @@ public class DataHelper {
 				return false;	
 		}
 		return true;
+	}
+	
+	/**
+	 * verifies list contains content from another list
+	 * @param actual
+	 * @param expectedValues
+	 * @return
+	 */
+	public static boolean isListContain(List<String> actual, List<String> expectedValues) {
+		Set<String> actualSet = new HashSet<String>(actual);
+	    Set<String> expectedSet = new HashSet<String>(expectedValues);
+	    Set<String> difference = Sets.difference(actualSet, expectedSet);
+	    
+	    if((difference.size() + expectedSet.size()) == actualSet.size())
+	    	return true;
+	    return false;
 	}
 
 }
