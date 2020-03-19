@@ -134,7 +134,8 @@ public class CsvReader {
 	 */
 	public static String getTestnameWithoutTestStep(String fullTestname) {
 		String testname = fullTestname.toString().split("(?i)_"+ SERVICE_STEP_PREFIX)[0];
-		testname = fullTestname.toString().split("(?i)-"+ SERVICE_STEP_PREFIX)[0];
+		if(isContainTestStep(testname))
+			testname = fullTestname.toString().split("(?i)-"+ SERVICE_STEP_PREFIX)[0];
 		return testname;
 	}
 	
