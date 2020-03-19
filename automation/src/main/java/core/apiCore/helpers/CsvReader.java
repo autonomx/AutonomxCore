@@ -47,7 +47,7 @@ public class CsvReader {
 	public static final String SERVICE_RUN_COUNT = "service.run.count";
 	public static final String SERVICE_RUN_CURRENT_COUNT = "service.run.current.count";
 	public static final String SERVICE_RUN_PREFIX = "_run_";
-	public static final String SERVICE_STEP_PREFIX = "_step";
+	public static final String SERVICE_STEP_PREFIX = "step";
 
 	
 	
@@ -121,9 +121,9 @@ public class CsvReader {
 	 * @return
 	 */
 	private static String getTestname(Object[] csvRow) {
-		if(!csvRow[1].toString().contains(SERVICE_STEP_PREFIX))
+		if(!isContainTestStep(csvRow[1].toString()))
 			return csvRow[1].toString();
-		String testname = csvRow[1].toString().split(SERVICE_STEP_PREFIX)[0];
+		String testname = getTestnameWithoutTestStep(csvRow[1].toString());
 		return testname;
 	}
 	
@@ -132,9 +132,18 @@ public class CsvReader {
 	 * @param csvRow
 	 * @return
 	 */
-	public static String getTestname(String fullTestname) {
-		String testname = fullTestname.toString().split(SERVICE_STEP_PREFIX)[0];
+	public static String getTestnameWithoutTestStep(String fullTestname) {
+		String testname = fullTestname.toString().split("(?i)_"+ SERVICE_STEP_PREFIX)[0];
+		testname = fullTestname.toString().split("(?i)-"+ SERVICE_STEP_PREFIX)[0];
 		return testname;
+	}
+	
+	private static boolean isContainTestStep(String testname) {
+		if(testname.toLowerCase().contains("_"+SERVICE_STEP_PREFIX))
+			return true;
+		if(testname.toLowerCase().contains("-"+SERVICE_STEP_PREFIX))
+			return true;
+		return false;
 	}
 	
 	/**
@@ -149,7 +158,7 @@ public class CsvReader {
 		// get map of test cases with test steps
 		for (int i = 0; i < csvList.size(); i++) {
 			Object[] csvRow = csvList.get(i);	
-			if(csvRow[1].toString().contains(SERVICE_STEP_PREFIX)) {
+			if(isContainTestStep(csvRow[1].toString())) {
 				String testname = getTestname(csvRow);
 				List<Object[]> rowList = testStepMap.get(testname);
 				if(rowList == null) rowList = new ArrayList<Object[]>();
