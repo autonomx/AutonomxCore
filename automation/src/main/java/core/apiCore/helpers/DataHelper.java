@@ -49,7 +49,7 @@ public class DataHelper {
 	public enum JSON_COMMAND {
 		hasItems, notHaveItems, notEqualTo, equalTo, notContain, contains, containsInAnyOrder, integerGreaterThan,
 		integerLessThan, integerEqual, integerNotEqual, nodeSizeGreaterThan, nodeSizeExact, sequence, jsonbody,
-		isNotEmpty, isEmpty, nodeSizeLessThan, isBetweenDate, allValuesEqualTo, countGreaterThan, countLessThan, countExact, command, notContains
+		isNotEmpty, isEmpty, nodeSizeLessThan, isBetweenDate, allValuesEqualTo, countGreaterThan, countLessThan, countExact, command, notContains, contain
 	}
 
 	/**
@@ -535,51 +535,8 @@ public class DataHelper {
 			.withRequestBody("response:"+ responseString +";" + values);
 			
 			return ExternalInterface.ExternalInterfaceRunner(serviceObject).toString();
-		case hasItems:
-			boolean val = false;
-			if (!position.isEmpty() && positionInt > 0) { // if position is provided
-				TestLog.logPass("verifying: " + actualString + " has item " + expectedString);
-				val = actualString.contains(expectedString);
-				if (!val)
-					return actualString + " does not have item " + expectedString;
-			} else if (!position.isEmpty() && positionInt == 0) {
-				TestLog.logPass("verifying: " + responseString + " has item " + expectedString);
-				val = responseString.contains(expectedString);
-				if (!val)
-					return responseString + " does not have item " + expectedString;
-			} else {
-				TestLog.logPass("verifying: " + Arrays.toString(actualArray.toArray()) + " has items "
-						+ Arrays.toString(expectedArray.toArray()));
-				val = actualArray.containsAll(expectedArray);
-				if (!val)
-					return Arrays.toString(actualArray.toArray()) + " does not have items "
-							+ Arrays.toString(expectedArray.toArray());
-			}
-			break;
-		case notHaveItems:
-			val = false;
-			if (!position.isEmpty() && positionInt > 0) { // if position is provided
-				TestLog.logPass("verifying: " + actualString + " does not have item " + expectedString);
-				val = !actualString.contains(expectedString);
-				if (!val)
-					return actualString + " does have item " + expectedString;
-
-			} else if (!position.isEmpty() && positionInt == 0) {
-				TestLog.logPass("verifying: " + responseString + " does not have item " + expectedString);
-				val = !responseString.contains(expectedString);
-				if (!val)
-					return responseString + " does not have item " + expectedString;
-
-			} else {
-				TestLog.logPass("verifying: " + Arrays.toString(actualArray.toArray()) + " does not have items "
-						+ Arrays.toString(expectedArray.toArray()));
-				val = !actualArray.containsAll(expectedArray);
-				if (!val)
-					return Arrays.toString(actualArray.toArray()) + " does have items "
-							+ Arrays.toString(expectedArray.toArray());
-			}
-			break;
 		case notEqualTo:
+			boolean val = false;
 			if (!position.isEmpty() && positionInt > 0) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " not equals " + expectedString);
 				val = !actualString.equals(expectedString);
@@ -624,6 +581,7 @@ public class DataHelper {
 			if (!val)
 				return Arrays.toString(actualArray.toArray()) + " are not all equal to: "+ expectedString;
 			break;
+		case notHaveItems:	
 		case notContains:
 		case notContain:
 			// if response is single item, it is same as command with position 1 and treated as string
@@ -651,7 +609,9 @@ public class DataHelper {
 							+ Arrays.toString(expectedArray.toArray());
 			}
 			break;
+		case hasItems:
 		case contains:
+		case contain:
 			// if response is single item, it is same as command with position 1 and treated as string
 			actualArray = DataHelper.removeEmptyElements(actualArray);
 			if (actualArray.size() == 1) {

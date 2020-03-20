@@ -54,7 +54,7 @@ public class FormHelper {
 	 * 
 	 * @param field
 	 * @param index
-	 * @param value
+	 * @parampvalue
 	 */
 	public void setField(EnhancedBy field, int index, CharSequence... value) {
 		if (value.length == 0)

@@ -1,6 +1,7 @@
 package core.uiCore.webElement;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -193,7 +194,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				}
 			} catch (Exception e) {
 				resetElement();
-				String cause = e.getCause().toString();
+				String cause = e.getMessage().toString();
 				exception.add(cause);
 				TestLog.ConsoleLog("click failed for element: " + elementName + ": " + cause);
 			}
@@ -368,9 +369,10 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				}
 			} catch (Exception e) {
 				resetElement();
-				String cause = e.getCause().toString();
+				String cause = e.getMessage().toString();
 				exception.add(cause);
-				TestLog.ConsoleLog("send keys failed for element: " + elementName + ": " + cause);
+				if(retry == 0)
+				 TestLog.ConsoleLog("send keys failed for element: " + elementName + ": " + Arrays.toString(exception.toArray()));
 
 			}
 		} while (!success && retry > 0);
@@ -392,7 +394,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				}
 			} catch (Exception e) {
 				resetElement();
-				String cause = e.getCause().toString();
+				String cause = e.getMessage().toString();
 				TestLog.ConsoleLog("sendkey failed: " + cause);
 			}
 		} while (!success && retry > 0);
