@@ -20,7 +20,6 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 
-import com.google.common.collect.Sets;
 import com.opencsv.CSVReader;
 
 import core.apiCore.TestDataProvider;
@@ -592,21 +591,16 @@ public class DataHelper {
 						
 			if (!position.isEmpty() && positionInt > 0) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " does not contain " + expectedString);
-				val = !isListContain(actualString, expectedArray);
-				if (!val)
-					return actualString + " does contain " + expectedString;
-			} else if (!position.isEmpty() && positionInt == 0) {
-				TestLog.logPass("verifying: " + expectedString + " does not contain " + expectedString);
-				val = !responseString.contains(expectedString);
-				if (!val)
-					return responseString + " does contain " + expectedString;
+				Set<String> missing = isListContain(actualString, expectedArray);
+				if (missing.isEmpty())
+					return actualString + " does contain " + missing.toString();
 			} else {
 				TestLog.logPass("verifying: " + Arrays.toString(actualArray.toArray()) + " does not contain "
 						+ Arrays.toString(expectedArray.toArray()));
-				val = !isListContain(responseString, expectedArray);
-				if (!val)
-					return Arrays.toString(actualArray.toArray()) + " does not contain "
-							+ Arrays.toString(expectedArray.toArray());
+				Set<String> missing = isListContain(responseString, expectedArray);
+				if (missing.isEmpty())
+					return Arrays.toString(actualArray.toArray()) + " does contain "
+							+ expectedArray.removeAll(new ArrayList<String>(missing));
 			}
 			break;
 		case hasItems:
@@ -620,30 +614,25 @@ public class DataHelper {
 			
 			if (!position.isEmpty() && positionInt > 0) { // if position is provided
 				TestLog.logPass("verifying: " + actualString + " contains " + expectedString);
-				val = isListContain(actualString, expectedArray);
-				if (!val)
-					return actualString + " does not contain " + expectedString;
-			} else if (!position.isEmpty() && positionInt == 0) {
-				TestLog.logPass("verifying1: '" + responseString + "' contains " + expectedString);
-				val = isListContain(responseString, expectedArray);
-				if (!val)
-					return responseString + " does not contain " + expectedString;
+				Set<String> missing = isListContain(actualString, expectedArray);
+				if (!missing.isEmpty())
+					return actualString + " does not contain " + missing.toString();
 			} else {
 				TestLog.logPass("verifying: " + Arrays.toString(actualArray.toArray()) + " contains "
 						+ Arrays.toString(expectedArray.toArray()));
-				val = isListContain(actualArray, expectedArray);
-				if (!val)
+				Set<String> missing = isListContain(responseString, expectedArray);
+				if (!missing.isEmpty())
 					return Arrays.toString(actualArray.toArray()) + " does not contain "
-							+ Arrays.toString(expectedArray.toArray());
+							+ missing.toString();
 			}
 			break;
 		case containsInAnyOrder:
 			TestLog.logPass("verifying: " + Arrays.toString(actualArray.toArray()) + " contains any order "
 					+ Arrays.toString(expectedArray.toArray()));
-			val = actualArray.containsAll(expectedArray);
-			if (!val)
-				return Arrays.toString(actualArray.toArray()) + " does not contain in any order "
-						+ Arrays.toString(expectedArray.toArray());
+			Set<String> missing = isListContain(responseString, expectedArray);
+			if (!missing.isEmpty())
+				return Arrays.toString(actualArray.toArray()) + " does not contain "
+						+ missing.toString();
 			break;
 		case integerGreaterThan:
 			TestLog.logPass("verifying: " + responseString + " is greater than " + expectedString);
@@ -696,7 +685,7 @@ public class DataHelper {
 		case sequence:
 			TestLog.logPass("verifying: " + Arrays.toString(actualArray.toArray()) + " with sequence "
 					+ Arrays.toString(expectedArray.toArray()));
-			val = Arrays.asList(actualArray).equals(Arrays.asList(expectedArray));
+			val = actualArray.equals(expectedArray);
 			if (!val)
 				return Arrays.toString(actualArray.toArray()) + " does not equal "
 						+ Arrays.toString(expectedArray.toArray());
@@ -1395,30 +1384,16 @@ public class DataHelper {
 	 * @param expectedValues
 	 * @return
 	 */
-	public static boolean isListContain(String actual, List<String> expectedValues) {
+	public static Set<String> isListContain(String actual, List<String> expectedValues) {
 		actual = actual.trim().replace("\"", "");
-		
-		for(String expected : expectedValues) {
-			if(!actual.contains(expected))
-				return false;	
-		}
-		return true;
-	}
-	
-	/**
-	 * verifies list contains content from another list
-	 * @param actual
-	 * @param expectedValues
-	 * @return
-	 */
-	public static boolean isListContain(List<String> actual, List<String> expectedValues) {
-		Set<String> actualSet = new HashSet<String>(actual);
-	    Set<String> expectedSet = new HashSet<String>(expectedValues);
-	    Set<String> difference = Sets.difference(actualSet, expectedSet);
-	    
-	    if((difference.size() + expectedSet.size()) == actualSet.size())
-	    	return true;
-	    return false;
-	}
+		Set<String> missing = new HashSet<String>();
 
+		for(String expected : expectedValues) {
+			if(!actual.contains(expected)) {
+				missing.add(expected);
+				continue;
+			}
+		}
+		return missing;
+	}
 }
