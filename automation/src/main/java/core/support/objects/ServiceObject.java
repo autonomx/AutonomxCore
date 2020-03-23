@@ -310,6 +310,8 @@ public class ServiceObject {
 	}
 
 	public Object getServiceSteps() {
+		if(this.serviceSteps.toString().isEmpty()) return null;
+		
 		Object[] Objects = (Object[]) this.serviceSteps;
 		if (Objects != null && Objects.length > 0)
 			return Objects[0];

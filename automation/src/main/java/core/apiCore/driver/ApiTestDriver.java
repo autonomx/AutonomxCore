@@ -180,11 +180,13 @@ public class ApiTestDriver {
 	 * @return
 	 */
 	public static boolean isRunningServiceTest(Object[] testData) {
-		if (testData.length != CsvReader.SERVICE_CSV_COLUMN_COUNT)
+		Object[] data = getTestData(testData);
+		
+		if (data.length != CsvReader.SERVICE_CSV_COLUMN_COUNT)
 			return false;
 		if (testData[testData.length - 1] == null)
 			return false;
-		ServiceObject ServiceObject = CsvReader.mapToServiceObject(testData);
+		ServiceObject ServiceObject = CsvReader.mapToServiceObject(data);
 		return ServiceObject.getTcType().equals(TestObject.testType.service.name());
 	}
 
@@ -195,9 +197,27 @@ public class ApiTestDriver {
 	 */
 	public static void setServiceTestName(Object[] testData) {
 		if (ApiTestDriver.isRunningServiceTest(testData)) {
-			ServiceObject apiObject = CsvReader.mapToServiceObject(testData);
+			Object[] data = getTestData(testData);
+			ServiceObject apiObject = CsvReader.mapToServiceObject(data);
 			String testClass = ApiTestDriver.getTestClass(apiObject.getTcName());
 			AbstractDriverTestNG.testName.set(testClass + "-" + apiObject.getTestCaseID());
 		}
+	}
+	
+	/**
+	 * get test data
+	 * if from data provider, then it will be the first item in object array
+	 * else it will be object array
+	 * @param testData
+	 * @return
+	 */
+	public static Object[] getTestData(Object[] testData) {
+		Object[] data = null;
+		
+		if(testData.length == 1) {
+			 data =  (Object[]) testData[0];
+		}else
+			data = testData;
+		return data;	
 	}
 }

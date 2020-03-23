@@ -148,26 +148,10 @@ public class ServiceRunner {
 		 * // run after each test file ServiceManager.runAfterCsv(serviceObject); }
 		 */
 
-		bw.append(
-				"public static void TestRunner(String TestSuite, String TestCaseID, String RunFlag, String Description,"
-						+ " \n");
-		bw.append("		String InterfaceType, String UriPath, String ContentType, String Method, String Option,"
-				+ " \n");
-		bw.append(
-				"		String RequestHeaders, String TemplateFile, String RequestBody, String OutputParams, String RespCodeExp,"
-						+ " \n");
-		bw.append("		String ExpectedResponse, String TcComments," + " \n");
-		bw.append("		String tcName, String tcIndex, String testType, Object... serviceSteps) throws Exception {"
-				+ " \n");
+		bw.append("public static void TestRunner(Object[] objects) throws Exception {"+ " \n");
 		bw.newLine();
 		bw.append("		// add parameters to ServiceObject" + " \n");
-		bw.append(
-				"		ServiceObject serviceObject = new ServiceObject().setServiceObject(TestSuite, TestCaseID, RunFlag, Description, InterfaceType,"
-						+ " \n");
-		bw.append("		UriPath, ContentType, Method, Option, RequestHeaders, TemplateFile, RequestBody, OutputParams,"
-				+ " \n");
-		bw.append("		RespCodeExp, ExpectedResponse, TcComments, tcName," + " \n");
-		bw.append("		tcIndex, testType, serviceSteps);" + " \n");
+		bw.append("		ServiceObject serviceObject = new ServiceObject().setServiceObject(objects);" + " \n");
 		bw.newLine();
 		bw.append("		// set parent object" + " \n");
 		bw.append("		ServiceManager.setupParentObject(serviceObject);" + " \n");
