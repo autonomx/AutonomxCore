@@ -200,7 +200,7 @@ public class ApiTestDriver {
 			Object[] data = getTestData(testData);
 			ServiceObject apiObject = CsvReader.mapToServiceObject(data);
 			String testClass = ApiTestDriver.getTestClass(apiObject.getTcName());
-			AbstractDriverTestNG.testName.set(testClass + "-" + apiObject.getTestCaseID());
+			AbstractDriverTestNG.testName.set(testClass + "-" + apiObject.getTestCaseID());			
 		}
 	}
 	

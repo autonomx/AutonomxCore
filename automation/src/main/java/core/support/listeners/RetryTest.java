@@ -11,6 +11,7 @@ import com.aventstack.extentreports.Status;
 import com.aventstack.extentreports.markuputils.Markup;
 import com.aventstack.extentreports.markuputils.MarkupHelper;
 
+import core.apiCore.driver.ApiTestDriver;
 import core.helpers.Helper;
 import core.helpers.excelHelper.ExcelObject;
 import core.support.logger.TestLog;
@@ -64,12 +65,16 @@ public class RetryTest implements IRetryAnalyzer {
 
 		// update retry count from config
 		int maxRetryCount = CrossPlatformProperties.getRetryCount();
-
+		
+		// set retry count to 0 for api tests. handled through local retry
+//		if(ApiTestDriver.isRunningServiceTest())
+//			maxRetryCount = 0;
+		
 		setExtendReport();
 		TestObject.getTestInfo().withCaughtThrowable(iTestResult.getThrowable());
 
 		// if the max retry has not been reached, log the failure And quite the browser
-		maxRetryCount = processTestResult();
+		maxRetryCount = processTestResult(maxRetryCount);
 
 		// if the max retry has not been reached, increment test count and continue to
 		// retry the test
@@ -93,13 +98,13 @@ public class RetryTest implements IRetryAnalyzer {
 	 * 
 	 * @return
 	 */
-	public int processTestResult() {
+	public int processTestResult(int maxRetryCount) {
 		logReport(ReportType.info, "run " + (TestObject.getTestInfo().runCount) + " failed ", null);
 
 		logReport(ReportType.code, TestObject.getTestInfo().caughtThrowable.toString(), null);
 
 		// handle exception by adding extra retries
-		int maxRetryCount = errorHandling(TestObject.getTestInfo().caughtThrowable);
+		maxRetryCount = errorHandling(TestObject.getTestInfo().caughtThrowable, maxRetryCount);
 
 		// capture error screenshot
 		Helper.captureExtentReportScreenshot();
@@ -168,8 +173,7 @@ public class RetryTest implements IRetryAnalyzer {
 	 * @param t
 	 * @return
 	 */
-	public int errorHandling(Throwable t) {
-		int maxRetryCount = CrossPlatformProperties.getRetryCount();
+	public int errorHandling(Throwable t, int maxRetryCount) {
 		if (pageHasError(t)) {
 			return ++maxRetryCount;
 		}

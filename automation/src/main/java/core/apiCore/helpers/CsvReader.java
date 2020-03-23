@@ -60,7 +60,7 @@ public class CsvReader {
 	 * 
 	 * @return
 	 */
-	public synchronized static List<Object[]> getTestCasesFromCsvFile() {
+	public synchronized static List<Object> getTestCasesFromCsvFile() {
 		int index = getCurrentTestInvocation();
 		// if single test case is specified, Then only load that file
 		String testCaseFile = Config.getValue(TestDataProvider.TEST_CASE_FILE);
@@ -88,7 +88,13 @@ public class CsvReader {
 		
 		// get the test cases based on specifications from config. eg. single file name, or single test case, or all
 		List<Object[]> testCaseList = updateCsvFileFromFile(updatedCsvList, csvFileName, testCaseFile, testStepMap);
-		return testCaseList;
+		
+		List<Object> tests = new ArrayList<Object>();
+		for(Object[] object : testCaseList) {
+			tests.add(object);
+		}
+		
+		return tests;
 	}
 	
 	/**

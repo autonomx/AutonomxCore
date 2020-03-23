@@ -25,7 +25,7 @@ public class TestDataProvider {
 	public static ThreadLocal<Logger> log = new ThreadLocal<Logger>();
 
 	@DataProvider(name = "parallelRun")
-	public synchronized Iterator<Object[]> providerParallel() {
+	public synchronized Iterator<Object> providerParallel() {
 
 		TestDataProvider.TEST_DATA_PATH = Config.getValue(TestDataProvider.TEST_DATA_PARALLEL_PATH);
 		return CsvReader.getTestCasesFromCsvFile().iterator();

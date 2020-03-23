@@ -179,9 +179,9 @@ public class AbstractDriverTestNG implements ITest {
 
 		// setup before class driver
 		DriverObject driver = new DriverObject().withDriverType(DriverType.API);
-
+		
 		new AbstractDriverTestNG().setupWebDriver(TestObject.getTestId(), driver);
-
+		
 		// set test name for reports. eg. junit report
 		setResultTestName(testData, iTestResult);
 	}
@@ -201,6 +201,7 @@ public class AbstractDriverTestNG implements ITest {
 			methodName.set(result.getMethod(), testName.get());
 
 		} catch (Exception e) {
+			e.printStackTrace();
 			Reporter.log("Exception : " + e.getMessage());
 		}
 	}
