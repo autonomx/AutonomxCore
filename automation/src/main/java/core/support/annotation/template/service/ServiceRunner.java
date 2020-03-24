@@ -188,18 +188,14 @@ public class ServiceRunner {
 		 * CsvReader.mapToServiceObject(teststeps.get(i)); runInterface(stepObject); }
 		 * }else runInterface(serviceObject); }
 		 */
-		bw.append(" @SuppressWarnings(\"unchecked\")" + " \n");
 		bw.append("	public static void runServiceTests(ServiceObject serviceObject) throws Exception {" + " \n");
 		bw.append("		if(serviceObject.getServiceSteps() instanceof HashMap) {" + " \n");
-		bw.append(
-				"			Map<String, List<Object[]>> testStepMap = (Map<String, List<Object[]>>) serviceObject.getServiceSteps();"
-						+ " \n");
-		bw.append(
-				"			List<Object[]> teststeps = testStepMap.get(CsvReader.getTestname(serviceObject.getTestCaseID()));"
-						+ " \n");
+		bw.append("			Map<String, List<Object>> testStepMap = serviceObject.getServiceSteps();"+ " \n");
+		bw.append("			List<Object> teststeps = testStepMap.get(CsvReader.getTestname(serviceObject.getTestCaseID()));"+ " \n");
 		bw.append("			for(int i = 0; i < teststeps.size(); i ++) {" + " \n");
 		bw.append("				TestLog.logPass(\"******** Starting Step \" +  (i+1) + \" **********\");" + " \n");
-		bw.append("				ServiceObject stepObject = CsvReader.mapToServiceObject(teststeps.get(i)); " + " \n");
+		bw.append("				Object[] steps = (Object[]) teststeps.get(i); " + " \n");
+		bw.append("				ServiceObject stepObject = CsvReader.mapToServiceObject(steps);" + " \n");
 		bw.append("				runInterface(stepObject);" + " \n");
 		bw.append("			}" + " \n");
 		bw.append("		}else" + " \n");
