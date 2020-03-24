@@ -1,6 +1,7 @@
 package core.support.objects;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -309,12 +310,14 @@ public class ServiceObject {
 		return this.testType;
 	}
 
-	public Object getServiceSteps() {
+	@SuppressWarnings("unchecked")
+	public HashMap<String, List<Object>> getServiceSteps() {
 		if(this.serviceSteps.toString().isEmpty()) return null;
 		
-		Object[] Objects = (Object[]) this.serviceSteps;
-		if (Objects != null && Objects.length > 0)
-			return Objects[0];
+		HashMap<String, List<Object>> map = (HashMap<String, List<Object>>) this.serviceSteps;
+		if (map != null && map.size() > 0) {
+			return map;
+		}
 		return null;
 	}
 
