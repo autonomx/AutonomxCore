@@ -11,7 +11,6 @@ import com.aventstack.extentreports.Status;
 import com.aventstack.extentreports.markuputils.Markup;
 import com.aventstack.extentreports.markuputils.MarkupHelper;
 
-import core.apiCore.driver.ApiTestDriver;
 import core.helpers.Helper;
 import core.helpers.excelHelper.ExcelObject;
 import core.support.logger.TestLog;
@@ -65,10 +64,6 @@ public class RetryTest implements IRetryAnalyzer {
 
 		// update retry count from config
 		int maxRetryCount = CrossPlatformProperties.getRetryCount();
-		
-		// set retry count to 0 for api tests. handled through local retry
-//		if(ApiTestDriver.isRunningServiceTest())
-//			maxRetryCount = 0;
 		
 		setExtendReport();
 		TestObject.getTestInfo().withCaughtThrowable(iTestResult.getThrowable());

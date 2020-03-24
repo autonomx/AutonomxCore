@@ -148,10 +148,11 @@ public class ServiceRunner {
 		 * // run after each test file ServiceManager.runAfterCsv(serviceObject); }
 		 */
 
-		bw.append("public static void TestRunner(Object[] objects) throws Exception {"+ " \n");
+		bw.append("public static void TestRunner(Object objects) throws Exception {"+ " \n");
 		bw.newLine();
 		bw.append("		// add parameters to ServiceObject" + " \n");
-		bw.append("		ServiceObject serviceObject = new ServiceObject().setServiceObject(objects);" + " \n");
+		bw.append("		Object[] objectArray = (Object[]) objects;" + " \n");
+		bw.append("		ServiceObject serviceObject = new ServiceObject().setServiceObject(objectArray);" + " \n");
 		bw.newLine();
 		bw.append("		// set parent object" + " \n");
 		bw.append("		ServiceManager.setupParentObject(serviceObject);" + " \n");
