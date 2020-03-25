@@ -102,10 +102,11 @@ public class DateHelper {
 			return getTime(timeInstant, format);
 
 		if (StringUtils.isBlank(format) && !StringUtils.isBlank(zone)) {
-			LocalDateTime timelocal = LocalDateTime.ofInstant(timeInstant, ZoneId.of(zone));
-			ZoneId systemZone = ZoneId.of(zone);
-			ZoneOffset offset = systemZone.getRules().getOffset(timeInstant);
-			String dateString = timelocal.toInstant(offset).toString();
+			LocalDateTime timelocal = LocalDateTime.ofInstant(timeInstant, ZoneId.of("UTC"));
+			ZoneId zoneId = ZoneId.of( zone );
+			ZonedDateTime zdt = timelocal.atZone( zoneId );
+
+			String dateString = zdt.toInstant().toString();
 			return dateString;
 		}
 
