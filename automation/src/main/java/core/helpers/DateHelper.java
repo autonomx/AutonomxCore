@@ -9,10 +9,12 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.WeekFields;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
+import org.reflections8.util.Joiner;
 
 import core.support.objects.DateFormats;
 
@@ -244,5 +246,44 @@ public class DateHelper {
 		Helper.assertFalse("no matching date format for string: " + timeString);
 		return null;
 	}
+	
+	
+	/**
+	 * reorders time zone and format 
+	 * zone and format will come at the end
+	 * eg. _TIME_MS_23+1w;FORMAT:YYYY-MM-DD;ZONE:Canada/Pacific;setDay:Monday;setTime:09:00:00
+	 * becomes _TIME_MS_23+1w;setDay:Monday;setTime:09:00:00;ZONE:Canada/Pacific;FORMAT:YYYY-MM-DD
+	 * @param value
+	 * @return
+	 */
+	public String setTimeParameterFormat(String parameter) {
+		String FormatString = "FORMAT";
+		String ZoneString = "ZONE";
+		
+		if(!parameter.contains(ZoneString) && !parameter.contains(FormatString))
+			return parameter;
+		
+		String[] values = parameter.split(";");
+		List<String> updatedParameters = new ArrayList<String>();
+		String zoneParameter = StringUtils.EMPTY;
+		String FormatParameter = StringUtils.EMPTY;
 
+		// set updatedParameters list to store all values other than zone and format parameters
+		for(String value : values) {
+			if(!value.contains(ZoneString) && !value.contains(FormatString))
+				updatedParameters.add(value);
+			if(value.contains(ZoneString)) {
+				zoneParameter = value;
+			}
+			if(value.contains(FormatString))
+				FormatParameter = value;
+		}
+		
+		// add zone and format parameters at the end
+		updatedParameters.add(zoneParameter);
+		updatedParameters.add(FormatParameter);
+		
+		parameter = Joiner.on(";").join(updatedParameters); 
+		return parameter;
+	}
 }

@@ -168,6 +168,9 @@ public class DataHelper {
 	 */
 	public static String getTime(String parameter, String timeString) {
 
+		// ensure ZONE and FORMAT are ordered at the end
+		parameter = Helper.date.setTimeParameterFormat(parameter);
+		
 		String[] values = parameter.split(";");
 
 		for (String value : values) {
