@@ -103,7 +103,7 @@ public class DataHelper {
 					// don't log if value already replaced
 					if(TestObject.getTestInfo().replacedValues.get(parameter) == null || !TestObject.getTestInfo().replacedValues.get(parameter).toString().equals(value.toString()))
 					{
-						TestLog.ConsoleLog("replacing value " + parameter + "  with: " + value);
+						//TestLog.ConsoleLog("replacing value " + parameter + "  with: " + value);
 						TestObject.getTestInfo().replacedValues.put(parameter, value);
 					}
 					source = source.replace("<@" + parameter + ">", Matcher.quoteReplacement(value.toString()));
@@ -401,7 +401,7 @@ public class DataHelper {
 		}
 		return keywords;
 	}
-
+	
 	public static String getTemplateFileLocation(String file) {
 		String templatePath = Config.getValue(TestDataProvider.TEST_DATA_TEMPLATE_PATH).trim();
 		String templateTestPath = PropertiesReader.getLocalRootPath() + templatePath;

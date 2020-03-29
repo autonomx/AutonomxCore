@@ -195,20 +195,22 @@ public class RabbitMqInterface {
 			switch (keyword.key.toLowerCase()) {
 
 			case "exchange":
-				Config.putValue(RABBIT_MQ_EXCHANGE, keyword.value);
+				Config.putValue(RABBIT_MQ_EXCHANGE, keyword.value, false);
 				break;
 			case "queue":
-				Config.putValue(RABBIT_MQ_QUEUE, keyword.value);
+				Config.putValue(RABBIT_MQ_QUEUE, keyword.value, false);
 				break;
 			case "outbound_queue":
-				Config.putValue(RABBIT_MQ_OUTBOUND_QUEUE, keyword.value);
+				Config.putValue(RABBIT_MQ_OUTBOUND_QUEUE, keyword.value, false);
 				break;
 			case "response_identifier":
-				Config.putValue(MessageQueueHelper.RESPONSE_IDENTIFIER, keyword.value);
+				Config.putValue(MessageQueueHelper.RESPONSE_IDENTIFIER, keyword.value, false);
 			default:
 				break;
 			}
 		}
+		
+		KeyValue.printKeyValue(keywords, "option");
 	}
 
 	/**

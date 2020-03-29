@@ -201,17 +201,18 @@ public class KafkaInterface {
 			switch (keyword.key.toLowerCase()) {
 
 			case "topic":
-				Config.putValue(KFAKA_TOPIC, keyword.value);
+				Config.putValue(KFAKA_TOPIC, keyword.value, false);
 				break;
 			case "outbound_topic":
-				Config.putValue(KFAKA_OUTBOUND_TOPIC, keyword.value);
+				Config.putValue(KFAKA_OUTBOUND_TOPIC, keyword.value, false);
 				break;
 			case "response_identifier":
-				Config.putValue(MessageQueueHelper.RESPONSE_IDENTIFIER, keyword.value);
+				Config.putValue(MessageQueueHelper.RESPONSE_IDENTIFIER, keyword.value, false);
 			default:
 				break;
 			}
 		}
+		KeyValue.printKeyValue(keywords, "option");
 	}
 
 	/**

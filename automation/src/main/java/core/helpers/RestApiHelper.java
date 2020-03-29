@@ -45,7 +45,6 @@ public class RestApiHelper {
 				TestLog.logPass("calling: " + targerApi + ": with identifier: " + name);
 				Config.putValue(variable, Helper.getIntFromString(id));
 				api = TestObject.getApiDef(targerApi);
-
 				RestApiInterface.RestfullApiInterface(api);
 			}
 		}

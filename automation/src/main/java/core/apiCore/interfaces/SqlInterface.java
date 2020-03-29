@@ -137,23 +137,24 @@ public class SqlInterface {
 				if (DatabaseObject.DATABASES.get(position) == null)
 					Helper.assertFalse("database number: " + position + " not found");
 				DatabaseObject database = DatabaseObject.DATABASES.get(position);
-				Config.putValue(SQL_CURRENT_DATABASE, database);
+				Config.putValue(SQL_CURRENT_DATABASE, database, false);
 				break;
 			case ServiceManager.OPTION_NO_VALIDATION_TIMEOUT:
 				Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, false);
 				break;
 
 			case ServiceManager.OPTION_WAIT_FOR_RESPONSE:
-				Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, true);
-				Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS, keyword.value);
+				Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, false);
+				Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS, keyword.value, false);
 				break;
 			case ServiceManager.OPTION_WAIT_FOR_RESPONSE_DELAY:
-				Config.putValue(ServiceManager.SERVICE_RESPONSE_DELAY_BETWEEN_ATTEMPTS_SECONDS, keyword.value);
+				Config.putValue(ServiceManager.SERVICE_RESPONSE_DELAY_BETWEEN_ATTEMPTS_SECONDS, keyword.value, false);
 				break;
 			default:
 				break;
 			}
 		}
+		KeyValue.printKeyValue(keywords, "option");
 	}
 
 	/**

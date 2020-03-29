@@ -101,9 +101,6 @@ public class RestApiInterface {
 	 */
 	public static Response evaluateRequestAndValidateResponse(ServiceObject serviceObject) {
 
-		// evaluate options
-		evaluateOption(serviceObject, null);
-
 		int getRetryCount = Config.getIntValue(ServiceManager.SERVICE_RETRY_COUNT);
 		int getRetryAfterSecond = Config.getIntValue(ServiceManager.SERVICE_RETRY_AFTER_SERCONDS);
 
@@ -153,7 +150,7 @@ public class RestApiInterface {
 	public static Response evaluatePagination(ServiceObject serviceObject) {
 
 		// set options
-		evaluateOption(serviceObject, serviceObject.getRequest());
+		evaluateOption(serviceObject);
 		boolean isValidationTimeout = Config.getBooleanValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED);
 
 		// set pagination response validation
@@ -281,12 +278,12 @@ public class RestApiInterface {
 
 			if (currentRetryCount > 1)
 				TestLog.ConsoleLog("attempt #" + (currentRetryCount));
+			
+			// set options
+			evaluateOption(serviceObject);
 
 			// set base uri
 			RequestSpecification request = setURI(serviceObject);
-
-			// set options
-			request = evaluateOption(serviceObject, request);
 
 			// replace parameters for request body, including template file (json, xml, or
 			// other)
@@ -538,17 +535,18 @@ public class RestApiInterface {
 				break;
 
 			case AUTHORIZATION_HEADER:
-				authValue = DataHelper.replaceParameters(keyword.value.toString());
+				keyword.value = DataHelper.replaceParameters(keyword.value.toString());
 				// keep track of the token
-				Config.putValue(AUTHORIZATION_HEADER, authValue);
-				request = request.given().header(keyword.key, authValue);
+				Config.putValue(AUTHORIZATION_HEADER, keyword.value);
+				request = request.given().header(keyword.key, keyword.value);
 				break;
 			default:
-				authValue = DataHelper.replaceParameters(keyword.value.toString());
-				request = request.given().header(keyword.key, authValue);
+				keyword.value = DataHelper.replaceParameters(keyword.value.toString());
+				request = request.given().header(keyword.key, keyword.value);
 				break;
 			}
 		}
+		KeyValue.printKeyValue(keywords, "header");
 		return request;
 	}
 
@@ -630,14 +628,14 @@ public class RestApiInterface {
 	 * @param serviceObject
 	 * @return
 	 */
-	public static RequestSpecification evaluateOption(ServiceObject serviceObject, RequestSpecification request) {
+	public static void evaluateOption(ServiceObject serviceObject) {
 
 		// reset validation timeout. will be overwritten by option value if set
 		resetValidationTimeout();
 
 		// if no option specified
 		if (serviceObject.getOption().isEmpty()) {
-			return request;
+			return;
 		}
 
 		// store value to config directly using format: value:<$key> separated by colon
@@ -663,36 +661,35 @@ public class RestApiInterface {
 				if (Config.getBooleanValue(API_TIMEOUT_PAGINATION_VALIDATION_ENABLED))
 					Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, false);
 				else
-					Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, true);
+					Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, false);
 				Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS, keyword.value);
 				break;
 			case ServiceManager.OPTION_WAIT_FOR_RESPONSE_DELAY:
-				Config.putValue(ServiceManager.SERVICE_RESPONSE_DELAY_BETWEEN_ATTEMPTS_SECONDS, keyword.value);
+				Config.putValue(ServiceManager.SERVICE_RESPONSE_DELAY_BETWEEN_ATTEMPTS_SECONDS, keyword.value, false);
 				break;
 			case ServiceManager.OPTION_RETRY_COUNT:
-				Config.putValue(ServiceManager.SERVICE_RETRY_COUNT, keyword.value);
+				Config.putValue(ServiceManager.SERVICE_RETRY_COUNT, keyword.value, false);
 				break;
 			case ServiceManager.OPTION_RETRY_AFTER_SECONDS:
-				Config.putValue(ServiceManager.SERVICE_RETRY_AFTER_SERCONDS, keyword.value);
+				Config.putValue(ServiceManager.SERVICE_RETRY_AFTER_SERCONDS, keyword.value, false);
 				break;
 			case OPTION_PAGINATION_STOP_CRITERIA:
-				Config.putValue(API_PAGINATION_STOP_CRITERIA, keyword.value);
+				Config.putValue(API_PAGINATION_STOP_CRITERIA, keyword.value, false);
 				break;
 			case OPTION_PAGINATION_MAX_PAGES:
-				Config.putValue(API_PAGINATION_MAX_PAGES, keyword.value);
+				Config.putValue(API_PAGINATION_MAX_PAGES, keyword.value, false);
 				break;
 			case OPTION_PAGINATION_FROM:
-				Config.putValue(API_PAGINATION_PAGES_FROM, keyword.value);
+				Config.putValue(API_PAGINATION_PAGES_FROM, keyword.value, false);
 				break;
 			case OPTION_PAGINATION_INCREMENET:
-				Config.putValue(API_PAGINATION_INCREMENT, keyword.value);
+				Config.putValue(API_PAGINATION_INCREMENT, keyword.value, false);
 				break;
 			default:
 				break;
 			}
 		}
-
-		return request;
+		KeyValue.printKeyValue(keywords, "option");
 	}
 
 	/**
