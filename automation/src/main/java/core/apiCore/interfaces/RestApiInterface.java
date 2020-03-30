@@ -752,8 +752,8 @@ public class RestApiInterface {
 		request = evaluateRequestBody(serviceObject, request);
 
 		serviceObject.withRequest(request);
-
-		TestLog.logPass("request body: " + Helper.stringRemoveLines(serviceObject.getRequestBody()));
+		if(!serviceObject.getRequestBody().isEmpty())
+			TestLog.logPass("request body: " + Helper.stringRemoveLines(serviceObject.getRequestBody()));
 		TestLog.logPass("request type: " + serviceObject.getMethod());
 
 		try {

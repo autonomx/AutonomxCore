@@ -217,6 +217,7 @@ public class ServiceRunner {
 		bw.append("public static void runInterface(ServiceObject serviceObject) throws Exception {" + " \n");
 		bw.newLine();
 		bw.newLine();
+		bw.append("		TestLog.logPass(\"description: \" + serviceObject.getDescription());" + " \n");
 		bw.append("		switch (serviceObject.getInterfaceType()) {");
 
 		for (Entry<String, List<String>> entry : serviceMap.entrySet()) {
