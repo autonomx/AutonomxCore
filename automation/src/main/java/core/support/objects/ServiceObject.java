@@ -312,6 +312,7 @@ public class ServiceObject {
 
 	@SuppressWarnings("unchecked")
 	public HashMap<String, List<Object>> getServiceSteps() {
+		if(this.serviceSteps == null) return null;
 		if(this.serviceSteps.toString().isEmpty()) return null;
 		
 		HashMap<String, List<Object>> map = (HashMap<String, List<Object>>) this.serviceSteps;

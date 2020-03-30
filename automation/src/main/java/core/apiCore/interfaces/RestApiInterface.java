@@ -351,7 +351,7 @@ public class RestApiInterface {
 		if (serviceObject.getUriPath().startsWith("http")) {
 			url = serviceObject.getUriPath();
 		} else {
-			url = Helper.stringRemoveLines(Config.getValue("api.uriPath")) + serviceObject.getUriPath();
+			url = Helper.stringRemoveLines(Config.getValue(API_BASE_URL)) + serviceObject.getUriPath();
 		}
 		// keep track of full URL
 		serviceObject.withUriPath(url);

@@ -72,21 +72,4 @@ public class KeyValue {
 				TestLog.logPass("setting " + prefix + ": " + value.key + ": " + value.value);
 		}
 	}
-	
-	/**
-	 * update key value
-	 * @param values
-	 * @param updateValue
-	 * @return
-	 */
-	public static List<KeyValue> updateKey(List<KeyValue> values, KeyValue updateValue){
-		
-		for(int i = 0; i < values.size(); i++) {
-			if(values.get(i).key.equals(updateValue.key)) {
-				values.add(i, updateValue);
-				break;
-			}
-		}
-		return values;
-	}
 }
