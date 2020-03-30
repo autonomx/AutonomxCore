@@ -355,7 +355,7 @@ public class DataHelper {
 		String dateString = localTime.toInstant(ZoneOffset.UTC).toString();
 		return dateString;
 	}
-
+	
 	/**
 	 * gets the map of the validation requirements split by ";"
 	 * 
@@ -363,13 +363,23 @@ public class DataHelper {
 	 * @return
 	 */
 	public static List<KeyValue> getValidationMap(String expected) {
+		return getValidationMap(expected, ";");
+	}
+
+	/**
+	 * gets the map of the validation requirements split by ";"
+	 * 
+	 * @param expected
+	 * @return
+	 */
+	public static List<KeyValue> getValidationMap(String expected, String separator) {
 		// get hashmap of json path And verification
 		List<KeyValue> keywords = new ArrayList<KeyValue>();
 
 		// remove json indicator _VERIFY.JSON.PART_
 		expected = JsonHelper.removeResponseIndicator(expected);
 
-		String[] keyVals = expected.split(";");
+		String[] keyVals = expected.split(separator);
 		String key = "";
 		String position = "";
 		String value = "";

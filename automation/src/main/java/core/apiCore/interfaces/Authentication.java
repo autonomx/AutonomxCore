@@ -4,6 +4,7 @@ import static io.restassured.RestAssured.given;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,7 @@ public class Authentication {
 	public static final String BASIC_AUTHORIZATION = "BASIC";
 	public static final String NTLM_AUTHORIZATION = "NTLM";
 	public static final String AUTHENTICATION_DISABLE = "authentication.disabled";
+	public static final String AUTHORIZATION_HEADER = "Authorization";
 
 	public static final String AUTHENTICATION = "auth";
 
@@ -93,7 +95,7 @@ public class Authentication {
 		RequestSpecification request = null;
 
 		// evaluate options
-		request = evaluateOption(serviceObject, request);
+		evaluateOption(serviceObject);
 
 		Map<String, String> parameterMap = getParameters(serviceObject);
 
@@ -169,23 +171,39 @@ public class Authentication {
 	 * @param serviceObject
 	 * @return
 	 */
-	private static RequestSpecification evaluateOption(ServiceObject serviceObject, RequestSpecification request) {
+	private static void evaluateOption(ServiceObject serviceObject) {
+
+		// reset validation timeout. will be overwritten by option value if set
+		resetOptions();
 
 		// if no option specified
 		if (serviceObject.getOption().isEmpty()) {
-			return request;
+			return;
 		}
+		
+		// store value to config directly using format: value:<$key> separated by colon ';'
+		DataHelper.saveDataToConfig(serviceObject.getOption());
 
 		// replace parameters for request body
 		serviceObject.withOption(DataHelper.replaceParameters(serviceObject.getOption()));
 
-		// if additional options
-		switch (serviceObject.getOption()) {
-		default:
-			break;
-		}
+		// get key value mapping of header parameters
+		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getOption());
 
-		return request;
+		// iterate through key value pairs for headers, separated by ";"
+		for (KeyValue keyword : keywords) {
+			// if additional options
+			switch (keyword.key) {
+				default:
+					break;
+				}
+			}
+		KeyValue.printKeyValue(keywords, "option");
+	}
+	
+	private static void resetOptions() {
+		// reset authorization token tracker
+		Config.putValue(AUTHORIZATION_HEADER, "", false);
 	}
 
 	/**
@@ -195,6 +213,7 @@ public class Authentication {
 	 * @param serviceObject
 	 * @param authorization
 	 */
+	@SuppressWarnings("unchecked")
 	private static void saveOutboundParameter(ServiceObject serviceObject, Object authorization) {
 		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getOutputParams());
 
@@ -214,7 +233,9 @@ public class Authentication {
 
 		String key = (String) keyword.value;
 		key = key.replace("$", "").replace("<", "").replace(">", "").trim();
-		Config.putValue(key, authorization);
+		Config.putValue(key, authorization, false);
+		
+		ArrayList<String> request = (ArrayList<String>) authorization;
+		TestLog.logPass("output parameter: " + key + " value: " + Arrays.toString(request.toArray()));
 	}
-
 }

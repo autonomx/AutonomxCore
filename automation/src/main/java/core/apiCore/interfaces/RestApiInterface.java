@@ -32,7 +32,6 @@ import io.restassured.specification.RequestSpecification;
 
 public class RestApiInterface {
 
-	private static final String AUTHORIZATION_HEADER = "Authorization";
 	public static final String API_TIMEOUT_PAGINATION_VALIDATION_ENABLED = "api.timeout.pagination.validation.isEnabled";
 
 	private static final String INVALID_TOKEN = "INVALID_TOKEN";
@@ -527,24 +526,24 @@ public class RestApiInterface {
 				break;
 				
 			case INVALID_TOKEN:
-				String authValue = Config.getValue(AUTHORIZATION_HEADER);
+				String authValue = Config.getValue(Authentication.AUTHORIZATION_HEADER);
 
 				// replace authorization token with random string of equal value to the token
 				if (!authValue.isEmpty()) {
 					authValue = Helper.generateRandomString(authValue.length());
-					request = request.given().header(AUTHORIZATION_HEADER, authValue);
+					request = request.given().header(Authentication.AUTHORIZATION_HEADER, authValue);
 				} else
-					request = request.given().header(AUTHORIZATION_HEADER, "invalid");
+					request = request.given().header(Authentication.AUTHORIZATION_HEADER, "invalid");
 				break;
 
 			case NO_TOKEN:
-				request = request.given().header(AUTHORIZATION_HEADER, "");
+				request = request.given().header(Authentication.AUTHORIZATION_HEADER, "");
 				break;
 
-			case AUTHORIZATION_HEADER:
+			case Authentication.AUTHORIZATION_HEADER:
 				keyword.value = DataHelper.replaceParameters(keyword.value.toString());
 				// keep track of the token
-				Config.putValue(AUTHORIZATION_HEADER, keyword.value, false);
+				Config.putValue(Authentication.AUTHORIZATION_HEADER, keyword.value, false);
 				request = request.given().header(keyword.key, keyword.value);
 				break;
 				
