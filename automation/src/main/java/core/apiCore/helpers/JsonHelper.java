@@ -82,7 +82,8 @@ public class JsonHelper {
 			if (!keyword.position.isEmpty()) {
 				value = value.split(",")[Integer.valueOf(keyword.position) - 1];
 			}
-			Config.putValue(key, value);
+			Config.putValue(key, value, false);
+			TestLog.logPass("output parameter: " + key + " value: " + value);
 		}
 	}
 

@@ -101,9 +101,12 @@ public class RestApiInterface {
 	 */
 	public static Response evaluateRequestAndValidateResponse(ServiceObject serviceObject) {
 
+		// set options
+		evaluateOption(serviceObject);
+		
 		int getRetryCount = Config.getIntValue(ServiceManager.SERVICE_RETRY_COUNT);
 		int getRetryAfterSecond = Config.getIntValue(ServiceManager.SERVICE_RETRY_AFTER_SERCONDS);
-
+		
 		// retry test if value set
 		for (int i = 1; i <= getRetryCount + 1; i++) {
 			// evaluate request and receive response
@@ -154,7 +157,7 @@ public class RestApiInterface {
 		boolean isValidationTimeout = Config.getBooleanValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED);
 
 		// set pagination response validation
-		Config.putValue(API_TIMEOUT_PAGINATION_VALIDATION_ENABLED, isValidationTimeout);
+		Config.putValue(API_TIMEOUT_PAGINATION_VALIDATION_ENABLED, isValidationTimeout, false);
 
 		boolean isCriteriaSuccess = false;
 
@@ -208,7 +211,7 @@ public class RestApiInterface {
 			// update uri to include the incrementally increasing page numbers
 			// resets page number to <@PAGINATION> keyword which will get overwritten
 			serviceObject = serviceObject.withUriPath(uri);
-			Config.putValue(API_PAGINATION_COUNTER, index);
+			Config.putValue(API_PAGINATION_COUNTER, index, false);
 
 			// evaluate the request and receive response. errors are stored at
 			// serviceObject.errorMessages
@@ -276,11 +279,12 @@ public class RestApiInterface {
 			List<String> errors = new ArrayList<String>();
 			serviceObject.withErrorMessages(errors);
 
-			if (currentRetryCount > 1)
+			if (currentRetryCount > 1) {
 				TestLog.ConsoleLog("attempt #" + (currentRetryCount));
 			
-			// set options
-			evaluateOption(serviceObject);
+				// set options. options initially set before evaluateRequestAndReceiveResponse
+				evaluateOption(serviceObject);
+			}
 
 			// set base uri
 			RequestSpecification request = setURI(serviceObject);
@@ -503,8 +507,9 @@ public class RestApiInterface {
 					Helper.assertFalse("basicRequest request info not correct. Should include username, password: "
 							+ Arrays.toString(basicRequest.toArray()));
 				request = request.auth().basic(basicRequest.get(0), basicRequest.get(1));
+				keyword.value = Arrays.toString(basicRequest.toArray());
 				break;
-
+				
 			case Authentication.NTLM_AUTHORIZATION:
 				keys = Helper.getValuesFromPattern(keyword.value.toString(), "<@(.+?)>");
 				if (keys.size() == 0)
@@ -518,7 +523,9 @@ public class RestApiInterface {
 									+ Arrays.toString(ntlmRequest.toArray()));
 				request = request.auth().ntlm(ntlmRequest.get(0), ntlmRequest.get(1), ntlmRequest.get(2),
 						ntlmRequest.get(3));
+				keyword.value = Arrays.toString(ntlmRequest.toArray());
 				break;
+				
 			case INVALID_TOKEN:
 				String authValue = Config.getValue(AUTHORIZATION_HEADER);
 
@@ -537,9 +544,10 @@ public class RestApiInterface {
 			case AUTHORIZATION_HEADER:
 				keyword.value = DataHelper.replaceParameters(keyword.value.toString());
 				// keep track of the token
-				Config.putValue(AUTHORIZATION_HEADER, keyword.value);
+				Config.putValue(AUTHORIZATION_HEADER, keyword.value, false);
 				request = request.given().header(keyword.key, keyword.value);
 				break;
+				
 			default:
 				keyword.value = DataHelper.replaceParameters(keyword.value.toString());
 				request = request.given().header(keyword.key, keyword.value);
@@ -654,15 +662,15 @@ public class RestApiInterface {
 			// if additional options
 			switch (keyword.key) {
 			case ServiceManager.OPTION_NO_VALIDATION_TIMEOUT:
-				Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, false);
+				Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, false, false);
 				break;
 			case ServiceManager.OPTION_WAIT_FOR_RESPONSE:
 				// disable per page wait for response if pagination validation is enabled
 				if (Config.getBooleanValue(API_TIMEOUT_PAGINATION_VALIDATION_ENABLED))
-					Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, false);
+					Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, false, false);
 				else
-					Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, false);
-				Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS, keyword.value);
+					Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_ENABLED, true, false);
+				Config.putValue(ServiceManager.SERVICE_TIMEOUT_VALIDATION_SECONDS, keyword.value, false);
 				break;
 			case ServiceManager.OPTION_WAIT_FOR_RESPONSE_DELAY:
 				Config.putValue(ServiceManager.SERVICE_RESPONSE_DELAY_BETWEEN_ATTEMPTS_SECONDS, keyword.value, false);

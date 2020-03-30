@@ -81,8 +81,9 @@ public class SqlHelper {
 			if (!keyword.position.isEmpty()) {
 				value = value.split(",")[Integer.valueOf(keyword.position) - 1];
 			}
-			Config.putValue(key, value);
+			Config.putValue(key, value, false);
 		}
+		KeyValue.printKeyValue(keywords, "saving value");
 	}
 
 	private static String getAllValuesInColumn(ResultSet resSet, String column) throws SQLException {
