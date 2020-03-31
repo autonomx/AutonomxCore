@@ -1,8 +1,11 @@
 package core.apiCore.driver;
 
+import java.util.ArrayList;
+
 import org.apache.commons.lang3.StringUtils;
 
 import core.apiCore.helpers.CsvReader;
+import core.support.logger.LogObject;
 import core.support.logger.TestLog;
 import core.support.objects.ServiceObject;
 import core.support.objects.TestObject;
@@ -66,8 +69,7 @@ public class ApiTestDriver {
 		// pass the parent config And logs to new test. parameters are passed from one
 		// test to another this way
 		TestObject.getTestInfo().config = getParentTestObject(serviceObject).config;
-		TestObject.getTestInfo().testLog = getParentTestObject(serviceObject).testLog;
-
+		
 		TestObject.getTestInfo().type = testType.service;
 		TestObject.getTestInfo().app = APP;
 		TestObject.getTestInfo().testCsvFileName = serviceObject.getTcName();
@@ -109,7 +111,17 @@ public class ApiTestDriver {
 		ApiTestDriver.getParentTestObject(parentId).testObjects.add(TestObject.getTestInfo());
 	}
 	
-	
+	/**
+	 * tracks test logs
+	 * getTestInfo().testLog: tracks logs of individual service tests
+	 * on test success or failure, contains all the logs of all tests for batch logging
+	 */
+	public static void trackServiceTestLogs() {
+		ApiTestDriver.getParentTestObject().testLog.addAll(TestObject.getTestInfo().testLog);
+		
+		TestObject.getTestInfo().testLog = new ArrayList<LogObject>();
+		TestObject.getTestInfo().testLog.addAll(ApiTestDriver.getParentTestObject().testLog);
+	}
 
 	/**
 	 * returns true if all tests in current csv file are completed

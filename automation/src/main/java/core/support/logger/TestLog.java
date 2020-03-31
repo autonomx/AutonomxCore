@@ -455,41 +455,22 @@ public class TestLog {
 	 */
 	private static void logConsoleMessage(Priority priority, String value) {
 
+		value = Helper.date.getTimestampSeconds() + " : " + getTestLogPrefix() + value;
+
 		// if batch logging is disabled, log to console
 		Boolean enableBatchLogging = CrossPlatformProperties.getEnableBatchLogging();
-		if (enableBatchLogging)
-			logBatchConsoleMessage(priority, value);
-		else
-			logDirectConsoleMessage(priority, value);
-	}
-
-	/**
-	 * log message directly to console
-	 * 
-	 * @param priority
-	 * @param value
-	 */
-	public static void logDirectConsoleMessage(Priority priority, String value) {
-		value = Helper.date.getTimestampSeconds() + " : " + getTestLogPrefix() + value;
-		TestObject.getTestInfo().log.log(priority, value);
-	}
-
-	/**
-	 * log to console in batch mode
-	 * 
-	 * @param priority
-	 * @param value
-	 */
-	private static void logBatchConsoleMessage(Priority priority, String value) {
-		// if batch logging is disabled, log to console
-		Boolean enableBatchLogging = CrossPlatformProperties.getEnableBatchLogging();
-		value = Helper.date.getTimestampSeconds() + " : " + getTestLogPrefix() + value;
-		// if batch logging is enabled, keep track of all logs
-		if (enableBatchLogging) {
-			LogObject log = new LogObject(value, priority);
-			TestObject.getTestInfo().testLog.add(log);
+		if (!enableBatchLogging) {
+			TestObject.getTestInfo().log.log(priority, value);
 		}
+		
+		// keep track of the logs
+		LogObject log = new LogObject(value, priority);
+		TestObject.getTestInfo().testLog.add(log);
+		
+		List<LogObject> logs = TestObject.getTestInfo().testLog;
+		System.out.print("");
 	}
+
 
 	/**
 	 * sets the logging prefix

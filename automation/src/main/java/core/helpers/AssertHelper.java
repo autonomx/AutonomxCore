@@ -1,8 +1,16 @@
 package core.helpers;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
+import core.support.logger.LogObject;
 import core.support.logger.TestLog;
 import core.support.objects.TestObject;
 
@@ -24,11 +32,24 @@ public class AssertHelper {
 	}
 
 	protected static void assertFalse(String message) {
+		List<String> logValues = new ArrayList<String>();
+		List<LogObject> logs = TestObject.getTestInfo().testLog;
+		for (LogObject log : logs) {
+			logValues.add(log.value);
+		}
+		String list = StringUtils.join(logValues, "\n");
+		message = message + "\n"+ list;
+		
 		try {
-			Assert.assertTrue(false, TestObject.getTestId() + ": " + message);
+			
+			Assert.assertTrue(false,"");
 		} catch (AssertionError e) {
-			e.printStackTrace();
-			throw e;
+			StringWriter sw = new StringWriter();
+			e.printStackTrace(new PrintWriter(sw));
+			String exceptionAsString = sw.toString();// stack trace as a string
+			TestLog.ConsoleLog(exceptionAsString);
+			Assert.assertTrue(false, TestObject.getTestId() + ": " + message);
+
 		}
 	}
 

@@ -23,6 +23,7 @@ import core.helpers.Helper;
 import core.helpers.ScreenRecorderHelper;
 import core.support.configReader.Config;
 import core.support.logger.ExtentManager;
+import core.support.logger.LogObject;
 import core.support.logger.TestLog;
 import core.support.objects.DeviceManager;
 import core.support.objects.DriverObject;
@@ -183,7 +184,10 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		DeviceManager.setDeviceAvailability(true);
 		
 		// if service test, parent test objects keeps track of the child test objects
-		ApiTestDriver.parentTrackChildTests();
+		ApiTestDriver.parentTrackChildTests();		
+
+		// if service test, tracks test logs
+		ApiTestDriver.trackServiceTestLogs();
 	}
 
 	@Override
@@ -208,6 +212,9 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		
 		// if service test, parent test objects keeps track of the child test objects
 		ApiTestDriver.parentTrackChildTests();
+		
+		// if service test, tracks test logs
+		ApiTestDriver.trackServiceTestLogs();		
 	}
 
 	@Override
