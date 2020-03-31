@@ -5,6 +5,7 @@ import java.util.List;
 import core.support.objects.ActionObject;
 import core.support.objects.ActionObject.ACTION;
 import core.support.objects.DriverObject;
+import core.support.objects.LoginObject;
 import core.support.objects.TestObject;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import core.uiCore.drivers.AbstractDriver;
@@ -13,6 +14,11 @@ import core.uiCore.webElement.EnhancedBy;
 public class Loginbuilder {
 
 	public Loginbuilder() {
+	}
+	
+	public Loginbuilder builder() {
+		TestObject.getTestInfo().login = new LoginObject();
+		return this;
 	}
 
 	public Loginbuilder withUsername(EnhancedBy element, String value) {
