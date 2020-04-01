@@ -56,32 +56,17 @@ public class AssertHelper {
 
 	protected static void assertEquals(String expected, String actual) {
 		TestLog.logPass("validating if expected: " + expected + " equals to actual: " + actual);
-		try {
-			Assert.assertEquals(actual, expected);
-		} catch (AssertionError e) {
-			logStackTrace(e);
-			Assert.assertEquals(actual, expected);
-		}
+		assertTrue("expected value: " + expected + " actual:" + actual, expected.equals(actual));
+
 	}
 
 	protected static void assertEquals(boolean expected, boolean actual) {
-		TestLog.logPass("validating if expected: " + expected + " equals to actual: " + actual);
-		try {
-			Assert.assertEquals(actual, expected, "added message");
-		} catch (AssertionError e) {
-			logStackTrace(e);
-			throw e;
-		}
+		assertTrue("expected value: " + expected + " actual:" + actual, java.util.Objects.equals(expected, actual));
 	}
 
 	protected static void assertEquals(int expected, int actual) {
-		TestLog.logPass("validating if expected: " + expected + " equals to actual: " + actual);
-		try {
-			Assert.assertEquals(actual, expected);
-		} catch (AssertionError e) {
-			logStackTrace(e);
-			throw e;
-		}
+		assertTrue("expected value: " + expected + " actual:" + actual, expected == actual);
+
 	}
 
 	protected static void softAssertTrue(String message, boolean value) {
