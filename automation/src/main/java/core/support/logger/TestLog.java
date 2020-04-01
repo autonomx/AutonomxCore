@@ -14,6 +14,7 @@ import org.apache.log4j.Priority;
 import org.apache.log4j.xml.DOMConfigurator;
 //import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.slf4j.bridge.SLF4JBridgeHandler;
+import org.testng.Reporter;
 
 import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.gherkin.model.And;
@@ -467,8 +468,8 @@ public class TestLog {
 		LogObject log = new LogObject(value, priority);
 		TestObject.getTestInfo().testLog.add(log);
 		
-		List<LogObject> logs = TestObject.getTestInfo().testLog;
-		System.out.print("");
+		// log to testng junit reporter
+		Reporter.log(value);
 	}
 
 
@@ -529,7 +530,8 @@ public class TestLog {
 			return;
 
 		List<LogObject> logs = TestObject.getTestInfo(testId).testLog;
-		printLogs(logs, testId);
+		if(!logs.isEmpty())
+			printLogs(logs, testId);
 
 	}
 

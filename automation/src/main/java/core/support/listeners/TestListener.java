@@ -23,7 +23,6 @@ import core.helpers.Helper;
 import core.helpers.ScreenRecorderHelper;
 import core.support.configReader.Config;
 import core.support.logger.ExtentManager;
-import core.support.logger.LogObject;
 import core.support.logger.TestLog;
 import core.support.objects.DeviceManager;
 import core.support.objects.DriverObject;
@@ -157,16 +156,13 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 	@Override
 	public void onTestSuccess(ITestResult iTestResult) {
-
+		
 		// sets the class name for logging before class
 		setTestClassName(iTestResult);
 
 		// set test status to pass
 		TestObject.getTestInfo().withIsTestPass(true);
-		TestObject.getTestInfo().withIsTestComplete(ApiTestDriver.isCsvTestComplete());
-
-		TestLog.Then("Test is finished successfully");
-		TestLog.printBatchLogsToConsole();
+		setTestComplete();
 
 		// stop screen recording if enabled
 		ScreenRecorderHelper.stopRecording();
@@ -188,6 +184,9 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		// if service test, tracks test logs
 		ApiTestDriver.trackServiceTestLogs();
+		
+		TestLog.Then("Test is finished successfully");
+		TestLog.printBatchLogsToConsole();
 	}
 
 	@Override
@@ -196,14 +195,12 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		// sets the class name for logging before class
 		setTestClassName(iTestResult);
 
-		// print out console logs to console if batch logging is enabled
-		TestLog.printBatchLogsToConsole();
 		// set forced restart to true, so new driver is created for next test
 		TestObject.getTestInfo().withIsForcedRestart(true);
 		TestObject.getTestInfo().isFirstRun = true;
 		TestObject.getTestInfo().withIsTestPass(false);
-		TestObject.getTestInfo().withIsTestComplete(ApiTestDriver.isCsvTestComplete());
-
+		setTestComplete();
+		
 		// mobile device is now available again
 		DeviceManager.setDeviceAvailability(true);
 
@@ -214,7 +211,12 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		ApiTestDriver.parentTrackChildTests();
 		
 		// if service test, tracks test logs
-		ApiTestDriver.trackServiceTestLogs();		
+		ApiTestDriver.trackServiceTestLogs();
+		
+		TestLog.Then("Test failed");
+
+		// print out console logs to console if batch logging is enabled
+		TestLog.printBatchLogsToConsole();
 	}
 
 	@Override
@@ -406,5 +408,11 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 	private String getClassName(String className) {
 		className = className.substring(className.lastIndexOf(".") + 1);
 		return className;
+	}
+	
+	private void setTestComplete() {
+		TestObject.getTestInfo().withIsTestComplete(ApiTestDriver.isCsvTestComplete());
+		if(ApiTestDriver.isRunningUITest())
+			TestObject.getTestInfo().withIsTestComplete(true);
 	}
 }

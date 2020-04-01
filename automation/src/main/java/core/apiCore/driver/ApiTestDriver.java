@@ -117,6 +117,8 @@ public class ApiTestDriver {
 	 * on test success or failure, contains all the logs of all tests for batch logging
 	 */
 	public static void trackServiceTestLogs() {
+		if(!isRunningServiceTest()) return;
+		
 		ApiTestDriver.getParentTestObject().testLog.addAll(TestObject.getTestInfo().testLog);
 		
 		TestObject.getTestInfo().testLog = new ArrayList<LogObject>();
@@ -184,6 +186,10 @@ public class ApiTestDriver {
 	 */
 	public static boolean isRunningServiceTest() {
 		return TestObject.getTestInfo().type.equals(TestObject.testType.service);
+	}
+	
+	public static boolean isRunningUITest() {
+		return TestObject.getTestInfo().type.equals(TestObject.testType.uiTest);
 	}
 
 	/*
