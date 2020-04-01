@@ -191,7 +191,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 	@Override
 	public void onTestFailure(ITestResult iTestResult) {
-
+		
 		// sets the class name for logging before class
 		setTestClassName(iTestResult);
 
