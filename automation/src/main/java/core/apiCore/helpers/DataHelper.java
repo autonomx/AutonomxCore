@@ -61,7 +61,7 @@ public class DataHelper {
 	public static String replaceParameters(String source) {
 
 		if (source.isEmpty())
-			return source;
+			return source; 
 
 		List<String> parameters = Helper.getValuesFromPattern(source, "<@(.+?)>");
 		Object value = null;

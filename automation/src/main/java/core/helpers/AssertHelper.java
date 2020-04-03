@@ -56,7 +56,10 @@ public class AssertHelper {
 
 	protected static void assertEquals(String expected, String actual) {
 		TestLog.logPass("validating if expected: " + expected + " equals to actual: " + actual);
-		assertTrue("expected value: " + expected + " actual:" + actual, expected.equals(actual));
+		if(expected == null)
+			assertTrue("expected value: " + expected + " actual:" + actual, expected == actual);
+		else
+			assertTrue("expected value: " + expected + " actual:" + actual, expected.equals(actual));
 
 	}
 
