@@ -82,6 +82,7 @@ public class ExternalInterface {
 	 * @return 
 	 * @throws Exception
 	 */
+	@SuppressWarnings("deprecation")
 	public static Object runExernalMethod(String classmethod, List<KeyValue> parameterList) throws Exception {
 		GroovyClassLoader groovyClassLoader = new GroovyClassLoader();
 
