@@ -256,7 +256,9 @@ public class AbstractDriverTestNG implements ITest {
 
 				// set implicit Wait wait to be the minimum of our explicit wait
 				driver.manage().timeouts().implicitlyWait(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
-				driver.manage().timeouts().pageLoadTimeout(AbstractDriver.TIMEOUT_SECONDS, TimeUnit.SECONDS);
+				
+				if(Helper.mobile.isWebDriver())
+					driver.manage().timeouts().pageLoadTimeout(AbstractDriver.TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
 			} catch (Exception e) {
 				if (retry > 0)
@@ -268,8 +270,9 @@ public class AbstractDriverTestNG implements ITest {
 					if (driverObject.driverType.equals(DriverType.ANDROID_DRIVER))
 						AndroidCapability.printAndroidHelp(e);
 					throw e;
-				}
-
+				}else
+					e.printStackTrace();
+				
 			}
 
 		} while (driver == null && retry > 0);
