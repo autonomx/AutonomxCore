@@ -126,6 +126,9 @@ public class JsonHelper {
 	public static String getJsonValue(String json, String path, boolean isAlwaysReturnList) {
 		Object values = getJsonPathValue(json, path, isAlwaysReturnList);
 
+		if(values == null)
+			return null;
+		
 		// return json response without normalizing
 		if (isValidJsonkeyValue(values)) {
 			return values.toString();
@@ -175,13 +178,13 @@ public class JsonHelper {
 			if (e.getMessage().contains(Option.ALWAYS_RETURN_LIST.name()) && isAlwaysReturnList)
 				values = getJsonValue(json, path, false);
 			else
-				Helper.assertFalse("invalid path: '" + path + "' for json string: " + json
+				TestLog.logWarning("invalid path: '" + path + "' for json string: " + json
 						+ "\n. see http://jsonpath.herokuapp.com to validate your path against json string. see https://github.com/json-path/JsonPath for more info. \n"
 						+ e.getMessage());
 		}
 
 		if (values == null)
-			Helper.assertFalse("no results returned: '" + path
+			TestLog.logWarning("no results returned: '" + path
 					+ "'. see http://jsonpath.herokuapp.com to validate your path against json string. see https://github.com/json-path/JsonPath for more info.");
 
 		return values;
@@ -305,6 +308,12 @@ public class JsonHelper {
 			TestLog.ConsoleLog("command: <" + command + "> json path: <" + jsonPath + ">");
 			// get response string from json path (eg. data.user.id) would return "2"
 			String jsonResponse = getJsonValue(responseString, jsonPath);
+			
+			// set error if response is null or empty
+			if(jsonResponse == null || jsonResponse.isEmpty()) {
+				errorMessages.add("no response returned for jsonPath: " + jsonPath);
+				continue;
+			}
 
 			// validate response
 			String errorMessage = DataHelper.validateCommand(command, jsonResponse, expectedValue, keyword.position);
