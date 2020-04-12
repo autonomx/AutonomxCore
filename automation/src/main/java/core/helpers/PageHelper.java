@@ -9,6 +9,7 @@ import java.util.Set;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 
 import core.support.logger.TestLog;
@@ -370,7 +371,21 @@ public class PageHelper {
 	 * @param url destination url
 	 */
 	public void navigateToUrl(String url) {
-		AbstractDriver.getWebDriver().get(url);
+		int retry = 3;
+		boolean success = false;
+		do {
+			retry--;
+			try {
+				AbstractDriver.getWebDriver().get(url);
+				success = true;
+			}catch(TimeoutException e) {
+				e.printStackTrace();
+			}
+			
+			if(retry < 3)
+				TestLog.ConsoleLog("get url failed, retrying: " + url);
+			retry--;
+		}while(!success && retry >= 0);
 	}
 
 	/**

@@ -18,10 +18,14 @@ public class LoginHelper {
 	 */
 	protected static void handleDifferentUser() {
 
+		// if driver not set, nothing to handle
+		if(!DriverObject.isDriverSet())
+			return;
+		
 		// if single signin is disabled, return
 		if (!CrossPlatformProperties.isSingleSignIn())
 			return;
-
+		
 		String username = TestObject.getTestInfo().login.getUsername();
 		String password = TestObject.getTestInfo().login.getPassword();
 
@@ -37,6 +41,7 @@ public class LoginHelper {
 	 * @return if the user has changed
 	 */
 	private static boolean isDifferentUser() {
+		
 		// get already logged in user name/password
 		String loggedInUsername = DriverObject.getCurrentDriverObject().login.getLoggedInUsername();
 		String loggedInPassword = DriverObject.getCurrentDriverObject().login.getLoggedInPassword();
@@ -54,30 +59,37 @@ public class LoginHelper {
 
 		return condition1 || condition2;
 	}
-
+	
+	
 	/**
-	 * if single signin disabled, continue with login if enabled, continue if: -
-	 * user has changed - logged in user is not set - user is at login page
-	 * 
+	 * if single signin disabled, continue with login
+	 * if enabled, continue if:
+	 * 	- user has changed
+	 *  - logged in user is not set
+	 *  - user is at login page
 	 * @return
 	 */
 	protected static boolean isContinueLogin() {
-
+		
+		// if driver not set, then we need to login
+		if(!DriverObject.isDriverSet())
+			return true;
+		
 		// if single signin is disabled, return true
 		if (!CrossPlatformProperties.isSingleSignIn())
 			return true;
-
+		
 		// if login has changed, continue with login
-		if (isDifferentUser())
+		if(isDifferentUser())
 			return true;
-
+		
 		// get already logged in login name/password
 		String loggedInUsername = DriverObject.getCurrentDriverObject().login.getLoggedInUsername();
 		String loggedInPassword = DriverObject.getCurrentDriverObject().login.getLoggedInPassword();
-
-		if (StringUtils.isEmpty(loggedInUsername) || StringUtils.isEmpty(loggedInPassword))
+		
+		if(StringUtils.isEmpty(loggedInUsername) || StringUtils.isEmpty(loggedInPassword))
 			return true;
-
+		
 		return false;
 	}
 
@@ -89,7 +101,7 @@ public class LoginHelper {
 	 */
 	private static void restartDriver(String username, String password) {
 		TestLog.ConsoleLog("logged in user has changed, restarting the driver...");
-
+		
 		DriverObject driver = TestObject.getTestInfo().currentDriver;
 
 		// shutdown all the current drivers

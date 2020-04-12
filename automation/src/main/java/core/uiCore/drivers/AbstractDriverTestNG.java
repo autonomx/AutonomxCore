@@ -32,7 +32,7 @@ import core.uiCore.driverProperties.driverType.DriverType;
 import core.uiCore.driverProperties.capabilities.AndroidCapability;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 
-@Listeners({ core.support.listeners.TestListener.class })
+@Listeners({core.support.listeners.TestListener.class, core.support.listeners.TestResultListener.class})
 
 public class AbstractDriverTestNG implements ITest {
 

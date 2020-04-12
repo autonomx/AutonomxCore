@@ -309,9 +309,10 @@ public class JsonHelper {
 			// get response string from json path (eg. data.user.id) would return "2"
 			String jsonResponse = getJsonValue(responseString, jsonPath);
 			
-			// set error if response is null or empty
+			// if response is empty and isEmpty command is not used
 			if(jsonResponse == null || jsonResponse.isEmpty()) {
-				errorMessages.add("no response returned for jsonPath: " + jsonPath);
+				if(!keyword.value.equals(DataHelper.JSON_COMMAND.isEmpty.name()))
+					errorMessages.add("no response returned for jsonPath: " + jsonPath);
 				continue;
 			}
 

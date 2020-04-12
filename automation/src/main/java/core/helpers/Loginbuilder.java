@@ -7,6 +7,7 @@ import core.support.objects.ActionObject.ACTION;
 import core.support.objects.DriverObject;
 import core.support.objects.LoginObject;
 import core.support.objects.TestObject;
+import core.support.objects.UserObject;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import core.uiCore.drivers.AbstractDriver;
 import core.uiCore.webElement.EnhancedBy;
@@ -129,23 +130,16 @@ public class Loginbuilder {
 
 		return this;
 	}
-
-	public void build() {
-
-		// restart the driver if single signin is set and login has changed
-		Helper.handleDifferentUser();
-
+	
+	public void build(UserObject... user) {
+		
 		// if conditions for continue login are not met, return
-		if (!LoginHelper.isContinueLogin())
+		if (!isSigleSignInLoginRequired(user))
 			return;
-
-		// set login info at default test object level
-		setGlobalUserCredentials();
 		
 		List<ActionObject> sequence = TestObject.getTestInfo().login.getLoginSequence();
 	
 		ensurePageLoaded(sequence);
-		
 		for (ActionObject action : sequence) {
 
 			switch (action.getAction()) {
@@ -190,11 +184,49 @@ public class Loginbuilder {
 	}
 	
 	/**
+	 * determines if login is required
+	 * checks different login uses and if the main app page is present
+	 * carries over config and login info to the next test
+	 * @return
+	 */
+	public boolean isSigleSignInLoginRequired(UserObject... user) {
+		// if driver not set, then need to login
+		if (!DriverObject.isDriverSet())
+			return true;
+		
+		// restart the driver if single signin is set and login has changed
+		Helper.handleDifferentUser();
+
+		// pass the config to the next test
+		if(DriverObject.getCurrentDriverObject().config.isEmpty())
+			DriverObject.getCurrentDriverObject().config = TestObject.getTestInfo().config;
+		else
+			TestObject.getTestInfo().config = DriverObject.getCurrentDriverObject().config;
+
+		// if conditions for continue login are not met, return
+		if (!LoginHelper.isContinueLogin())
+			return false;
+
+		// set login info at default test object level
+		setGlobalUserCredentials();
+		
+		if(user.length > 0 && isLoggedIn(user[0])) {
+			return false;
+		}
+
+		return true;
+	}
+	
+	/**
 	 * store user credentials at global level
 	 * this is used to keep track of user login across different tests
 	 * also store username field to check if user is at login page
 	 */
-	private void setGlobalUserCredentials() {
+	private static void setGlobalUserCredentials() {
+		// if driver not set, nothing to handle
+		if(!DriverObject.isDriverSet())
+			return;
+				
 		// if single sign in is disabled, return 
 		if (!CrossPlatformProperties.isSingleSignIn()) return;
 		
@@ -230,5 +262,19 @@ public class Loginbuilder {
 		if (!Helper.isPresent(firstElement))
 				Helper.assertFalse("element '" + firstElement.name + "' did not load");
 		
+	}
+	
+	/**
+	 * determine if user is logged in and on main page
+	 * @param user
+	 * @return
+	 */
+	public boolean isLoggedIn(UserObject user) {
+
+		if(AbstractDriver.getWebDriver() == null)
+			return false;
+		if(Helper.isDisplayed(user.getSuccessIndicator()))
+			return true;
+		return false;
 	}
 }

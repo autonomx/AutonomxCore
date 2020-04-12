@@ -42,15 +42,16 @@ public class DriverObject {
 	public BrowserType browserType;
 	public String driverVersion;
 	public LoginObject login = new LoginObject();
+	public Map<String, Object> config = new ConcurrentHashMap<String, Object>();
+
 
 	public DesiredCapabilities capabilities;
 
 	public static Map<WebDriver, DriverObject> driverList = new ConcurrentHashMap<WebDriver, DriverObject>();
 
 	/**
-	 * keeps track of all the drivers and selects the first available driver used
-	 * when single sign in is used
-	 * 
+	 * keeps track of all the drivers and selects the first available driver
+	 * used when single sign in is used
 	 * @return
 	 */
 	public synchronized static WebDriver getFirstAvailableDriver() {
@@ -67,9 +68,9 @@ public class DriverObject {
 	 * quite all drivers associated with a test
 	 */
 	public static void quitTestDrivers() {
-		List<WebDriver> drivers = new ArrayList<>(TestObject.getTestInfo().webDriverList);
+		List<WebDriver> drivers =  new ArrayList<>(TestObject.getTestInfo().webDriverList);
 		for (WebDriver driver : drivers) {
-			quitWebDriver(driver);
+			quitWebDriver(driver);	
 		}
 		// reset driver list
 		TestObject.getTestInfo().withWebDriverList(new ArrayList<WebDriver>());
@@ -94,41 +95,39 @@ public class DriverObject {
 				e.getMessage();
 			}
 		}
-
+		
 		// remove from testObject driver list
 		List<WebDriver> currentTestDrivers = new ArrayList<>(TestObject.getTestInfo().webDriverList);
-		if (currentTestDrivers.contains(driver)) {
+		if(currentTestDrivers.contains(driver)) {
 			TestObject.getTestInfo().webDriverList.remove(driver);
 		}
 	}
-
+	
 	public static void shutDownDriver(boolean isTestPass) {
-		if (isTestPass) {
-			// shutdown drivers if single sign in is false, else shutdown all except active
-			// driver
+		if(isTestPass) {
+			// shutdown drivers if single sign in is false, else shutdown all except active driver
 			if (!CrossPlatformProperties.isSingleSignIn())
 				DriverObject.quitTestDrivers();
 			else
 				shutdownSingleSignInDrivers();
-		} else {
+		}else {
 			// quits web driver no matter the situation, as new browser will be launched
-			DriverObject.quitTestDrivers();
+			DriverObject.quitTestDrivers();	
 		}
 	}
-
+	
 	/**
-	 * will quite all drivers except for the current driver a test could have
-	 * multiple drivers initiated. we will only take the active driver to be used
-	 * for next test
+	 * will quite all drivers except for the current driver
+	 * a test could have multiple drivers initiated.
+	 * we will only take the active driver to be used for next test
 	 */
 	private static void shutdownSingleSignInDrivers() {
-		if (!CrossPlatformProperties.isSingleSignIn())
-			return;
+		if (!CrossPlatformProperties.isSingleSignIn()) return;
 		List<WebDriver> currentTestDrivers = new ArrayList<>(TestObject.getTestInfo().webDriverList);
 		WebDriver activeDriver = AbstractDriver.getWebDriver();
-		for (WebDriver driver : currentTestDrivers) {
-			if (!driver.equals(activeDriver))
-				quitWebDriver(driver);
+		for(WebDriver driver : currentTestDrivers) {
+			if(!driver.equals(activeDriver))
+				quitWebDriver( driver);
 		}
 	}
 
@@ -179,7 +178,7 @@ public class DriverObject {
 		List<String> testIdList = driverList.get(AbstractDriver.getWebDriver()).testIdList;
 		return testIdList.get(testIdList.size() - 1);
 	}
-
+	
 	/**
 	 * returns the previous test id of the test ran on the driver
 	 * 
@@ -231,8 +230,15 @@ public class DriverObject {
 		if (AbstractDriver.getWebDriver() == null || driverList.get(AbstractDriver.getWebDriver()) == null) {
 			Helper.assertFalse("driver object not available");
 			return null;
-		} else
+		}
+		else
 			return driverList.get(AbstractDriver.getWebDriver());
+	}
+	
+	public static boolean isDriverSet() {
+		if (AbstractDriver.getWebDriver() == null || driverList.get(AbstractDriver.getWebDriver()) == null)
+			return false;
+		return true;
 	}
 
 	public DriverObject withChromeLanguage(String locale) {
@@ -241,39 +247,49 @@ public class DriverObject {
 		this.capabilities.setCapability(ChromeOptions.CAPABILITY, options);
 		return this;
 	}
-
+	
 	public DriverObject withWebDriver(String App, String URL) {
 		WebCapability capability = new WebCapability().withBrowserCapability();
-
+		
 		return new DriverObject().withApp(App).withDriverType(capability.getWebDriverType())
 				.withBrowserType(capability.getBrowser()).withDriverVersion(capability.getDriverVersion())
 				.withUrl(capability.getUrl(App, URL))
 
 				.withCapabilities(capability.getCapability());
 	}
+	
+	public DriverObject withWebDriver(String URL) {
+		WebCapability capability = new WebCapability().withBrowserCapability();
+		
+		return new DriverObject().withDriverType(capability.getWebDriverType())
+				.withBrowserType(capability.getBrowser()).withDriverVersion(capability.getDriverVersion())
+				.withUrl(URL)
 
+				.withCapabilities(capability.getCapability());
+	}
+	
 	public DriverObject withiOSDriver(String app, String device) {
 		IosCapability capability = new IosCapability().withDevice(device).withIosCapability();
-		return new DriverObject().withApp(app).withDriverType(DriverType.IOS_DRIVER)
-				.withCapabilities(capability.getCapability());
+		return new DriverObject().withApp(app).withDriverType(DriverType.IOS_DRIVER).withCapabilities(capability.getCapability());
 	}
-
+	
 	public DriverObject withAndroidDriver(String app, String device) {
 		AndroidCapability capability = new AndroidCapability().withDevice(device).withAndroidCapability();
-		return new DriverObject().withApp(app).withDriverType(DriverType.ANDROID_DRIVER)
-				.withCapabilities(capability.getCapability());
+		return new DriverObject().withApp(app).withDriverType(DriverType.ANDROID_DRIVER).withCapabilities(capability.getCapability());
 	}
-
+	
 	public DriverObject withWinDriver(String app) {
-		WinAppCapabilities capability = new WinAppCapabilities().withWinAppdCapability();
-		return new DriverObject().withApp(app).withDriverType(DriverType.WINAPP_DRIVER)
-				.withCapabilities(capability.getCapability());
+		WinAppCapabilities capability = new WinAppCapabilities().withWinAppdCapability();		
+		return new DriverObject()
+				.withApp(app)
+				.withDriverType(DriverType.WINAPP_DRIVER)
+				.withCapabilities(capability.getCapability());	
 	}
-
+	
 	public DriverObject withApiDriver(String app) {
 		return new DriverObject().withApp(app).withDriverType(DriverType.API);
 	}
-
+	
 	public DriverObject withGenericDriver(String app) {
 		return new DriverObject().withApp(app).withDriverType(DriverType.API);
 	}

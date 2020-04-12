@@ -609,7 +609,7 @@ public class RestApiInterface {
 
 			String[] formData = serviceObject.getRequestBody().split(",");
 			for (String data : formData) {
-				String[] keyValue = data.split(":");
+				String[] keyValue = data.split(":", 2);
 				if (keyValue.length == 3) {
 					switch (keyValue[1]) { // data type
 					case "FILE":
