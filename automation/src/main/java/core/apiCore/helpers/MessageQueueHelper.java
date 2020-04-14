@@ -134,30 +134,44 @@ public class MessageQueueHelper {
 
 	/**
 	 * find message based on unique identifier passed in through options
-	 * 
+	 * identifiers are separated by comma 
+	 * separators have And relationship
 	 * @param messageId
 	 * @return
 	 */
 	public static CopyOnWriteArrayList<MessageObject> findMessagesBasedOnResponseIdentifier() {
 		CopyOnWriteArrayList<MessageObject> filteredMessages = new CopyOnWriteArrayList<MessageObject>();
-		String identifier = Config.getValue(MessageQueueHelper.RESPONSE_IDENTIFIER);
+		List<String> identifierList = Config.getValueList(MessageQueueHelper.RESPONSE_IDENTIFIER);
 
 		// return if identifier is empty
-		if (identifier.isEmpty())
+		if (identifierList.isEmpty())
 			return filteredMessages;
 
 		for (Entry<MessageObject, Boolean> entry : MessageObject.outboundMessages.entrySet()) {
 			String receiveMessage = Optional.ofNullable(entry.getKey().getMessage()).orElse("");
 
-			boolean isMessageMatch = receiveMessage.contains(identifier);
+			boolean isMessageMatch = isIdentifierMatch(receiveMessage, identifierList);
 			if (entry.getValue().equals(true) && isMessageMatch) {
 
 				filteredMessages.add(entry.getKey());
 				MessageObject.outboundMessages.put(entry.getKey(), false);
 			}
+
 		}
 
 		return filteredMessages;
+	}
+	
+	private static boolean isIdentifierMatch(String receiveMessage, List<String> identifierList) {
+		// return if identifier is empty
+		if (identifierList.isEmpty())
+			return false;
+
+		for (String identifier : identifierList) {
+			if (!receiveMessage.contains(identifier))
+				return false;
+		}
+		return true;
 	}
 
 	/**

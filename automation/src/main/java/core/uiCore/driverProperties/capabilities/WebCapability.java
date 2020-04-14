@@ -211,9 +211,9 @@ public class WebCapability {
 	 */
 	public String getUrl(String app, String defaultUrl) {
 		String value = Config.getValue(app);
-		if (value.isEmpty())
-			value = defaultUrl;
-		return value;
+		if(defaultUrl.isEmpty())
+			return value;
+		return defaultUrl;
 	}
 
 	/**
