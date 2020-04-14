@@ -1,5 +1,6 @@
 package core.apiCore.interfaces;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -274,22 +275,37 @@ public class RabbitMqInterface {
 			channel.exchangeDeclare(exchangeName, exchangeType);
 		if (!exchangeName.isEmpty())
 			channel.queueBind(queueName, exchangeName, "");
-
-		GetResponse delivery = channel.basicGet(queueName, true);
-
-		if (delivery != null) {
-			String messageString = new String(delivery.getBody(), "UTF-8");
-
-			MessageObject message = new MessageObject().withMessageType(messageType.RABBITMQ)
-					.withMessageId(delivery.getProps().getMessageId())
-					.withCorrelationId(delivery.getProps().getCorrelationId()).withMessage(messageString);
-
-			if (message != null) {
-				TestLog.logPass(
-						"Received message with Id: " + message.getMessageId() + " message: " + message.getMessage());
-				MessageObject.outboundMessages.put(message, true);
-			}
-		}
+		
+		// get messages in batches
+		getBatchMessages(queueName, 10);
 	}
-
+	
+	/**
+	 * attempt to get a number of messages from the queue
+	 * @param queueName
+	 * @param maxMessages
+	 * @throws Exception
+	 */
+	public static void getBatchMessages(String queueName, int maxMessages) throws Exception {
+		int currentMessageCount = 0;
+		do {
+			GetResponse delivery = channel.basicGet(queueName, true);
+	
+			if (delivery != null) {
+				String messageString = new String(delivery.getBody(), "UTF-8");
+	
+				MessageObject message = new MessageObject().withMessageType(messageType.RABBITMQ)
+						.withMessageId(delivery.getProps().getMessageId())
+						.withCorrelationId(delivery.getProps().getCorrelationId()).withMessage(messageString);
+	
+				if (message != null) {
+					TestLog.logPass(
+							"Received message with Id: " + message.getMessageId() + " message: " + message.getMessage());
+					MessageObject.outboundMessages.put(message, true);
+				}
+			}else
+				break;
+			currentMessageCount++;
+		}while(currentMessageCount < maxMessages);
+	}
 }
