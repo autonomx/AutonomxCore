@@ -20,6 +20,8 @@ public class MessageObject {
 	public String correlationId = StringUtils.EMPTY;
 	public String topic = StringUtils.EMPTY;
 	public List<String> headers = new ArrayList<String>();
+	public boolean isLogged = false;
+
 
 	public static Map<MessageObject, Boolean> outboundMessages = new ConcurrentHashMap<MessageObject, Boolean>();
 

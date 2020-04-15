@@ -9,7 +9,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.util.TextUtils;
 
@@ -30,6 +29,67 @@ public class MessageQueueHelper {
 
 	public static final String RESPONSE_IDENTIFIER = "response.identifier";
 
+	
+	/**
+	 * 1) gets messages, adds them to the outboundMessages 2) filters based on the
+	 * message key 3) validates based on expected response requirements
+	 * 
+	 * @param messageId
+	 * @throws Exception
+	 */
+	public static void receiveAndValidateMessages(ServiceObject serviceObject, String messageId, messageType messageType) throws Exception {
+
+		// evaluate options
+		evaluateOption(serviceObject);
+		
+		// return if no validation required
+		if(serviceObject.getExpectedResponse().isEmpty())
+			return;
+		
+		CopyOnWriteArrayList<MessageObject> filteredMessages = new CopyOnWriteArrayList<>();
+		List<String> errorMessages = new ArrayList<String>();
+
+		// message queue will run for maxRetrySeconds to retrieve matching outbound message
+		int maxRetrySeconds = Config.getIntValue(ServiceManager.SERVICE_RESPONSE_TIMEOUT_SECONDS);
+		StopWatchHelper watch = StopWatchHelper.start();
+		long passedTimeInSeconds = 0;
+		long lastLogged = 0;
+		int interval = 10; // log every 10 seconds
+
+		do {
+			lastLogged = MessageQueueHelper.logPerInterval(interval, watch, lastLogged, filteredMessages.size());
+
+			// gets messages and stores them in outboundMessages hashmap
+			getOutboundMessages(messageType);
+
+			// filters based on message id
+			filteredMessages.addAll(MessageQueueHelper.filterOutboundMessage(messageId));
+
+			// validate message count
+			errorMessages = validateExpectedMessageCount(serviceObject.getExpectedResponse(),
+					getMessageList(filteredMessages));
+
+			// validates messages. will retry on error if expected number of messages not set
+			if (errorMessages.isEmpty()) {
+				printAllFilteredMessages(filteredMessages);
+				errorMessages.addAll((validateMessages(serviceObject, filteredMessages)));
+				
+				// if expected fixed number of messages, at this point we have met that requirement
+				if(isExpectingMessageCount(serviceObject.getExpectedResponse()))
+					break;
+			}
+
+			passedTimeInSeconds = watch.time(TimeUnit.SECONDS);
+
+		} while (!errorMessages.isEmpty() && passedTimeInSeconds < maxRetrySeconds);
+
+		if (!errorMessages.isEmpty()) {
+			String errorString = StringUtils.join(errorMessages, "\n error: ");
+			TestLog.ConsoleLog(errorString);
+			Helper.assertFalse(StringUtils.join(errorMessages, "\n error: "));
+		}
+	}
+	
 	/**
 	 * generate message id if the request body is set
 	 * 
@@ -83,7 +143,7 @@ public class MessageQueueHelper {
 			return errorMessages;
 		}
 
-		int expectedMessageCount = 1;
+		int expectedMessageCount = -1;
 
 		// get a map of key values in request
 		Map<String, String> params = getKeyValueFromString(request, ";", ":");
@@ -100,12 +160,34 @@ public class MessageQueueHelper {
 		// TestLog.logPass("verifying message count: " + "Response message count
 		// received " + filteredMessages.size() + " out of " + expectedMessageCount + "
 		// expected messages");
-		if (expectedMessageCount != actualMessageCount) {
+		if (expectedMessageCount != -1 && expectedMessageCount != actualMessageCount) {
 			String errorMessage = "Response received " + filteredMessages.size() + " out of " + expectedMessageCount
 					+ ".\n Received messages: \n";
 			errorMessages.add(errorMessage + String.join("\n ", filteredMessages));
 		}
 		return errorMessages;
+	}
+	
+	/**
+	 * is fixed messaged count expected
+	 * eg. EXPECTED_MESSAGE_COUNT:2
+	 * @param expectedResponse
+	 * @return
+	 */
+	public static boolean isExpectingMessageCount(String expectedResponse) {
+		int expectedMessageCount = -1;
+
+		// get a map of key values in request
+		Map<String, String> params = getKeyValueFromString(expectedResponse, ";", ":");
+
+		// get expected message count if set
+		if (params.containsKey(DataHelper.EXPECTED_MESSAGE_COUNT)) {
+			expectedMessageCount = Helper.getIntFromString(params.get(DataHelper.EXPECTED_MESSAGE_COUNT), true);
+		}
+		if(expectedMessageCount != -1)
+			return true;
+		
+		return false;
 	}
 
 	/**
@@ -230,69 +312,6 @@ public class MessageQueueHelper {
 		return filteredMessages;
 	}
 
-	/**
-	 * 1) gets messages, adds them to the outboundMessages 2) filters based on the
-	 * message key 3) validates based on expected response requirements
-	 * 
-	 * @param messageId
-	 * @throws Exception
-	 */
-	public static void receiveAndValidateMessages(ServiceObject serviceObject, String messageId,
-			messageType messageType) throws Exception {
-
-		// evaluate options
-		evaluateOption(serviceObject);
-
-		// return if no validation required
-		if (serviceObject.getExpectedResponse().isEmpty())
-			return;
-		
-		// replace values in expected response
-		serviceObject.withExpectedResponse(DataHelper.replaceParameters(serviceObject.getExpectedResponse()));
-
-		CopyOnWriteArrayList<MessageObject> filteredMessages = new CopyOnWriteArrayList<>();
-		List<String> errorMessages = new ArrayList<String>();
-
-		// message queue will run for maxRetrySeconds to retrieve matching outbound
-		// message
-		int maxRetrySeconds = Config.getIntValue(ServiceManager.SERVICE_RESPONSE_TIMEOUT_SECONDS);
-		StopWatchHelper watch = StopWatchHelper.start();
-		long passedTimeInSeconds = 0;
-		long lastLogged = 0;
-		int interval = 10; // log every 10 seconds
-
-		do {
-			lastLogged = MessageQueueHelper.logPerInterval(interval, watch, lastLogged, filteredMessages.size());
-
-			// gets messages and stores them in outboundMessages hashmap
-			getOutboundMessages(messageType);
-
-			// filters based on message id
-			filteredMessages.addAll(MessageQueueHelper.filterOutboundMessage(messageId));
-
-			// validate message count
-			errorMessages = validateExpectedMessageCount(serviceObject.getExpectedResponse(),
-					getMessageList(filteredMessages));
-
-			// validates messages. At this point we have received all the relevant messages.
-			// no need to retry
-			if (errorMessages.isEmpty()) {
-				printAllFilteredMessages(filteredMessages);
-				errorMessages.addAll((validateMessages(serviceObject, filteredMessages)));
-				break;
-			}
-
-			passedTimeInSeconds = watch.time(TimeUnit.SECONDS);
-
-		} while (!errorMessages.isEmpty() && passedTimeInSeconds < maxRetrySeconds);
-
-		if (!errorMessages.isEmpty()) {
-			String errorString = StringUtils.join(errorMessages, "\n error: ");
-			TestLog.ConsoleLog(errorString);
-			Helper.assertFalse(StringUtils.join(errorMessages, "\n error: "));
-		}
-	}
-
 	public static void getOutboundMessages(messageType messageType) throws Exception {
 		switch (messageType) {
 		case KAFKA:
@@ -325,11 +344,14 @@ public class MessageQueueHelper {
 	}
 
 	public static void printAllFilteredMessages(CopyOnWriteArrayList<MessageObject> filteredMessages) {
-		TestLog.ConsoleLog("Printing All relevant received messages");
 		for (MessageObject message : filteredMessages) {
 			String messageId = message.getMessageId();
 			String messageContent = message.getMessage();
-			TestLog.logPass("received messagesId: '" + messageId + "' with message content: \n" + messageContent);
+			if(!message.isLogged) {
+				TestLog.logPass("Printing relevant received messages");
+				TestLog.logPass("received messagesId: '" + messageId + "' with message content: \n" +  messageContent );
+			}
+			message.isLogged = true;
 		}
 	}
 
@@ -409,17 +431,17 @@ public class MessageQueueHelper {
 				serviceObject.getExpectedResponse());
 
 		if (!expectedMessage.isEmpty()) {
-			TestLog.logPass("validating message list:");
+			//TestLog.logPass("validating message list:"); TODO: will appear per retry
 			errorMessages = DataHelper.validateExpectedValues(messageList, expectedMessage);
 		}
 
 		if (!expectedHeader.isEmpty()) {
-			TestLog.logPass("validating header list:");
+			//TestLog.logPass("validating header list:");
 			errorMessages.addAll(DataHelper.validateExpectedValues(headerList, expectedHeader));
 		}
 
 		if (!expectedTopic.isEmpty()) {
-			TestLog.logPass("validating topic list:");
+			//TestLog.logPass("validating topic list:");
 			errorMessages.addAll(DataHelper.validateExpectedValues(topicList, expectedTopic));
 		}
 
