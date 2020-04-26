@@ -911,11 +911,17 @@ public class DataHelper {
 				position = matcher.group(0);
 			result.add(resultArray[0]);
 			result.add(removeFirstAndLastChars(position, ":"));
-			result.add(resultArray[1]);
+			if(resultArray.length == 2)
+				result.add(resultArray[1]);
+			else
+				result.add(StringUtils.EMPTY);
 		} else { // split left to right
 			String[] resultArray = keyvalue.split(":", 2);
 			result.add(resultArray[0]);
-			result.add(resultArray[1]);
+			if(resultArray.length == 2)
+				result.add(resultArray[1]);
+			else
+				result.add(StringUtils.EMPTY);
 		}
 		return result;
 	}

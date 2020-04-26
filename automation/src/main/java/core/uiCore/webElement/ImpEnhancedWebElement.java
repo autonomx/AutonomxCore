@@ -476,15 +476,16 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				value = element.getText();
 				if (value.isEmpty())
 					value = getAttribute("textContent", index);
-				if (value.isEmpty())
+				if (value == null || value.isEmpty())
 					value = getAttribute("value", index);
-				if (value.isEmpty())
+				if (value == null || value.isEmpty())
 					value = getAttribute("innerText", index);
 
 				if (!value.isEmpty())
 					isSuccess = true;
 			} catch (Exception e) {
 				e.getMessage();
+				value = StringUtils.EMPTY;
 			}
 		} while (!isSuccess && retry > 0);
 
@@ -498,7 +499,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 
 		int listSize = elementList.size();
 		for (int i = 0; i < listSize; i++) {
-			stringList.add(elementList.get(i).getText().trim());
+			stringList.add(getText(i).trim());
 		}
 
 		return stringList;

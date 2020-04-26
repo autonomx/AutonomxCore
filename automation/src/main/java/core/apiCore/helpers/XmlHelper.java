@@ -324,6 +324,8 @@ public class XmlHelper {
 		// get key value mapping of header parameters
 		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getRequestBody());
 		for (KeyValue keyword : keywords) {
+			if(keyword.value.toString().isEmpty()) continue;
+			
 			xmlString = replaceTagValue(xmlString, keyword.key, keyword.value.toString(),
 					Integer.valueOf(keyword.position));
 		}

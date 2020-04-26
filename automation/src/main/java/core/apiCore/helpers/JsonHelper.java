@@ -575,6 +575,8 @@ public class JsonHelper {
 		// get key value mapping of header parameters
 		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getRequestBody());
 		for (KeyValue keyword : keywords) {
+			if(keyword.value.toString().isEmpty()) continue;
+			
 			jsonString = replaceJsonPathValue(jsonString, keyword.key, keyword.value.toString());
 		}
 		return jsonString;
