@@ -515,6 +515,7 @@ public class Config {
 	public static void putValue(String key, Object value, boolean isLog) {
 		if (isLog)
 			TestLog.logPass("storing in key: " + key + " value: " + value);
+		if(value == null) value = "null";
 		TestObject.getTestInfo().config.put(key, value);
 	}
 

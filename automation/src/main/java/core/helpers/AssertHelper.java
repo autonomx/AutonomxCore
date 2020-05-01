@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.testng.Assert;
@@ -120,10 +121,19 @@ public class AssertHelper {
 		
 		if(!isLogWithStackTrace) return message;
 		
+		String testname = TestObject.getTestId();
+		String logTrimmed = StringUtils.EMPTY;
+		
 		List<String> logValues = new ArrayList<String>();
 		List<LogObject> logs = TestObject.getTestInfo().testLog;
 		for (LogObject log : logs) {
-			logValues.add(log.value);
+			String[] logTrimmedArray = log.value.split(testname);
+			if(logTrimmedArray.length > 1) {
+				logTrimmed = logTrimmedArray[1];
+				logTrimmed = logTrimmed.replaceFirst(Pattern.quote("-"), "");
+				logValues.add(">" + logTrimmed);
+			}else
+				logValues.add(log.value);
 		}
 		String list = StringUtils.join(logValues, "\n");
 		message = message + "\n"+ list;

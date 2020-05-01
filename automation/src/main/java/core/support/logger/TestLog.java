@@ -14,6 +14,7 @@ import org.apache.log4j.Priority;
 import org.apache.log4j.xml.DOMConfigurator;
 //import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.slf4j.bridge.SLF4JBridgeHandler;
+import org.testng.Reporter;
 
 import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.gherkin.model.And;
@@ -461,6 +462,7 @@ public class TestLog {
 		Boolean enableBatchLogging = CrossPlatformProperties.getEnableBatchLogging();
 		if (!enableBatchLogging) {
 			TestObject.getTestInfo().log.log(priority, value);
+			Reporter.log(value);
 		}
 		
 		// keep track of the logs
