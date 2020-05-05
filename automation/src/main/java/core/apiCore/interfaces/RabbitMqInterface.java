@@ -200,6 +200,9 @@ public class RabbitMqInterface {
 			case "queue":
 				Config.putValue(RABBIT_MQ_QUEUE, keyword.value, false);
 				break;
+			case "outbound_exchange":
+				Config.putValue(RABBIT_MQ_OUTBOUND_EXCHANGE, keyword.value, false);
+				break;
 			case "outbound_queue":
 				Config.putValue(RABBIT_MQ_OUTBOUND_QUEUE, keyword.value, false);
 				break;
