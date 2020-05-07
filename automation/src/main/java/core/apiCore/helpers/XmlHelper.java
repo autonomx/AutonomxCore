@@ -485,16 +485,7 @@ public class XmlHelper {
 			Node n;
 
 			// get list of namespace tags
-			for (int i = 0; i < map.getLength(); i++) {
-				n = map.item(i);
-
-				// get namespace tags
-				if (n.getNodeName() != null && n.getNodeName().contains("xmlns")) {
-					String[] namespaceArray = n.getNodeName().split(":");
-					if (namespaceArray.length == 2)
-						namespaces.add(namespaceArray[1]);
-				}
-			}
+			namespaces = getXmlNamespaceTags(map, namespaces);
 
 			// removes namespaces in list from xml
 			List<Node> nodeList = new ArrayList<Node>();
@@ -503,14 +494,15 @@ public class XmlHelper {
 
 				// add nodes with namespace in local name to list to be removed
 				if (n.getNodeName() != null) {
-					if (n.getNodeName().contains("xmlns"))
+					if (n.getNodeName().contains("xmlns")) {
 						nodeList.add(n);
-					else {
-						for (String namespace : namespaces)
-							if (n.getNodeName().contains(namespace + ":")) {
-								nodeList.add(n);
-								break;
-							}
+						continue;
+					}
+					for (String namespace : namespaces) {
+						if (n.getNodeName().contains(namespace + ":")) {
+							nodeList.add(n);
+							break;
+						}
 					}
 				}
 			}
@@ -520,12 +512,31 @@ public class XmlHelper {
 			}
 
 			doc.renameNode(node, nameSpaceURI, node.getLocalName());
-			String xmlNoNameSpace3 = convertDocumentToString(doc);
-			System.out.println(xmlNoNameSpace3);
 		}
 		NodeList list = node.getChildNodes();
 		for (int i = 0; i < list.getLength(); i++) {
 			removeNamSpace(list.item(i), nameSpaceURI, namespaces);
 		}
+	}
+	
+	/**
+	 * get list of xml namespace tags
+	 * @param map
+	 * @return
+	 */
+	private static List<String> getXmlNamespaceTags(NamedNodeMap map, List<String> namespaces) {
+		Node n;
+		// get list of namespace tags
+		for (int i = 0; i < map.getLength(); i++) {
+			n = map.item(i);
+
+			// get namespace tags
+			if (n.getNodeName() != null && n.getNodeName().contains("xmlns")) {
+				String[] namespaceArray = n.getNodeName().split(":");
+				if (namespaceArray.length == 2)
+					namespaces.add(namespaceArray[1]);
+			}
+		}
+		return namespaces;
 	}
 }
