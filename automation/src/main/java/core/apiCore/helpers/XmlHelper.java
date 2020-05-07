@@ -32,6 +32,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
@@ -85,6 +88,7 @@ public class XmlHelper {
 
 		} catch (Exception e) {
 			e.printStackTrace();
+			Helper.assertFalse(e.getMessage());
 		}
 		return doc;
 	}
@@ -432,6 +436,97 @@ public class XmlHelper {
 			return xmlOutput.getWriter().toString();
 		} catch (Exception e) {
 			throw new RuntimeException(e); // simple exception handling, please review it
+		}
+	}
+	
+	/**
+	 * remove namespaces from xml 
+	 * gets namespace tags in list and removes them
+	 * @param xmlString
+	 * @return
+	 */
+	public static String removeXmlNameSpace(String xmlString) {
+		Document doc = convertXmlStringToDocument(xmlString);
+		Document updateDoc = cleanNameSpace(doc);
+		String xmlNoNameSpace = convertDocumentToString(updateDoc);
+		
+		return xmlNoNameSpace;
+	}
+	
+	/**
+	 * remove namespaces from xml 
+	 * gets namespace tags in list and removes them
+	 * @param doc
+	 * @return
+	 */
+	public static Document cleanNameSpace(Document doc) {
+
+	    NodeList list = doc.getChildNodes();
+	    List<String> namespaces = new ArrayList<String>();
+	    for (int i = 0; i < list.getLength(); i++) {
+	        removeNamSpace(list.item(i), "", namespaces);
+	    }
+
+	    return doc;
+	}
+	
+	
+	/**
+	 * remove namespaces from xml 
+	 * gets namespace tags in list and removes them
+	 * @param node
+	 * @param nameSpaceURI
+	 * @param namespaces
+	 */
+	private static void removeNamSpace(Node node, String nameSpaceURI, List<String> namespaces) {
+
+		if (node.getNodeType() == Node.ELEMENT_NODE) {
+			Document doc = node.getOwnerDocument();
+			NamedNodeMap map = node.getAttributes();
+			Node n;
+
+			// get list of namespace tags
+			for (int i = 0; i < map.getLength(); i++) {
+				n = map.item(i);
+
+				// get namespace tags
+				if (n.getNodeName() != null && n.getNodeName().contains("xmlns")) {
+					String[] namespaceArray = n.getNodeName().split(":");
+					if (namespaceArray.length == 2)
+						namespaces.add(namespaceArray[1]);
+				}
+			}
+
+			// removes namespaces in list from xml
+			List<Node> nodeList = new ArrayList<Node>();
+			for (int i = 0; i < map.getLength(); i++) {
+				n = map.item(i);
+
+				// add nodes with namespace in local name to list to be removed
+				if (n.getNodeName() != null) {
+					if (n.getNodeName().contains("xmlns"))
+						nodeList.add(n);
+					else {
+						for (String namespace : namespaces)
+							if (n.getNodeName().contains(namespace + ":")) {
+								nodeList.add(n);
+								break;
+							}
+					}
+				}
+			}
+
+			for (int i = 0; i < nodeList.size(); i++) {
+				map.removeNamedItemNS(nodeList.get(i).getNamespaceURI(), nodeList.get(i).getLocalName());
+			}
+
+			doc.renameNode(node, nameSpaceURI, node.getLocalName());
+			String xmlNoNameSpace3 = convertDocumentToString(doc);
+			System.out.println(xmlNoNameSpace3);
+		}
+		NodeList list = node.getChildNodes();
+		for (int i = 0; i < list.getLength(); i++) {
+			removeNamSpace(list.item(i), nameSpaceURI, namespaces);
 		}
 	}
 }

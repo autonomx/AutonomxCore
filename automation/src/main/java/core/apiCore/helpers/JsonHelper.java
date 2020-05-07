@@ -36,7 +36,7 @@ import io.restassured.response.Response;
 
 public class JsonHelper {
 
-	public static String failOnEscapeChars = "api.validation.fail.on.escapechars";
+	public static String failOnEscapeChars = "service.validation.fail.on.escapechars";
 
 	/**
 	 * replaces output parameter with response values eg. $token with id form values

@@ -42,6 +42,7 @@ public class DataHelper {
 	public static final String VERIFY_HEADER_PART_INDICATOR = "_VERIFY_HEADER_PART_";
 	public static final String VERIFY_TOPIC_PART_INDICATOR = "_VERIFY_TOPIC_PART_";
 	public static final String EXPECTED_MESSAGE_COUNT = "EXPECTED_MESSAGE_COUNT";
+	public static final String IS_IGNORE_XML_NAMESPACE = "service.xml.ignore.namespace";
 
 	public static final String TEST_DATA_TEMPLATE_DATA_PATH = "api.templateDataFile";
 
@@ -1249,6 +1250,10 @@ public class DataHelper {
 			// convert xml string to json for validation
 			if (XmlHelper.isValidXmlString(criterion)) {
 				TestLog.ConsoleLog("expected xml: " + ServiceObject.normalize(criterion));
+				boolean isIgnoreNamespace = Config.getBooleanValue(IS_IGNORE_XML_NAMESPACE);
+				if(isIgnoreNamespace)
+					criterion = XmlHelper.removeXmlNameSpace(criterion);
+
 				criterion = JsonHelper.XMLToJson(criterion);
 				TestLog.ConsoleLog(
 						"expected value converted to json for validation: " + ServiceObject.normalize(criterion));
@@ -1316,8 +1321,15 @@ public class DataHelper {
 			errorMessages = new ArrayList<String>();
 
 			// if response is xml, convert to json for validation
-			if (XmlHelper.isValidXmlString(responseString.get(i)))
-				responseString.set(i, JsonHelper.XMLToJson(responseString.get(i)));
+			if (XmlHelper.isValidXmlString(responseString.get(i))) {
+				boolean isIgnoreNamespace = Config.getBooleanValue(IS_IGNORE_XML_NAMESPACE);
+				// if ignore name space, criteria and response are stripped of namespace
+				if(isIgnoreNamespace) {
+					String xmlIgnoreNameSpace = XmlHelper.removeXmlNameSpace(responseString.get(i));
+					responseString.set(i, JsonHelper.XMLToJson(xmlIgnoreNameSpace));
+				}else
+					responseString.set(i, JsonHelper.XMLToJson(responseString.get(i)));
+			}
 
 			errorMessages.add(JsonHelper.validateByJsonBody(criterion, responseString.get(i)));
 			errorMessages.addAll(JsonHelper.validateByKeywords(criterion, responseString.get(i)));
