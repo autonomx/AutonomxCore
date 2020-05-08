@@ -328,7 +328,7 @@ public class Config {
 	 * @return returns the object value of key from properties
 	 */
 	public static Object getGlobalObjectValue(String key) {
-		if (TestObject.getDefaultTestInfo().config.get(key) == null)
+		if (TestObject.getGlobalTestInfo().config.get(key) == null)
 			return StringUtils.EMPTY;
 		Object value = TestObject.getTestInfo().config.get(key);
 		return value;
@@ -366,7 +366,7 @@ public class Config {
 	 */
 	public static String getGlobalValue(String key, boolean isFailable) {
 
-		Object value = TestObject.getDefaultTestInfo().config.get(key);
+		Object value = TestObject.getGlobalTestInfo().config.get(key);
 		if (value == null) {
 			if (isFailable)
 				Helper.assertFalse("value not found, default empty: " + key);
@@ -544,7 +544,7 @@ public class Config {
 	 */
 	public static void setGlobalValue(String key, Object value) {
 		TestLog.logPass("storing in global key: " + key + " value: " + value);
-		TestObject.getDefaultTestInfo().config.put(key, value);
+		TestObject.getGlobalTestInfo().config.put(key, value);
 	}
 
 	/**

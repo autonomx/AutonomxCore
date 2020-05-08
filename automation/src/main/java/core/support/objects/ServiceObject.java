@@ -1,8 +1,10 @@
 package core.support.objects;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -35,6 +37,7 @@ public class ServiceObject {
 	private Response response = null; // rest api response
 	private RequestSpecification request = null; // rest api request
 	private List<String> errorMessages = new ArrayList<String>();
+	private Map<String, List<String>> headerMap = new HashMap<String, List<String>>();
 
 	public ServiceObject setServiceObject(String TestSuite, String TestCaseID, String RunFlag, String Description,
 			String InterfaceType, String UriPath, String ContentType, String Method, String Option,
@@ -66,23 +69,35 @@ public class ServiceObject {
 	}
 
 	public ServiceObject setServiceObject(Object[] testData) {
-
+		
 		this.TestSuite = getArrayValue(testData, 0);
-		this.TestCaseID = getArrayValue(testData, 1);
-		this.RunFlag = getArrayValue(testData, 2);
-		this.Description = getArrayValue(testData, 3);
-		this.InterfaceType = getArrayValue(testData, 4);
-		this.UriPath = getArrayValue(testData, 5);
-		this.ContentType = getArrayValue(testData, 6);
-		this.Method = getArrayValue(testData, 7);
-		this.Option = getArrayValue(testData, 8);
-		this.RequestHeaders = getArrayValue(testData, 9);
-		this.TemplateFile = getArrayValue(testData, 10);
-		this.RequestBody = getArrayValue(testData, 11);
-		this.OutputParams = getArrayValue(testData, 12);
-		this.RespCodeExp = getArrayValue(testData, 13);
-		this.ExpectedResponse = getArrayValue(testData, 14);
-		this.TcComments = getArrayValue(testData, 15);
+
+		Map<String, List<String>> headerMap = TestObject.getGlobalTestInfo().serviceObject.getHeaderMap();
+
+		// if header list is not set, use default header map
+		if(headerMap.get(this.TestSuite) == null) {
+			 String[] header = {"TestSuite", "TestCaseID", "RunFlag", "Description", "InterfaceType", "UriPath", "ContentType", "Method", "Option", "RequestHeaders", "TemplateFile", "RequestBody", "OutputParams", "RespCodeExp", "ExpectedResponse", "TcComments"};
+			 List<String> headerList = Arrays.asList(header);
+			 TestObject.getGlobalTestInfo().serviceObject.withHeaderMap(this.TestSuite, headerList);
+		}
+			
+		List<String> header = headerMap.get(this.TestSuite);
+
+		this.TestCaseID = getArrayValue(testData, header.indexOf("TestCaseID"));
+		this.RunFlag = getArrayValue(testData, header.indexOf("RunFlag"));
+		this.Description = getArrayValue(testData, header.indexOf("Description"));
+		this.InterfaceType = getArrayValue(testData, header.indexOf("InterfaceType"));
+		this.UriPath = getArrayValue(testData, header.indexOf("UriPath"));
+		this.ContentType = getArrayValue(testData, header.indexOf("ContentType"));
+		this.Method = getArrayValue(testData, header.indexOf("Method"));
+		this.Option = getArrayValue(testData, header.indexOf("Option"));
+		this.RequestHeaders = getArrayValue(testData, header.indexOf("RequestHeaders"));
+		this.TemplateFile = getArrayValue(testData, header.indexOf("TemplateFile"));
+		this.RequestBody = getArrayValue(testData, header.indexOf("RequestBody"));
+		this.OutputParams = getArrayValue(testData, header.indexOf("OutputParams"));
+		this.RespCodeExp = getArrayValue(testData, header.indexOf("RespCodeExp"));
+		this.ExpectedResponse = getArrayValue(testData, header.indexOf("ExpectedResponse"));
+		this.TcComments = getArrayValue(testData, header.indexOf("TcComments"));
 		this.tcName = getArrayValue(testData, 16);
 		this.tcIndex = getArrayValue(testData, 17);
 		this.testType = getArrayValue(testData, 18);
@@ -308,6 +323,15 @@ public class ServiceObject {
 
 	public String getTcType() {
 		return this.testType;
+	}
+	
+	public ServiceObject withHeaderMap(String testcaseId, List<String> header) {
+		this.headerMap.put(testcaseId, header);
+		return this;
+	}
+
+	public Map<String, List<String>> getHeaderMap() {
+		return this.headerMap;
 	}
 
 	@SuppressWarnings("unchecked")

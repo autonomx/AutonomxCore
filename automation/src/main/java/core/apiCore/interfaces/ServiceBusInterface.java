@@ -191,10 +191,10 @@ public class ServiceBusInterface {
 	 */
 	private static void resetOptions() {
 
-		String defaultTopic = TestObject.getDefaultTestInfo().config.get(SERVICEBUS_TOPIC).toString();
-		String outboundTopic = TestObject.getDefaultTestInfo().config.get(SERVICEBUS_OUTBOUND_TOPIC).toString();
-		String defaultQueue = TestObject.getDefaultTestInfo().config.get(SERVICEBUS_QUEUE).toString();
-		String defaultHost = TestObject.getDefaultTestInfo().config.get(SERVICEBUS_HOST).toString();
+		String defaultTopic = TestObject.getGlobalTestInfo().config.get(SERVICEBUS_TOPIC).toString();
+		String outboundTopic = TestObject.getGlobalTestInfo().config.get(SERVICEBUS_OUTBOUND_TOPIC).toString();
+		String defaultQueue = TestObject.getGlobalTestInfo().config.get(SERVICEBUS_QUEUE).toString();
+		String defaultHost = TestObject.getGlobalTestInfo().config.get(SERVICEBUS_HOST).toString();
 
 		Config.putValue(SERVICEBUS_TOPIC, defaultTopic, false);
 		Config.putValue(SERVICEBUS_OUTBOUND_TOPIC, outboundTopic, false);

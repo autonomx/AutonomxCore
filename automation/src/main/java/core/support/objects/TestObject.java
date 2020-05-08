@@ -102,7 +102,7 @@ public class TestObject {
 	public int currentTestIndex = 0; // index for tests in csv files
 	public int testCountInCsvFile = 0; // test count in csv file
 	public String testCsvFileName = StringUtils.EMPTY;
-	public ServiceObject serviceObject = null;
+	public ServiceObject serviceObject = new ServiceObject();
 
 	public Description description;
 	public Throwable caughtThrowable = null;
@@ -296,7 +296,7 @@ public class TestObject {
 		String testId = getTestId();
 
 		if (testInfo.get(testId) == null) {
-			return getDefaultTestInfo();
+			return getGlobalTestInfo();
 		}
 		return testInfo.get(testId);
 	}
@@ -306,7 +306,7 @@ public class TestObject {
 	 * 
 	 * @return
 	 */
-	public static TestObject getDefaultTestInfo() {
+	public static TestObject getGlobalTestInfo() {
 		String testId = TestObject.getDefaultTestObjectId();
 
 		if (testInfo.get(testId) == null) {

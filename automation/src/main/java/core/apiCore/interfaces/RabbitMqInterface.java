@@ -221,10 +221,10 @@ public class RabbitMqInterface {
 	 */
 	private static void resetOptions() {
 
-		String defaultExchange = TestObject.getDefaultTestInfo().config.get(RABBIT_MQ_EXCHANGE).toString();
-		String outboundExchange = TestObject.getDefaultTestInfo().config.get(RABBIT_MQ_OUTBOUND_EXCHANGE).toString();
-		String defaultQueue = TestObject.getDefaultTestInfo().config.get(RABBIT_MQ_QUEUE).toString();
-		String outboundQueue = TestObject.getDefaultTestInfo().config.get(RABBIT_MQ_OUTBOUND_QUEUE).toString();
+		String defaultExchange = TestObject.getGlobalTestInfo().config.get(RABBIT_MQ_EXCHANGE).toString();
+		String outboundExchange = TestObject.getGlobalTestInfo().config.get(RABBIT_MQ_OUTBOUND_EXCHANGE).toString();
+		String defaultQueue = TestObject.getGlobalTestInfo().config.get(RABBIT_MQ_QUEUE).toString();
+		String outboundQueue = TestObject.getGlobalTestInfo().config.get(RABBIT_MQ_OUTBOUND_QUEUE).toString();
 
 		Config.putValue(RABBIT_MQ_EXCHANGE, defaultExchange, false);
 		Config.putValue(RABBIT_MQ_QUEUE, defaultQueue, false);

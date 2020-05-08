@@ -462,18 +462,27 @@ public class CsvReader {
 
 			// read header separately
 			String[] header = reader.readNext();
+				
 			int runFlag = getColumnIndexByName("RunFlag", header);
-			int testCaseID = getColumnIndexByName("TestCaseID", header);
+			int testCaseIDIndex = getColumnIndexByName("TestCaseID", header);
+			String testCaseSuite = StringUtils.EMPTY;
 
-			// only add tests that have runFlag set to Y And testCaseID is set
+			// only add tests that have runFlag set to Y And testCaseID are set
 			String[] line;
 			while ((line = reader.readNext()) != null) {
 				// limit array to size of values. eg. 15 column values
 				String[] newline = Arrays.copyOfRange(line, 0, SERVICE_CSV_VISIBLE_COLUMN_COUNT);
-				if (newline[runFlag].equals("Y") && !newline[testCaseID].isEmpty()) {
+				if (newline[runFlag].equals("Y") && !newline[testCaseIDIndex].isEmpty()) {
 					csvList.add(newline);
+					
+					if(testCaseSuite.isEmpty())
+						testCaseSuite = newline[0];
 				}
 			}
+			// store header column names, using test suite as key
+			TestObject.getGlobalTestInfo().serviceObject.withHeaderMap(testCaseSuite,Arrays.asList(header));
+					
+						
 			reader.close();
 		} catch (Exception e) {
 			e.printStackTrace();
