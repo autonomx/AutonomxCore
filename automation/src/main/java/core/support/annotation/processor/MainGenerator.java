@@ -7,6 +7,9 @@ package core.support.annotation.processor;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,13 +18,19 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
+import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
+import javax.tools.StandardLocation;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.google.auto.service.AutoService;
 
@@ -42,6 +51,7 @@ import core.support.annotation.template.service.ServiceData;
 import core.support.annotation.template.service.ServiceRunner;
 import core.support.configReader.PropertiesReader;
 
+
 @SupportedAnnotationTypes(value = { "core.support.annotation.Module","core.support.annotation.Panel", "core.support.annotation.Data", "core.support.annotation.Service" })
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 @AutoService(javax.annotation.processing.Processor.class)
@@ -49,11 +59,16 @@ public class MainGenerator extends AbstractProcessor {
 
 	private static boolean isAnnotationRun = false;
 	public static ProcessingEnvironment PROCESS_ENV;
+	public static String ANNOATION_WORKING_DIR = StringUtils.EMPTY;
 
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 		
 		PROCESS_ENV = processingEnv;
+		
+		// set working directory
+		setRootWorkingDirectory(processingEnv);
+		
 		return runAnnotation();
 	}
 	
@@ -149,6 +164,57 @@ public class MainGenerator extends AbstractProcessor {
 			Helper.appendToFile("," + listString, "target/generated-sources", fileName, "txt");
 		else
 			Helper.writeFile(listString, "target/generated-sources", fileName, "txt");
+	}
+	
+	
+	private static void setRootWorkingDirectory(ProcessingEnvironment processingEnv) {
+		if(!ANNOATION_WORKING_DIR.isEmpty())
+			return;
+		
+		Filer filer = processingEnv.getFiler();
+		try {
+			FileObject resource = filer.createResource(StandardLocation.CLASS_OUTPUT, "", "tmp", (Element[]) null);
+			Path projectPath = Paths.get(resource.toUri()).getParent().getParent();
+			resource.delete();
+			File workingDir = getRootPath_reverseNavigation(projectPath.toFile(), "pom.xml");
+			ANNOATION_WORKING_DIR = workingDir.getAbsolutePath();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	/**
+	 * navigates backwards from dir location to find the directory where file name is located
+	 * @param dir
+	 * @param name
+	 * @return
+	 */
+	public static File getRootPath_reverseNavigation(File dir, String name) {
+		boolean isFound = false;
+		
+		do {
+			if(dir == null)
+				return null;
+		
+			if(dir.isFile() && dir.getName().contains(name)) 
+				return dir;
+			
+			
+			File[] files = dir.listFiles();
+			if(files == null || files.length == 0) {
+				dir = dir.getParentFile();
+				continue;
+			}
+			
+			for (File file : files) {
+				if (file.getName().contains(name))
+					return dir;
+			}
+			dir = dir.getParentFile();
+		}while(!isFound);
+		
+		return null;
 	}
 
 }

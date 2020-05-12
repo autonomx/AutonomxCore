@@ -128,7 +128,7 @@ public class Config {
 
 		// load config/properties values
 		for (String path : configPath) {
-			propertiesMap = getAllKeys(PropertiesReader.getLocalRootPath() + path);
+			propertiesMap = getAllKeys(path);
 			config.putAll(propertiesMap);
 		}
 

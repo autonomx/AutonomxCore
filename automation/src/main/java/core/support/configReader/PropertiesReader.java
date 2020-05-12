@@ -14,7 +14,7 @@ import core.support.objects.TestObject;
 
 public class PropertiesReader {
 
-	private static String LOCAL_ROOT_PATH = Helper.getRootDir();
+	public static String LOCAL_ROOT_PATH = Helper.getRootDir();
 	private static String LOCAL_RESOURCE_PATH = LOCAL_ROOT_PATH + "resources" + File.separator;
 	private static String LOCAL_RESOURCE_CLOUD_PATH = LOCAL_ROOT_PATH + "test-classes" + File.separator + "testData"
 			+ File.separator + "resources" + File.separator;

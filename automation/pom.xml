@@ -43,7 +43,7 @@
 						<goals>
 							<goal>run</goal>
 						</goals>
-						<configuration>
+						<configuration>						
 							<target name="Exporting POM">
 								<copy file="${basedir}/pom.xml"
 									tofile="${project.build.outputDirectory}/../${project.build.finalName}.pom" />

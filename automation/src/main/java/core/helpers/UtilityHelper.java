@@ -51,7 +51,9 @@ import org.zeroturnaround.zip.ZipUtil;
 
 import allbegray.slack.SlackClientFactory;
 import allbegray.slack.webapi.SlackWebApiClient;
+import core.support.annotation.processor.MainGenerator;
 import core.support.configReader.Config;
+import core.support.configReader.PropertiesReader;
 import core.support.logger.ExtentManager;
 import core.support.logger.TestLog;
 import core.support.objects.TestObject;
@@ -379,21 +381,60 @@ public class UtilityHelper {
 	/**
 	 * get current project root directory, where pom.xml is
 	 * 
+	 * 
 	 * @return
 	 */
 	protected static String getRootDir() {
-		Path currentWorkingDir = Paths.get("").toAbsolutePath();
-		boolean isRoot = false;
-		File root = new File(currentWorkingDir.toString());
-		File[] files = root.listFiles();
-		for (File file : files) {
-			if (file.getName().contains("pom"))
-				isRoot = true;
+		
+		if(PropertiesReader.LOCAL_ROOT_PATH !=  null && !PropertiesReader.LOCAL_ROOT_PATH.isEmpty()) {
+			return PropertiesReader.LOCAL_ROOT_PATH;
 		}
-		if (!isRoot)
-			Helper.assertFalse(
-					"invalid root directory. is annotations processor turned off? " + root.getAbsolutePath());
-		return currentWorkingDir.normalize().toString() + File.separator;
+		
+		Path currentWorkingDir = Paths.get("").toAbsolutePath();
+		if (isFilenameInDir(new File(currentWorkingDir.toString()), "pom")) 
+			return currentWorkingDir.normalize().toString() + File.separator;
+
+		// get working directory from annotation processessor 
+		if(!MainGenerator.ANNOATION_WORKING_DIR.isEmpty())
+			return MainGenerator.ANNOATION_WORKING_DIR + File.separator;
+		
+		// navigate forward through file structure to find working directory
+		File rootDir = discoverRootDir();
+		if (isFilenameInDir(rootDir, "pom")) 
+			return rootDir.getAbsolutePath().toString() + File.separator;
+
+		Helper.assertFalse(
+		"invalid root directory. is annotations processor turned off? " + currentWorkingDir.toString());
+		
+		return StringUtils.EMPTY;
+	}
+	
+	private static File discoverRootDir() {
+		List<File> files = new ArrayList<File>();
+		files = Helper.getFileListWithSubfolders(".", ".xml", files);
+		for(File file: files) {
+			if(file.getName().equals("pom.xml") && (file.getParentFile().getName().equals("automation") || file.getParentFile().getName().equals(".")))
+				return file.getParentFile();
+		}
+		
+		Helper.assertFalse("pom file not found: base: " + new File(".").getAbsolutePath());
+		return null;
+	}
+
+	
+	protected static boolean isFilenameInDir(File dir, String name) {
+		if(dir.isFile() && dir.getName().contains(name)) 
+			return true;
+			
+		File[] files = dir.listFiles();
+		if(files == null || files.length == 0)
+			return false;
+		
+		for (File file : files) {
+			if (file.getName().contains(name))
+				return true;
+		}
+		return false;
 	}
 
 	/**
@@ -445,6 +486,9 @@ public class UtilityHelper {
 	 * @return
 	 */
 	protected static ArrayList<File> getFileListByType(String directoryPath, String type, boolean includeSubtype) {
+		if(!directoryPath.contains(Helper.getRootDir()))
+			directoryPath = Helper.getRootDir() + directoryPath;
+		
 		ArrayList<File> filteredFiles = new ArrayList<File>();
 		ArrayList<File> testFiles = new ArrayList<File>();
 		if (includeSubtype)
@@ -467,6 +511,9 @@ public class UtilityHelper {
 	 * @return
 	 */
 	protected static ArrayList<File> getFileList(String directoryPath, ArrayList<File> files) {
+		if(!directoryPath.contains(Helper.getRootDir()))
+			directoryPath = Helper.getRootDir() + directoryPath;
+		
 		File directory = new File(directoryPath);
 
 		// Get all files from a directory.
@@ -489,6 +536,9 @@ public class UtilityHelper {
 	 * @return
 	 */
 	protected static File getFile(String directoryPath) {
+		if(!directoryPath.contains(Helper.getRootDir()))
+			directoryPath = Helper.getRootDir() + directoryPath;
+		
 		File file = new File(directoryPath);
 		if (!file.exists())
 			Helper.assertFalse("test files not found at path: " + directoryPath);
@@ -503,6 +553,9 @@ public class UtilityHelper {
 	 * @return
 	 */
 	protected static File getFileByName(String path, String filename) {
+		if(!path.contains(Helper.getRootDir()))
+			path = Helper.getRootDir() + path;
+		
 		List<File> files = Helper.getFileList(path);
 		for (File file : files) {
 			String simplename = file.getName().split("\\.")[0];
@@ -520,6 +573,9 @@ public class UtilityHelper {
 	 * @return
 	 */
 	protected static ArrayList<File> getFileList(String directoryPath) {
+		if(!directoryPath.contains(Helper.getRootDir()))
+			directoryPath = Helper.getRootDir() + directoryPath;
+		
 		File folder = new File(directoryPath);
 		File[] listOfFiles = folder.listFiles();
 		ArrayList<File> testFiles = new ArrayList<File>();
@@ -570,6 +626,9 @@ public class UtilityHelper {
 	 * @return
 	 */
 	protected static String getFileContent(String absolutePath) {
+		if(!absolutePath.contains(Helper.getRootDir()))
+			absolutePath = Helper.getRootDir() + absolutePath;
+		
 		String content = StringUtils.EMPTY;
 		absolutePath = absolutePath.replaceAll("'", "");
 		File file = new File(absolutePath);
@@ -594,6 +653,8 @@ public class UtilityHelper {
 	 * @return 
 	 */
 	protected static File createFileFromPath(String absolutePath) {
+		if(!absolutePath.contains(Helper.getRootDir()))
+			absolutePath = Helper.getRootDir() + absolutePath;
 
 		File file = new File(absolutePath);
 		Path pathToFile = Paths.get(absolutePath);
