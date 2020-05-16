@@ -9,6 +9,7 @@ import java.util.Set;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 
@@ -444,17 +445,30 @@ public class PageHelper {
 	 * @param by
 	 * @return
 	 */
-	public Boolean isVisibleInViewport(EnhancedBy by, int index) {
-		if (!Helper.isWebDriver())
-			return false;
-
-		EnhancedWebElement targetElement = Element.findElements(by);
-		return (Boolean) ((JavascriptExecutor) AbstractDriver.getWebDriver()).executeScript(
-				"var elem = arguments[0],                 " + "  box = elem.getBoundingClientRect(),    "
-						+ "  cx = box.left + box.width / 2,         " + "  cy = box.top + box.height / 2,         "
-						+ "  e = document.elementFromPoint(cx, cy); " + "for (; e; e = e.parentElement) {         "
-						+ "  if (e === elem)                        " + "    return true;                         "
-						+ "}                                        " + "return false;                            ",
-				targetElement.get(index));
-	}
+    public Boolean isVisibleInViewport(EnhancedBy by, int index) {
+  	  if(!Helper.isWebDriver()) return false;
+  	  Boolean isVisible = false;
+		  EnhancedWebElement targetElement = Element.findElements(by);
+		  
+		  try {
+			  isVisible = (Boolean)((JavascriptExecutor) AbstractDriver.getWebDriver()).executeScript(
+		    	      "var elem = arguments[0],                 " +
+		    	    	      "  box = elem.getBoundingClientRect(),    " +
+		    	    	      "  cx = box.left + box.width / 2,         " +
+		    	    	      "  cy = box.top + box.height / 2,         " +
+		    	    	      "  e = document.elementFromPoint(cx, cy); " +
+		    	    	      "for (; e; e = e.parentElement) {         " +
+		    	    	      "  if (e === elem)                        " +
+		    	    	      "    return true;                         " +
+		    	    	      "}                                        " +
+		    	    	      "return false;                            "
+		    	    	      , targetElement.get(index));
+		  }catch(StaleElementReferenceException st) {
+			  st.getMessage();
+		  }catch(Exception e) {
+			  e.getMessage();
+		  }
+		  
+  	  return isVisible;
+  }
 }
