@@ -178,7 +178,7 @@ public class TestLog {
 	 * @param value        value to log
 	 * @param args         additional arguments for logging to be formatted
 	 */
-	public static void setTestStep(gherkins gherkinState, String value, Object... args) {
+	public static synchronized void setTestStep(gherkins gherkinState, String value, Object... args) {
 		ExtentTest testStep = null;
 
 		testState state = TestObject.getTestState(TestObject.getTestInfo().testId);
