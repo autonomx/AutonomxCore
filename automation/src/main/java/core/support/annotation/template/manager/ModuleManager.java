@@ -12,8 +12,11 @@ import javax.tools.JavaFileObject;
 import core.support.annotation.helper.FileCreatorHelper;
 import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PackageHelper;
+import core.support.configReader.Config;
 
 public class ModuleManager {
+	
+	public static final String PROJECT_NAME = "project.name";
 
 	public static void writeModuleManagerClass(Map<String, List<String>> panelMap) {
 		try {
@@ -58,7 +61,10 @@ public class ModuleManager {
 		 */
 		bw.newLine();
 
-		bw.append("public class ModuleManager {\n");
+		String projectname = Config.getValue(PROJECT_NAME);
+		if(projectname.isEmpty()) projectname = "Module"; 
+		
+		bw.append("public class " + projectname + "Manager {\n");
 
 		// add panel declarations
 		for (Entry<String, List<String>> entry : panelMap.entrySet()) {

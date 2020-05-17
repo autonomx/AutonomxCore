@@ -199,21 +199,26 @@ public class WebDriverSetup {
 
 		// force cache, not checking online
 		if (isForceCache)
-			manager = manager.forceCache();
+			manager = manager.useLocalVersionsPropertiesFirst();
 
 		// set proxy enabled value based on proxy auto detection. if auto detect
 		// enabled,
 		// attempt to connect to url with proxy info. if able to connect, enable proxy
-		Helper.setProxyAutoDetection(manager.config().getChromeDriverMirrorUrl());
+		Helper.setProxyAutoDetection(driverObject.getInitURL());
 		boolean isProxyEnabled = Config.getBooleanValue(TestObject.PROXY_ENABLED);
 
+		// set proxy if enabled. catch errors if version change (since we use Latest version)
 		if (isProxyEnabled) {
-			manager.proxy(proxyServer + ":" + proxyPort).proxyUser(proxyUser).proxyPass(proxyPassword)
-					.version(driverObject.driverVersion).timeout(timeout_seconds).setup();
-		} else
-			manager.setup();
-
-		TestLog.ConsoleLog("using driver version: " + manager.getDownloadedVersion());
+			try {
+				manager = manager.proxy(proxyServer + ":" + proxyPort).proxyUser(proxyUser).proxyPass(proxyPassword)
+						.driverVersion(driverObject.driverVersion).timeout(timeout_seconds);
+			} catch (java.lang.NoSuchMethodError er) {
+				er.getMessage();
+			} catch (Exception e) {
+				e.getMessage();
+			}
+		}
+		manager.setup();
 	}
 
 	public String getServerUrl() {

@@ -21,6 +21,8 @@ public class PackageHelper {
 	public static String DATA_PATH = "data";
 	public static String SERVICE_PATH = "serviceManager";
 	public static String MODULE_MANAGER_PATH = "moduleManager";
+	public static String MODULE_PACKAGE = "module";
+
 	public static String CONFIG_MANAGER_PATH = "configManager";
 
 	/**

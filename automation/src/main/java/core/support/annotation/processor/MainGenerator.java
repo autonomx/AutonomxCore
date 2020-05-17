@@ -44,6 +44,7 @@ import core.support.annotation.template.config.ConfigVariableGenerator;
 import core.support.annotation.template.dataObject.CsvDataObject;
 import core.support.annotation.template.dataObject.DataClass;
 import core.support.annotation.template.dataObject.ModuleClass;
+import core.support.annotation.template.manager.ModuleBase;
 import core.support.annotation.template.manager.ModuleManager;
 import core.support.annotation.template.manager.PanelManagerGenerator;
 import core.support.annotation.template.service.Service;
@@ -101,6 +102,7 @@ public class MainGenerator extends AbstractProcessor {
 			// generate managers
 			PanelManagerGenerator.writePanelManagerClass(panelMap);
 			ModuleManager.writeModuleManagerClass(panelMap);
+			ModuleBase.writeModuleBaseClass(panelMap);
 
 			// generate data objects
 			CsvDataObject.writeCsvDataClass();

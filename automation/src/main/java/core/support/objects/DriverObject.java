@@ -1,5 +1,6 @@
 package core.support.objects;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -292,6 +293,16 @@ public class DriverObject {
 	
 	public DriverObject withGenericDriver(String app) {
 		return new DriverObject().withApp(app).withDriverType(DriverType.API);
+	}
+	
+	public URL getInitURL() {
+		URL url = null;
+		try {
+			url = new URL(this.initialURL);
+		}catch(Exception e) {
+			e.getMessage();
+		}
+		return url;
 	}
 
 }
