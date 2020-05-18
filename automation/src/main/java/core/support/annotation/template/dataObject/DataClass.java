@@ -48,12 +48,12 @@ public class DataClass {
 		csvModules.addAll(dataObjectModules);
 		
 		String projectname = Config.getValue(PROJECT_NAME);
-		if(projectname.isEmpty()) projectname = ""; 
 
 		// the first data class will be called DATA ( for project use )
 		// second will be called <project.name>Data, for export as jar and use in other projects
 		writeDataClass(csvModules, StringUtils.EMPTY);
-		writeDataClass(csvModules, projectname);
+		if(!projectname.isEmpty())
+			writeDataClass(csvModules, projectname);
 
 		Logger.debug("<<<< completed generating data class >>>>>");
 	}

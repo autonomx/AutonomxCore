@@ -19,28 +19,36 @@ public class ModuleManager {
 	public static final String PROJECT_NAME = "project.name";
 
 	public static void writeModuleManagerClass(Map<String, List<String>> panelMap) {
+		
+		String projectname = Config.getValue(PROJECT_NAME);
+		if(projectname.isEmpty()) projectname = ""; 
+		
+		// proceed if app manager has not been created
+			if (FileCreatorHelper.moduleManagerFileObject != null)
+				return;
+		
 		try {
-			writeModuleManagerClassImplementation(panelMap);
+			// create ModuleManager for current project
+			writeModuleManagerClassImplementation(panelMap, "Module");
+			
+			// set <project.name>Manager for export of project
+			if(!projectname.isEmpty())
+				writeModuleManagerClassImplementation(panelMap, projectname);
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	private static void writeModuleManagerClassImplementation(Map<String, List<String>> panelMap) throws IOException {
+	private static void writeModuleManagerClassImplementation(Map<String, List<String>> panelMap, String projectname) throws IOException {
 		Logger.debug("start generating module manager class");
 
-		String projectname = Config.getValue(PROJECT_NAME);
-		if(projectname.isEmpty()) projectname = "Module"; 
 		
 		// returns module.android.panel
 		String modulePath = PackageHelper.getFirstModuleFullPath(panelMap);
 
 		// returns module
 		String rootModulePath = PackageHelper.getRootPath(modulePath);
-
-		// proceed if app manager has not been created
-		if (FileCreatorHelper.moduleManagerFileObject != null)
-			return;
 
 		// create file: module.appManager.java
 		JavaFileObject file = FileCreatorHelper.createFile(rootModulePath, projectname);
