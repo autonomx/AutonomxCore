@@ -29,6 +29,9 @@ public class ModuleManager {
 	private static void writeModuleManagerClassImplementation(Map<String, List<String>> panelMap) throws IOException {
 		Logger.debug("start generating module manager class");
 
+		String projectname = Config.getValue(PROJECT_NAME);
+		if(projectname.isEmpty()) projectname = "Module"; 
+		
 		// returns module.android.panel
 		String modulePath = PackageHelper.getFirstModuleFullPath(panelMap);
 
@@ -40,7 +43,7 @@ public class ModuleManager {
 			return;
 
 		// create file: module.appManager.java
-		JavaFileObject file = FileCreatorHelper.createFile(rootModulePath);
+		JavaFileObject file = FileCreatorHelper.createFile(rootModulePath, projectname);
 		BufferedWriter bw = new BufferedWriter(file.openWriter());
 
 
@@ -61,8 +64,6 @@ public class ModuleManager {
 		 */
 		bw.newLine();
 
-		String projectname = Config.getValue(PROJECT_NAME);
-		if(projectname.isEmpty()) projectname = "Module"; 
 		
 		bw.append("public class " + projectname + "Manager {\n");
 

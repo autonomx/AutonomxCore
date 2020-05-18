@@ -60,8 +60,8 @@ public class FileCreatorHelper {
 	 * @return
 	 * @throws IOException
 	 */
-	public static JavaFileObject createFile(String path) throws IOException {
-		moduleManagerFileObject = MainGenerator.PROCESS_ENV.getFiler().createSourceFile(PackageHelper.MODULE_MANAGER_PATH + "." + PackageHelper.MODULE_MANAGER_CLASS);
+	public static JavaFileObject createFile(String path, String projectname) throws IOException {
+		moduleManagerFileObject = MainGenerator.PROCESS_ENV.getFiler().createSourceFile(PackageHelper.MODULE_MANAGER_PATH + "." + projectname + "Manager");
 		return moduleManagerFileObject;
 	}
 
