@@ -120,19 +120,23 @@ public class VerifyHelper {
 	 * @param text
 	 */
 	public void verifyTextDisplayed(String text) {
+		EnhancedBy elementText = Element.byXpath("//*[contains(text(),'" + text + "')]", "page source");
+		Helper.waitForElementToLoad(elementText);
 		boolean isText = isTextDisplayed(text);
-		Helper.assertTrue("text: " + "text is not displayed", isText);
+		Helper.assertTrue("text: " + text +  " is not displayed", isText);
 	}
 
 	/**
 	 * is text displayed on page
-	 * 
+	 *     driver.findElement(By.xpath("//*[contains(text(),'someText')]"));
+
 	 * @param text
 	 * @return
 	 */
 	public boolean isTextDisplayed(String text) {
 		try {
-			boolean b = AbstractDriver.getWebDriver().getPageSource().contains(text);
+			EnhancedBy elementText = Element.byXpath("//*[contains(text(),'" + text + "')]", "page source");
+			boolean b = Helper.isPresent(elementText);
 			return b;
 		} catch (Exception e) {
 			return false;

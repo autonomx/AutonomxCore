@@ -6,17 +6,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.logging.Level;
 
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
-import org.openqa.selenium.logging.LogType;
-import org.openqa.selenium.logging.LoggingPreferences;
-import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 import core.support.configReader.Config;
+import core.support.objects.DriverOption;
 import core.support.objects.TestObject;
 import core.uiCore.driverProperties.browserType.BrowserType;
 import core.uiCore.driverProperties.driverType.DriverType;
@@ -30,22 +25,10 @@ public class WebCapability {
 	private static final String FIREFOX_PREF_PREFIX = "firefox.pref";
 	private static final String WEB_CAPABILITIES_PREFIX = "web.capabilities.";
 
-	public DesiredCapabilities capabilities;
-	public ChromeOptions chromeOptions;
-	FirefoxOptions firefoxOptions;
+	public DesiredCapabilities capabilities = new DesiredCapabilities();
+	public DriverOption options = new DriverOption();
 
 	DriverType driverType;
-
-	public WebCapability() {
-		capabilities = new DesiredCapabilities();
-		chromeOptions = new ChromeOptions();
-		firefoxOptions = new FirefoxOptions();
-	}
-
-	public WebCapability withCapability(DesiredCapabilities Capabilities) {
-		this.capabilities = Capabilities;
-		return this;
-	}
 
 	/**
 	 * sets capability for web based apps
@@ -53,17 +36,12 @@ public class WebCapability {
 	 * @return
 	 * @throws IOException
 	 */
-	public WebCapability withBrowserCapability() {
-
+	public WebCapability withBrowserOption() {
+ 
 		System.setProperty("webdriver.chrome.args", "--disable-logging");
 		System.setProperty("webdriver.chrome.silentOutput", "true");
 
-		capabilities.setCapability("recordVideo", true);
-		// capabilities.setCapability("takesScreenshot", true);
-		capabilities.setBrowserName(getBrowserName());
-		capabilities.setCapability("name", TestObject.getTestInfo().testName);
-
-		// set web capabilities based on prefix web.capabilities
+		// set web capabilities based on prefix .capabilities
 		setWebCapabilties();
 
 		// set chrome or firefox options based on prefix chrome.options or
@@ -73,11 +51,6 @@ public class WebCapability {
 		// set chrome or firefox preferences based on prefix chrome.pref or firefox.pref
 		setPreferences();
 
-		// set logging for browser to severe only
-		LoggingPreferences logs = new LoggingPreferences();
-		logs.enable(LogType.DRIVER, Level.SEVERE);
-
-		capabilities.setCapability(CapabilityType.LOGGING_PREFS, logs);
 
 		return this;
 	}
@@ -89,11 +62,16 @@ public class WebCapability {
 	 * 
 	 * @return
 	 */
-	public DesiredCapabilities setWebCapabilties() {
+	public void setWebCapabilties() {
+		
 
 		// get all keys from config
 		Map<String, Object> propertiesMap = TestObject.getTestInfo().config;
-
+		propertiesMap.put("web.capabilities.recordVideo", "true");
+		propertiesMap.put("web.capabilities.takesScreenshot", "true");
+		propertiesMap.put("web.capabilities.browserName", getBrowserName());
+		propertiesMap.put("web.capabilities.name", TestObject.getTestInfo().testName);
+		
 		// load config/properties values from entries with "android.capabilties." prefix
 		for (Entry<String, Object> entry : propertiesMap.entrySet()) {
 			boolean isWebCapability = entry.getKey().toString().startsWith(WEB_CAPABILITIES_PREFIX);
@@ -103,9 +81,14 @@ public class WebCapability {
 				String value = entry.getValue().toString().trim();
 
 				capabilities.setCapability(key, value);
+				options.getChromeOptions().setCapability(key, value);
+				options.getFirefoxOptions().setCapability(key, value);
+				options.getEdgeOptions().setCapability(key, value);
+				options.getSafariOptions().setCapability(key, value);
+				options.getOperaOptions().setCapability(key, value);
+				options.getInternetExplorerOptions().setCapability(key, value);
 			}
 		}
-		return capabilities;
 	}
 
 	/**
@@ -113,7 +96,7 @@ public class WebCapability {
 	 * 
 	 * @return
 	 */
-	private DesiredCapabilities setPreferences() {
+	private void setPreferences() {
 
 		// get all keys from config
 		Map<String, Object> propertiesMap = TestObject.getTestInfo().config;
@@ -146,14 +129,10 @@ public class WebCapability {
 		}
 
 		if (isChrome()) {
-			chromeOptions.setExperimentalOption("prefs", chromePreferences);
-			capabilities.setCapability(ChromeOptions.CAPABILITY, chromeOptions);
+			options.getChromeOptions().setExperimentalOption("prefs", chromePreferences);
 		} else if (isFirefox()) {
-			firefoxOptions.setProfile(fireFoxProfile);
-			capabilities.setCapability(FirefoxOptions.FIREFOX_OPTIONS, firefoxOptions);
+			options.getFirefoxOptions().setProfile(fireFoxProfile);
 		}
-
-		return capabilities;
 	}
 
 	/**
@@ -164,7 +143,7 @@ public class WebCapability {
 	 * 
 	 * @return
 	 */
-	private DesiredCapabilities setOptions() {
+	private void setOptions() {
 
 		// get all keys from config
 		Map<String, Object> propertiesMap = TestObject.getTestInfo().config;
@@ -183,24 +162,22 @@ public class WebCapability {
 				String key = "--" + split[1].trim();
 				boolean isEnable = Boolean.valueOf(entry.getValue().toString().trim());
 				if (isEnable && isChrome() && fullKey.contains(CHROME_OPTIONS_PREFIX))
-					chromeOptions.addArguments(key);
+					options.getChromeOptions().addArguments(key);
 				else if (isEnable && isFirefox() && fullKey.contains(FIREFOX_OPTIONS_PREFIX)) {
-					firefoxOptions.addArguments(key);
+					options.getFirefoxOptions().addArguments(key);
 				}
 
 			}
 		}
 
-		if (isChrome())
-			capabilities.setCapability(ChromeOptions.CAPABILITY, chromeOptions);
-		else if (isFirefox())
-			capabilities.setCapability(FirefoxOptions.FIREFOX_OPTIONS, firefoxOptions);
-
-		return capabilities;
 	}
-
+	
 	public DesiredCapabilities getCapability() {
 		return capabilities;
+	}
+	
+	public DriverOption getDriverOption() {
+		return options;
 	}
 
 	/**
@@ -246,6 +223,14 @@ public class WebCapability {
 
 	public boolean isFirefox() {
 		return getBrowserName().equals("firefox");
+	}
+	
+	public boolean isInternetExplorer() {
+		return getBrowserName().equals("internet explorer");
+	}
+	
+	public boolean isSafari() {
+		return getBrowserName().equals("safari");
 	}
 
 	public String getDriverVersion() {

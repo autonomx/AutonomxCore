@@ -9,7 +9,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 import core.helpers.Helper;
@@ -45,8 +44,8 @@ public class DriverObject {
 	public LoginObject login = new LoginObject();
 	public Map<String, Object> config = new ConcurrentHashMap<String, Object>();
 
-
 	public DesiredCapabilities capabilities;
+	public DriverOption options;
 
 	public static Map<WebDriver, DriverObject> driverList = new ConcurrentHashMap<WebDriver, DriverObject>();
 
@@ -221,10 +220,23 @@ public class DriverObject {
 		this.driverType = driverType;
 		return this;
 	}
-
+	
+	public DriverObject withDriverOptions(DriverOption driverOption) {
+		this.options = driverOption;
+		return this;
+	}
+	
 	public DriverObject withCapabilities(DesiredCapabilities capabilities) {
 		this.capabilities = capabilities;
 		return this;
+	}
+	
+	public DesiredCapabilities getCapabilties() {
+		return this.capabilities;
+	}
+	
+	public DriverOption getOptions() {
+		return this.options;
 	}
 
 	public static DriverObject getCurrentDriverObject() {
@@ -241,32 +253,26 @@ public class DriverObject {
 			return false;
 		return true;
 	}
-
-	public DriverObject withChromeLanguage(String locale) {
-		ChromeOptions options = new ChromeOptions();
-		options.addArguments("--lang=" + locale);
-		this.capabilities.setCapability(ChromeOptions.CAPABILITY, options);
-		return this;
-	}
 	
 	public DriverObject withWebDriver(String App, String URL) {
-		WebCapability capability = new WebCapability().withBrowserCapability();
+		WebCapability capability = new WebCapability().withBrowserOption();
 		
 		return new DriverObject().withApp(App).withDriverType(capability.getWebDriverType())
 				.withBrowserType(capability.getBrowser()).withDriverVersion(capability.getDriverVersion())
 				.withUrl(capability.getUrl(App, URL))
-
-				.withCapabilities(capability.getCapability());
+				.withCapabilities(capability.getCapability())
+				.withDriverOptions(capability.getDriverOption());
 	}
 	
 	public DriverObject withWebDriver(String URL) {
-		WebCapability capability = new WebCapability().withBrowserCapability();
+		WebCapability capability = new WebCapability().withBrowserOption();
 		
 		return new DriverObject().withDriverType(capability.getWebDriverType())
 				.withBrowserType(capability.getBrowser()).withDriverVersion(capability.getDriverVersion())
 				.withUrl(URL)
 
-				.withCapabilities(capability.getCapability());
+				.withCapabilities(capability.getCapability())
+				.withDriverOptions(capability.getDriverOption());
 	}
 	
 	public DriverObject withiOSDriver(String app, String device) {

@@ -21,6 +21,7 @@ import org.json.JSONObject;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 
+import core.support.configReader.Config;
 import core.support.configReader.PropertiesReader;
 import core.support.objects.TestObject;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
@@ -34,7 +35,8 @@ import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
  */
 
 public class LocalizationHelper {
-	public static String DEFAULT_LOCAL = "english";
+	public static String DEFAULT_LOCAL = "English";
+	public static String LOCALIZATION_PATH = "localize.path";
 
 	protected static String localize(String key) {
 		String localFile = CrossPlatformProperties.getLocalizationFile();
@@ -173,7 +175,8 @@ public class LocalizationHelper {
 	}
 
 	protected static File getCsvFile(String filename) {
-		String filePath = PropertiesReader.getLocalResourcePath() + filename;
+		String path = Config.getValue(LOCALIZATION_PATH);
+		String filePath = Helper.getRootDir() + path + filename;
 
 		File csvFile = new File(filePath);
 		if (csvFile.isFile() && csvFile.toString().endsWith(".csv")) {
