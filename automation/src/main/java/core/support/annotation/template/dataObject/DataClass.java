@@ -17,12 +17,14 @@ import core.support.annotation.helper.DataObjectHelper;
 import core.support.annotation.helper.FileCreatorHelper;
 import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PackageHelper;
+import core.support.configReader.Config;
 
 public class DataClass {
 
 	public static JavaFileObject CSV_File_Object = null;
 	public static String MODULE_ROOT = "module";
 	public static String DATA_ROOT = "data";
+	public static final String PROJECT_NAME = "project.name";
 
 	public static void writeDataClass(Map<String, List<String>> panelMap) {
 		try {
@@ -44,8 +46,14 @@ public class DataClass {
 
 		// combine module lists
 		csvModules.addAll(dataObjectModules);
+		
+		String projectname = Config.getValue(PROJECT_NAME);
+		if(projectname.isEmpty()) projectname = ""; 
 
-		writeDataClass(csvModules);
+		// the first data class will be called DATA ( for project use )
+		// second will be called <project.name>Data, for export as jar and use in other projects
+		writeDataClass(csvModules, StringUtils.EMPTY);
+		writeDataClass(csvModules, projectname);
 
 		Logger.debug("<<<< completed generating data class >>>>>");
 	}
@@ -56,9 +64,10 @@ public class DataClass {
 //		public static webApp webApp = new webApp();
 //		public static androidApp androidApp = new androidApp();
 //	}
-	private static void writeDataClass(Set<String> modules) throws Exception {
+	private static void writeDataClass(Set<String> modules, String projectname) throws Exception {
 
-		String filePath = PackageHelper.DATA_PATH + "." + StringUtils.capitalize(DATA_ROOT);
+		
+		String filePath = PackageHelper.DATA_PATH + "." + projectname + StringUtils.capitalize(DATA_ROOT);
 		JavaFileObject fileObject = FileCreatorHelper.createFileAbsolutePath(filePath);
 		BufferedWriter bw = new BufferedWriter(fileObject.openWriter());
 
@@ -80,7 +89,7 @@ public class DataClass {
 		bw.newLine();
 		bw.newLine();
 
-		bw.append("public class " + StringUtils.capitalize(DATA_ROOT) + " {" + "\n");
+		bw.append("public class " + projectname + StringUtils.capitalize(DATA_ROOT) + " {" + "\n");
 		bw.newLine();
 		bw.newLine();
 
