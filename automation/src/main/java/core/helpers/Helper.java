@@ -2332,6 +2332,21 @@ public class Helper {
 		return UtilityHelper.getIntFromString(value, false);
 
 	}
+	
+	/**
+	 * get numeric value from string
+	 * 
+	 * @param value
+	 * @param isFailOnNoInt
+	 * @return
+	 */
+	public static int getNumber(String value) {
+		return UtilityHelper.getIntFromString(value, false);
+	}
+	
+	public static int getFirstNumber(String value) {
+		return UtilityHelper.getFirstNumber(value);
+	}
 
 	/**
 	 * get numeric value from string

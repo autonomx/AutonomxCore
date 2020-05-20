@@ -52,6 +52,9 @@ public class DataHelper {
 		isNotEmpty, isEmpty, nodeSizeLessThan, isBetweenDate, allValuesEqualTo, countGreaterThan, countLessThan, countExact, command, notContains, contain
 	}
 
+	public static String replaceParameters(String source) {
+		return replaceParameters(source, "<@(.+?)>", "<@", ">");
+	}
 	/**
 	 * replaces placeholder values with values from config properties replaces only
 	 * string values
@@ -59,12 +62,12 @@ public class DataHelper {
 	 * @param source
 	 * @return
 	 */
-	public static String replaceParameters(String source) {
+	public static String replaceParameters(String source, String tagPattern, String openingTag, String closingTag) {
 
 		if (source.isEmpty())
 			return source; 
 
-		List<String> parameters = Helper.getValuesFromPattern(source, "<@(.+?)>");
+		List<String> parameters = Helper.getValuesFromPattern(source,tagPattern);
 		Object value = null;
 		int length = 0;
 		String newTime = StringUtils.EMPTY;
@@ -107,7 +110,7 @@ public class DataHelper {
 						//TestLog.ConsoleLog("replacing value " + parameter + "  with: " + value);
 						TestObject.getTestInfo().replacedValues.put(parameter, value);
 					}
-					source = source.replace("<@" + parameter + ">", Matcher.quoteReplacement(value.toString()));
+					source = source.replace(openingTag + parameter + closingTag, Matcher.quoteReplacement(value.toString()));
 				}
 		}
 
@@ -146,13 +149,12 @@ public class DataHelper {
 	 */
 	public static String getTimeSubstring(String parameter, String finalTime) {
 		// values after the last "_", then after the last :
-
-		Matcher matcher = Pattern.compile("\\d+").matcher(parameter);
-		matcher.find();
-		int length = Integer.valueOf(matcher.group());
+		String[] values = parameter.split(";");
+		
+		int length = Helper.getFirstNumber(values[0]);
 
 		int maxLength = finalTime.length();
-		if (length > maxLength || length == -1)
+		if (length > maxLength || length == -1 || length == 0)
 			length = maxLength;
 
 		return finalTime.substring(0, length);
@@ -169,6 +171,8 @@ public class DataHelper {
 	 */
 	public static String getTime(String parameter, String timeString) {
 
+		parameter = DataHelper.replaceParameters(parameter, "\\{@(.+?)\\}","{@", "}");
+
 		// ensure ZONE and FORMAT are ordered at the end
 		parameter = Helper.date.setTimeParameterFormat(parameter);
 		
@@ -184,6 +188,10 @@ public class DataHelper {
 				String zone = value.split("ZONE")[1];
 				zone = removeFirstAndLastChars(zone, ":", "<", ">");
 				timeString = Helper.date.getTime(timeString, null, zone);
+			} else if (value.contains("setInitialDate")) {
+				String setInitialDate = value.split("setInitialDate")[1];
+				setInitialDate = removeFirstAndLastChars(setInitialDate, ":", "<", ">");
+				timeString = setInitialDate(setInitialDate);
 			} else if (value.contains("setTime")) {
 				String setTime = value.split("setTime")[1];
 				setTime = removeFirstAndLastChars(setTime, ":", "<", ">");
@@ -203,6 +211,19 @@ public class DataHelper {
 		}
 		return timeString;
 	}
+	
+	/**
+	 * set time to time 
+	 * overwrites the TestObject.START_TIME_STRING value
+	 * @param parameter
+	 * @return
+	 */
+	public static String setInitialDate(String parameter) {
+		LocalDateTime date = Helper.date.getLocalDateTime(parameter);
+		Instant time = date.atZone(ZoneId.of("UTC")).toInstant();
+		return time.toString();
+	}
+
 
 	/**
 	 * sets time based on format: setTime:hh:mm:ss eg: 14:42:33 any combination will
@@ -293,9 +314,9 @@ public class DataHelper {
 	 * @return
 	 */
 	public static String getTimeWithModification(String parameter, String timeString) {
-		Instant time = Instant.parse(timeString);
-		LocalDateTime localTime = LocalDateTime.ofInstant(time, ZoneOffset.UTC);
-		Instant newTime = time;
+		LocalDateTime localTime = Helper.date.getLocalDateTime(timeString);
+		Instant newTime = localTime.atZone(ZoneId.of("UTC")).toInstant();
+
 
 		String[] parameterArray = parameter.split("[+-]");
 

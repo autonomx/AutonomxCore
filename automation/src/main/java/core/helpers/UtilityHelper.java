@@ -1003,6 +1003,18 @@ public class UtilityHelper {
 		double doubleVal = getDoubleFromString(value, isFailOnNoInt);
 		return (int) doubleVal;
 	}
+	
+	protected static int getFirstNumber(String value) {
+		int number = -1;
+		Matcher matcher = Pattern.compile("\\d+").matcher(value);
+		matcher.find();
+		try {
+			number = Integer.valueOf(matcher.group());
+		}catch(Exception e) {
+			e.getMessage();
+		}
+		return number;
+	}
 
 	/**
 	 * get numeric value from string
