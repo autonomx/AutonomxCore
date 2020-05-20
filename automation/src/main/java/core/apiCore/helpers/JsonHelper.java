@@ -307,17 +307,17 @@ public class JsonHelper {
 
 			TestLog.ConsoleLog("command: <" + command + "> json path: <" + jsonPath + ">");
 			// get response string from json path (eg. data.user.id) would return "2"
-			String jsonResponse = getJsonValue(responseString, jsonPath);
+			String jsonPathResponse = getJsonValue(responseString, jsonPath);
 			
 			// if response is empty and isEmpty command is not used
-			if(jsonResponse == null || jsonResponse.isEmpty()) {
+			if(jsonPathResponse == null || jsonPathResponse.isEmpty()) {
 				if(!keyword.value.equals(DataHelper.JSON_COMMAND.isEmpty.name()))
-					errorMessages.add("no response returned for jsonPath: " + jsonPath);
+					errorMessages.add("response returned, however, no jsonpath response returned for path: " + jsonPath);
 				continue;
 			}
 
 			// validate response
-			String errorMessage = DataHelper.validateCommand(command, jsonResponse, expectedValue, keyword.position);
+			String errorMessage = DataHelper.validateCommand(command, jsonPathResponse, expectedValue, keyword.position);
 			errorMessages.add(errorMessage);
 		}
 
