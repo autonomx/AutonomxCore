@@ -189,14 +189,14 @@ public class WebDriverSetup {
 		if (isProxyEnabled) {
 			try {
 				manager = manager.proxy(proxyServer + ":" + proxyPort).proxyUser(proxyUser).proxyPass(proxyPassword)
-						.driverVersion(driverObject.driverVersion).timeout(timeout_seconds);
+						.timeout(timeout_seconds);
 			} catch (java.lang.NoSuchMethodError er) {
 				er.getMessage();
 			} catch (Exception e) {
 				e.getMessage();
 			}
 		}
-		manager.setup();
+		manager.driverVersion(driverObject.driverVersion).setup();
 	}
 
 	public String getServerUrl() {

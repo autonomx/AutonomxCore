@@ -30,6 +30,7 @@ import core.support.objects.TestObject;
 import core.uiCore.WebDriverSetup;
 import core.uiCore.driverProperties.driverType.DriverType;
 import core.uiCore.driverProperties.capabilities.AndroidCapability;
+import core.uiCore.driverProperties.capabilities.WebCapability;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 
 @Listeners({core.support.listeners.TestListener.class, core.support.listeners.TestResultListener.class})
@@ -264,15 +265,16 @@ public class AbstractDriverTestNG implements ITest {
 				if (retry > 0)
 					TestLog.ConsoleLog("driver failed to start. retrying " + retry + " more time(s) ...");
 
-				Helper.wait.waitForSeconds(3);
 				if (retry == 0) {
 					// print out android help
 					if (driverObject.driverType.equals(DriverType.ANDROID_DRIVER))
 						AndroidCapability.printAndroidHelp(e);
 					throw e;
-				}else
+				}else {
+					WebCapability.printWebDriverVersionHelp(e);
 					e.printStackTrace();
-				
+				}
+				Helper.wait.waitForSeconds(3);
 			}
 
 		} while (driver == null && retry > 0);

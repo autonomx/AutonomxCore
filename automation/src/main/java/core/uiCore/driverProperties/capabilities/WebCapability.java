@@ -7,10 +7,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 import core.support.configReader.Config;
+import core.support.logger.TestLog;
 import core.support.objects.DriverOption;
 import core.support.objects.TestObject;
 import core.uiCore.driverProperties.browserType.BrowserType;
@@ -247,5 +249,28 @@ public class WebCapability {
 	public DriverType getWebDriverType() {
 		String value = Config.getValue("web.webdriverType");
 		return Enum.valueOf(DriverType.class, value);
+	}
+	
+	/**
+	 * catch errors where browser version is not detected properly 
+	 * @param e
+	 * @return
+	 */
+	public static boolean printWebDriverVersionHelp(Exception e) {
+		if(e.getMessage().contains("This version of")
+				&& e.getMessage().contains("only supports")
+				&& e.getMessage().contains("version")) {
+			
+			// get shortened error message
+			String[] message = e.getMessage().split("\n");
+			String shortErrorMessage = StringUtils.EMPTY;
+			if(message.length >1)
+				shortErrorMessage = message[0];
+			
+			TestLog.logWarning("\n\n" + shortErrorMessage + "\n\nLooks like webdriver manager is not able to find the new browser version \n\n"
+					+ "*** Please try setting browser version manually at web.driver.manager.version at web.property ***\n\n");			
+			return true;
+		}
+		return false;
 	}
 }
