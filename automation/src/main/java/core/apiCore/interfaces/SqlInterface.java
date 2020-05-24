@@ -117,10 +117,6 @@ public class SqlInterface {
 			return;
 		}
 
-		// store value to config directly using format: value:<$key> separated by colon
-		// ';'
-		DataHelper.saveDataToConfig(serviceObject.getOption());
-
 		// replace parameters for request body
 		serviceObject.withOption(DataHelper.replaceParameters(serviceObject.getOption()));
 

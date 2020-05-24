@@ -1164,6 +1164,9 @@ public class DataHelper {
 
 		if (source.isEmpty())
 			return;
+		
+		// replace parameters for the source
+		source = DataHelper.replaceParameters(source);
 
 		List<KeyValue> keywords = DataHelper.getValidationMap(source);
 		for (KeyValue keyword : keywords) {
