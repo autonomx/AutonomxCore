@@ -33,7 +33,7 @@ import core.uiCore.driverProperties.capabilities.AndroidCapability;
 import core.uiCore.driverProperties.capabilities.WebCapability;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 
-@Listeners({core.support.listeners.TestListener.class, core.support.listeners.TestResultListener.class})
+@Listeners({core.support.listeners.TestListener.class, core.support.listeners.TestResultListener.class, core.support.listeners.JUnitReporter.class})
 
 public class AbstractDriverTestNG implements ITest {
 
