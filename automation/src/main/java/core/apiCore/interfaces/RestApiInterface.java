@@ -784,10 +784,14 @@ public class RestApiInterface {
 		}
 
 		if (response != null) {
-			TestLog.logPass("response: " + ServiceObject.normalize(response.getBody().asString()));
+			TestLog.logPass("response message: " + ServiceObject.normalize(response.getBody().asString()));
 			serviceObject.withResponse(response.then().extract().response());
-		} else
-			serviceObject.withResponse(response);
+		} else {
+			TestLog.logPass("response message: " + "null");
+			serviceObject.withResponse(response);			
+		}
+		
+		TestLog.logPass("response code: " + response.getStatusCode() + ". status: " + response.getStatusLine() );
 
 		return serviceObject;
 	}
