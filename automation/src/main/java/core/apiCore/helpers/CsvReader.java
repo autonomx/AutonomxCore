@@ -21,6 +21,7 @@ import com.opencsv.CSVReaderBuilder;
 import com.opencsv.RFC4180Parser;
 import com.opencsv.RFC4180ParserBuilder;
 
+import core.apiCore.ServiceManager;
 import core.apiCore.TestDataProvider;
 import core.helpers.Helper;
 import core.support.configReader.Config;
@@ -253,6 +254,8 @@ public class CsvReader {
 	
 	/**
 	 * update csv test list with tests from action csv files 
+	 * eg. action:createUser.csv:createUser, updateUser
+	 *  or action:createUser.csv
 	 * @param testData
 	 * @return 
 	 */
@@ -266,7 +269,11 @@ public class CsvReader {
 		for(Object[] dataRow : csvList) {
 			hasActionKey = false;
 			ServiceObject serviceObject = CsvReader.mapToServiceObject(dataRow);
+			
+			// actions can be set at either method or options columns
 			List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getMethod());
+			keywords.addAll(DataHelper.getValidationMap(serviceObject.getOption()));
+			
 			String runFlag = serviceObject.getRunFlag();
 			
 			// move to next row if run flag is not Y
@@ -274,8 +281,24 @@ public class CsvReader {
 			
 			for (KeyValue keyword : keywords) {		
 				if(keyword.key.equals(ACTION_KEY)) {
-					List<Object[]> tests = getCsvTestListForTestRunner(csvTestPath, keyword.value.toString());
-					updateDataList.addAll(tests);
+					List<KeyValue> TestIDMap = DataHelper.getValidationMap(keyword.value.toString());
+					if(TestIDMap.isEmpty()) Helper.assertFalse("no csv file specified with action: " + keyword.key);
+					
+					String actionCsvFile = TestIDMap.get(0).key;
+					String[] testIds = TestIDMap.get(0).value.toString().split(",");
+					testIds = DataHelper.removeEmptyElements(testIds);
+					
+					List<Object[]> tests = getCsvTestListForTestRunner(csvTestPath, actionCsvFile);
+					
+					// if test row is not External interface, add actions as addition to list of tests
+					if(!serviceObject.getInterfaceType().equals(ServiceManager.EXTERNAL_INTERFACE))
+						updateDataList.add(dataRow);
+					
+					// if testIds are set, get only the test specified
+					if(testIds.length > 0)	
+						updateDataList.addAll(getMatchingTestId(testIds, tests));
+					else								
+						updateDataList.addAll(tests);
 					hasActionKey = true;
 				}
 			}
@@ -285,6 +308,26 @@ public class CsvReader {
 		return updateDataList;
 	}
 	
+	
+	/**
+	 * matches testIds with csv data rows TestId
+	 * @param testIds
+	 * @param testRows
+	 * @return
+	 */
+	public static List<Object[]> getMatchingTestId(String[] testIds, List<Object[]> testRows) {	
+		List<Object[]> updateDataList = new ArrayList<Object[]>();
+		for(String testId : testIds) {
+			for(Object[] row : testRows) {
+				ServiceObject serviceObject = CsvReader.mapToServiceObject(row);
+				if(testId.trim().equals(serviceObject.getTestCaseID())) {
+					updateDataList.add(row);				
+				}
+
+			}
+		}	
+		return updateDataList;	
+	}
 
 	/**
 	 * maps list of test cases to service object map

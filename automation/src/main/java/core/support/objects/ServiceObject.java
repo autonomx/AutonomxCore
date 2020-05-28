@@ -145,7 +145,7 @@ public class ServiceObject {
 	}
 
 	public String getTestCaseID() {
-		return this.TestCaseID;
+		return this.TestCaseID.trim();
 	}
 
 	public ServiceObject withRunFlag(String runFlag) {
