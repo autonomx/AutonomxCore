@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.tools.JavaFileObject;
 
+import core.helpers.UtilityHelper;
 import core.support.annotation.helper.FileCreatorHelper;
 import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PackageHelper;
@@ -15,7 +16,6 @@ import core.support.configReader.Config;
 
 public class ModuleBase {
 	
-	public static final String PROJECT_NAME = "project.name";
 	public static final String MODULE_BASE_CLASS_NAME = "ModuleBase";
 
 	public static void writeModuleBaseClass(Map<String, List<String>> panelMap) {
@@ -48,7 +48,7 @@ public class ModuleBase {
 			}
 		 */
 		
-		String projectname = Config.getValue(PROJECT_NAME);
+		String projectname = UtilityHelper.getMavenArtifactId();
 		if(projectname.isEmpty()) projectname = "Module"; 
 
 		Date currentDate = new Date();
