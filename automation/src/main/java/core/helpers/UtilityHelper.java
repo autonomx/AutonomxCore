@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -42,6 +43,9 @@ import javax.imageio.ImageIO;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.OutputType;
@@ -1191,5 +1195,17 @@ public class UtilityHelper {
 		} else
 			Config.putValue(PROXY_ENABLED, false);
 		return false;
+	}
+	
+	public static String getMavenArtifactId() {
+		MavenXpp3Reader reader = new MavenXpp3Reader();
+		Model model = null;
+		try {
+			model = reader.read(new FileReader(Helper.getRootDir() + "pom.xml"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return model.getArtifactId();
 	}
 }

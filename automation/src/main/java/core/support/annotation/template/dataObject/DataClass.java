@@ -13,18 +13,17 @@ import javax.tools.JavaFileObject;
 
 import org.apache.commons.lang3.StringUtils;
 
+import core.helpers.UtilityHelper;
 import core.support.annotation.helper.DataObjectHelper;
 import core.support.annotation.helper.FileCreatorHelper;
 import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PackageHelper;
-import core.support.configReader.Config;
 
 public class DataClass {
 
 	public static JavaFileObject CSV_File_Object = null;
 	public static String MODULE_ROOT = "module";
 	public static String DATA_ROOT = "data";
-	public static final String PROJECT_NAME = "project.name";
 
 	public static void writeDataClass(Map<String, List<String>> panelMap) {
 		try {
@@ -47,7 +46,7 @@ public class DataClass {
 		// combine module lists
 		csvModules.addAll(dataObjectModules);
 		
-		String projectname = Config.getValue(PROJECT_NAME);
+		String projectname = UtilityHelper.getMavenArtifactId();
 
 		// the first data class will be called DATA ( for project use )
 		// second will be called <project.name>Data, for export as jar and use in other projects

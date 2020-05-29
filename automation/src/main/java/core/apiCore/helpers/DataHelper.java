@@ -106,6 +106,7 @@ public class DataHelper {
 			else {
 					source = source.replace(openingTag + parameter + closingTag, Matcher.quoteReplacement(value.toString()));
 				}
+			
 		}
 
 		return source;

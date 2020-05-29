@@ -9,18 +9,16 @@ import java.util.Map.Entry;
 
 import javax.tools.JavaFileObject;
 
+import core.helpers.UtilityHelper;
 import core.support.annotation.helper.FileCreatorHelper;
 import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PackageHelper;
-import core.support.configReader.Config;
 
 public class ModuleManager {
 	
-	public static final String PROJECT_NAME = "project.name";
-
 	public static void writeModuleManagerClass(Map<String, List<String>> panelMap) {
 		
-		String projectname = Config.getValue(PROJECT_NAME);
+		String projectname = UtilityHelper.getMavenArtifactId();
 		if(projectname.isEmpty()) projectname = ""; 
 		
 		// proceed if app manager has not been created
