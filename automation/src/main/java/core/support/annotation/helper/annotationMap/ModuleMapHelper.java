@@ -2,6 +2,7 @@ package core.support.annotation.helper.annotationMap;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +36,7 @@ public class ModuleMapHelper {
 		
 		// get files with annotation
 		List<File> annotationFiles = getFilesWithAnnotation(files, annotation);
-		
+		Logger.debug(annotation.annotation + " : " + Arrays.toString(annotationFiles.toArray()));
 		map = getModuleMap(annotationFiles);
 
 		return map;
@@ -76,7 +77,7 @@ public class ModuleMapHelper {
 	
 	/**
 	 * filters files that are in data folder
-	 * 
+	 * if file has annotation: @Panel, @Data, @Interface, then add to file list
 	 * @param files
 	 * @return
 	 */
@@ -84,7 +85,9 @@ public class ModuleMapHelper {
 		List<File> dataFiles = new ArrayList<File>();
 		for (File file : files) {
 			if (file.getAbsolutePath().contains(File.separator + annotation.parentFolder + File.separator)) {
-				dataFiles.add(file);
+				// if file has annotation
+				if(Helper.isFileContainsString(annotation.annotation, file))
+					dataFiles.add(file);
 			}
 		}
 		return dataFiles;

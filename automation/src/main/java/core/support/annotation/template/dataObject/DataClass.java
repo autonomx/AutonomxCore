@@ -49,7 +49,7 @@ public class DataClass {
 		String projectname = UtilityHelper.getMavenArtifactId();
 
 		// the first data class will be called DATA ( for project use )
-		// second will be called <project.name>Data, for export as jar and use in other projects
+		// second will be called <project artifact id>Data, for export as jar and use in other projects
 		writeDataClass(csvModules, StringUtils.EMPTY);
 		if(!projectname.isEmpty())
 			writeDataClass(csvModules, projectname);

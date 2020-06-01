@@ -2442,6 +2442,27 @@ public class Helper {
 	public static double getDoubleFromString(String value, boolean isFailOnNoInt) {
 		return UtilityHelper.getDoubleFromString(value, isFailOnNoInt);
 	}
+	
+	/**
+	 * does file contain the given text value
+	 * @param value
+	 * @param file
+	 * @return
+	 */
+	public static boolean isFileContainString(String value, File file) {
+		return UtilityHelper.isFileContainString(value, file);
+	}
+	
+	/**
+	 * does file contain the given text value
+	 * @param value
+	 * @param file
+	 * @return
+	 */
+	
+	public static boolean isFileContainsString(String value, File file) {
+		return UtilityHelper.isLineInFileStartWithString(value, file);
+	}
 
 	/**
 	 * normalizes string removes space, new line chars

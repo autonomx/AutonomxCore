@@ -35,6 +35,8 @@ import java.util.Scanner;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -1206,5 +1208,46 @@ public class UtilityHelper {
 		}
 
 		return model.getArtifactId();
+	}
+	
+	/**
+	 * does file contain the given text value
+	 * @param value
+	 * @param file
+	 * @return
+	 */
+	
+	protected static boolean isFileContainString(String value, File file) {
+		List<String> lines = new ArrayList<String>();
+		try (Stream<String> stream = Files.lines(file.toPath())) {
+				lines = Files.lines(file.toPath())
+		            .filter(line -> line.trim().startsWith(value))
+		            .collect(Collectors.toList());
+		    } catch (Exception e) {
+		        e.printStackTrace();
+		    }
+		if(!lines.isEmpty())
+			return true;
+		return false;	
+	}
+	
+	/**
+	 * is line in file start with string
+	 * @param value
+	 * @param file
+	 * @return
+	 */
+	protected static boolean isLineInFileStartWithString(String value, File file) {
+		List<String> lines = new ArrayList<String>();
+		try (Stream<String> stream = Files.lines(file.toPath())) {
+				lines = Files.lines(file.toPath())
+		            .filter(line -> line.trim().startsWith(value))
+		            .collect(Collectors.toList());
+		    } catch (Exception e) {
+		        e.printStackTrace();
+		    }
+		if(!lines.isEmpty())
+			return true;
+		return false;	
 	}
 }
