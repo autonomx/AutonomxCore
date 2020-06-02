@@ -104,7 +104,9 @@ public class WebCapability {
 		Map<String, Object> propertiesMap = TestObject.getTestInfo().config;
 		Map<String, Object> chromePreferences = new HashMap<>();
 
-		FirefoxProfile fireFoxProfile = new FirefoxProfile();
+		FirefoxProfile fireFoxProfile = null;
+		if(isFirefox())
+			fireFoxProfile = new FirefoxProfile();
 
 		// load config/properties values from entries with "chrome.pref." or
 		// "firefox.pref." prefix

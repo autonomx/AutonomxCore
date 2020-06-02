@@ -480,7 +480,12 @@ public class UtilityHelper {
 		Helper.wait.waitForSeconds(3);
 		return destFile;
 	}
-
+	
+	/**
+	 * gets the list of files tye: file type. eg. ".csv"
+	 * 
+	 * @return
+	 */
 	protected static ArrayList<File> getFileListByType(String directoryPath, String type) {
 		return getFileListByType(directoryPath, type, false);
 	}

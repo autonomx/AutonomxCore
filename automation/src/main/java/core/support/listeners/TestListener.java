@@ -217,6 +217,9 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		// print out console logs to console if batch logging is enabled
 		TestLog.printBatchLogsToConsole();
+		
+		// quit current driver after failure
+		Helper.quitCurrentDriver();
 	}
 
 	@Override
@@ -234,8 +237,8 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		// stop screen recording if enabled
 		ScreenRecorderHelper.stopRecording();
 
-		// Extentreports log operation for skipped tests.
-		// ExtentTestManager.getTest().log(LogStatus.SKIP, "Test Skipped");
+		// quit current driver after failure
+		Helper.quitCurrentDriver();
 	}
 
 	@Override

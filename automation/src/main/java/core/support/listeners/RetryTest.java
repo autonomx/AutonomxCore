@@ -110,9 +110,6 @@ public class RetryTest implements IRetryAnalyzer {
 			logReport(ReportType.fail, "giving up after " + (maxRetryCount + 1) + " failures", null);
 			logError("giving up after " + (maxRetryCount + 1) + " failures");
 		}
-		
-		// quit current driver after failure
-		Helper.quitCurrentDriver();
 
 		return maxRetryCount;
 	}
