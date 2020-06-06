@@ -186,17 +186,20 @@ public class WebDriverSetup {
 		boolean isProxyEnabled = Config.getBooleanValue(TestObject.PROXY_ENABLED);
 
 		// set proxy if enabled. catch errors if version change (since we use Latest version)
-		if (isProxyEnabled) {
+		if (isProxyEnabled && !proxyServer.isEmpty() && !proxyPort.isEmpty()) {
 			try {
-				manager = manager.proxy(proxyServer + ":" + proxyPort).proxyUser(proxyUser).proxyPass(proxyPassword)
-						.timeout(timeout_seconds);
+				manager = manager.proxy(proxyServer + ":" + proxyPort);
+				
+				if(!proxyUser.isEmpty() || !proxyPassword.isEmpty()) {
+					manager = manager.proxyUser(proxyUser).proxyPass(proxyPassword);
+				}
 			} catch (java.lang.NoSuchMethodError er) {
 				er.getMessage();
 			} catch (Exception e) {
 				e.getMessage();
 			}
 		}
-		manager.driverVersion(driverObject.driverVersion).setup();
+		manager.driverVersion(driverObject.driverVersion).timeout(timeout_seconds).setup();
 	}
 
 	public String getServerUrl() {

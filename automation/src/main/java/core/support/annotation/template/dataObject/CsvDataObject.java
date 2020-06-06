@@ -124,6 +124,8 @@ public class CsvDataObject {
 		bw.append("import org.testng.annotations.DataProvider;" + "\n");
 		bw.append("import core.helpers.Helper;" + "\n");
 		bw.append("import core.helpers.csvHelper.CsvObject;" + "\n");
+		bw.append("import core.apiCore.helpers.DataHelper;" + "\n");
+		
 		bw.newLine();
 		bw.newLine();
 
@@ -193,8 +195,7 @@ public class CsvDataObject {
 				value = csvDataWithHeader.get(rowIndex)[columnIndex];
 
 				// replace keyword values . <_@Rand4>. same as service level tests
-				value = DataHelper.replaceParameters(value);
-				bw.append("	  " + csvName.toLowerCase() + "." + column + " = \"" + value + "\";" + "\n");
+				bw.append("	  " + csvName.toLowerCase() + "." + column + " = DataHelper.replaceParameters(\"" + value + "\");" + "\n");
 			}
 
 			// if '@id' field does not exist, set id as empty
