@@ -108,6 +108,8 @@ public class ServiceRunner {
 		bw.append("import core.support.objects.ServiceObject;" + "\n");
 		bw.append("import core.uiCore.drivers.AbstractDriverTestNG;" + "\n");
 		bw.append("import core.apiCore.ServiceManager;" + "\n");
+		bw.append("import core.support.objects.TestObject;" + "\n");
+	
 		// add the service imports
 		for (Entry<String, List<String>> entry : serviceMap.entrySet()) {
 			for (String element : entry.getValue()) {
@@ -196,17 +198,20 @@ public class ServiceRunner {
 		bw.append("				TestLog.logPass(\"******** Starting Step \" +  (i+1) + \" **********\");" + " \n");
 		bw.append("				Object[] steps = (Object[]) teststeps.get(i); " + " \n");
 		bw.append("				ServiceObject stepObject = CsvReader.mapToServiceObject(steps);" + " \n");
-		bw.append("				runInterface(stepObject);" + " \n");
+		bw.append("				TestObject.getTestInfo().activeServiceObject = stepObject;" + " \n");
+		bw.append("				runInterface();" + " \n");
 		bw.append("			}" + " \n");
-		bw.append("		}else" + " \n");
-		bw.append("			runInterface(serviceObject);" + " \n");
+		bw.append("		}else{" + " \n");
+		bw.append("			TestObject.getTestInfo().activeServiceObject = serviceObject;" + " \n");
+		bw.append("			runInterface();" + " \n");
+		bw.append("		}" + " \n");
 		bw.append("	}" + " \n");
 		bw.newLine();
 		bw.newLine();
 
 		/**
 		 * 
-		 * public static void runInterface(ServiceObject serviceObject) throws Exception
+		 * public static void runInterface() throws Exception
 		 * {
 		 * 
 		 * switch (serviceObject.getInterfaceType()) { case TEST_INTERFACE: new
@@ -214,9 +219,11 @@ public class ServiceRunner {
 		 * ServiceManager.TestRunner(serviceObject); break; }
 		 */
 
-		bw.append("public static void runInterface(ServiceObject serviceObject) throws Exception {" + " \n");
+		bw.append("public static void runInterface() throws Exception {" + " \n");
 		bw.newLine();
 		bw.newLine();
+		
+		bw.append("		ServiceObject serviceObject = TestObject.getTestInfo().activeServiceObject;" + " \n");
 		bw.append("		TestLog.logPass(\"description: \" + serviceObject.getDescription());" + " \n");
 		bw.append("		switch (serviceObject.getInterfaceType()) {");
 

@@ -27,7 +27,6 @@ import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -390,7 +389,6 @@ public class UtilityHelper {
 	 * @return
 	 */
 	protected static String getRootDir() {
-		
 		if(PropertiesReader.LOCAL_ROOT_PATH !=  null && !PropertiesReader.LOCAL_ROOT_PATH.isEmpty()) {
 			return PropertiesReader.LOCAL_ROOT_PATH;
 		}
@@ -414,18 +412,6 @@ public class UtilityHelper {
 		return StringUtils.EMPTY;
 	}
 	
-	private static File discoverRootDir() {
-		List<File> files = new ArrayList<File>();
-		files = Helper.getFileListWithSubfolders(".", ".xml", files);
-		for(File file: files) {
-			if(file.getName().equals("pom.xml") && (file.getParentFile().getName().equals("automation") || file.getParentFile().getName().equals(".")))
-				return file.getParentFile();
-		}
-		
-		Helper.assertFalse("pom file not found: base: " + new File(".").getAbsolutePath());
-		return null;
-	}
-
 	
 	protected static boolean isFilenameInDir(File dir, String name) {
 		if(dir.isFile() && dir.getName().contains(name)) 
@@ -586,16 +572,30 @@ public class UtilityHelper {
 		if(!directoryPath.contains(Helper.getRootDir()))
 			directoryPath = Helper.getRootDir() + directoryPath;
 		
-		File folder = new File(directoryPath);
-		File[] listOfFiles = folder.listFiles();
-		ArrayList<File> testFiles = new ArrayList<File>();
-
+		List<File> listOfFiles = new ArrayList<File>();
+		listOfFiles = Helper.getFileListWithSubfolders(directoryPath, listOfFiles);
+		
 		// fail test if no csv files found
 		if (listOfFiles == null) {
 			Helper.assertFalse("test files not found at path: " + directoryPath);
 		}
-		testFiles = new ArrayList<>(Arrays.asList(listOfFiles));
-		return testFiles;
+		return (ArrayList<File>) listOfFiles;
+	}
+	
+	private static File discoverRootDir() {
+		List<File> files = new ArrayList<File>();
+		files = Helper.getFileListWithSubfolders(".", ".xml", files);
+		for(File file: files) {
+			if(file.getName().equals("pom.xml") && (file.getParentFile().getName().equals("automation") || file.getParentFile().getName().equals(".")))
+				return file.getParentFile();
+		}
+		
+		Helper.assertFalse("pom file not found: base: " + new File(".").getAbsolutePath());
+		return null;
+	}
+	
+	protected static List<File> getFileListWithSubfolders(String directoryName, List<File> files) {
+		return getFileListWithSubfolders(directoryName, StringUtils.EMPTY, files);
 	}
 
 	/**
@@ -610,7 +610,9 @@ public class UtilityHelper {
 		File[] fList = directory.listFiles();
 		if (fList != null)
 			for (File file : fList) {
-				if (file.isFile() && file.getName().endsWith(type)) {
+				if(file.isFile() && type.isEmpty())
+					files.add(file);
+				else if (file.isFile() && !type.isEmpty() && file.getName().endsWith(type)) {
 					files.add(file);
 				} else if (file.isDirectory()) {
 					getFileListWithSubfolders(file.getAbsolutePath(), type, files);

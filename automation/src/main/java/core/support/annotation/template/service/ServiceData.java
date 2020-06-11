@@ -128,6 +128,7 @@ public class ServiceData {
 		if (parameters.size() > 0)
 			bw.append("import core.support.configReader.Config;" + "\n");
 		bw.append("import core.support.objects.ServiceObject;" + "\n");
+		bw.append("import core.support.objects.TestObject;" + "\n");
 		bw.newLine();
 		bw.newLine();
 
@@ -162,9 +163,9 @@ public class ServiceData {
 //		}
 		bw.append("public void build ()" + "\n");
 		bw.append("{" + "\n");
-		bw.append("    ServiceObject serviceObject = getServiceObject();" + "\n");
 		bw.append("    try {" + "\n");
-		bw.append("    		ServiceRunner.runInterface(serviceObject);" + "\n");
+		bw.append("			TestObject.getTestInfo().activeServiceObject = getServiceObject();" + " \n");
+		bw.append("    		ServiceRunner.runInterface();" + "\n");
 		bw.append("    	   } catch (Exception e) {" + "\n");
 		bw.append("    		e.printStackTrace();" + "\n");
 		bw.append("	   }" + "\n");

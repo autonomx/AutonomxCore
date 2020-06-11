@@ -26,6 +26,7 @@ import core.helpers.emailHelper.EmailObject;
 import core.helpers.emailHelper.EmailSendHelper;
 import core.helpers.excelHelper.ExcelHelper;
 import core.helpers.excelHelper.ExcelObject;
+import core.support.objects.KeyValue;
 import core.uiCore.webElement.EnhancedBy;
 import core.uiCore.webElement.EnhancedWebElement;
 import io.appium.java_client.android.AndroidDriver;
@@ -2730,6 +2731,15 @@ public class Helper {
 	public static ArrayList<File> getFileList(String directoryPath) {
 		return UtilityHelper.getFileList(directoryPath);
 	}
+	
+	/**
+	 * gets list of files including from sub folder based on type. eg. ".csv"
+	 * 
+	 * @return
+	 */
+	public static List<File> getFileListWithSubfolders(String directoryName, List<File> files) {
+		return UtilityHelper.getFileListWithSubfolders(directoryName, files);
+	}
 
 	/**
 	 * gets list of files including from sub folder based on type. eg. ".csv"
@@ -2922,6 +2932,18 @@ public class Helper {
 	public static void runApiEquals(String identifier, String value, String getApi, String targetApiId, String variable,
 			String targerApi) throws JSONException {
 		RestApiHelper.runApiEquals(identifier, value, getApi, targetApiId, variable, targerApi);
+	}
+	
+	/**
+	 * runs method from external class
+	 * @param sourceFile
+	 * @param methodName
+	 * @param parameterList
+	 * @return
+	 * @throws Exception
+	 */
+	public static Object runExternalClass(File sourceFile, String methodName, List<KeyValue> parameterList) throws Exception {
+		return ExternalClassHelper.runExternalClass(sourceFile, methodName, parameterList);
 	}
 
 }

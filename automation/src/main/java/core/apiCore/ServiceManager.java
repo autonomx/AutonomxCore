@@ -1,6 +1,7 @@
 package core.apiCore;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -73,9 +74,25 @@ public class ServiceManager {
 	public static final String OPTION_RETRY_AFTER_SECONDS = "RETRY_AFTER_SECONDS";
 	public static final String SERVICE_RETRY_COUNT = "service.retry.count";
 	public static final String SERVICE_RETRY_AFTER_SERCONDS = "service.retry.after.seconds";
-	
+
 	public static final String DEPENDS_ON_TEST = "DEPENDS_ON_TEST";
 
+	/**
+	 * included generated interface from the client as well as existing interfaces
+	 * @throws Exception
+	 */
+	public static void runCombinedInterface() throws Exception {
+		String path = "target" + File.separator + "generated-sources" + File.separator + "annotations";
+		String filename = "ServiceRunner";
+		File file = Helper.getFileByName(path, filename);
+		
+		if(file.exists()) {
+			List<KeyValue> parameterList = new ArrayList<KeyValue>();
+			Helper.runExternalClass(file, "runInterface", parameterList);
+		}
+		else 
+			runInterface(TestObject.getTestInfo().activeServiceObject);
+	}
 
 	public static void runInterface(ServiceObject serviceObject) throws Exception {
 		runCsvInterface(serviceObject);
@@ -305,7 +322,8 @@ public class ServiceManager {
 			testServiceObject.withParent(parent);
 			try {
 				new AbstractDriverTestNG().setupApiDriver(testServiceObject);
-				runInterface(testServiceObject);
+				TestObject.getTestInfo().activeServiceObject = testServiceObject;
+				runCombinedInterface();
 			} catch (Exception e) {
 				e.printStackTrace();
 				Helper.assertFalse(e.getMessage());
@@ -334,6 +352,7 @@ public class ServiceManager {
 
 		TestObject.getTestInfo().serviceObject = serviceObject;
 	}
+
 	/**
 	 * set run count for individual test case
 	 * 
@@ -350,6 +369,10 @@ public class ServiceManager {
 			return;
 		}
 
+		// store value to config directly using format: value:<$key> separated by colon
+		// ';'
+		DataHelper.saveDataToConfig(serviceObject.getOption());
+
 		// replace parameters for request body
 		serviceObject.withOption(DataHelper.replaceParameters(serviceObject.getOption()));
 
@@ -364,9 +387,9 @@ public class ServiceManager {
 			case DEPENDS_ON_TEST:
 				String testname = keyword.value.toString();
 				List<TestObject> childTests = ApiTestDriver.getParentTestObject(serviceObject).testObjects;
-				for(TestObject test: childTests) {
+				for (TestObject test : childTests) {
 					boolean isPass = test.caughtThrowable == null;
-					if(test.getTestName().equals(testname) && !isPass)
+					if (test.getTestName().equals(testname) && !isPass)
 						throw new SkipException("depends on failed test: " + testname);
 				}
 				break;
@@ -375,12 +398,11 @@ public class ServiceManager {
 			}
 		}
 	}
-	
+
 	/**
 	 * reset option values to default from config
 	 */
 	private static void resetOptions() {
 		// reset options
 	}
-	
 }

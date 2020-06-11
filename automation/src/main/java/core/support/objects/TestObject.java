@@ -103,6 +103,7 @@ public class TestObject {
 	public int testCountInCsvFile = 0; // test count in csv file
 	public String testCsvFileName = StringUtils.EMPTY;
 	public ServiceObject serviceObject = new ServiceObject();
+	public ServiceObject activeServiceObject = new ServiceObject(); // current service object, can be before/after test/suite 
 
 	public Description description;
 	public Throwable caughtThrowable = null;

@@ -3,8 +3,11 @@ package core.apiCore.interfaces;
 import static io.restassured.RestAssured.given;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -50,7 +53,6 @@ public class RestApiInterface {
 	public static final String API_PAGINATION_COUNTER = "PAGINATION";
 
 	public static final String API_PARAMETER_ENCODING = "api.encoding.parameter";
-	public static final String API_URL_ENCODING = "api.encoding.url";
 
 	public static final String API_BASE_URL = "api.uriPath";
 
@@ -362,10 +364,6 @@ public class RestApiInterface {
 		request.port(aURL.getPort());
 		request.basePath(aURL.getPath());
 
-		// set url encoding
-		boolean urlEncoding = Config.getBooleanValue(API_URL_ENCODING);
-		request = request.urlEncodingEnabled(urlEncoding);
-
 		return request;
 	}
 
@@ -577,20 +575,28 @@ public class RestApiInterface {
 			Helper.assertFalse(
 					"query parameters are wrong format: " + aURL.getQuery() + ". should be \"key=value&key2=value2\"");
 
+		// if encoding enabled, query parameters will be encoded
+		boolean paramterEncoding = Config.getBooleanValue(API_PARAMETER_ENCODING);
+
 		for (String queryParameter : queryParameters) {
-			String[] query = queryParameter.split("=");
+			String[] query = queryParameter.split("=", 2);
 			if (query.length == 0)
 				Helper.assertFalse("query parameters are wrong format: " + aURL.getQuery()
 						+ ". should be \"key=value&key2=value2\"");
 			if (query.length == 1)
 				request = request.given().queryParam(query[0], "");
-			else
-				request = request.given().queryParam(query[0], query[1]);
+			else {
+				if (paramterEncoding) {
+					try {
+						request = request.given().queryParam(query[0],
+								URLEncoder.encode(query[1], StandardCharsets.UTF_8.toString()));
+					} catch (UnsupportedEncodingException e) {
+						e.printStackTrace();
+					}
+				} else
+					request = request.given().queryParam(query[0], query[1]);
+			}
 		}
-
-		// set parameter encoding
-		boolean paramterEncoding = Config.getBooleanValue(API_PARAMETER_ENCODING);
-		request = request.urlEncodingEnabled(paramterEncoding);
 
 		return request;
 	}
