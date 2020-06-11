@@ -577,6 +577,9 @@ public class RestApiInterface {
 
 		// if encoding enabled, query parameters will be encoded
 		boolean paramterEncoding = Config.getBooleanValue(API_PARAMETER_ENCODING);
+		
+		// disable rest assured build in encoding. we will use java utils version
+		request = request.urlEncodingEnabled(false);
 
 		for (String queryParameter : queryParameters) {
 			String[] query = queryParameter.split("=", 2);
