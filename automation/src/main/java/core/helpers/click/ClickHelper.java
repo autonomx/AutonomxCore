@@ -426,7 +426,7 @@ public class ClickHelper extends Element {
 		Helper.wait.waitForSeconds(seconds);
 		action.release(targetElement.get(index)).perform();
 	}
-
+	
 	/**
 	 * drag And drop from src element to target element
 	 * 
@@ -434,13 +434,23 @@ public class ClickHelper extends Element {
 	 * @param target
 	 */
 	public void dragAndDrop(EnhancedBy src, EnhancedBy target) {
+		dragAndDrop(src,0,target, 0);
+	}
+
+	/**
+	 * drag And drop from src element to target element
+	 * 
+	 * @param src
+	 * @param target
+	 */
+	public void dragAndDrop(EnhancedBy src, int srcIndex, EnhancedBy target, int targetIndex) {
 		Helper.wait.waitForElementToBeClickable(src);
 
 		EnhancedWebElement srcElement = Element.findElements(src);
 		EnhancedWebElement targetElement = Element.findElements(target);
 
 		Actions actions = new Actions(AbstractDriver.getWebDriver());
-		actions.dragAndDrop(srcElement.get(0), targetElement.get(0));
+		actions.dragAndDrop(srcElement.get(srcIndex), targetElement.get(targetIndex));
 		actions.build().perform();
 	}
 

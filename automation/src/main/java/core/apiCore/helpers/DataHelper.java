@@ -1421,7 +1421,7 @@ public class DataHelper {
 		List<String> list = new ArrayList<String>();
 		for (String text : array) {
 			if (text != null && !text.trim().isEmpty()) {
-				list.add(text);
+				list.add(text.trim());
 			}
 		}
 		array = list.toArray(new String[0]);

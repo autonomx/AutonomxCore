@@ -27,6 +27,7 @@ import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -481,16 +482,12 @@ public class UtilityHelper {
 	 * 
 	 * @return
 	 */
-	protected static ArrayList<File> getFileListByType(String directoryPath, String type, boolean includeSubtype) {
+	protected static ArrayList<File> getFileListByType(String directoryPath, String type, boolean includeSubDir) {
 		if(!directoryPath.contains(Helper.getRootDir()))
 			directoryPath = Helper.getRootDir() + directoryPath;
 		
 		ArrayList<File> filteredFiles = new ArrayList<File>();
-		ArrayList<File> testFiles = new ArrayList<File>();
-		if (includeSubtype)
-			testFiles = getFileList(directoryPath, testFiles);
-		else
-			testFiles = getFileList(directoryPath);
+		ArrayList<File> testFiles = getFileList(directoryPath, includeSubDir);
 
 		for (File file : testFiles) {
 			if (file.isFile() && file.getName().endsWith(type)) {
@@ -499,6 +496,23 @@ public class UtilityHelper {
 		}
 		return filteredFiles;
 	}
+	
+	/**
+	 * returns the list of files in directory
+	 * 
+	 * @param directoryPath
+	 * @return
+	 */
+	protected static ArrayList<File> getFileList(String directoryPath, boolean includeSubDir) {
+		ArrayList<File> testFiles = new ArrayList<File>();
+		if (includeSubDir)
+			testFiles = getFileList(directoryPath, testFiles);
+		else
+			testFiles = getFileList(directoryPath);
+		
+		return testFiles;
+	}
+
 
 	/**
 	 * returns the list of files in directory
@@ -549,10 +563,21 @@ public class UtilityHelper {
 	 * @return
 	 */
 	protected static File getFileByName(String path, String filename) {
+		return getFileByName(path, filename, false);
+	}
+
+	/**
+	 * get file by name
+	 * 
+	 * @param path
+	 * @param filename
+	 * @return
+	 */
+	protected static File getFileByName(String path, String filename, boolean includeSubDir) {
 		if(!path.contains(Helper.getRootDir()))
 			path = Helper.getRootDir() + path;
 		
-		List<File> files = Helper.getFileList(path);
+		List<File> files = Helper.getFileList(path, includeSubDir);
 		for (File file : files) {
 			String simplename = file.getName().split("\\.")[0];
 			if (simplename.equals(filename))
@@ -572,14 +597,16 @@ public class UtilityHelper {
 		if(!directoryPath.contains(Helper.getRootDir()))
 			directoryPath = Helper.getRootDir() + directoryPath;
 		
-		List<File> listOfFiles = new ArrayList<File>();
-		listOfFiles = Helper.getFileListWithSubfolders(directoryPath, listOfFiles);
-		
+		File folder = new File(directoryPath);
+		File[] listOfFiles = folder.listFiles();
+		ArrayList<File> testFiles = new ArrayList<File>();
+
 		// fail test if no csv files found
 		if (listOfFiles == null) {
 			Helper.assertFalse("test files not found at path: " + directoryPath);
 		}
-		return (ArrayList<File>) listOfFiles;
+		testFiles = new ArrayList<>(Arrays.asList(listOfFiles));
+		return testFiles;
 	}
 	
 	private static File discoverRootDir() {

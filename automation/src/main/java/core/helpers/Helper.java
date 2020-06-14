@@ -2703,6 +2703,17 @@ public class Helper {
 	public static File getFileByName(String path, String filename) {
 		return UtilityHelper.getFileByName(path, filename);
 	}
+	
+	/**
+	 * get file by name
+	 * 
+	 * @param path
+	 * @param filename
+	 * @return
+	 */
+	public static File getFileByName(String path, String filename, boolean includeSubDir) {
+		return UtilityHelper.getFileByName(path, filename, includeSubDir);
+	}
 
 	/**
 	 * gets the list of files
@@ -2730,6 +2741,16 @@ public class Helper {
 	 */
 	public static ArrayList<File> getFileList(String directoryPath) {
 		return UtilityHelper.getFileList(directoryPath);
+	}
+	
+	/**
+	 * returns the list of files in directory
+	 * 
+	 * @param directoryPath
+	 * @return
+	 */
+	public static ArrayList<File> getFileList(String directoryPath, boolean includeSubDir) {
+		return UtilityHelper.getFileList(directoryPath, includeSubDir);
 	}
 	
 	/**

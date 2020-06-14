@@ -84,7 +84,7 @@ public class ServiceManager {
 	public static void runCombinedInterface() throws Exception {
 		String path = "target" + File.separator + "generated-sources" + File.separator + "annotations";
 		String filename = "ServiceRunner";
-		File file = Helper.getFileByName(path, filename);
+		File file = Helper.getFileByName(path, filename, true);
 		
 		if(file.exists()) {
 			List<KeyValue> parameterList = new ArrayList<KeyValue>();

@@ -281,13 +281,14 @@ public class CsvReader {
 			
 			for (KeyValue keyword : keywords) {		
 				if(keyword.key.equals(ACTION_KEY)) {
+					
+					
 					List<KeyValue> TestIDMap = DataHelper.getValidationMap(keyword.value.toString());
 					if(TestIDMap.isEmpty()) Helper.assertFalse("no csv file specified with action: " + keyword.key);
 					
-					String actionCsvFile = TestIDMap.get(0).key;
-					String[] testIds = TestIDMap.get(0).value.toString().split(",");
-					testIds = DataHelper.removeEmptyElements(testIds);
+					String[] testIds = getTestCaseIds(keyword.value.toString());
 					
+					String actionCsvFile = TestIDMap.get(0).key;
 					List<Object[]> tests = getCsvTestListForTestRunner(csvTestPath, actionCsvFile);
 					
 					// if test row is not External interface, add actions as addition to list of tests
@@ -308,6 +309,23 @@ public class CsvReader {
 		return updateDataList;
 	}
 	
+	
+	/**
+	 * gets a list of test case ids from testFile:testcaseId info
+	 * Used for actions and test base
+	 * testcase ids separated by ","
+	 * format: testFile:testcaseId1,testcaseId2
+	 * @param testFileInfo
+	 * @return
+	 */
+	public static String[] getTestCaseIds(String testFileInfo) {
+		List<KeyValue> TestIDMap = DataHelper.getValidationMap(testFileInfo);
+		if(TestIDMap.isEmpty()) Helper.assertFalse("no csv file specified with action: " + testFileInfo);
+		
+		String[] testIds = TestIDMap.get(0).value.toString().split(",");
+		testIds = DataHelper.removeEmptyElements(testIds);
+		return testIds;
+	}
 	
 	/**
 	 * matches testIds with csv data rows TestId
@@ -478,17 +496,34 @@ public class CsvReader {
 	/**
 	 * gets csv tests list for service tests
 	 * 
-	 * @param csvFile
+	 * @param csvInfo
 	 * @return
 	 */
-	public static List<Object[]> getCsvTestListForTestRunner(String csvDir, String csvFile) {
-		List<Object[]> csvList = new ArrayList<Object[]>();
+	public static List<Object[]> getCsvTestListForTestRunner(String csvDir, String csvInfo) {
+		List<Object[]> updateDataList = new ArrayList<Object[]>();
 		ArrayList<File> testCsvFileList = getCsvFileList(csvDir);
+		
+		List<KeyValue> TestIDMap = DataHelper.getValidationMap(csvInfo);
+		if(TestIDMap.isEmpty()) Helper.assertFalse("no csv file specified with test base: " + csvInfo);
+		
+		String[] testIds = getTestCaseIds(csvInfo);
+		
+		String csvFile = TestIDMap.get(0).key;
+		
 		int fileIndex = getFileIndex(testCsvFileList, csvFile);
 		if(fileIndex == -1)
 			Helper.assertFalse("csv file not found. csv file: " + csvFile + " at location: " + csvDir);
-		csvList = getCsvTestList(testCsvFileList.get(fileIndex));
-		return csvList;
+		List<Object[]> csvList = getCsvTestList(testCsvFileList.get(fileIndex));
+		
+		
+		// if testIds are set, get only the test specified
+		if(testIds.length > 0)	
+			updateDataList.addAll(getMatchingTestId(testIds, csvList));
+		else								
+			updateDataList.addAll(csvList);
+		
+		
+		return updateDataList;
 	}
 
 	/**
@@ -606,6 +641,10 @@ public class CsvReader {
 	 * @return
 	 */
 	public static boolean isValidTestFileType(String filename) {
+		
+		// in case we have filename:testCaseId format
+		String[] filenames = filename.split(":");
+		filename = filenames[0];
 		for (VALID_TEST_FILE_TYPES types : VALID_TEST_FILE_TYPES.values()) {
 			  if(filename.endsWith(types.name()))
 				  return true;
