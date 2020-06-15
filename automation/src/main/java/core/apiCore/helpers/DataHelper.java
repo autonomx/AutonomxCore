@@ -46,6 +46,10 @@ public class DataHelper {
 
 	public static final String TEST_DATA_TEMPLATE_DATA_PATH = "api.templateDataFile";
 
+	public static final String VALIDATION_OR_CONDITION = "_OR_";
+	public static final String VALIDATION_AND_CONDITION = "&&";
+
+	
 	public enum JSON_COMMAND {
 		hasItems, notHaveItems, notEqualTo, equalTo, notContain, contains, containsInAnyOrder, integerGreaterThan,
 		integerLessThan, integerEqual, integerNotEqual, nodeSizeGreaterThan, nodeSizeExact, sequence, jsonbody,
@@ -1256,35 +1260,58 @@ public class DataHelper {
 		// validate response body against expected json string
 		expectedResponse = DataHelper.replaceParameters(expectedResponse);
 
-		// separate the expected response by &&
-		String[] criteria = expectedResponse.split("&&");
+		// separate the expected response by && 
+		String[] criteria = expectedResponse.split("(?="+ VALIDATION_AND_CONDITION +")|(?="+ VALIDATION_OR_CONDITION +")");
+		
 
 		// get response body as string
 		logJsonResponse(responseValues);
 
 		for (String criterion : criteria) {
+			boolean isORCondition = criterion.startsWith(VALIDATION_OR_CONDITION);
+			
+			// remove && or _OR_ prefix
+			if(criterion.startsWith(VALIDATION_OR_CONDITION) || criterion.startsWith(VALIDATION_AND_CONDITION)) {
+				criterion = criterion.replaceFirst(VALIDATION_OR_CONDITION, StringUtils.EMPTY);
+				criterion = criterion.replaceFirst(VALIDATION_AND_CONDITION, StringUtils.EMPTY);
+			}
+			
 			Helper.assertTrue("expected response is not valid xml or json, or section identifier, are you missing the section identifier? eg. _VERIFY_JSON_PART_:  " + criterion,
 					isValidExpectation(criterion));
 
-			// convert xml string to json for validation
-			if (XmlHelper.isValidXmlString(criterion)) {
-				TestLog.ConsoleLog("expected xml: " + ServiceObject.normalize(criterion));
-				boolean isIgnoreNamespace = Config.getBooleanValue(IS_IGNORE_XML_NAMESPACE);
-				if(isIgnoreNamespace)
-					criterion = XmlHelper.removeXmlNameSpace(criterion);
+			//convert xml string to json for validation
+			criterion = convertXmlResponseToJson(criterion);
 
-				criterion = JsonHelper.XMLToJson(criterion);
-				TestLog.ConsoleLog(
-						"expected value converted to json for validation: " + ServiceObject.normalize(criterion));
-			}
-
-			errorMessages.addAll(validateExpectedResponse(criterion, responseValues));
+			List<String> errors = validateExpectedResponse(criterion, responseValues);
+			if(isORCondition && errors.isEmpty())
+				errorMessages = new ArrayList<String>();
+			else
+				errorMessages.addAll(errors);
 		}
 		// remove all empty response strings
 		errorMessages = removeEmptyElements(errorMessages);
 		return errorMessages;
 	}
+	
+	/**
+	 * convert xml string to json for validation
+	 * @param xmlString
+	 * @return
+	 */
+	private static String convertXmlResponseToJson(String xmlString){
+		if (!XmlHelper.isValidXmlString(xmlString)) return xmlString;
+		
+		TestLog.ConsoleLog("expected xml: " + ServiceObject.normalize(xmlString));
+		boolean isIgnoreNamespace = Config.getBooleanValue(IS_IGNORE_XML_NAMESPACE);
+		if(isIgnoreNamespace)
+			xmlString = XmlHelper.removeXmlNameSpace(xmlString);
 
+		xmlString = JsonHelper.XMLToJson(xmlString);
+		TestLog.ConsoleLog(
+				"expected value converted to json for validation: " + ServiceObject.normalize(xmlString));
+
+		return xmlString;
+	}
 	public static void logJsonResponse(List<String> responseValues) {
 		List<String> updatedList = new ArrayList<String>();
 		for (String response : responseValues) {
