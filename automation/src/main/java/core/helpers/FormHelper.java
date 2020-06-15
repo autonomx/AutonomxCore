@@ -592,4 +592,28 @@ public class FormHelper {
 		EnhancedWebElement targetElement = Element.findElements(element);
 		return targetElement.getText(index);
 	}
+	
+	/**
+	 * attempts to set text value on element, if not successful, then element is not editable
+	 * @param element
+	 * @param index
+	 * @return
+	 */
+	public boolean isElementEditable(EnhancedBy element) {
+		return isElementEditable(element, 0);
+	}
+	
+	/**
+	 * attempts to set text value on element, if not successful, then element is not editable
+	 * @param element
+	 * @param index
+	 * @return
+	 */
+	public boolean isElementEditable(EnhancedBy element, int index) {
+		Helper.setField(element, "test");
+		String value = Helper.getTextValue(element);
+		if(value.equals("test"))
+			return true;
+		return false;
+	}
 }

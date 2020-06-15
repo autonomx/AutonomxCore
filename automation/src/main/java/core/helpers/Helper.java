@@ -913,6 +913,26 @@ public class Helper {
 	public static String getTextValue(EnhancedBy element, int index) {
 		return form.getTextValue(element, index);
 	}
+	
+	/**
+	 * attempts to set text value on element, if not successful, then element is not editable
+	 * @param element
+	 * @param index
+	 * @return
+	 */
+	public boolean isElementEditable(EnhancedBy element) {
+		return isElementEditable(element);
+	}
+	
+	/**
+	 * attempts to set text value on element, if not successful, then element is not editable
+	 * @param element
+	 * @param index
+	 * @return
+	 */
+	public boolean isElementEditable(EnhancedBy element, int index) {
+		return isElementEditable(element, index);
+	}
 
 	// ListHelper
 
