@@ -21,6 +21,7 @@ import core.apiCore.interfaces.TestPrepare;
 import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.configReader.PropertiesReader;
+import core.support.logger.TestLog;
 import core.support.objects.DriverObject;
 import core.support.objects.KeyValue;
 import core.support.objects.ServiceObject;
@@ -130,8 +131,10 @@ public class ServiceManager {
 			// CsvReader.getTestCasesFromCsvFile() method
 			break;
 		default:
-			Helper.assertFalse("no interface found: " + serviceObject.getInterfaceType() + ". Options:"
-					+ "Authentication, RESTfulAPI, SQLDB, RABBITMQ");
+			// if only description is set, the log the description
+			if(serviceObject.getDescription().isEmpty())
+				Helper.assertFalse("no interface found: " + serviceObject.getInterfaceType() + ". Options:"
+					+ "Authentication, RESTfulAPI, SQLDB, RABBITMQ, KAFKA, SERVICEBUS, EXTERNAL");
 			break;
 		}
 	}
