@@ -90,6 +90,9 @@ public class CsvReader {
 		// get the test cases based on specifications from config. eg. single file name, or single test case, or all
 		List<Object[]> testCaseList = updateCsvFileFromFile(updatedCsvList, csvFileName, testCaseFile, testStepMap);
 		
+		// filter tests based on test case range. eg. test2-test10 if specified
+		testCaseList = setTestCaseRange(testCaseFile, testCaseList);
+		
 		List<Object> tests = new ArrayList<Object>();
 		for(Object[] object : testCaseList) {
 			tests.add(object);
@@ -239,16 +242,83 @@ public class CsvReader {
 					csvRow = ArrayUtils.addAll(csvRow, StringUtils.EMPTY);
 			}
 			
-			// for single test case selection. Both test case file And test case have to be
-			// set
-			String testCase = Config.getValue(TestDataProvider.TEST_CASE);
-			if (testCaseFile.isEmpty() || testCase.isEmpty())
-				testCases.add(csvRow);
-			else if (csvRow[1].equals(testCase)) {
-				testCases.add(csvRow);
+			testCases.add(csvRow);
+		}
+		return testCases;
+	}
+	
+	/**
+	 * gets the list of test cases based on range specified by testcase option
+	 * createUser-createUserInvalidToken, updateUser  or
+	 * 
+	 * @return 
+	 */
+	public static List<Object[]>  setTestCaseRange(String testCaseFile, List<Object[]> csvList) {
+		List<String> testCaseRange = Config.getValueList(TestDataProvider.TEST_CASE);
+		
+		// for test case selection. Both test case file And test case have to be set
+		if(testCaseFile.isEmpty() || testCaseRange.isEmpty())
+			return csvList;
+		
+		List<Object[]> testCases = new ArrayList<>();
+		
+		// iterate through range list and filter list 
+		for(String range : testCaseRange) {		
+			String[] rangeArray = range.split("-");		
+			testCases.addAll(getTestCasesInRange(csvList, rangeArray));
+		}
+		
+		return testCases;
+	}
+	
+	
+	/**
+	 * get list of test cases in range
+	 * eg. test1-test5
+	 * @param csvList
+	 * @param range
+	 * @return
+	 */
+	private static List<Object[]> getTestCasesInRange(List<Object[]> csvList, String[] range) {
+		String testCaseRange = Config.getValue(TestDataProvider.TEST_CASE);
+		List<Object[]> testCases = new ArrayList<>();
+		
+		String startingTestId = range[0].trim();
+		String endTestId = StringUtils.EMPTY;
+		if(range.length == 2)
+			endTestId = range[1].trim();
+		
+		if(range.length > 2)
+			Helper.assertFalse("test case range must be specified. eg. test1-test3. existing value: " + testCaseRange);
+		
+		boolean isWithinRange = false;
+
+		// iterate through tests rows and add tests in between the test id range
+		for (int i = 0; i < csvList.size(); i++) {
+		
+			ServiceObject service = CsvReader.mapToServiceObject(csvList.get(i));
+		
+			// if no range specified, only include the specified test case
+			if(range.length == 1 && service.getTestCaseID().equals(startingTestId)) {
+				testCases.add(csvList.get(i));
 				return testCases;
 			}
-		}
+			
+			// add tests that are within testcase id range. eg. test1-test10
+			if(range.length == 2) {
+				if(service.getTestCaseID().equals(startingTestId))
+					isWithinRange = true;
+				
+				if(isWithinRange)
+					testCases.add(csvList.get(i));
+				
+				if(service.getTestCaseID().equals(endTestId) && isWithinRange) {
+					isWithinRange = false;
+					break;
+				}
+			}
+			
+		}	
 		return testCases;
 	}
 	

@@ -2,7 +2,6 @@ package core.support.annotation.template.service;
 
 import java.io.BufferedWriter;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -11,13 +10,9 @@ import javax.tools.JavaFileObject;
 
 import org.apache.commons.lang3.StringUtils;
 
-import core.apiCore.helpers.CsvReader;
 import core.support.annotation.helper.FileCreatorHelper;
 import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PackageHelper;
-import core.support.logger.TestLog;
-import core.support.objects.ServiceObject;
-import core.support.objects.TestObject;
 
 public class ServiceRunner {
 
@@ -192,9 +187,9 @@ public class ServiceRunner {
 				Object[] steps = (Object[]) teststeps.get(i);  
 				ServiceObject stepObject = CsvReader.mapToServiceObject(steps); 
 				if(serviceObject.getInterfaceType().isEmpty() && !stepObject.getInterfaceType().isEmpty())
-					TestLog.logPass("******** Starting Step " +  (i) + " **********"); 
+					TestLog.logPass("******** Starting Step (" +  i + ") **********"); 
 				else if(!serviceObject.getInterfaceType().isEmpty())
-					TestLog.logPass("******** Starting Step " +  (i+1) + " **********"); 
+					TestLog.logPass("******** Starting Step (" +  i+1 + ") **********"); 
 				TestObject.getTestInfo().activeServiceObject = stepObject; 
 				runInterface(); 
 			} 
@@ -212,9 +207,9 @@ public class ServiceRunner {
 		bw.append("				Object[] steps = (Object[]) teststeps.get(i); " + " \n");
 		bw.append("				ServiceObject stepObject = CsvReader.mapToServiceObject(steps);" + " \n");
 		bw.append("				if(serviceObject.getInterfaceType().isEmpty() && !stepObject.getInterfaceType().isEmpty())" + " \n");
-		bw.append("					TestLog.logPass(\"******** Starting Step \" +  (i) + \" **********\");" + " \n");
+		bw.append("					TestLog.logPass(\"******** Starting Step \" +  i + \" **********\");" + " \n");
 		bw.append("				else if(!serviceObject.getInterfaceType().isEmpty())" + " \n");
-		bw.append("					TestLog.logPass(\"******** Starting Step \" +  (i+1) + \" **********\");" + " \n");
+		bw.append("					TestLog.logPass(\"******** Starting Step \" +  i+1 + \" **********\");" + " \n");
 		bw.append("				TestObject.getTestInfo().activeServiceObject = stepObject;" + " \n");
 		bw.append("				runInterface();" + " \n");
 		bw.append("			}" + " \n");

@@ -21,7 +21,6 @@ import core.apiCore.interfaces.TestPrepare;
 import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.configReader.PropertiesReader;
-import core.support.logger.TestLog;
 import core.support.objects.DriverObject;
 import core.support.objects.KeyValue;
 import core.support.objects.ServiceObject;
