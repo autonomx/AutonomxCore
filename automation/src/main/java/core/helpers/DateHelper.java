@@ -20,6 +20,10 @@ import core.support.objects.DateFormats;
 
 public class DateHelper {
 	
+	public static String EPOCH_SECONDS = "epochS";
+	public static String EPOCH_MILLISECONDS = "epochMS";
+
+	
 	// get time in milliseconds
 	public String getTimestampMiliseconds() {
 		return getTime("yyyyMMddHHmmssSSSSS");

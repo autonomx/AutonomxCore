@@ -80,6 +80,10 @@ public class DataHelper {
 				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING));
 				Instant time = Instant.parse(newTime);
 				value = getTimeSubstring(parameter, String.valueOf(time.toEpochMilli()));
+			}else if (parameter.contains("_TIME_S_")) {
+					newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING));
+					Instant time = Instant.parse(newTime);
+					value = getTimeSubstring(parameter, String.valueOf(time.getEpochSecond()));
 			} else if (parameter.contains("_TIME_STRING_")) {
 				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING));
 				value = getTimeSubstring(parameter, Helper.date.getTime(newTime, "yyyyMMddHHmmssSSS", null));
