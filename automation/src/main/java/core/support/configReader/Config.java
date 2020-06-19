@@ -43,7 +43,7 @@ public class Config {
 	 * @return string value of property file
 	 */
 	private static String getStringProperty(String key, Properties property) {
-		if (!MavenReader.getStringProperty(key).isEmpty()) {
+		if (StringUtils.isNotBlank(MavenReader.getStringProperty(key))) {
 			return MavenReader.getStringProperty(key);
 		}
 		if (!PropertiesReader.getStringProperty(key, property).isEmpty()) {
@@ -289,6 +289,9 @@ public class Config {
 	public static String getValue(String key, boolean isFailable) {
 
 		Object value = TestObject.getTestInfo().config.get(key);
+		if(value == null) 
+				value =  MavenReader.getStringProperty(key);
+	
 		if (value == null) {
 			if (isFailable)
 				Helper.assertFalse("value not found, default empty: " + key);

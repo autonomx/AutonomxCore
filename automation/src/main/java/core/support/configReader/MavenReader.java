@@ -26,11 +26,11 @@ public class MavenReader {
 	 */
 	public static String getStringProperty(String key) {
 		try {
-			return System.getProperty(key, "").replace("\"", "").trim();
+			return System.getProperty(key).replace("\"", "").trim();
 		} catch (Exception e) {
 			e.getMessage();
 		}
-		return "";
+		return null;
 	}
 
 	/**
