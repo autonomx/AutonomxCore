@@ -53,7 +53,7 @@ public class DataHelper {
 	public enum JSON_COMMAND {
 		hasItems, notHaveItems, notEqualTo, equalTo, notContain, contains, containsInAnyOrder, integerGreaterThan,
 		integerLessThan, integerEqual, integerNotEqual, nodeSizeGreaterThan, nodeSizeExact, sequence, jsonbody,
-		isNotEmpty, isEmpty, nodeSizeLessThan, isBetweenDate, allValuesEqualTo, countGreaterThan, countLessThan, countExact, command, notContains, contain
+		isNotEmpty, isEmpty, nodeSizeLessThan, isBetweenDate, allValuesEqualTo, countGreaterThan, countLessThan, countExact, command, notContains, contain, isDateAfter, isDateBefore
 	}
 
 	public static String replaceParameters(String source) {
@@ -769,6 +769,47 @@ public class DataHelper {
 
 				if (!val)
 					return Arrays.toString(actualArray.toArray()) + " is not in between dates: "
+							+ Arrays.toString(expectedArray.toArray());
+			}
+			break;
+		case isDateAfter:
+			if (!position.isEmpty() && positionInt > 0) { // if position is provided
+				TestLog.logPass("verifying date: " + actualString + " is after date: " + expectedString);
+				val = Helper.date.isDateAfter(actualString, expectedString);
+				if (!val)
+					return actualString + " is after date: " + expectedString;
+			} else if (!position.isEmpty() && positionInt == 0) {
+				TestLog.logPass("verifying date: " + responseString + " is after date: " + expectedString);
+				val = Helper.date.isDateAfter(responseString, expectedString);
+				if (!val)
+					return responseString + " is not after date: " + expectedString;
+			} else {
+				TestLog.logPass("verifying date: " + Arrays.toString(actualArray.toArray()) + " is after date: "
+						+ Arrays.toString(expectedArray.toArray()));
+				val = Helper.date.isDateAfter(actualArray, expectedString);
+				if (!val)
+					return Arrays.toString(actualArray.toArray()) + " is after date: "
+							+ Arrays.toString(expectedArray.toArray());
+			}
+			break;
+			
+		case isDateBefore:
+			if (!position.isEmpty() && positionInt > 0) { // if position is provided
+				TestLog.logPass("verifying date: " + actualString + " is before date: " + expectedString);
+				val = Helper.date.isDateBefore(actualString, expectedString);
+				if (!val)
+					return actualString + " is before date: " + expectedString;
+			} else if (!position.isEmpty() && positionInt == 0) {
+				TestLog.logPass("verifying date: " + responseString + " is before date: " + expectedString);
+				val = Helper.date.isDateBefore(responseString, expectedString);
+				if (!val)
+					return responseString + " is not before date: " + expectedString;
+			} else {
+				TestLog.logPass("verifying date: " + Arrays.toString(actualArray.toArray()) + " is before date: "
+						+ Arrays.toString(expectedArray.toArray()));
+				val = Helper.date.isDateBefore(actualArray, expectedString);
+				if (!val)
+					return Arrays.toString(actualArray.toArray()) + " is before date: "
 							+ Arrays.toString(expectedArray.toArray());
 			}
 			break;

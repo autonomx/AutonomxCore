@@ -20,10 +20,6 @@ import core.support.objects.DateFormats;
 
 public class DateHelper {
 	
-	public static String EPOCH_SECONDS = "epochS";
-	public static String EPOCH_MILLISECONDS = "epochMS";
-
-	
 	// get time in milliseconds
 	public String getTimestampMiliseconds() {
 		return getTime("yyyyMMddHHmmssSSSSS");
@@ -205,6 +201,74 @@ public class DateHelper {
 		for(String source : sources ) {
 			LocalDateTime sourceDate = getLocalDateTime(source);
 			if(!(sourceDate.isAfter(date1Date) && sourceDate.isBefore(date2Date)))
+				return false;
+				
+		}
+		return true;
+	}
+	
+	/**
+	 * if date is after target date1
+	 * @param source
+	 * @param date1
+	 * @return
+	 */
+	public boolean isDateAfter(String source, String date1) {
+		LocalDateTime date1Date = getLocalDateTime(date1);
+		
+		LocalDateTime sourceDate = getLocalDateTime(source);
+		if(sourceDate.isAfter(date1Date))
+				return true;
+				
+		return false;
+	}
+	
+	/**
+	 * if date list is after target date1
+	 * @param source
+	 * @param date1
+	 * @return
+	 */
+	public boolean isDateAfter(List<String> sources, String date1) {
+		LocalDateTime date1Date = getLocalDateTime(date1);
+		
+		for(String source : sources ) {
+			LocalDateTime sourceDate = getLocalDateTime(source);
+			if(!(sourceDate.isAfter(date1Date)))
+				return false;
+				
+		}
+		return true;
+	}
+	
+	/**
+	 * if date list is before date1
+	 * @param source
+	 * @param date1
+	 * @return
+	 */
+	public boolean isDateBefore(String source, String date1) {
+		LocalDateTime date1Date = getLocalDateTime(date1);
+		
+		LocalDateTime sourceDate = getLocalDateTime(source);
+		if(sourceDate.isBefore(date1Date))
+				return true;
+				
+		return false;
+	}
+	
+	/**
+	 * if date list is before date1
+	 * @param source
+	 * @param date1
+	 * @return
+	 */
+	public boolean isDateBefore(List<String> sources, String date1) {
+		LocalDateTime date1Date = getLocalDateTime(date1);
+		
+		for(String source : sources ) {
+			LocalDateTime sourceDate = getLocalDateTime(source);
+			if(!(sourceDate.isBefore(date1Date)))
 				return false;
 				
 		}
