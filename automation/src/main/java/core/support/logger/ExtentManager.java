@@ -427,7 +427,7 @@ public class ExtentManager {
 					try {
 						FileUtils.deleteDirectory(file);
 					} catch (IOException e) {
-						e.printStackTrace();
+						e.getMessage();
 					}
 				}
 			}

@@ -691,8 +691,11 @@ public class JsonHelper {
 			return false;
 
 		String jsonNormalized = DataHelper.objectToString(jsonString);
-		if (jsonNormalized.contains(":") && StringUtils.countMatches(jsonNormalized, ":") == 1)
+		String[] keyValues = jsonNormalized.split(",");
+		for(String keyvalue : keyValues) {
+			if (keyvalue.contains(":") && StringUtils.countMatches(keyvalue, ":") == 1)
 			return true;
+		}
 		return false;
 	}
 
