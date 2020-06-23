@@ -21,6 +21,7 @@ import core.apiCore.helpers.DataHelper.JSON_COMMAND;
 import core.apiCore.helpers.JsonHelper;
 import core.helpers.Helper;
 import core.helpers.StopWatchHelper;
+import core.helpers.UtilityHelper;
 import core.support.configReader.Config;
 import core.support.logger.TestLog;
 import core.support.objects.KeyValue;
@@ -55,8 +56,6 @@ public class RestApiInterface {
 	public static final String API_PARAMETER_ENCODING = "api.encoding.parameter";
 
 	public static final String API_BASE_URL = "api.uriPath";
-
-	public static boolean API_AUTO_PROXY_SET = false;
 
 	/**
 	 * interface for restful API calls
@@ -393,18 +392,11 @@ public class RestApiInterface {
 		String host = Config.getValue(TestObject.PROXY_HOST);
 		int port = Config.getIntValue(TestObject.PROXY_PORT);
 		String proxyProtocal = Config.getValue(TestObject.PROXY_PROTOCOL);
-		boolean isProxyAutoDetect = Config.getBooleanValue(TestObject.PROXY_AUTO_DETECT);
 		boolean isProxyEnabled = false;
 
-		// set proxy enabled value based on proxy auto detection. if auto detect
-		// enabled,
-		// attempt to connect to url with proxy info. if able to connect, enable proxy
-		if (isProxyAutoDetect && !API_AUTO_PROXY_SET) {
-			isProxyEnabled = Helper.setProxyAutoDetection(getBaseUrl());
-			API_AUTO_PROXY_SET = true;
-		} else if (!isProxyAutoDetect)
-			isProxyEnabled = Config.getBooleanValue(TestObject.PROXY_ENABLED);
-
+		// detect if proxy is required or not
+		isProxyEnabled = UtilityHelper.isProxyRequired(getBaseUrl());
+		
 		if (!isProxyEnabled)
 			return;
 
@@ -415,6 +407,13 @@ public class RestApiInterface {
 			RestAssured.proxy(host, port, proxyProtocal);
 		else
 			RestAssured.proxy(host, port);
+	}
+	
+	public static boolean getProxyState() {
+		String proxyState = Config.getValue(TestObject.PROXY_ENABLED);
+		if(proxyState.equals("true"))
+			return true;
+		else return false;
 	}
 
 	public static List<String> validateResponse(ServiceObject serviceObject) {

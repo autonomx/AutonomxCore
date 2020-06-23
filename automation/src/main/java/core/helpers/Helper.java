@@ -2441,16 +2441,16 @@ public class Helper {
 	public static boolean isUrlAbleToConnect(URL source, Proxy proxy) {
 		return UtilityHelper.isUrlAbleToConnect(source, proxy);
 	}
-
+	
 	/**
-	 * checks if proxy is required first attempt without proxy, second with proxy,
-	 * checking the validity of the proxy connection
-	 * 
-	 * @param source
+	 * get proxy state from proxy enabled config
+	 * values: true, false, auto
+	 * if auto is set, then through proxy detection, we set value to true or false
+	 * @param url
 	 * @return
 	 */
-	public static boolean setProxyAutoDetection(URL source) {
-		return UtilityHelper.setProxyAutoDetection(source);
+	public static boolean isProxyRequired(URL url) {
+		return UtilityHelper.isProxyRequired(url);
 	}
 
 	/**

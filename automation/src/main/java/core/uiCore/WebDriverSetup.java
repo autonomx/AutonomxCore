@@ -19,6 +19,7 @@ import com.microsoft.appcenter.appium.EnhancedAndroidDriver;
 import com.microsoft.appcenter.appium.Factory;
 
 import core.helpers.Helper;
+import core.helpers.UtilityHelper;
 import core.support.configReader.Config;
 import core.support.configReader.PropertiesReader;
 import core.support.logger.TestLog;
@@ -174,16 +175,13 @@ public class WebDriverSetup {
 		String proxyPassword = Config.getValue(TestObject.PROXY_PASS);
 		boolean isForceCache = Config.getBooleanValue("web.driver.manager.proxy.forceCache");
 		int timeout_seconds = Config.getIntValue("web.driver.manager.timeoutSeconds");
-
+			
 		// force cache, not checking online
 		if (isForceCache)
 			manager = manager.useLocalVersionsPropertiesFirst();
 
-		// set proxy enabled value based on proxy auto detection. if auto detect
-		// enabled,
-		// attempt to connect to url with proxy info. if able to connect, enable proxy
-		Helper.setProxyAutoDetection(driverObject.getInitURL());
-		boolean isProxyEnabled = Config.getBooleanValue(TestObject.PROXY_ENABLED);
+		// detect if proxy is required or not
+		boolean isProxyEnabled = UtilityHelper.isProxyRequired(driverObject.getInitURL());
 
 		// set proxy if enabled. catch errors if version change (since we use Latest version)
 		if (isProxyEnabled && !proxyServer.isEmpty() && !proxyPort.isEmpty()) {
@@ -200,6 +198,13 @@ public class WebDriverSetup {
 			}
 		}
 		manager.driverVersion(driverObject.driverVersion).timeout(timeout_seconds).setup();
+	}
+	
+	public static boolean getProxyState() {
+		String proxyState = Config.getValue(TestObject.PROXY_ENABLED);
+		if(proxyState.equals("true"))
+			return true;
+		else return false;
 	}
 
 	public String getServerUrl() {

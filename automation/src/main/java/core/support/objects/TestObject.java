@@ -52,7 +52,6 @@ public class TestObject {
 	public final static String PROXY_USER = "proxy.username";
 	public final static String PROXY_PASS = "proxy.password";
 	public final static String PROXY_PROTOCOL = "proxy.maven.protocol";
-	public final static String PROXY_AUTO_DETECT = "proxy.auto.detect";
 
 	public static String BEFORE_SUITE_PREFIX = "-Beforesuite";
 	public static String AFTER_SUITE_PREFIX = "-Aftersuite";

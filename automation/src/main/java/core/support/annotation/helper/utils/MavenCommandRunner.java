@@ -26,6 +26,7 @@ import org.apache.maven.shared.invoker.Invoker;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 
 import core.helpers.Helper;
+import core.helpers.UtilityHelper;
 import core.support.configReader.Config;
 import net.lingala.zip4j.ZipFile;
 
@@ -131,6 +132,12 @@ public class MavenCommandRunner {
 		int port = Config.getIntValue("proxy.port");
 		String username = Config.getValue("proxy.username");
 		String password = Config.getValue("proxy.password");
+		
+		// detect if proxy is required or not
+		boolean isProxyEnabled = UtilityHelper.isProxyRequired(source);
+		
+		if (!isProxyEnabled)
+			return;
 
 		if (!username.isEmpty() && !password.isEmpty()) {
 			Authenticator.setDefault(new Authenticator() {

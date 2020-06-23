@@ -1170,6 +1170,37 @@ public class UtilityHelper {
 			return false;
 		}
 	}
+	
+	/**
+	 * get proxy state from proxy enabled config
+	 * values: true, false, auto
+	 * if auto is set, then through proxy detection, we set value to true or false
+	 * @param url
+	 * @return
+	 */
+	public static boolean isProxyRequired(URL url) {
+		String proxyState = Config.getGlobalValue(TestObject.PROXY_ENABLED);
+		boolean isProxyEnabled = false;
+
+		// set proxy enabled value based on proxy auto detection. if auto detect
+		// enabled,
+		// attempt to connect to url with proxy info. if able to connect, enable proxy
+		if (proxyState.equals("auto")) {
+			isProxyEnabled = setProxyAutoDetection(url);
+		} else
+			isProxyEnabled = getProxyState();
+		
+		return isProxyEnabled;
+	}
+	
+	private static boolean getProxyState() {
+		String proxyState = Config.getGlobalValue(TestObject.PROXY_ENABLED);
+		String proxyHost = Config.getValue(TestObject.PROXY_HOST);
+
+		if(proxyState.equals("true") && !proxyHost.isEmpty())
+			return true;
+		else return false;
+	}
 
 	/**
 	 * checks if proxy is required first attempt without proxy, second with proxy,
@@ -1183,7 +1214,6 @@ public class UtilityHelper {
 		Proxy proxy = null;
 
 		String PROXY_ENABLED = TestObject.PROXY_ENABLED;
-		String PROXY_AUTO_DETECT = TestObject.PROXY_AUTO_DETECT;
 		String PROXY_HOST = TestObject.PROXY_HOST;
 		String PROXY_PORT = TestObject.PROXY_PORT;
 		String PROXY_USERNAME = TestObject.PROXY_USER;
@@ -1193,16 +1223,23 @@ public class UtilityHelper {
 		int port = Config.getIntValue(PROXY_PORT);
 		String username = Config.getValue(PROXY_USERNAME);
 		String password = Config.getValue(PROXY_PASSWORD);
-		boolean isProxyAutoDetect = Config.getBooleanValue(PROXY_AUTO_DETECT);
+		String proxyState = Config.getValue(TestObject.PROXY_ENABLED);
+		boolean isProxyAutoDetect = false;
 
+		if(proxyState.equals("auto"))
+			isProxyAutoDetect = true;
+		
 		// return if auto detect proxy is disabled or already set
 		if (!isProxyAutoDetect)
 			return false;
+		
+		TestLog.ConsoleLog("<<<<<<<<<<<<<    proxy auto detect called       >>>>>>>>>>>>>>>.");
 
 		// return false if connection can be established without proxy
 		boolean isValidConnection = isUrlAbleToConnect(source, null);
 		if (isValidConnection) {
-			Config.putValue(PROXY_ENABLED, false);
+			Config.setGlobalValue(PROXY_ENABLED, false);
+			TestLog.ConsoleLog("proxy auto detect: proxy not detected");
 			return false;
 		}
 
@@ -1225,10 +1262,10 @@ public class UtilityHelper {
 		// if connection was established using proxy, then return true
 		if (isValidConnection) {
 			TestLog.ConsoleLog("proxy detected, switching proxy on, host: " + host + " port: " + port);
-			Config.putValue(PROXY_ENABLED, true);
+			Config.setGlobalValue(PROXY_ENABLED, true);
 			return true;
 		} else
-			Config.putValue(PROXY_ENABLED, false);
+			Config.setGlobalValue(PROXY_ENABLED, false);
 		return false;
 	}
 	
