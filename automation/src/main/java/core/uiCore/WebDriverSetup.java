@@ -18,7 +18,6 @@ import org.openqa.selenium.safari.SafariDriver;
 import com.microsoft.appcenter.appium.EnhancedAndroidDriver;
 import com.microsoft.appcenter.appium.Factory;
 
-import core.helpers.Helper;
 import core.helpers.UtilityHelper;
 import core.support.configReader.Config;
 import core.support.configReader.PropertiesReader;
