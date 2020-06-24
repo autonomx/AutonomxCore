@@ -2484,6 +2484,26 @@ public class Helper {
 	public static boolean isFileContainsString(String value, File file) {
 		return UtilityHelper.isLineInFileStartWithString(value, file);
 	}
+	
+	/**
+	 * get line in file starting with string
+	 * @param value
+	 * @param file
+	 * @return
+	 */
+	public static List<String> getLinesInFileStartingWith(String value, File file) {
+		return UtilityHelper.getLinesInFileStartingWith(value, file);
+	}
+	
+	/**
+	 * get line in file containing string
+	 * @param value
+	 * @param file
+	 * @return
+	 */
+	public static List<String> getLinesInFileContainingWith(String value, File file) {
+		return UtilityHelper.getLinesInFileContainingWith(value, file);
+	}
 
 	/**
 	 * normalizes string removes space, new line chars

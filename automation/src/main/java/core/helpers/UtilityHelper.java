@@ -1321,4 +1321,41 @@ public class UtilityHelper {
 			return true;
 		return false;	
 	}
+	
+	
+	/**
+	 * get line in file starting with string
+	 * @param value
+	 * @param file
+	 * @return
+	 */
+	protected static List<String> getLinesInFileStartingWith(String value, File file) {
+		List<String> lines = new ArrayList<String>();
+		try (Stream<String> stream = Files.lines(file.toPath())) {
+				lines = Files.lines(file.toPath())
+		            .filter(line -> line.trim().startsWith(value))
+		            .collect(Collectors.toList());
+		    } catch (Exception e) {
+		        e.printStackTrace();
+		    }
+		return lines;	
+	}
+	
+	/**
+	 * get line in file containing string
+	 * @param value
+	 * @param file
+	 * @return
+	 */
+	protected static List<String> getLinesInFileContainingWith(String value, File file) {
+		List<String> lines = new ArrayList<String>();
+		try (Stream<String> stream = Files.lines(file.toPath())) {
+				lines = Files.lines(file.toPath())
+		            .filter(line -> line.trim().contains(value))
+		            .collect(Collectors.toList());
+		    } catch (Exception e) {
+		        e.printStackTrace();
+		    }
+		return lines;	
+	}
 }
