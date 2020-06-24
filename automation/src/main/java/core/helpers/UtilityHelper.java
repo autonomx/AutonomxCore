@@ -1233,8 +1233,6 @@ public class UtilityHelper {
 		if (!isProxyAutoDetect)
 			return false;
 		
-		TestLog.ConsoleLog("<<<<<<<<<<<<<    proxy auto detect called       >>>>>>>>>>>>>>>.");
-
 		// return false if connection can be established without proxy
 		boolean isValidConnection = isUrlAbleToConnect(source, null);
 		if (isValidConnection) {

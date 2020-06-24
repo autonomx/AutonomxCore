@@ -82,10 +82,10 @@ public class ExternalInterface {
 		String className = methodInfo[0];
 		String methodName = methodInfo[1];
 		TestLog.logPass("invoking method: " + methodName + " at class: " + className);
-		File sourceFile = getExternalMethodFilePath(className);
+		String sourcePath = getExternalMethodPath(className);
 
 		
-		return Helper.runExternalClass(sourceFile, methodName, parameterList);
+		return Helper.runInternalClass(sourcePath, methodName, parameterList);
 	}
 	
 	/**
@@ -95,17 +95,18 @@ public class ExternalInterface {
 	 * @param dirs
 	 * @return
 	 */
-	public static File getExternalMethodFilePath(String classmethod) {
+	public static String getExternalMethodPath(String classmethod) {
 
 		String path = "module" + File.separator + "services" + File.separator + "method";
 		File folder = new File(Helper.getRootDir() + "src" + File.separator + "main");
+		String classPath = "module.services.method." + classmethod;
 
 		List<File> listOfFiles = new ArrayList<File>();
 		listOfFiles = getAllFiles(folder, listOfFiles);
 
 		for (File file : listOfFiles) {
 			if (file.getAbsolutePath().contains(path + File.separator + classmethod))
-				return file;
+				return classPath;
 		}
 
 		Helper.assertFalse("directory for external test method not found: " + path);

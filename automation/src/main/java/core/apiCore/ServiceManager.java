@@ -83,12 +83,13 @@ public class ServiceManager {
 	 */
 	public static void runCombinedInterface() throws Exception {
 		String path = "target" + File.separator + "generated-sources" + File.separator + "annotations";
+		String sourcePath = "serviceManager.ServiceRunner";
 		String filename = "ServiceRunner";
 		File file = Helper.getFileByName(path, filename, true);
 		
 		if(file.exists()) {
 			List<KeyValue> parameterList = new ArrayList<KeyValue>();
-			Helper.runExternalClass(file, "runInterface", parameterList);
+			Helper.runInternalClass(sourcePath, "runInterface", parameterList);
 		}
 		else 
 			runInterface(TestObject.getTestInfo().activeServiceObject);

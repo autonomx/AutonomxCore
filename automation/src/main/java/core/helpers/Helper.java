@@ -3003,8 +3003,8 @@ public class Helper {
 	 * @return
 	 * @throws Exception
 	 */
-	public static Object runExternalClass(File sourceFile, String methodName, List<KeyValue> parameterList) throws Exception {
-		return ExternalClassHelper.runExternalClass(sourceFile, methodName, parameterList);
+	public static Object runInternalClass(String sourcePath, String methodName, List<KeyValue> parameterList) throws Exception {
+		return ExternalClassHelper.runInternalClass(sourcePath, methodName, parameterList);
 	}
 
 }
