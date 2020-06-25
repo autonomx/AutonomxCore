@@ -130,7 +130,7 @@ public class JsonHelper {
 			return null;
 		
 		// return json response without normalizing
-		if (isValidJsonkeyValue(values)) {
+		if (isValidJsonObject(values)) {
 			return values.toString();
 		}
 
@@ -678,10 +678,13 @@ public class JsonHelper {
 	 * checks if json string is a structured json body with key value pairs, or just
 	 * array list. eg: [{"key":"value"}] vs ["value1","value2"]
 	 * 
+	 * 	when syntax is {} then this is JsonObject
+
+		when syntax is [] then this is JsonArray
 	 * @param jsonString
 	 * @return
 	 */
-	public static boolean isValidJsonkeyValue(Object jsonObject) {
+	public static boolean isValidJsonObject(Object jsonObject) {
 		if (jsonObject instanceof Map)
 			jsonObject = new Gson().toJson(jsonObject, Map.class);
 
@@ -689,6 +692,17 @@ public class JsonHelper {
 
 		if (getJsonArray(jsonString) == null && getJsonObject(jsonString) == null)
 			return false;
+		
+		
+		if(jsonString.startsWith("{") && jsonString.endsWith("}")) 
+			return true;
+		
+		if((jsonString.startsWith("[") && jsonString.endsWith("]")) &&
+				jsonString.contains("{") && jsonString.contains("}")) 
+			return true;
+		
+		if(jsonString.startsWith("[") && jsonString.endsWith("]"))
+				return false;
 
 		String jsonNormalized = DataHelper.objectToString(jsonString);
 		String[] keyValues = jsonNormalized.split(",");
