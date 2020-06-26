@@ -310,7 +310,8 @@ public class JsonHelper {
 			String jsonPathResponse = getJsonValue(responseString, jsonPath);
 			
 			// if response is empty and isEmpty command is not used
-			if(jsonPathResponse == null || jsonPathResponse.isEmpty()) {
+			// empty response for custom commands are handle by developer
+			if(StringUtils.isBlank(jsonPathResponse) && !keyword.value.toString().startsWith(DataHelper.JSON_COMMAND.command.name())) {
 				if(!keyword.value.equals(DataHelper.JSON_COMMAND.isEmpty.name()))
 					errorMessages.add("response returned, however, no jsonpath response returned for path: " + jsonPath);
 				continue;
@@ -325,7 +326,7 @@ public class JsonHelper {
 		errorMessages.removeAll(Collections.singleton(""));
 		return errorMessages;
 	}
-
+	
 	/**
 	 * validates json string
 	 * 
