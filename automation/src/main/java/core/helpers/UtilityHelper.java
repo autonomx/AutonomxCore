@@ -538,6 +538,19 @@ public class UtilityHelper {
 			}
 		return files;
 	}
+	
+	/**
+	 * gets full path from relative path
+	 * relative path is from root directory ( where pom.xml file is located )
+	 * @param path
+	 * @return
+	 */
+	protected static String getFullPath(String path) {
+		if(!path.contains(Helper.getRootDir()))
+			path = Helper.getRootDir() + path;
+		
+		return path;	
+	}
 
 	/**
 	 * get file from file path

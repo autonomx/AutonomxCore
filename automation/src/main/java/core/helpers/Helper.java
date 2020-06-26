@@ -2784,6 +2784,16 @@ public class Helper {
 	}
 	
 	/**
+	 * gets full path from relative path
+	 * relative path is from root directory ( where pom.xml file is located )
+	 * @param path
+	 * @return
+	 */
+	public static String getFullPath(String path) {
+		return UtilityHelper.getFullPath(path);
+	}
+	
+	/**
 	 * returns the list of files in directory
 	 * 
 	 * @param directoryPath

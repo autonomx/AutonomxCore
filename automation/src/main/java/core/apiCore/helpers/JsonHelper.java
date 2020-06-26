@@ -127,7 +127,7 @@ public class JsonHelper {
 		Object values = getJsonPathValue(json, path, isAlwaysReturnList);
 
 		if(values == null)
-			return null;
+			return StringUtils.EMPTY;
 		
 		// return json response without normalizing
 		if (isValidJsonObject(values)) {

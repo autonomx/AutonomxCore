@@ -30,9 +30,11 @@ public class PropertiesReader {
 
 		List<Properties> properties = new ArrayList<Properties>();
 
-		// recognized config file as a property file
-		if(!(path.endsWith("/") || path.endsWith("property") || path.endsWith("config")))
+		// recognized config file as a property file. eg. /qa becomes /qa.property
+		if(!(new File(path).isDirectory() || path.endsWith(File.separator) || path.endsWith("property") || path.endsWith("config")))
 			path = path + ".property";
+		
+		path = Helper.getFullPath(path);
 		
 		if (new File(path).isFile()) {
 			properties.addAll(getPropertiesByFileType(path, StringUtils.EMPTY));
