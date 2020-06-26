@@ -829,7 +829,10 @@ public class DataHelper {
 	 * @return
 	 */
 	public static List<String> getResponseArray(String array) {
-		List<String> list = new ArrayList<String>();	
+		List<String> list = new ArrayList<String>();
+		
+		if(array == null)
+			return list;
 				
 		String[] responses = array.split(",");
 		for (String response : responses) {

@@ -1134,6 +1134,8 @@ public class UtilityHelper {
 	 * @return
 	 */
 	protected static String removeSurroundingQuotes(String value) {
+		if(value == null) return null;
+		
 		if (value.length() >= 2 && value.charAt(0) == '"' && value.charAt(value.length() - 1) == '"') {
 			value = value.substring(1, value.length() - 1);
 		}
