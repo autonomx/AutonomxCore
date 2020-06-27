@@ -3,6 +3,8 @@ package core.support.configReader;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -30,11 +32,8 @@ public class PropertiesReader {
 
 		List<Properties> properties = new ArrayList<Properties>();
 
-		// recognized config file as a property file. eg. /qa becomes /qa.property
-		if(!(new File(path).isDirectory() || path.endsWith(File.separator) || path.endsWith("property") || path.endsWith("config")))
-			path = path + ".property";
-		
-		path = Helper.getFullPath(path);
+		// get full path for property file
+		path = getPropertyPath(path);
 		
 		if (new File(path).isFile()) {
 			properties.addAll(getPropertiesByFileType(path, StringUtils.EMPTY));
@@ -48,6 +47,27 @@ public class PropertiesReader {
 		}
 
 		return properties;
+	}
+	
+	/**
+	 * recognized config file as a property file. eg. /qa becomes /qa.property
+	 * @param path
+	 * @return
+	 */
+	public static String getPropertyPath(String path) {
+		
+		path = Helper.getFullPath(path);
+		Path file = new File(path).toPath();
+
+		if(Files.isDirectory(file) || Files.isRegularFile(file)) {
+			return path;
+		}
+		
+		if(!(path.endsWith(".property") || path.endsWith(".config")))
+			path = path + ".property";
+		
+		path = Helper.getFullPath(path);		
+		return path;
 	}
 
 	/**

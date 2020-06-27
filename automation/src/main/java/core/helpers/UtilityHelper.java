@@ -208,7 +208,8 @@ public class UtilityHelper {
 	 * @return the results as arraylist
 	 */
 	protected static ArrayList<String> excuteCommandFromFile(String filePath) {
-		filePath = Helper.getRootDir() + filePath;
+		filePath = Helper.getFullPath(filePath);
+		
 		File file = new File(filePath);
 		if (!file.isFile()) {
 			throw new IllegalArgumentException("The file " + filePath + " does not exist");
@@ -483,8 +484,7 @@ public class UtilityHelper {
 	 * @return
 	 */
 	protected static ArrayList<File> getFileListByType(String directoryPath, String type, boolean includeSubDir) {
-		if(!directoryPath.contains(Helper.getRootDir()))
-			directoryPath = Helper.getRootDir() + directoryPath;
+		directoryPath = Helper.getFullPath(directoryPath);
 		
 		ArrayList<File> filteredFiles = new ArrayList<File>();
 		ArrayList<File> testFiles = getFileList(directoryPath, includeSubDir);
@@ -521,8 +521,7 @@ public class UtilityHelper {
 	 * @return
 	 */
 	protected static ArrayList<File> getFileList(String directoryPath, ArrayList<File> files) {
-		if(!directoryPath.contains(Helper.getRootDir()))
-			directoryPath = Helper.getRootDir() + directoryPath;
+		directoryPath = Helper.getFullPath(directoryPath);
 		
 		File directory = new File(directoryPath);
 
@@ -546,6 +545,8 @@ public class UtilityHelper {
 	 * @return
 	 */
 	protected static String getFullPath(String path) {
+		path = path.replace("\\", File.separator).replace("//", File.separator);
+		
 		if(!path.contains(Helper.getRootDir()))
 			path = Helper.getRootDir() + path;
 		
@@ -559,8 +560,7 @@ public class UtilityHelper {
 	 * @return
 	 */
 	protected static File getFile(String directoryPath) {
-		if(!directoryPath.contains(Helper.getRootDir()))
-			directoryPath = Helper.getRootDir() + directoryPath;
+		directoryPath = Helper.getFullPath(directoryPath);
 		
 		File file = new File(directoryPath);
 		if (!file.exists())
@@ -587,8 +587,7 @@ public class UtilityHelper {
 	 * @return
 	 */
 	protected static File getFileByName(String path, String filename, boolean includeSubDir) {
-		if(!path.contains(Helper.getRootDir()))
-			path = Helper.getRootDir() + path;
+		path = Helper.getFullPath(path);
 		
 		List<File> files = Helper.getFileList(path, includeSubDir);
 		for (File file : files) {
@@ -607,8 +606,7 @@ public class UtilityHelper {
 	 * @return
 	 */
 	protected static ArrayList<File> getFileList(String directoryPath) {
-		if(!directoryPath.contains(Helper.getRootDir()))
-			directoryPath = Helper.getRootDir() + directoryPath;
+		directoryPath = Helper.getFullPath(directoryPath);
 		
 		File folder = new File(directoryPath);
 		File[] listOfFiles = folder.listFiles();
@@ -678,8 +676,8 @@ public class UtilityHelper {
 	 * @return
 	 */
 	protected static String getFileContent(String absolutePath) {
-		if(!absolutePath.contains(Helper.getRootDir()))
-			absolutePath = Helper.getRootDir() + absolutePath;
+		absolutePath = Helper.getFullPath(absolutePath);
+
 		
 		String content = StringUtils.EMPTY;
 		absolutePath = absolutePath.replaceAll("'", "");
@@ -705,8 +703,7 @@ public class UtilityHelper {
 	 * @return 
 	 */
 	protected static File createFileFromPath(String absolutePath) {
-		if(!absolutePath.contains(Helper.getRootDir()))
-			absolutePath = Helper.getRootDir() + absolutePath;
+		absolutePath = Helper.getFullPath(absolutePath);
 
 		File file = new File(absolutePath);
 		Path pathToFile = Paths.get(absolutePath);
