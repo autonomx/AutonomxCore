@@ -539,6 +539,27 @@ public class UtilityHelper {
 	}
 	
 	/**
+	 * returns the list of files in directory
+	 * 
+	 * @param directoryPath
+	 * @return
+	 */
+	protected static ArrayList<File> getFileList(String directoryPath) {
+		directoryPath = Helper.getFullPath(directoryPath);
+		
+		File folder = new File(directoryPath);
+		File[] listOfFiles = folder.listFiles();
+		ArrayList<File> testFiles = new ArrayList<File>();
+
+		// fail test if no csv files found
+		if (listOfFiles == null) {
+			Helper.assertFalse("test files not found at path: " + directoryPath);
+		}
+		testFiles = new ArrayList<>(Arrays.asList(listOfFiles));
+		return testFiles;
+	}
+	
+	/**
 	 * gets full path from relative path
 	 * relative path is from root directory ( where pom.xml file is located )
 	 * @param path
@@ -598,27 +619,6 @@ public class UtilityHelper {
 		Helper.assertFalse("file: <" + filename + "> not found at path: " + path);
 		return null;
 	}
-
-	/**
-	 * returns the list of files in directory
-	 * 
-	 * @param directoryPath
-	 * @return
-	 */
-	protected static ArrayList<File> getFileList(String directoryPath) {
-		directoryPath = Helper.getFullPath(directoryPath);
-		
-		File folder = new File(directoryPath);
-		File[] listOfFiles = folder.listFiles();
-		ArrayList<File> testFiles = new ArrayList<File>();
-
-		// fail test if no csv files found
-		if (listOfFiles == null) {
-			Helper.assertFalse("test files not found at path: " + directoryPath);
-		}
-		testFiles = new ArrayList<>(Arrays.asList(listOfFiles));
-		return testFiles;
-	}
 	
 	private static File discoverRootDir() {
 		List<File> files = new ArrayList<File>();
@@ -668,7 +668,7 @@ public class UtilityHelper {
 	protected static String readFileContent(String absolutePath) {
 		return getFileContent(absolutePath);
 	}
-
+	
 	/**
 	 * gets file content as String
 	 * 
@@ -676,6 +676,16 @@ public class UtilityHelper {
 	 * @return
 	 */
 	protected static String getFileContent(String absolutePath) {
+		return getFileContent(absolutePath, true);
+	}
+
+	/**
+	 * gets file content as String
+	 * 
+	 * @param absolutePath
+	 * @return
+	 */
+	protected static String getFileContent(String absolutePath, boolean verifyFileExists) {
 		absolutePath = Helper.getFullPath(absolutePath);
 
 		
@@ -684,7 +694,7 @@ public class UtilityHelper {
 		File file = new File(absolutePath);
 
 		// fail if file does not exist
-		if (!file.exists())
+		if (!file.exists() && verifyFileExists)
 			Helper.assertFalse("file not found at path: " + absolutePath);
 
 		try {

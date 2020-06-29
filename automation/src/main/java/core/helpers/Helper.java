@@ -2837,8 +2837,18 @@ public class Helper {
 	 * @param absolutePath
 	 * @return
 	 */
-	protected static String getFileContent(String absolutePath) {
+	public static String getFileContent(String absolutePath) {
 		return UtilityHelper.getFileContent(absolutePath);
+	}
+	
+	/**
+	 * gets file content as String
+	 * 
+	 * @param absolutePath
+	 * @return
+	 */
+	public static String getFileContent(String absolutePath, boolean verifyFileExists) {
+		return UtilityHelper.getFileContent(absolutePath, verifyFileExists);
 	}
 
 	/**

@@ -39,6 +39,7 @@ import core.support.annotation.helper.FileCreatorHelper;
 import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.annotationMap.AnnotationObject;
 import core.support.annotation.helper.annotationMap.ModuleMapHelper;
+import core.support.annotation.helper.utils.dirChangeDetector;
 import core.support.annotation.template.config.ConfigManager;
 import core.support.annotation.template.config.ConfigVariableGenerator;
 import core.support.annotation.template.dataObject.CsvDataObject;
@@ -70,7 +71,10 @@ public class MainGenerator extends AbstractProcessor {
 		// set working directory
 		setRootWorkingDirectory(processingEnv);
 		
-		return runAnnotation();
+		// detect source directory and resource changes
+		if(dirChangeDetector.hasSourceChanged())
+			return runAnnotation();
+		return true;
 	}
 	
 	public static boolean runAnnotation() {
@@ -128,6 +132,7 @@ public class MainGenerator extends AbstractProcessor {
 	
 
 	/**
+	 * files created: src_dir.txt, marker.marker
 	 * a marker class is to indicate when the generated files have been created used
 	 * for comparison with the class files. if class files are newer, than the
 	 * marker class, then regenerate the code
@@ -135,11 +140,10 @@ public class MainGenerator extends AbstractProcessor {
 	private static void createMarkerClass() {
 		try {
 			createFileList("src" + File.separator + "main", "src_dir", false);
-			createFileList("resources" + File.separator + "api" + File.separator + "keywords", "src_dir", true);
+			createFileList("resources", "src_dir", true);
 
 			JavaFileObject fileObject = FileCreatorHelper.createMarkerFile();
 			BufferedWriter bw = new BufferedWriter(fileObject.openWriter());
-
 
 			bw.append("/**Auto generated code,don't modify it. */ \n");
 			bw.append("package marker;");
