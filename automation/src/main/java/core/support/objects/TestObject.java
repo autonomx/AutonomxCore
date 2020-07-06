@@ -69,6 +69,8 @@ public class TestObject {
 
 	public static final String RANDOM_STRING = "_randomString_";
 	public static final String START_TIME_STRING = "_startTimeString_";
+	public static final String UUID_STATIC_STRING = "_uuidStaticString_";
+
 
 	public static final String DEFAULT_APP = "auto";
 	public static String SUITE_NAME = StringUtils.EMPTY; // suite name is global to all tests in the run
@@ -177,6 +179,7 @@ public class TestObject {
 			String timeInstance = Helper.date.getTimeInstance();
 			Config.putValue(RANDOM_STRING, Helper.generateRandomString(30), false);
 			Config.putValue(START_TIME_STRING, timeInstance, false);
+			Config.putValue(UUID_STATIC_STRING, Helper.generateUUID(), false);
 
 			// loads all the keywords for api references
 			CsvReader.getAllKeywords();

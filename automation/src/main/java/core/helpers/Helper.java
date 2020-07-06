@@ -2247,6 +2247,41 @@ public class Helper {
 	public static int generateRandomNumber(int min, int max) {
 		return UtilityHelper.generateRandomNumber(min, max);
 	}
+	
+	/**
+	 * generate uuid
+	 * @return
+	 */
+	public static String generateUUID() {
+		return UtilityHelper.generateUUID();
+	}
+	
+	/**
+	 * generate uuid
+	 * @param includeDash
+	 * @return
+	 */
+	public static String generateUUID(boolean includeDash) {
+		return UtilityHelper.generateUUID(includeDash);
+	}
+	
+	/**
+	 * generate uuid
+	 * @param length
+	 * @return
+	 */
+	public static String generateUUID(int length) {
+		return UtilityHelper.generateUUID(length);
+	}
+	
+	/**
+	 * generate uuid
+	 * @param length
+	 * @return
+	 */
+	public static String generateUUID(int length, boolean includeDash) {
+		return UtilityHelper.generateUUID(length, includeDash);
+	}
 
 	/**
 	 * highlights the web element use on clicks and send key elements

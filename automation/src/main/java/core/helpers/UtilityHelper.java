@@ -114,6 +114,45 @@ public class UtilityHelper {
 		int random = ThreadLocalRandom.current().nextInt(min, max + 1);
 		return random;
 	}
+	
+	/**
+	 * generate uuid
+	 * @return
+	 */
+	protected static String generateUUID() {
+		return generateUUID(-1, true);
+	}
+	
+	/**
+	 * generate uuid
+	 * @param includeDash
+	 * @return
+	 */
+	protected static String generateUUID(boolean includeDash) {
+		return generateUUID(-1, includeDash);
+	}
+	
+	/**
+	 * generate uuid
+	 * @param length
+	 * @return
+	 */
+	protected static String generateUUID(int length) {
+		return generateUUID(length, true);
+	}
+	/**
+	 * generate uuid
+	 * @param length
+	 * @return
+	 */
+	protected static String generateUUID(int length, boolean includeDash) {
+		 String uuid = UUID.randomUUID().toString();
+		 if(!includeDash)
+			 uuid = uuid.replace("-", "");
+		 if(length != -1 || length > uuid.length())
+			 uuid = uuid.substring(0, length);
+		return uuid;
+	}
 
 	/**
 	 * normalizes string removes space, new line chars, quotes

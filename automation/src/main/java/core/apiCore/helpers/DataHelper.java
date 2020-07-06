@@ -98,6 +98,10 @@ public class DataHelper {
 			} else if (parameter.contains("_TIME")) {
 				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING));
 				value = getTimeSubstring(parameter, newTime);
+			} else if (parameter.contains("_RANDUUID")) {	
+				value = Helper.generateUUID();
+			} else if (parameter.contains("_UUID_STATIC")) {	
+				value = Config.getValue(TestObject.UUID_STATIC_STRING);
 			} else if (parameter.contains("_RAND")) {
 				length = Helper.getIntFromString(parameter);
 				value = Config.getValue(TestObject.RANDOM_STRING).substring(0, length);
