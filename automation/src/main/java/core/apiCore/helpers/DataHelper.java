@@ -17,6 +17,10 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 
@@ -46,7 +50,8 @@ public class DataHelper {
 
 	public static final String TEST_DATA_TEMPLATE_DATA_PATH = "api.templateDataFile";
 
-	public static final String VALIDATION_OR_CONDITION = "_OR_";
+	public static final String VALIDATION_OR_CONDITION_ECODE = "\\|\\|";
+	public static final String VALIDATION_OR_CONDITION = "||";
 	public static final String VALIDATION_AND_CONDITION = "&&";
 
 	
@@ -1294,9 +1299,9 @@ public class DataHelper {
 	 * @return
 	 */
 	public static List<String> validateExpectedValues(List<String> responseValues, String expectedResponse) {
-
+		
 		List<String> errorMessages = new ArrayList<String>();
-
+		
 		if (expectedResponse.trim().isEmpty())
 			return errorMessages;
 
@@ -1309,20 +1314,20 @@ public class DataHelper {
 		expectedResponse = DataHelper.replaceParameters(expectedResponse);
 
 		// separate the expected response by && 
-		String[] criteria = expectedResponse.split("(?="+ VALIDATION_AND_CONDITION +")|(?="+ VALIDATION_OR_CONDITION +")");
+		String[] criteria = expectedResponse.split("(?="+ VALIDATION_AND_CONDITION +")|(?="+ VALIDATION_OR_CONDITION_ECODE +")");
 		
 
 		// get response body as string
 		logJsonResponse(responseValues);
 
+		String booleanLogicPattern = StringUtils.EMPTY;
 		for (String criterion : criteria) {
-			boolean isORCondition = criterion.startsWith(VALIDATION_OR_CONDITION);
+			criterion = criterion.trim();
 			
-			// remove && or _OR_ prefix
-			if(criterion.startsWith(VALIDATION_OR_CONDITION) || criterion.startsWith(VALIDATION_AND_CONDITION)) {
-				criterion = criterion.replaceFirst(VALIDATION_OR_CONDITION, StringUtils.EMPTY);
-				criterion = criterion.replaceFirst(VALIDATION_AND_CONDITION, StringUtils.EMPTY);
-			}
+			booleanLogicPattern += getValidationPattern(criterion);
+			
+			 // remove logic values if criteria starts with "(", &&, "||" or end with ")"
+			criterion = removeLogicIdentifiers(criterion);
 			
 			Helper.assertTrue("expected response is not valid xml or json, or section identifier, are you missing the section identifier? eg. _VERIFY_JSON_PART_:  " + criterion,
 					isValidExpectation(criterion));
@@ -1331,14 +1336,130 @@ public class DataHelper {
 			criterion = convertXmlResponseToJson(criterion);
 
 			List<String> errors = validateExpectedResponse(criterion, responseValues);
-			if(isORCondition && errors.isEmpty())
-				errorMessages = new ArrayList<String>();
+			
+			errors = removeEmptyElements(errors);
+			
+			// set boolean logic response for the logic pattern. eg "Value && Value" becomes "true && false" 
+			if(errors.isEmpty())
+				booleanLogicPattern = booleanLogicPattern.replace("value", "true");
 			else
-				errorMessages.addAll(errors);
+				booleanLogicPattern = booleanLogicPattern.replace("value", "false");
+			
+			errorMessages.addAll(errors);
+
 		}
+		
+		boolean isPass = evaluateLogic(booleanLogicPattern);
+		
+		// if logic passes, remove all errors strings
+		if(isPass)
+			errorMessages = new ArrayList<String>();
+		
 		// remove all empty response strings
 		errorMessages = removeEmptyElements(errorMessages);
 		return errorMessages;
+	}
+	
+	/**
+	 * removes && or || identifiers at the beginning of logic string
+	 * used for getting the actual expression to evaluate
+	 * format: eg. && expression
+	 * @param value
+	 * @return
+	 */
+	public static String removeAndOrIndicator(String value) {
+		if(value.trim().startsWith(VALIDATION_OR_CONDITION)) {
+			value = value.replaceFirst(VALIDATION_OR_CONDITION_ECODE, StringUtils.EMPTY);
+		} else if(value.trim().startsWith(VALIDATION_AND_CONDITION)) {
+			value = value.replaceFirst(VALIDATION_AND_CONDITION, StringUtils.EMPTY);
+		}
+		return value;
+	}
+	
+	/**
+	 * evaluates string logic. eg ((true) && (false || false || true)) returns true
+	 * @param logicString
+	 * @return
+	 */
+	public static boolean evaluateLogic(String logicString) {
+		
+		logicString = removeAndOrIndicator(logicString);
+		
+		ScriptEngineManager mgr = new ScriptEngineManager();
+	    ScriptEngine engine = mgr.getEngineByName("JavaScript"); 
+	    boolean result = false;
+		try {
+			result = Boolean.valueOf((boolean) engine.eval(logicString.trim()));
+		} catch (ScriptException e) {
+			e.printStackTrace();
+			Helper.assertFalse(e.getMessage());	
+		}
+	    
+	    return result;
+	}
+	
+	/**
+	 * remove logic values if criteria starts with "(", &&, "||" or end with ")"
+	 * @param criterion
+	 * @return
+	 */
+	public static String removeLogicIdentifiers(String criterion) {
+		// remove && or || prefix
+		criterion = removeAndOrIndicator(criterion);
+		
+		// add opening "(" if exist
+		while(criterion.trim().startsWith("(")) {
+			criterion = criterion.replaceFirst("\\(", "");
+		}
+		
+		while(criterion.trim().endsWith("))")) {
+			criterion = criterion.substring(0,criterion.length() - 1);
+		}
+		
+		while(criterion.trim().endsWith(";)")) {
+			criterion = criterion.substring(0,criterion.length() - 1);
+		}
+		
+		return criterion;
+	}
+	
+	/**
+	 * converts response validation to proper logic pattern
+	 * @param criterion
+	 * @return
+	 */
+	public static String getValidationPattern(String criterion) {
+		String pattern = StringUtils.EMPTY;
+		
+		boolean isORCondition = criterion.startsWith(VALIDATION_OR_CONDITION);
+		if(isORCondition)
+			pattern += " ||";
+		else
+			pattern += " &&";
+		
+		// remove && or || prefix
+		criterion = removeAndOrIndicator(criterion);
+		
+		// add opening "(" if exist
+		while(criterion.trim().startsWith("(")) {
+			pattern += " (";
+			criterion = criterion.replaceFirst("\\(", "");
+		}
+		
+		pattern += " value";
+		
+		while(criterion.trim().endsWith("))")) {
+			pattern += " )";
+			criterion = criterion.substring(0,criterion.length() - 1);
+		}
+		
+		while(criterion.trim().endsWith(";)")) {
+			pattern += " )";
+			criterion = criterion.substring(0,criterion.length() - 1);
+		}
+	
+		return pattern;
+		
 	}
 	
 	/**
