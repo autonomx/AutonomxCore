@@ -274,6 +274,70 @@ public class DateHelper {
 		}
 		return true;
 	}
+	
+	/**
+	 * is source string equal target date string
+	 * @param source
+	 * @param target
+	 * @return
+	 */
+	public boolean isDateEqual(String source, String target) {
+		LocalDateTime date1Date = getLocalDateTime(target);
+		
+		LocalDateTime sourceDate = getLocalDateTime(source);
+		if(sourceDate.isEqual(date1Date))
+				return true;		
+		return false;
+	}
+	
+	/**
+	 * is source string eqia; target date string
+	 * @param sources
+	 * @param date1
+	 * @return
+	 */
+	public boolean isDateEqual(List<String> sources, String target) {
+		LocalDateTime date1Date = getLocalDateTime(target);
+		
+		for(String source : sources ) {
+			LocalDateTime sourceDate = getLocalDateTime(source);
+			if(!(sourceDate.equals(date1Date)))
+				return false;			
+		}
+		return true;
+	}
+	
+	/**
+	 * is source string not equal target date string
+	 * @param source
+	 * @param target
+	 * @return
+	 */
+	public boolean isDateNotEqual(String source, String target) {
+		LocalDateTime date1Date = getLocalDateTime(target);
+		
+		LocalDateTime sourceDate = getLocalDateTime(source);
+		if(!sourceDate.isEqual(date1Date))
+				return true;		
+		return false;
+	}
+	
+	/**
+	 * is source string not equal target date string
+	 * @param sources
+	 * @param date1
+	 * @return
+	 */
+	public boolean isDateNotEqual(List<String> sources, String target) {
+		LocalDateTime date1Date = getLocalDateTime(target);
+		
+		for(String source : sources ) {
+			LocalDateTime sourceDate = getLocalDateTime(source);
+			if(sourceDate.equals(date1Date))
+				return false;			
+		}
+		return true;
+	}
 
 	
 	/**

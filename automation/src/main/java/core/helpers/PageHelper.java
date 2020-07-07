@@ -471,4 +471,13 @@ public class PageHelper {
 		  
   	  return isVisible;
   }
+  
+	/**
+	 * get current webdriver
+	 * @return
+	 */
+	public WebDriver getWebdriver() {
+	    return AbstractDriver.getWebDriver();
+	}
+    
 }

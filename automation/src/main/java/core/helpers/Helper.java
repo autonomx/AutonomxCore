@@ -1786,6 +1786,14 @@ public class Helper {
 	public static Boolean isVisibleInViewport(EnhancedBy by, int index) {
 		return page.isVisibleInViewport(by, index);
 	}
+	
+	/**
+	 * get current  webdriver
+	 * @return
+	 */
+	public WebDriver getWebdriver() {
+		return page.getWebdriver();
+	}
 
 	/**
 	 * returns true if the element is visible in the current page only for web

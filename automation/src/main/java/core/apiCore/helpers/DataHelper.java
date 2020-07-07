@@ -58,7 +58,7 @@ public class DataHelper {
 	public enum JSON_COMMAND {
 		hasItems, notHaveItems, notEqualTo, equalTo, notContain, contains, containsInAnyOrder, integerGreaterThan,
 		integerLessThan, integerEqual, integerNotEqual, nodeSizeGreaterThan, nodeSizeExact, sequence, jsonbody,
-		isNotEmpty, isEmpty, nodeSizeLessThan, isBetweenDate, allValuesEqualTo, countGreaterThan, countLessThan, countExact, command, notContains, contain, isDateAfter, isDateBefore
+		isNotEmpty, isEmpty, nodeSizeLessThan, isBetweenDate, allValuesEqualTo, countGreaterThan, countLessThan, countExact, command, notContains, contain, isDateAfter, isDateBefore, isDateEqual, isDateNotEqual
 	}
 
 	public static String replaceParameters(String source) {
@@ -778,6 +778,47 @@ public class DataHelper {
 
 				if (!val)
 					return Arrays.toString(actualArray.toArray()) + " is not in between dates: "
+							+ Arrays.toString(expectedArray.toArray());
+			}
+			break;
+		case isDateEqual:
+			if (!position.isEmpty() && positionInt > 0) { // if position is provided
+				TestLog.logPass("verifying date: " + actualString + " is equal date: " + expectedString);
+				val = Helper.date.isDateEqual(actualString, expectedString);
+				if (!val)
+					return actualString + " is equal date: " + expectedString;
+			} else if (!position.isEmpty() && positionInt == 0) {
+				TestLog.logPass("verifying date: " + responseString + " is equal date: " + expectedString);
+				val = Helper.date.isDateEqual(responseString, expectedString);
+				if (!val)
+					return responseString + " is not equal date: " + expectedString;
+			} else {
+				TestLog.logPass("verifying date: " + Arrays.toString(actualArray.toArray()) + " is equal date: "
+						+ Arrays.toString(expectedArray.toArray()));
+				val = Helper.date.isDateEqual(actualArray, expectedString);
+				if (!val)
+					return Arrays.toString(actualArray.toArray()) + " is equal date: "
+							+ Arrays.toString(expectedArray.toArray());
+			}
+			break;
+			
+		case isDateNotEqual:
+			if (!position.isEmpty() && positionInt > 0) { // if position is provided
+				TestLog.logPass("verifying date: " + actualString + " is not equal date: " + expectedString);
+				val = Helper.date.isDateNotEqual(actualString, expectedString);
+				if (!val)
+					return actualString + " is not equal date: " + expectedString;
+			} else if (!position.isEmpty() && positionInt == 0) {
+				TestLog.logPass("verifying date: " + responseString + " is not equal date: " + expectedString);
+				val = Helper.date.isDateNotEqual(responseString, expectedString);
+				if (!val)
+					return responseString + " is not equal date: " + expectedString;
+			} else {
+				TestLog.logPass("verifying date: " + Arrays.toString(actualArray.toArray()) + " is not equal date: "
+						+ Arrays.toString(expectedArray.toArray()));
+				val = Helper.date.isDateNotEqual(actualArray, expectedString);
+				if (!val)
+					return Arrays.toString(actualArray.toArray()) + " is not equal date: "
 							+ Arrays.toString(expectedArray.toArray());
 			}
 			break;
