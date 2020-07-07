@@ -313,7 +313,7 @@ public class RestApiInterface {
 		} while (!serviceObject.getErrorMessages().isEmpty() && passedTimeInSeconds < maxRetrySeconds);
 
 		if (!serviceObject.getErrorMessages().isEmpty()) {
-			TestLog.ConsoleLog("Validation failed after: " + passedTimeInSeconds + " seconds");
+			TestLog.ConsoleLog("Validation failed after: " + passedTimeInSeconds + " seconds with " + currentRetryCount + " retries");
 		}
 
 		return serviceObject;
