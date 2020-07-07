@@ -118,15 +118,20 @@ public class DataHelper {
 			} else {
 				value = Config.getObjectValue(parameter.replace("@", ""));
 			}
-			if (value == null)
+			if (isObjectEmpty(value))
 				TestLog.logWarning("parameter value not found: " + parameter);
 			else {
 					source = source.replace(openingTag + parameter + closingTag, Matcher.quoteReplacement(value.toString()));
-				}
-			
+			}			
 		}
 
 		return source;
+	}
+	
+	public static boolean isObjectEmpty(Object value) {
+		if (value == null || StringUtils.isBlank(value.toString()) || value.equals("null"))
+			return true;
+		return false;
 	}
 
 	/**
