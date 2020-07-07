@@ -2539,7 +2539,14 @@ public class Helper {
 	public static List<String> getLinesInFileContainingWith(String value, File file) {
 		return UtilityHelper.getLinesInFileContainingWith(value, file);
 	}
-
+	
+	/**
+	 * prints page source to console
+	 */
+	public static void printPageSource() {
+		UtilityHelper.printPageSource();
+	}
+	
 	/**
 	 * normalizes string removes space, new line chars
 	 * 

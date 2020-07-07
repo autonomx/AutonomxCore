@@ -35,7 +35,10 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 	public static boolean isTestNG = false;
 	public static final String PARALLEL_TEST_TYPE = "global.parallel.type";
+	public static final String CONSOLE_PAGESOURCE_ON_FAIL = "console.pageSource.onFail";
 
+	
+	
 	// Before starting all tests, below method runs.
 	@SuppressWarnings("deprecation")
 	@Override
@@ -218,6 +221,10 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		// print out console logs to console if batch logging is enabled
 		TestLog.printBatchLogsToConsole();
 		
+		// print page source on fail
+		if(Config.getBooleanValue(CONSOLE_PAGESOURCE_ON_FAIL))
+			Helper.printPageSource();
+		
 		// quit current driver after failure
 		Helper.quitCurrentDriver();
 	}
@@ -236,6 +243,10 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		// stop screen recording if enabled
 		ScreenRecorderHelper.stopRecording();
+		
+		// print page source on fail
+		if(Config.getBooleanValue(CONSOLE_PAGESOURCE_ON_FAIL))
+			Helper.printPageSource();
 
 		// quit current driver after failure
 		Helper.quitCurrentDriver();

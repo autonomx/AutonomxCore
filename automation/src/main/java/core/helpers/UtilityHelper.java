@@ -1417,4 +1417,23 @@ public class UtilityHelper {
 		    }
 		return lines;	
 	}
+	
+	/**
+	 * prints page source to console
+	 */
+	protected static void printPageSource() {
+		if(AbstractDriver.getWebDriver() != null)
+			TestLog.ConsoleLog("page source: " + AbstractDriver.getWebDriver().getPageSource());
+	}
+	
+	/**
+	 * gets page source
+	 * @return
+	 */
+	protected static String getPageSource() {
+		if(AbstractDriver.getWebDriver() != null)
+			return AbstractDriver.getWebDriver().getPageSource();
+		
+		return StringUtils.EMPTY;
+	}
 }
