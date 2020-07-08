@@ -11,7 +11,6 @@ import com.thoughtworks.paranamer.CachingParanamer;
 import com.thoughtworks.paranamer.Paranamer;
 
 import core.apiCore.helpers.JsonHelper;
-import core.support.logger.TestLog;
 import core.support.objects.KeyValue;
 
 /**
@@ -24,36 +23,20 @@ public class ExternalClassHelper {
 	protected static Object runInternalClass(String sourcePath, String methodName, List<KeyValue> parameterList) throws Exception {
 		
 		Class<?> externalClass = ExternalClassHelper.class.getClassLoader().loadClass(sourcePath);
-
-		Object[] parameters = getParameterValues(parameterList);
-		Object[] parameterNames = getParameterNames(parameterList);	
 		Object external = externalClass.newInstance();
 
-		// get parameter types
-		Class<?>[] paramTypes = getMethodParameterTypes(externalClass, methodName, parameterNames);
-		
-		Method method = null;
-		try {
-			method = externalClass.getMethod(methodName, paramTypes);
-		}catch(Exception e) {
-			e.printStackTrace();
-			Helper.assertFalse(e.getMessage());
-		}
+		// get list of parameter values
+		Object[] parameters = getParameterValues(parameterList);
 
-		// validate parameter count
-		if (parameterNames.length != paramTypes.length)
-			Helper.assertFalse("number of parameters must match method parameters");
-
+		// get parameter types of target method: methodName
+		Class<?>[] paramTypes = getMethodParameterTypes(externalClass, methodName, parameters);
 		parameters = convertObjectToMethodType(paramTypes, parameters);
 
+		// get method 
+		Method method = externalClass.getMethod(methodName, paramTypes);
+	
 		// call the method with parameters
-		Object object = null;
-		try {
-			object = method.invoke(external, parameters);
-		}catch(Exception e) {
-			e.printStackTrace();
-			Helper.assertFalse(e.getMessage());
-		}
+		Object	object = method.invoke(external, parameters);
 		
 		return object;
 	}
@@ -100,20 +83,6 @@ public class ExternalClassHelper {
 	}
 
 	/**
-	 * verify if parameter names match the ones in the method
-	 * 
-	 * @param external
-	 * @param methodName
-	 * @param parameterList
-	 */
-	private static boolean isParameterNamesMatch(String[] parameterNames, Object[] parameterList) {
-
-		String parameterNamesString = Arrays.toString(parameterNames);
-		String parameterListString = Arrays.toString(parameterList);
-		return parameterNamesString.equals(parameterListString);
-	}
-
-	/**
 	 * gets the list of parameter types for a method in an external class
 	 * 
 	 * @param external
@@ -122,32 +91,44 @@ public class ExternalClassHelper {
 	 */
 	private static Class<?>[] getMethodParameterTypes(Class<?> external, String methodName, Object[] parameterList) {
 		Paranamer info = new CachingParanamer(new AnnotationParanamer(new BytecodeReadingParanamer()));
+		List<String> matchingMethodList = new ArrayList<String>();
 		List<String> methodList = new ArrayList<String>();
 
 		for (Method m : external.getMethods()) {
+			methodList.add(m.getName());
 			if (m.getName().equals(methodName)) {
 				String[] parameterNames = info.lookupParameterNames(m);
-				methodList.add("method: " + m.getName() + "(" + Arrays.toString(parameterNames) + ")");
-				boolean isParameterMatch = isParameterNamesMatch(parameterNames, parameterList);
+				matchingMethodList.add("method: " + m.getName() + "(" + Arrays.toString(parameterNames) + ")");
 
-				if (m.getParameterCount() == parameterList.length && isParameterMatch) {
+				if (m.getParameterCount() == parameterList.length) {
 					Class<?>[] params = m.getParameterTypes();
 					return params;
 				}
 			}
-
 		}
-		if (!methodList.isEmpty()) {
-			TestLog.logPass("method: " + methodName + "(" + Arrays.toString(parameterList)
-					+ ") not found. methods found: " + Arrays.toString(methodList.toArray()));
+		
+		// if method name matches, but parameters are not matching
+		if (!matchingMethodList.isEmpty()) {
+			Helper.assertFalse("method name found, however, method with correct parameters not found: " + methodName + "(" + Arrays.toString(parameterList)
+					+ ") not found. methods found: " + Arrays.toString(matchingMethodList.toArray()));
+		
+		// if method name does not match	
+		}else { 
+			Helper.assertFalse("method: " + methodName + " not found at: "+ external.getPackage() +" . methods found: " + Arrays.toString(methodList.toArray()));	
 		}
+			
 		return null;
 	}
 
 	private static Object[] getParameterValues(List<KeyValue> parameters) {
 		List<Object> parameterList = new ArrayList<Object>();
+		
+		// formats supported: parameterName:parameterValue, or parameterValue
 		for (KeyValue parameter : parameters) {
-			parameterList.add(parameter.value);
+			if(parameter.value.toString().isEmpty())
+				parameterList.add(parameter.key);
+			else
+				parameterList.add(parameter.value);
 		}
 		Object[] paramArr = new String[parameterList.size()];
 		
@@ -157,13 +138,30 @@ public class ExternalClassHelper {
 		
 		return paramArr;
 	}
-
-	private static Object[] getParameterNames(List<KeyValue> paramters) {
+	
+	protected static Object[] getParameterNames(List<KeyValue> paramters) {
 		List<Object> parameterList = new ArrayList<Object>();
+		
+		// only if format is: 
 		for (KeyValue parameter : paramters) {
-			parameterList.add(parameter.key);
+			if(!parameter.value.toString().isEmpty())
+				parameterList.add(parameter.key);
 		}
 		Object[] paramArr = new String[parameterList.size()];
 		return parameterList.toArray(paramArr);
+	}
+	
+	/**
+	 * verify if parameter names match the ones in the method
+	 * 
+	 * @param external
+	 * @param methodName
+	 * @param parameterList
+	 */
+	protected static boolean isParameterNamesMatch(String[] parameterNames, Object[] parameterList) {
+
+		String parameterNamesString = Arrays.toString(parameterNames);
+		String parameterListString = Arrays.toString(parameterList);
+		return parameterNamesString.equals(parameterListString);
 	}
 }

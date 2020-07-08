@@ -27,6 +27,7 @@ public class ExternalInterface {
 			return evaluateTestMethod(serviceObject);
 		} catch (Exception e) {
 			e.printStackTrace();
+			Helper.assertFalse(e.getMessage());
 		}
 		return null;
 	}
