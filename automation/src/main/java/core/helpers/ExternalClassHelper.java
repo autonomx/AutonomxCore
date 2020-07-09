@@ -27,9 +27,12 @@ public class ExternalClassHelper {
 
 		// get list of parameter values
 		Object[] parameters = getParameterValues(parameterList);
-
-		// get parameter types of target method: methodName
-		Class<?>[] paramTypes = getMethodParameterTypes(externalClass, methodName, parameters);
+		
+		// get list of parameter names, if set. eg. param1:value1.
+		Object[] parameterNames = getParameterNames(parameterList);
+		
+		// get parameter types of target with format: method:methodName
+		Class<?>[] paramTypes = getMethodParameterTypes(externalClass, methodName, parameters, parameterNames);
 		parameters = convertObjectToMethodType(paramTypes, parameters);
 
 		// get method 
@@ -89,34 +92,42 @@ public class ExternalClassHelper {
 	 * @param methodName
 	 * @return
 	 */
-	private static Class<?>[] getMethodParameterTypes(Class<?> external, String methodName, Object[] parameterList) {
+	private static Class<?>[] getMethodParameterTypes(Class<?> external, String methodName, Object[] parameterList,
+			Object[] parameterNames) {
 		Paranamer info = new CachingParanamer(new AnnotationParanamer(new BytecodeReadingParanamer()));
 		List<String> matchingMethodList = new ArrayList<String>();
 		List<String> methodList = new ArrayList<String>();
+		boolean isParameterNamesMatch = true;
 
 		for (Method m : external.getMethods()) {
 			methodList.add(m.getName());
 			if (m.getName().equals(methodName)) {
-				String[] parameterNames = info.lookupParameterNames(m);
-				matchingMethodList.add("method: " + m.getName() + "(" + Arrays.toString(parameterNames) + ")");
+				String[] targetParameterNames = info.lookupParameterNames(m);
+				matchingMethodList.add("method: " + m.getName() + "(" + Arrays.toString(targetParameterNames) + ")");
 
-				if (m.getParameterCount() == parameterList.length) {
+				// check if parameter names are provided in the test. if provided, validate
+				if (parameterNames.length != 0)
+					isParameterNamesMatch = isParameterNamesMatch(parameterNames, targetParameterNames);
+
+				if (m.getParameterCount() == parameterList.length && isParameterNamesMatch) {
 					Class<?>[] params = m.getParameterTypes();
 					return params;
 				}
 			}
 		}
-		
+
 		// if method name matches, but parameters are not matching
 		if (!matchingMethodList.isEmpty()) {
-			Helper.assertFalse("method name found, however, method with correct parameters not found: " + methodName + "(" + Arrays.toString(parameterList)
-					+ ") not found. methods found: " + Arrays.toString(matchingMethodList.toArray()));
-		
-		// if method name does not match	
-		}else { 
-			Helper.assertFalse("method: " + methodName + " not found at: "+ external.getPackage() +" . methods found: " + Arrays.toString(methodList.toArray()));	
+			Helper.assertFalse("method name found, however, method with correct parameters not found: " + methodName
+					+ "(" + Arrays.toString(parameterList) + ") not found. methods found: "
+					+ Arrays.toString(matchingMethodList.toArray()));
+
+			// if method name does not match
+		} else {
+			Helper.assertFalse("method: " + methodName + " not found at: " + external.getPackage()
+					+ " . methods found: " + Arrays.toString(methodList.toArray()));
 		}
-			
+
 		return null;
 	}
 
@@ -139,16 +150,34 @@ public class ExternalClassHelper {
 		return paramArr;
 	}
 	
-	protected static Object[] getParameterNames(List<KeyValue> paramters) {
+	protected static Object[] getParameterNames(List<KeyValue> parameters) {
 		List<Object> parameterList = new ArrayList<Object>();
 		
-		// only if format is: 
-		for (KeyValue parameter : paramters) {
-			if(!parameter.value.toString().isEmpty())
+		// is the format: parameterName:value set. if one value is this format, all values should be the same format
+		boolean isParameterNamesProvided = isParameterNamesProvided(parameters);
+		
+		// only if format is: parameterName:value
+		for (KeyValue parameter : parameters) {
+			if(isParameterNamesProvided)
 				parameterList.add(parameter.key);
 		}
 		Object[] paramArr = new String[parameterList.size()];
 		return parameterList.toArray(paramArr);
+	}
+	
+	/**
+	 * parameters should either be all format: parameterName:value or just value 
+	 * @param paramters
+	 * @return
+	 */
+	protected static boolean isParameterNamesProvided(List<KeyValue> paramters) {
+		boolean isParameterNamesSet = false;
+		
+		for (KeyValue parameter : paramters) {
+			if(!parameter.key.isEmpty() && !parameter.value.toString().isEmpty())
+				return true;		
+		}
+		return isParameterNamesSet;
 	}
 	
 	/**
@@ -158,7 +187,7 @@ public class ExternalClassHelper {
 	 * @param methodName
 	 * @param parameterList
 	 */
-	protected static boolean isParameterNamesMatch(String[] parameterNames, Object[] parameterList) {
+	protected static boolean isParameterNamesMatch(Object[] parameterNames, Object[] parameterList) {
 
 		String parameterNamesString = Arrays.toString(parameterNames);
 		String parameterListString = Arrays.toString(parameterList);

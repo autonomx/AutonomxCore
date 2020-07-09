@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
+import core.support.logger.TestLog;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
@@ -359,9 +360,19 @@ public class ServiceObject {
 		return this.tcIndex.split(":")[1];
 	}
 
-	public static String normalize(String value) {
-		// remove new lines
+public static String normalizeLog(String value) {
+		
+		value = TestLog.setMaxLength(value);
+		
+		// remove new lines. very slow operation
 		value = value.replaceAll("\\R+", " ");
+
+		// reduces spaces to single space. eg. " " to " "
+		value = value.trim().replaceAll(" +", " ");
+		return value.replaceAll("[\\u2018\\u2019]", "'").replaceAll("[\\u201C\\u201D]", "\"");
+	}
+
+	public static String normalize(String value) {
 
 		// reduces spaces to single space. eg. " " to " "
 		value = value.trim().replaceAll(" +", " ");

@@ -131,7 +131,7 @@ public class RestApiInterface {
 
 		if (!serviceObject.getErrorMessages().isEmpty()) {
 			String errorString = StringUtils.join(serviceObject.getErrorMessages(), "\n error: ");
-			TestLog.ConsoleLog(ServiceObject.normalize(errorString));
+			TestLog.ConsoleLog(ServiceObject.normalizeLog(errorString));
 			Helper.assertFalse(StringUtils.join(serviceObject.getErrorMessages(), "\n error: "));
 		}
 
@@ -324,7 +324,7 @@ public class RestApiInterface {
 
 		String errors = StringUtils.join(errorMessages, "\n error: ");
 		if(!errors.isEmpty())
-			TestLog.ConsoleLog("attempt failed with message: " + ServiceObject.normalize(errors));
+			TestLog.ConsoleLog("attempt failed with message: " + ServiceObject.normalizeLog(errors));
 		
 		if (currentRetryCount > 1)
 			Helper.waitForSeconds(waitTime);
@@ -793,7 +793,7 @@ public class RestApiInterface {
 
 		if (response != null) {
 			TestLog.logPass("response code: " + response.getStatusCode() + ". status: " + response.getStatusLine() );
-			TestLog.logPass("response message: " + ServiceObject.normalize(response.getBody().asString()));
+			TestLog.logPass("response message: " + ServiceObject.normalizeLog(response.getBody().asString()));
 			serviceObject.withResponse(response.then().extract().response());
 		} else {
 			TestLog.logPass("response message: " + "null");

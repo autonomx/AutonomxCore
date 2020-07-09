@@ -743,8 +743,8 @@ public class DataHelper {
 						+ Arrays.toString(expectedArray.toArray());
 			break;
 		case jsonbody:
-			TestLog.logPass("verifying response: \n" + ServiceObject.normalize(responseString)
-					+ "\n against expected: \n" +  ServiceObject.normalize(expectedString));
+			TestLog.logPass("verifying response: \n" + ServiceObject.normalizeLog(responseString)
+					+ "\n against expected: \n" +  ServiceObject.normalizeLog(expectedString));
 			String error = JsonHelper.validateByJsonBody(expectedString, responseString, true);
 			if (!error.isEmpty())
 				return error;
@@ -1520,14 +1520,14 @@ public class DataHelper {
 	private static String convertXmlResponseToJson(String xmlString){
 		if (!XmlHelper.isValidXmlString(xmlString)) return xmlString;
 		
-		TestLog.ConsoleLog("expected xml: " + ServiceObject.normalize(xmlString));
+		TestLog.ConsoleLog("expected xml: " + ServiceObject.normalizeLog(xmlString));
 		boolean isIgnoreNamespace = Config.getBooleanValue(IS_IGNORE_XML_NAMESPACE);
 		if(isIgnoreNamespace)
 			xmlString = XmlHelper.removeXmlNameSpace(xmlString);
 
 		xmlString = JsonHelper.XMLToJson(xmlString);
 		TestLog.ConsoleLog(
-				"expected value converted to json for validation: " + ServiceObject.normalize(xmlString));
+				"expected value converted to json for validation: " + ServiceObject.normalizeLog(xmlString));
 
 		return xmlString;
 	}
@@ -1537,7 +1537,7 @@ public class DataHelper {
 			updatedList.add(response.replace(System.lineSeparator(), ""));
 		}
 		String responseString = String.join(System.lineSeparator(), updatedList);
-		TestLog.logPass("response to be validated: " + ServiceObject.normalize(responseString));
+		TestLog.logPass("response to be validated: " + ServiceObject.normalizeLog(responseString));
 	}
 
 	/**
