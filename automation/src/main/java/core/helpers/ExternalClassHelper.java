@@ -22,8 +22,7 @@ public class ExternalClassHelper {
 	
 	protected static Object runInternalClass(String sourcePath, String methodName, List<KeyValue> parameterList) throws Exception {
 		
-		Class<?> externalClass = ExternalClassHelper.class.getClassLoader().loadClass(sourcePath);
-		Object external = externalClass.newInstance();
+		Class<?> externalClass = Class.forName(sourcePath);
 
 		// get list of parameter values
 		Object[] parameters = getParameterValues(parameterList);
@@ -39,7 +38,7 @@ public class ExternalClassHelper {
 		Method method = externalClass.getMethod(methodName, paramTypes);
 	
 		// call the method with parameters
-		Object	object = method.invoke(external, parameters);
+		Object	object = method.invoke(externalClass, parameters);
 		
 		return object;
 	}
