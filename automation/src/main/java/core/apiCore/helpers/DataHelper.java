@@ -578,8 +578,7 @@ public class DataHelper {
 			
 			expectedArray = removeEmptyElements(expectedArray);
 			String values = StringUtils.EMPTY;
-			if(!expectedArray.isEmpty())
-				values = "values:" + Arrays.toString(expectedArray.toArray());
+			values = "values:" + Arrays.toString(expectedArray.toArray());
 			
 			ServiceObject serviceObject = new ServiceObject()
 			.withMethod("METHOD:" + method)

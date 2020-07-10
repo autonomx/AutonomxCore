@@ -134,18 +134,20 @@ public class ExternalClassHelper {
 	private static Object[] getParameterValues(List<KeyValue> parameters) {
 		List<Object> parameterList = new ArrayList<Object>();
 		
+		// is the format: parameterName:value set. if one value is this format, all values should be the same format
+		boolean isParameterNamesProvided = isParameterNamesProvided(parameters);
+		
 		// formats supported: parameterName:parameterValue, or parameterValue
 		for (KeyValue parameter : parameters) {
-			if(parameter.value.toString().isEmpty())
-				parameterList.add(parameter.key);
-			else
+			if(isParameterNamesProvided)
 				parameterList.add(parameter.value);
+			else
+				parameterList.add(parameter.key);
 		}
-		Object[] paramArr = new String[parameterList.size()];
 		
-		for(int i = 0; i < parameterList.size(); i++) {
+		Object[] paramArr = new String[parameterList.size()];
+		for(int i = 0; i < parameterList.size(); i++) 
 			paramArr[i] = parameterList.get(i);
-		}
 		
 		return paramArr;
 	}
