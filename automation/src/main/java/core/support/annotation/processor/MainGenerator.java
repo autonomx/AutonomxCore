@@ -39,7 +39,6 @@ import core.support.annotation.helper.FileCreatorHelper;
 import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.annotationMap.AnnotationObject;
 import core.support.annotation.helper.annotationMap.ModuleMapHelper;
-import core.support.annotation.helper.utils.dirChangeDetector;
 import core.support.annotation.template.config.ConfigManager;
 import core.support.annotation.template.config.ConfigVariableGenerator;
 import core.support.annotation.template.dataObject.CsvDataObject;
@@ -48,13 +47,14 @@ import core.support.annotation.template.dataObject.ModuleClass;
 import core.support.annotation.template.manager.ModuleBase;
 import core.support.annotation.template.manager.ModuleManager;
 import core.support.annotation.template.manager.PanelManagerGenerator;
+import core.support.annotation.template.manager.sourceChangeDetector;
 import core.support.annotation.template.service.Service;
 import core.support.annotation.template.service.ServiceData;
 import core.support.annotation.template.service.ServiceRunner;
 import core.support.configReader.PropertiesReader;
 
 
-@SupportedAnnotationTypes(value = { "core.support.annotation.Module","core.support.annotation.Panel", "core.support.annotation.Data", "core.support.annotation.Service" })
+@SupportedAnnotationTypes(value = { "core.support.annotation.Module"})
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 @AutoService(javax.annotation.processing.Processor.class)
 public class MainGenerator extends AbstractProcessor {
@@ -63,6 +63,7 @@ public class MainGenerator extends AbstractProcessor {
 	public static ProcessingEnvironment PROCESS_ENV;
 	public static String ANNOATION_WORKING_DIR = StringUtils.EMPTY;
 
+	
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 		
@@ -71,10 +72,7 @@ public class MainGenerator extends AbstractProcessor {
 		// set working directory
 		setRootWorkingDirectory(processingEnv);
 		
-		// detect source directory and resource changes
-		if(dirChangeDetector.hasSourceChanged())
-			return runAnnotation();
-		return true;
+		return runAnnotation();
 	}
 	
 	public static boolean runAnnotation() {
@@ -121,8 +119,10 @@ public class MainGenerator extends AbstractProcessor {
 			// generate config objects
 			ConfigManager.writeConfigManagerClass();
 			ConfigVariableGenerator.writeConfigVariableClass();
-
-			// create marker crasll
+			
+			sourceChangeDetector.writeModuleBaseClass();
+			
+			// create marker class
 			createMarkerClass();
 
 			System.out.println("Annotation generation complete");
@@ -137,7 +137,7 @@ public class MainGenerator extends AbstractProcessor {
 	 * for comparison with the class files. if class files are newer, than the
 	 * marker class, then regenerate the code
 	 */
-	private static void createMarkerClass() {
+	protected static void createMarkerClass() {
 		try {
 			createFileList("src" + File.separator + "main", "src_dir", false);
 			createFileList("resources", "src_dir", true);

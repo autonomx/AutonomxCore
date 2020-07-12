@@ -496,7 +496,7 @@ public class TestLog {
 			printBatchClassToConsole(TestObject.BEFORE_CLASS_PREFIX);
 
 			// print test logs
-			printLogs(TestObject.getTestInfo().testLog);
+			printLogs(TestObject.getTestInfo().batchLog);
 		}
 	}
 

@@ -119,10 +119,10 @@ public class ApiTestDriver {
 	public static void trackServiceTestLogs() {
 		if(!isRunningServiceTest()) return;
 		
-		ApiTestDriver.getParentTestObject().testLog.addAll(TestObject.getTestInfo().testLog);
+		ApiTestDriver.getParentTestObject().batchLog.addAll(TestObject.getTestInfo().testLog);
 		
-		TestObject.getTestInfo().testLog = new ArrayList<LogObject>();
-		TestObject.getTestInfo().testLog.addAll(ApiTestDriver.getParentTestObject().testLog);
+		TestObject.getTestInfo().batchLog = new ArrayList<LogObject>();
+		TestObject.getTestInfo().batchLog.addAll(ApiTestDriver.getParentTestObject().testLog);
 	}
 
 	/**
