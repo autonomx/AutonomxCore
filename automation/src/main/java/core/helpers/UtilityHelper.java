@@ -803,17 +803,30 @@ public class UtilityHelper {
 	}
 
 	/**
-	 * delete file
+	 * delete file or directory
 	 * 
 	 * @param absolutePath
 	 */
 	protected static void deleteFile(String absolutePath) {
+		File file = new File(absolutePath);
+		if(file.isDirectory())
+			deleteDirectory(absolutePath);
+		else
+			deleteSingleFile(absolutePath);
+	}
+
+	private static void deleteDirectory(String absolutePath) {
 		File file = new File(absolutePath);
 		try {
 			FileUtils.deleteDirectory(file);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private static void deleteSingleFile(String absolutePath) {
+		File file = new File(absolutePath);
+		file.delete();
 	}
 
 	/**

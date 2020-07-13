@@ -8,10 +8,12 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
 
-public class dirChangeDetector {
+public class SourceChangeDetector {
 
 	public static String GENERATED_SOURCE_DIR = getRootDir() + "target" + File.separator + "generated-sources"
 			+ File.separator;
@@ -38,9 +40,6 @@ public class dirChangeDetector {
 
 		// if change detected
 		if (hasSourceChanged || !isMarker) {
-			System.out.println("hasSourceChanged: " + hasSourceChanged);
-			System.out.println("isMarker: " + hasSourceChanged);
-
 			System.out.println("************ Changes detected, initiating new source generation ************");
 
 			// delete maven status dir and marker (to indicated maven needs to generate new code)
@@ -158,7 +157,7 @@ public class dirChangeDetector {
 	private static String getRootDir() {
 		String root = "";
 		try {
-			root = new File(dirChangeDetector.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParentFile()
+			root = new File(SourceChangeDetector.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParentFile()
 					.getParent();
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
@@ -184,6 +183,23 @@ public class dirChangeDetector {
 	}
 
 	private static void deleteFile(String absolutePath) {
+		File file = new File(absolutePath);
+		if(file.isDirectory())
+			deleteDirectory(absolutePath);
+		else
+			deleteSingleFile(absolutePath);
+	}
+
+	private static void deleteDirectory(String absolutePath) {
+		File file = new File(absolutePath);
+		try {
+			FileUtils.deleteDirectory(file);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static void deleteSingleFile(String absolutePath) {
 		File file = new File(absolutePath);
 		file.delete();
 	}

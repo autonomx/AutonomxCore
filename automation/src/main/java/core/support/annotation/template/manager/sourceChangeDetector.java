@@ -68,6 +68,8 @@ public class sourceChangeDetector {
 				"import java.util.ArrayList;\n" + 
 				"import java.util.Arrays;\n" + 
 				"import java.util.List;\n" + 
+				"\n" + 
+				"import org.apache.commons.io.FileUtils;\n" + 
 				"import org.apache.commons.lang.StringUtils;\n" + 
 				"\n" + 
 				"\n" + 
@@ -85,6 +87,7 @@ public class sourceChangeDetector {
 				"	\n" + 
 				"	public static void main(String[] args) {\n" + 
 				"		hasSourceChanged();\n" + 
+				"		System.out.println(\"<<<<<<<<< running test file change class >>>>>>>>>\");\n" + 
 				"	}\n" + 
 				"\n" + 
 				"	public static boolean hasSourceChanged() {\n" + 
@@ -97,9 +100,6 @@ public class sourceChangeDetector {
 				"\n" + 
 				"		// if change detected\n" + 
 				"		if (hasSourceChanged || !isMarker) {\n" + 
-				"			System.out.println(\"hasSourceChanged: \" + hasSourceChanged);\n" + 
-				"			System.out.println(\"isMarker: \" + hasSourceChanged);\n" + 
-				"\n" + 
 				"			System.out.println(\"************ Changes detected, initiating new source generation ************\");\n" + 
 				"\n" + 
 				"			// delete maven status dir and marker (to indicated maven needs to generate new code)\n" + 
@@ -243,6 +243,23 @@ public class sourceChangeDetector {
 				"	}\n" + 
 				"\n" + 
 				"	private static void deleteFile(String absolutePath) {\n" + 
+				"		File file = new File(absolutePath);\n" + 
+				"		if(file.isDirectory())\n" + 
+				"			deleteDirectory(absolutePath);\n" + 
+				"		else\n" + 
+				"			deleteSingleFile(absolutePath);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private static void deleteDirectory(String absolutePath) {\n" + 
+				"		File file = new File(absolutePath);\n" + 
+				"		try {\n" + 
+				"			FileUtils.deleteDirectory(file);\n" + 
+				"		} catch (IOException e) {\n" + 
+				"			e.printStackTrace();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	private static void deleteSingleFile(String absolutePath) {\n" + 
 				"		File file = new File(absolutePath);\n" + 
 				"		file.delete();\n" + 
 				"	}\n" + 
