@@ -427,7 +427,7 @@ public class RestApiInterface {
 		}
 
 		// saves response values to config object
-		JsonHelper.saveOutboundJsonParameters(serviceObject.getResponse(), serviceObject.getOutputParams());
+		saveOutBoundValues(serviceObject);
 
 		// validate status code
 		errorMessages.addAll(validateStatusCode(serviceObject.getResponse(), serviceObject));
@@ -441,6 +441,14 @@ public class RestApiInterface {
 		// remove all empty response strings
 		errorMessages = DataHelper.removeEmptyElements(errorMessages);
 		return errorMessages;
+	}
+	
+	public static void saveOutBoundValues(ServiceObject serviceObject) {
+		if (serviceObject.getResponse() == null || serviceObject.getOutputParams().isEmpty())
+			return;
+		// saves response values to config object
+		JsonHelper.saveOutboundJsonParameters(serviceObject.getResponse(), serviceObject.getOutputParams());
+
 	}
 
 	/**

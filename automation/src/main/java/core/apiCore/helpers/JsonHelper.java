@@ -42,13 +42,27 @@ public class JsonHelper {
 	 * replaces output parameter with response values eg. $token with id form values
 	 * are in form of list separated by ";"
 	 * 
+	 * if Command is used 
 	 * @param response
 	 * @param outputParam
 	 */
 	public static void saveOutboundJsonParameters(Response response, String outputParam) {
 		if (response == null || outputParam.isEmpty())
 			return;
-		configMapJsonKeyValues(response, outputParam);
+		
+		// replace parameters for outputParam
+		outputParam = DataHelper.replaceParameters(outputParam);
+
+		List<KeyValue> keywords = DataHelper.getValidationMap(outputParam);
+		for (KeyValue keyword : keywords) {
+			if(keyword.key.toString().trim().startsWith(DataHelper.JSON_COMMAND.command.name())) {
+				String value = validateResponseBody(keyword.key.toString(),response);
+				keyword.key = value;
+				configMapKeyValues(response, keyword);
+			}else
+				configMapJsonKeyValues(response, keyword);
+		}
+		
 	}
 
 	/**
@@ -57,34 +71,38 @@ public class JsonHelper {
 	 * @param response
 	 * @param keyValue
 	 */
-	public static void configMapJsonKeyValues(Response response, String keyValue) {
+	public static void configMapJsonKeyValues(Response response, KeyValue keyword) {
+		
+		String value = getJsonValue(response, keyword.key);
+		keyword.key = value;
+		configMapKeyValues(response, keyword);
+	}
+	
+	/**
+	 * map key value to config eg.features.features.id:1:<$id>
+	 * 
+	 * @param response
+	 * @param keyValue
+	 */
+	public static void configMapKeyValues(Response response, KeyValue keyword) {
 
-		if (keyValue.isEmpty())
-			return;
+		// fail if value is wrong format
+		if (!keyword.value.toString().startsWith("<") || !keyword.value.toString().contains("$")
+				|| !keyword.value.toString().endsWith(">"))
+			Helper.assertFalse("variable placement must of format path: <$variable>. invalid value: "
+					+ keyword.value.toString());
 
-		// replace parameters for outputParam
-		keyValue = DataHelper.replaceParameters(keyValue);
+		String key = (String) keyword.value;
+		key = key.replace("$", "").replace("<", "").replace(">", "").trim();
+		// gets json value. if list, returns string separated by comma
+		String value = keyword.key;
 
-		List<KeyValue> keywords = DataHelper.getValidationMap(keyValue);
-		for (KeyValue keyword : keywords) {
-
-			// fail if value is wrong format
-			if (!keyword.value.toString().startsWith("<") || !keyword.value.toString().contains("$")
-					|| !keyword.value.toString().endsWith(">"))
-				Helper.assertFalse("variable placement must of format path: <$variable>. invalid value: "
-						+ keyword.value.toString());
-
-			String key = (String) keyword.value;
-			key = key.replace("$", "").replace("<", "").replace(">", "").trim();
-			// gets json value. if list, returns string separated by comma
-			String value = getJsonValue(response, keyword.key);
-
-			if (!keyword.position.isEmpty()) {
-				value = value.split(",")[Integer.valueOf(keyword.position) - 1];
-			}
-			Config.putValue(key, value, false);
-			TestLog.logPass("output parameter: " + key + " value: " + value);
+		if (!keyword.position.isEmpty()) {
+			value = value.split(",")[Integer.valueOf(keyword.position) - 1];
 		}
+		Config.putValue(key, value, false);
+		TestLog.logPass("output parameter: " + key + " value: " + value);
+		
 	}
 
 	/**
@@ -318,7 +336,7 @@ public class JsonHelper {
 			}
 
 			// validate response
-			String errorMessage = DataHelper.validateCommand(command, jsonPathResponse, expectedValue, keyword.position);
+			String errorMessage = DataHelper.validateCommand(command, jsonPathResponse, expectedValue, keyword.position, false);
 			errorMessages.add(errorMessage);
 		}
 
@@ -473,8 +491,10 @@ public class JsonHelper {
 		expected = Helper.stringRemoveLines(expected);
 		expected = Helper.removeSurroundingQuotes(expected);
 
+		// command added as part of output parameter command support
 		if (!expected.startsWith(DataHelper.VERIFY_RESPONSE_BODY_INDICATOR)
 				&& !expected.startsWith(DataHelper.VERIFY_HEADER_PART_INDICATOR)
+				&& !expected.startsWith(DataHelper.JSON_COMMAND.command.name())
 				&& !expected.startsWith(DataHelper.VERIFY_TOPIC_PART_INDICATOR)) {
 			return StringUtils.EMPTY;
 		}
@@ -495,7 +515,7 @@ public class JsonHelper {
 			expectedValue = expectedArr[1].trim();
 		}
 
-		return DataHelper.validateCommand(command, responseString, expectedValue, "0");
+		return DataHelper.validateCommand(command, responseString, expectedValue, "0", false);
 
 	}
 

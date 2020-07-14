@@ -29,7 +29,7 @@ public class SqlHelper {
 		if (response == null || outputParam.isEmpty())
 			return;
 
-		JsonHelper.configMapJsonKeyValues(response, outputParam);
+		JsonHelper.saveOutboundJsonParameters(response, outputParam);
 	}
 
 	/**

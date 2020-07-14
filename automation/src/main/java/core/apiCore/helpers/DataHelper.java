@@ -507,7 +507,7 @@ public class DataHelper {
 
 	/**
 	 * validates response against expected values
-	 * 
+	 * if skipValidation = false -> response variable contains error
 	 * @param command
 	 * @param responseString
 	 * @param expectedString
@@ -515,14 +515,18 @@ public class DataHelper {
 	 * @return
 	 */
 	public static String validateCommand(String command, String responseString, String expectedString,
-			String position) {
-		String error = validateExpectedCommand(command, responseString, expectedString, position);
-		if (error.isEmpty())
+			String position, boolean skipValidation) {
+		String response = validateExpectedCommand(command, responseString, expectedString, position);
+		
+		if(skipValidation)
+			return response;
+		
+		if (response.isEmpty())
 			TestLog.ConsoleLog("validation passed for command: response " + command + " " + expectedString);
 		else
-			TestLog.ConsoleLog("validation failed for command: " + command + " with error: " + error);
+			TestLog.ConsoleLog("validation failed for command: " + command + " with error: " + response);
 
-		return error;
+		return response;
 	}
 
 	/**
