@@ -1367,7 +1367,7 @@ public class DataHelper {
 		expectedResponse = DataHelper.replaceParameters(expectedResponse);
 
 		// separate the expected response by && 
-		String[] criteria = expectedResponse.split("(?="+ VALIDATION_AND_CONDITION +")|(?="+ VALIDATION_OR_CONDITION_ECODE +")");
+		String[] criteria = getCriteria(expectedResponse);
 		
 
 		// get response body as string
@@ -1411,6 +1411,34 @@ public class DataHelper {
 		// remove all empty response strings
 		errorMessages = removeEmptyElements(errorMessages);
 		return errorMessages;
+	}
+	
+	/**
+	 * split expected validation based on && or ||
+	 * we ignore json path && or ||
+	 * @param expectedResponse
+	 * @return
+	 */
+	private static String[] getCriteria(String expectedResponse) {
+		
+		// separate the expected response by && or ||
+		String[] criteria =   expectedResponse.split("(?="+ VALIDATION_AND_CONDITION +")|(?="+ VALIDATION_OR_CONDITION_ECODE +")");
+		List<String> updatedCriteria = new ArrayList<String>();
+		
+		String criteriaVal = StringUtils.EMPTY;
+		for(int i = 0 ; i<criteria.length; i++) {
+			criteriaVal = criteria[i];
+			criteriaVal = removeLogicIdentifiers(criteriaVal);
+			
+			// !@ or @ character indicate json path 
+			if(criteriaVal.trim().startsWith("!@") || criteriaVal.trim().startsWith("@")) {
+				int lastItem = updatedCriteria.size() - 1;
+				updatedCriteria.set(lastItem, updatedCriteria.get(lastItem) + criteria[i]);		
+			}else
+				updatedCriteria.add(criteria[i]); 	
+		}
+			
+		return updatedCriteria.toArray(new String[updatedCriteria.size()]);
 	}
 	
 	/**
