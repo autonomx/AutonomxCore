@@ -2,6 +2,7 @@ package core.support.annotation.template.service;
 
 import java.io.BufferedWriter;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -10,9 +11,13 @@ import javax.tools.JavaFileObject;
 
 import org.apache.commons.lang3.StringUtils;
 
+import core.apiCore.helpers.CsvReader;
 import core.support.annotation.helper.FileCreatorHelper;
 import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PackageHelper;
+import core.support.logger.TestLog;
+import core.support.objects.ServiceObject;
+import core.support.objects.TestObject;
 
 public class ServiceRunner {
 
@@ -199,25 +204,26 @@ public class ServiceRunner {
 		} 
 	} 
 		 */
-		bw.append("	public static void runServiceTests(ServiceObject serviceObject) throws Exception {" + " \n");
-		bw.append("		if(serviceObject.getServiceSteps() instanceof HashMap) {" + " \n");
-		bw.append("			Map<String, List<Object>> testStepMap = serviceObject.getServiceSteps();"+ " \n");
-		bw.append("			List<Object> teststeps = testStepMap.get(CsvReader.getTestname(serviceObject.getTestCaseID()));"+ " \n");
-		bw.append("			for(int i = 0; i < teststeps.size(); i ++) {" + " \n");
-		bw.append("				Object[] steps = (Object[]) teststeps.get(i); " + " \n");
-		bw.append("				ServiceObject stepObject = CsvReader.mapToServiceObject(steps);" + " \n");
-		bw.append("				if(serviceObject.getInterfaceType().isEmpty() && !stepObject.getInterfaceType().isEmpty())" + " \n");
-		bw.append("					TestLog.logPass(\"******** Starting Step \" +  i + \" **********\");" + " \n");
-		bw.append("				else if(!serviceObject.getInterfaceType().isEmpty())" + " \n");
-		bw.append("					TestLog.logPass(\"******** Starting Step \" +  i+1 + \" **********\");" + " \n");
-		bw.append("				TestObject.getTestInfo().activeServiceObject = stepObject;" + " \n");
-		bw.append("				runInterface();" + " \n");
-		bw.append("			}" + " \n");
-		bw.append("		}else{" + " \n");
-		bw.append("			TestObject.getTestInfo().activeServiceObject = serviceObject;" + " \n");
-		bw.append("			runInterface();" + " \n");
-		bw.append("		}" + " \n");
-		bw.append("	}" + " \n");
+		bw.append("	public static void runServiceTests(ServiceObject serviceObject) throws Exception { \n" + 
+				"		if(serviceObject.getServiceSteps() instanceof HashMap) { \n" + 
+				"			Map<String, List<Object>> testStepMap = serviceObject.getServiceSteps(); \n" + 
+				"			List<Object> teststeps = testStepMap.get(CsvReader.getTestname(serviceObject.getTestCaseID())); \n" + 
+				"			for(int i = 0; i < teststeps.size(); i ++) { \n" + 
+				"				Object[] steps = (Object[]) teststeps.get(i);  \n" + 
+				"				ServiceObject stepObject = CsvReader.mapToServiceObject(steps); \n" + 
+				"				if(serviceObject.getInterfaceType().isEmpty() && !stepObject.getInterfaceType().isEmpty()) \n" + 
+				"					TestLog.logPass(\"******** Starting Step \" +  i + \" **********\"); \n" + 
+				"				else if(!serviceObject.getInterfaceType().isEmpty()) \n" + 
+				"					TestLog.logPass(\"******** Starting Step \" +  (i+1) + \" **********\"); \n" + 
+				"				TestObject.getTestInfo().activeServiceObject = stepObject; \n" + 
+				"				runInterface(); \n" + 
+				"			} \n" + 
+				"		}else{ \n" + 
+				"			TestObject.getTestInfo().activeServiceObject = serviceObject; \n" + 
+				"			runInterface(); \n" + 
+				"		} \n" + 
+				"	}");
+		
 		bw.newLine();
 		bw.newLine();
 
