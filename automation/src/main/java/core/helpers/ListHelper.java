@@ -486,6 +486,7 @@ public class ListHelper {
 	public void verifyContainsIsInList(EnhancedBy list, String option) {
 		Helper.wait.waitForElementToLoad(list);
 		int index = getElementIndexContainByText(list, option);
+		TestLog.logPass("verify option: " + option + " is contained in list: " + list.name);
 		AssertHelper.assertTrue("option not found in list: " + list.name, index > -1);
 	}
 
@@ -499,6 +500,7 @@ public class ListHelper {
 	public void verifyIsInList(EnhancedBy list, String option) {
 		Helper.wait.waitForElementToLoad(list);
 		int index = getElementIndexEqualsByText(list, option);
+		TestLog.logPass("verify option: " + option + " is in list: " + list.name);
 		AssertHelper.assertTrue("option not found in list: " + list.name, index > -1);
 	}
 
@@ -513,6 +515,7 @@ public class ListHelper {
 		int index = getElementIndexEqualsByText(list, option);
 		EnhancedWebElement listElements = Element.findElements(list);
 		boolean isInList = listElements.getText(index).contains(option);
+		TestLog.logPass("verify option: " + option + " is in list: " + list.name);
 		AssertHelper.assertTrue("option not found in list: " + list.name, isInList);
 	}
 

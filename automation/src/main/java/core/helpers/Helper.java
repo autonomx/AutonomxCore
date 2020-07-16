@@ -27,6 +27,7 @@ import core.helpers.emailHelper.EmailSendHelper;
 import core.helpers.excelHelper.ExcelHelper;
 import core.helpers.excelHelper.ExcelObject;
 import core.support.objects.KeyValue;
+import core.uiCore.drivers.AbstractDriver;
 import core.uiCore.webElement.EnhancedBy;
 import core.uiCore.webElement.EnhancedWebElement;
 import io.appium.java_client.android.AndroidDriver;
@@ -2054,9 +2055,10 @@ public class Helper {
 	 * waits for element to not be displayed wait for maximum of 60 seconds
 	 * 
 	 * @param target
+	 * @return 
 	 */
-	public static void waitForElementToBeRemoved(final EnhancedBy target) {
-		wait.waitForElementToBeRemoved(target);
+	public static boolean waitForElementToBeRemoved(final EnhancedBy target) {
+		return wait.waitForElementToBeRemoved(target);
 	}
 
 	/**
@@ -2067,6 +2069,17 @@ public class Helper {
 	 */
 	public static boolean waitForElementToBeRemoved(final EnhancedBy target, int time) {
 		return wait.waitForElementToBeRemoved(target, time);
+	}
+	
+	/**
+	 * waits for element to not be displayed
+	 * 
+	 * @param target
+	 * @param time   : maximum amount of time in seconds to wait. use AbstractDriver.TIMEOUT_SECONDS for default timeout
+	 * @param waitForTargetToLoadInSeconds wait for element to load before waiting for element to be removed  
+	 */
+	public static boolean waitForElementToBeRemoved(final EnhancedBy target, int time, int waitForTargetToLoadInSeconds) {
+		return wait.waitForElementToBeRemoved(target, time, waitForTargetToLoadInSeconds);
 	}
 
 	/**

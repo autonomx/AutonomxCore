@@ -201,9 +201,19 @@ public class WaitHelper {
 	 * waits for element to not be displayed wait for maximum of 60 seconds
 	 * 
 	 * @param target
+	 * @return 
 	 */
-	public void waitForElementToBeRemoved(final EnhancedBy target) {
-		waitForElementToBeRemoved(target, AbstractDriver.TIMEOUT_SECONDS);
+	public boolean waitForElementToBeRemoved(final EnhancedBy target) {
+		return waitForElementToBeRemoved(target, AbstractDriver.TIMEOUT_SECONDS);
+	}
+	
+	/* waits for element to not be displayed wait for maximum of 60 seconds
+	 * 
+	 * @param target
+	 */
+	public boolean waitForElementToBeRemoved(final EnhancedBy target, int time, int waitForTargetToLoadInSeconds) {
+		waitForElementToLoad(target, waitForTargetToLoadInSeconds);
+		return waitForElementToBeRemoved(target, AbstractDriver.TIMEOUT_SECONDS);
 	}
 
 	/**

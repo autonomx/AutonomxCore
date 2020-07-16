@@ -244,7 +244,7 @@ public class ScreenRecorderHelper {
 		try {
 			FileUtils.deleteDirectory(getScreenRecorderTempDir());
 		} catch (IOException e) {
-			e.printStackTrace();
+			TestLog.ConsoleLogDebug(e.getMessage());
 		}
 	}
 }
