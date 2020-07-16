@@ -137,7 +137,7 @@ public class LocalizationHelper {
 			File csvFile = getCsvFile(localFile);
 			CSVParser parser;
 			try {
-				parser = CSVParser.parse(csvFile, StandardCharsets.ISO_8859_1,
+				parser = CSVParser.parse(csvFile, StandardCharsets.UTF_8,
 						CSVFormat.EXCEL.withFirstRecordAsHeader());
 				String translation = "";
 
