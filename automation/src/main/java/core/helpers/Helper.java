@@ -2568,6 +2568,15 @@ public class Helper {
 	}
 	
 	/**
+	 * convert array list to string separated by ","
+	 * @param list
+	 * @return
+	 */
+	public static String convertListToString(ArrayList<String> list) {
+		return UtilityHelper.convertListToString(list);
+	}
+	
+	/**
 	 * normalizes string removes space, new line chars
 	 * 
 	 * @param value

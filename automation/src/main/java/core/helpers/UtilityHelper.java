@@ -1449,4 +1449,9 @@ public class UtilityHelper {
 		
 		return StringUtils.EMPTY;
 	}
+	
+	protected static String convertListToString(ArrayList<String> list) {
+		return Arrays.toString(list.toArray()); 
+	}
+		
 }

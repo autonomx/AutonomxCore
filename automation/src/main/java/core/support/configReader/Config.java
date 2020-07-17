@@ -302,7 +302,9 @@ public class Config {
 			value = StringUtils.EMPTY;
 			return value.toString();
 		}
-		List<String> items = Arrays.asList(value.toString().split("\\s*,\\s*"));
+		List<String> items = new ArrayList<String>(Arrays.asList(value.toString().split(",")));
+		items.replaceAll(String::trim);
+		
 		if (items.size() == 0) {
 			items = new ArrayList<String>();
 			items.add(value.toString());
@@ -375,7 +377,14 @@ public class Config {
 				Helper.assertFalse("value not found, default empty: " + key);
 			value = StringUtils.EMPTY;
 		}
-		List<String> items = Arrays.asList(value.toString().split("\\s*,\\s*"));
+		List<String>  items = new ArrayList<String>(Arrays.asList(value.toString().split(",")));
+		items.replaceAll(String::trim);
+		
+		if (items.size() == 0) {
+			items = new ArrayList<String>();
+			items.add(value.toString());
+		}
+		
 		return items.get(0);
 	}
 
@@ -477,7 +486,7 @@ public class Config {
 	 * @param key key in properties file
 	 * @return the list of values from key separated by ","
 	 */
-	public static List<String> getValueList(String key) {
+	public static ArrayList<String> getValueList(String key) {
 		return getValueList(key, true);
 	}
 
@@ -487,16 +496,42 @@ public class Config {
 	 * @param key key in properties file
 	 * @return the list of values from key separated by ","
 	 */
-	public static List<String> getValueList(String key, boolean isFailable) {
+	public static ArrayList<String> getValueList(String key, boolean isFailable) {
 		String value = (String) TestObject.getTestInfo().config.get(key);
-		List<String> items = new ArrayList<String>();
+		ArrayList<String> items = new ArrayList<String>();
 		if (value == null) {
 			if (isFailable)
 				Helper.assertFalse("value not found in config files: " + key);
 		}
-		if (!value.isEmpty())
-			items = Arrays.asList(value.split("\\s*,\\s*"));
+		if (!value.isEmpty()) {
+			items = new ArrayList<String>(Arrays.asList(value.split(",")));
+			items.replaceAll(String::trim);
+		}
 		return items;
+	}
+	
+	/**
+	 * get values as string, without any processing
+	 * @param key
+	 * @return
+	 */
+	public static String getValueAsString(String key) {
+		return getValueAsString(key, false);
+	}
+	
+	/**
+	 * get values as string, without any processing
+	 * @param key
+	 * @param isFailable
+	 * @return
+	 */
+	public static String getValueAsString(String key, boolean isFailable) {
+		String value = (String) TestObject.getTestInfo().config.get(key);
+		if (value == null) {
+			if (isFailable)
+				Helper.assertFalse("value not found in config files: " + key);
+		}	
+		return value;
 	}
 
 	/**
