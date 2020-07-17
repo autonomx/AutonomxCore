@@ -17,6 +17,7 @@ import org.openqa.selenium.Keys;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.html5.Location;
+import org.testng.asserts.SoftAssert;
 
 import core.helpers.click.ClickHelper;
 import core.helpers.click.ClickHelperAction;
@@ -171,6 +172,14 @@ public class Helper {
 
 	public static void softAssertEqual(int expected, int actual) {
 		AssertHelper.softAssertEqual(actual, expected);
+	}
+	
+	public static SoftAssert softAssert() {
+		return AssertHelper.softAssert();
+	}
+	
+	public static void softAssertAll() {
+		AssertHelper.softAssertAll();
 	}
 
 	// Element Helper

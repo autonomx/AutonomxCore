@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.junit.runner.Description;
 import org.monte.screenrecorder.ScreenRecorder;
 import org.openqa.selenium.WebDriver;
+import org.testng.asserts.SoftAssert;
 
 import com.aventstack.extentreports.ExtentTest;
 import com.google.common.collect.ArrayListMultimap;
@@ -132,7 +133,10 @@ public class TestObject {
 	public static ThreadLocal<String> currentTestId = new ThreadLocal<String>(); // key for testObject
 
 	public String language;
-
+	
+	// soft assert
+	public SoftAssert softAssert = new SoftAssert();
+	
 	// key: testId
 	public static Map<String, TestObject> testInfo = new ConcurrentHashMap<String, TestObject>();
 

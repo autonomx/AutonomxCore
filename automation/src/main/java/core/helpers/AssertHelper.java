@@ -74,21 +74,31 @@ public class AssertHelper {
 	}
 
 	protected static void softAssertTrue(String message, boolean value) {
-		SoftAssert softAssertion = new SoftAssert();
-		softAssertion.assertTrue(value, message);
-		TestLog.ConsoleLogWarn("soft assert failed: " + message);
+		TestObject.getTestInfo().softAssert.assertTrue(value, message);
+		if(!value) TestLog.ConsoleLogWarn("soft assert failed: " + message);
 	}
 
 	protected static void softAssertEqual(String expected, String actual) {
-		SoftAssert softAssertion = new SoftAssert();
-		softAssertion.assertEquals(actual, expected);
-		TestLog.ConsoleLogWarn("soft assert failed: expected: " + expected + " but actual was: " + actual);
+		TestObject.getTestInfo().softAssert.assertEquals(actual, expected);
+		if (expected != null && !expected.equals(actual))
+			TestLog.ConsoleLogWarn("soft assert failed: expected: " + expected + " but actual was: " + actual);
+		else if (expected == null && expected != actual)
+			TestLog.ConsoleLogWarn("soft assert failed: expected: " + expected + " but actual was: " + actual);
+
 	}
 
 	protected static void softAssertEqual(int expected, int actual) {
-		SoftAssert softAssertion = new SoftAssert();
-		softAssertion.assertEquals(actual, expected);
-		TestLog.ConsoleLogWarn("soft assert failed: expected: " + expected + " but actual was: " + actual);
+		TestObject.getTestInfo().softAssert.assertEquals(actual, expected);
+		if(expected != actual)
+			TestLog.ConsoleLogWarn("soft assert failed: expected: " + expected + " but actual was: " + actual);
+	}
+	
+	protected static SoftAssert softAssert() {
+		return TestObject.getTestInfo().softAssert;
+	}
+	
+	protected static void softAssertAll() {
+		TestObject.getTestInfo().softAssert.assertAll();
 	}
 
 	/**
