@@ -16,7 +16,6 @@ public class TestResultListener extends TestListenerAdapter {
     
     @Override
     public void onConfigurationFailure(ITestResult result) {
-    	result.setStatus(ITestResult.SKIP);
     	Reporter.setCurrentTestResult(result);
     	
     	// print stack trace
