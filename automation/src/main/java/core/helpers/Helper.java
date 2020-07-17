@@ -735,7 +735,8 @@ public class Helper {
 	public static void selectDropDownWithDoubleClick(String option, EnhancedBy field, int index, EnhancedBy listValue) {
 		form.selectDropDownWithDoubleClick(option, field, index, listValue);
 	}
-
+	
+	
 	/**
 	 * selects drop down
 	 * 
@@ -743,6 +744,19 @@ public class Helper {
 	 * @param field  : the drop down field
 	 * @param list   : the list items in the drop down list
 	 */
+	public void selectDropDown(EnhancedBy field, EnhancedBy list, String... options) {
+		form.selectDropDown(field, list, options);
+	}
+
+	/**
+	 * @deprecated replaced by selectDropDown(field, list, options)
+	 * selects drop down
+	 * 
+	 * @param option : list option we want to select
+	 * @param field  : the drop down field
+	 * @param list   : the list items in the drop down list
+	 */
+	@Deprecated 
 	public static void selectDropDown(String option, EnhancedBy field, EnhancedBy listValue) {
 		form.selectDropDown(option, field, listValue);
 	}

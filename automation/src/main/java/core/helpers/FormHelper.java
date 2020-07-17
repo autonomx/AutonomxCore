@@ -320,6 +320,7 @@ public class FormHelper {
 		Helper.list.selectListItemEqualsByName(list, option);
 	}
 
+	
 	/**
 	 * selects drop down
 	 * 
@@ -327,15 +328,29 @@ public class FormHelper {
 	 * @param field  : the drop down field
 	 * @param list   : the list items in the drop down list
 	 */
-	public void selectDropDown(String option, EnhancedBy field, EnhancedBy list) {
-
-		if (StringUtils.isBlank(option))
+	public void selectDropDown(EnhancedBy field, EnhancedBy list, String... options) {
+		if (options.length == 0)
 			return;
 
-		TestLog.logPass("I select drop down option '" + option + "'");
+		TestLog.logPass("I select drop down option(s) '" + options + "'");
 
 		Helper.click.clickAndExpect(field, list);
-		Helper.list.selectListItemEqualsByName(list, option);
+		
+		for(String option : options)
+			Helper.list.selectListItemEqualsByName(list, option);
+	}
+	
+	/**
+	 * @deprecated replaced by selectDropDown(field, list, options)
+	 * selects drop down
+	 * 
+	 * @param option : list option we want to select
+	 * @param field  : the drop down field
+	 * @param list   : the list items in the drop down list
+	 */
+	@Deprecated  
+	public void selectDropDown(String option, EnhancedBy field, EnhancedBy list) {
+		selectDropDown(field, list, option);
 	}
 
 	/**
