@@ -235,7 +235,7 @@ public class CsvDataObject {
 		for (int i = firstIndex; i < headers.size(); i++) {
 			String column = headers.get(i).trim();
 			bw.append("// update value in csv file" + "\n");
-			bw.append("	public synchronized void update" + StringUtils.capitalize(column) + "( String " + column + ") {"
+			bw.append("	public synchronized void updateCsv" + StringUtils.capitalize(column) + "( String " + column + ") {"
 					+ "\n" + "\n");
 			bw.append(
 					"		Helper.assertTrue(\"id cannot be empty, select row id. eg. Data.webApp.users().admin().updateName('bob'); \" , !this.id.isEmpty());"
