@@ -54,6 +54,9 @@ public class RestApiInterface {
 	public static final String API_PAGINATION_COUNTER = "PAGINATION";
 
 	public static final String API_PARAMETER_ENCODING = "api.encoding.parameter";
+	public static final String API_USE_RELAXED_HTTPS_VALIDATION = "api.useRelaxedHTTPSValidation";
+
+	
 
 	public static final String API_BASE_URL = "api.uriPath";
 
@@ -393,6 +396,9 @@ public class RestApiInterface {
 		int port = Config.getIntValue(TestObject.PROXY_PORT);
 		String proxyProtocal = Config.getValue(TestObject.PROXY_PROTOCOL);
 		boolean isProxyEnabled = false;
+		
+		if(Config.getBooleanValue(API_USE_RELAXED_HTTPS_VALIDATION))
+			RestAssured.useRelaxedHTTPSValidation();
 
 		// detect if proxy is required or not
 		isProxyEnabled = UtilityHelper.isProxyRequired(getBaseUrl());
