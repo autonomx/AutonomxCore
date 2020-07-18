@@ -290,7 +290,7 @@ public class Config {
 
 		Object value = TestObject.getTestInfo().config.get(key);
 		if(value == null) 
-				value =  MavenReader.getStringProperty(key);
+				value = MavenReader.getStringProperty(key);
 	
 		if (value == null) {
 			if (isFailable)
@@ -302,14 +302,7 @@ public class Config {
 			value = StringUtils.EMPTY;
 			return value.toString();
 		}
-		List<String> items = new ArrayList<String>(Arrays.asList(value.toString().split(",")));
-		items.replaceAll(String::trim);
-		
-		if (items.size() == 0) {
-			items = new ArrayList<String>();
-			items.add(value.toString());
-		}
-		return items.get(0);
+		return value.toString();
 	}
 
 	/**
@@ -372,20 +365,16 @@ public class Config {
 	public static String getGlobalValue(String key, boolean isFailable) {
 
 		Object value = TestObject.getGlobalTestInfo().config.get(key);
+		if(value == null) 
+			value = MavenReader.getStringProperty(key);
+		
 		if (value == null) {
 			if (isFailable)
 				Helper.assertFalse("value not found, default empty: " + key);
 			value = StringUtils.EMPTY;
 		}
-		List<String>  items = new ArrayList<String>(Arrays.asList(value.toString().split(",")));
-		items.replaceAll(String::trim);
-		
-		if (items.size() == 0) {
-			items = new ArrayList<String>();
-			items.add(value.toString());
-		}
-		
-		return items.get(0);
+	
+		return value.toString();
 	}
 
 	/**
@@ -497,7 +486,7 @@ public class Config {
 	 * @return the list of values from key separated by ","
 	 */
 	public static ArrayList<String> getValueList(String key, boolean isFailable) {
-		String value = (String) TestObject.getTestInfo().config.get(key);
+		String value = getValue(key, isFailable);
 		ArrayList<String> items = new ArrayList<String>();
 		if (value == null) {
 			if (isFailable)
@@ -508,30 +497,6 @@ public class Config {
 			items.replaceAll(String::trim);
 		}
 		return items;
-	}
-	
-	/**
-	 * get values as string, without any processing
-	 * @param key
-	 * @return
-	 */
-	public static String getValueAsString(String key) {
-		return getValueAsString(key, false);
-	}
-	
-	/**
-	 * get values as string, without any processing
-	 * @param key
-	 * @param isFailable
-	 * @return
-	 */
-	public static String getValueAsString(String key, boolean isFailable) {
-		String value = (String) TestObject.getTestInfo().config.get(key);
-		if (value == null) {
-			if (isFailable)
-				Helper.assertFalse("value not found in config files: " + key);
-		}	
-		return value;
 	}
 
 	/**
