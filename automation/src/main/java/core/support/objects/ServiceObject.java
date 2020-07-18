@@ -3,11 +3,13 @@ package core.support.objects;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
+import core.helpers.Helper;
 import core.support.logger.TestLog;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
@@ -71,19 +73,11 @@ public class ServiceObject {
 
 	public ServiceObject setServiceObject(Object[] testData) {
 		
-		this.TestSuite = getArrayValue(testData, 0);
 
-		Map<String, List<String>> headerMap = TestObject.getGlobalTestInfo().serviceObject.getHeaderMap();
-
-		// if header list is not set, use default header map
-		if(headerMap.get(this.TestSuite) == null) {
-			 String[] header = {"TestSuite", "TestCaseID", "RunFlag", "Description", "InterfaceType", "UriPath", "ContentType", "Method", "Option", "RequestHeaders", "TemplateFile", "RequestBody", "OutputParams", "RespCodeExp", "ExpectedResponse", "TcComments"};
-			 List<String> headerList = Arrays.asList(header);
-			 TestObject.getGlobalTestInfo().serviceObject.withHeaderMap(this.TestSuite, headerList);
-		}
+		List<String> header = getMatchingHeader(testData);
+		
 			
-		List<String> header = headerMap.get(this.TestSuite);
-
+		this.TestSuite = getArrayValue(testData, header.indexOf("TestSuite"));
 		this.TestCaseID = getArrayValue(testData, header.indexOf("TestCaseID"));
 		this.RunFlag = getArrayValue(testData, header.indexOf("RunFlag"));
 		this.Description = getArrayValue(testData, header.indexOf("Description"));
@@ -106,8 +100,31 @@ public class ServiceObject {
 
 		return this;
 	}
+	
+	private static List<String> getMatchingHeader(Object[] testData) {
+		Map<String, List<String>> headerMap = TestObject.getGlobalTestInfo().serviceObject.getHeaderMap();
+		List<String> header = new ArrayList<String>();
+		
+		for (Map.Entry<String, List<String>> entry : headerMap.entrySet()) {
+		    String key = entry.getKey();
+		    if(key.isEmpty()) continue;
+		    
+		    List<String> value = entry.getValue();
+		    int suiteIndex = value.indexOf("TestSuite");
+		    String testDataSuite = getArrayValue(testData, suiteIndex);
+		    if(testDataSuite.equals(key)) {
+		    	header = value;
+		    	break;
+		    }
+		}
+		
+		if(header.isEmpty())
+			Helper.assertFalse("did not find matching test suite name");
+		
+		return header;
+	}
 
-	private String getArrayValue(Object[] testData, int index) {
+	private static String getArrayValue(Object[] testData, int index) {
 		if (index >= testData.length)
 			return StringUtils.EMPTY;
 
@@ -326,7 +343,7 @@ public class ServiceObject {
 		return this.testType;
 	}
 	
-	public ServiceObject withHeaderMap(String testcaseId, List<String> header) {
+	public ServiceObject withHeaderMap(String testcaseId, ArrayList<String> header) {
 		this.headerMap.put(testcaseId, header);
 		return this;
 	}

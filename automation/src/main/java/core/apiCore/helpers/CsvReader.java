@@ -610,9 +610,11 @@ public class CsvReader {
 
 			// read header separately
 			String[] header = reader.readNext();
-				
+			ArrayList<String> headerList = new ArrayList<String>();
+			
 			int runFlag = getColumnIndexByName("RunFlag", header);
 			int testCaseIDIndex = getColumnIndexByName("TestCaseID", header);
+			int testCaseSuiteIndex =  getColumnIndexByName("TestSuite", header);
 			String testCaseSuite = StringUtils.EMPTY;
 
 			// only add tests that have runFlag set to Y And testCaseID are set
@@ -623,12 +625,16 @@ public class CsvReader {
 				if (newline[runFlag].equals("Y") && !newline[testCaseIDIndex].isEmpty()) {
 					csvList.add(newline);
 					
-					if(testCaseSuite.isEmpty())
-						testCaseSuite = newline[0];
+					// set testSuit name. need to set only 1 time
+					if(testCaseSuite.isEmpty()) {
+						testCaseSuite = newline[testCaseSuiteIndex];
+						headerList = new ArrayList<String>(Arrays.asList(header));
+						headerList.add(testCaseSuite);
+					}
 				}
 			}
 			// store header column names, using test suite as key
-			TestObject.getGlobalTestInfo().serviceObject.withHeaderMap(testCaseSuite,Arrays.asList(header));
+			TestObject.getGlobalTestInfo().serviceObject.withHeaderMap(testCaseSuite,headerList);
 					
 						
 			reader.close();
