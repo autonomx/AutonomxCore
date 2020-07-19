@@ -182,7 +182,6 @@ public class WebDriverSetup {
 			setManualDriverPath(driverObject.browserType);
 			return;
 		}
-		String path = manager.getBinaryPath();
 		
 		// force cache, not checking online
 		if (isForceCache)
