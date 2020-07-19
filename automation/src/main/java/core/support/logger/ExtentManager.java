@@ -35,6 +35,7 @@ import core.support.objects.TestObject.testState;
 
 //OB: ExtentReports extent instance created here. That instance can be reachable by getReporter() method.
 
+@SuppressWarnings("deprecation")
 public class ExtentManager {
 
 	public static final String LAUNCH_AFTER_REPORT = "report.launchReportAfterTest";
@@ -112,11 +113,9 @@ public class ExtentManager {
 	public static ExtentReports createInstance(String fileName) {
 
 		extent = new ExtentReports();
-		extent.setAnalysisStrategy(AnalysisStrategy.BDD);
 
 		// setup html reporter
 		ExtentHtmlReporter htmlReporter = new ExtentHtmlReporter(fileName);
-		htmlReporter.config().setAutoCreateRelativePathMedia(true);
 		htmlReporter.config().setTheme(Theme.STANDARD);
 		htmlReporter.config().setDocumentTitle(fileName);
 		htmlReporter.config().setEncoding("utf-8");
@@ -200,20 +199,22 @@ public class ExtentManager {
 
 		if (!Config.getValue(REPORT_TYPE).equals(KLOV_REPORT_TYPE))
 			return;
+		
+		// set project name. if suite name is set (from suite file) Then use, else get
+		// test project name
+		if (TestObject.SUITE_NAME.contains("Default"))
+			klovReporter = new ExtentKlovReporter(TestObject.APP_IDENTIFIER);
+		else
+			klovReporter = new ExtentKlovReporter(TestObject.SUITE_NAME);
+
 
 		// setup klov reporter
-		klovReporter = new ExtentKlovReporter();
 		klovReporter.initMongoDbConnection(Config.getValue(KLOV_MONGODB_URL));
 		klovReporter.initKlovServerConnection(Config.getValue(KLOV_SERVER_URL));
 
 		klovReporter.setAnalysisStrategy(AnalysisStrategy.BDD);
 
-		// set project name. if suite name is set (from suite file) Then use, else get
-		// test project name
-		if (TestObject.SUITE_NAME.contains("Default"))
-			klovReporter.setProjectName(TestObject.APP_IDENTIFIER);
-		else
-			klovReporter.setProjectName(TestObject.SUITE_NAME);
+
 
 		// set report name as current date time
 		LocalDateTime now = LocalDateTime.now();
