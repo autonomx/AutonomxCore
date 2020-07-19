@@ -1451,7 +1451,18 @@ public class UtilityHelper {
 	}
 	
 	protected static String convertListToString(ArrayList<String> list) {
-		return Arrays.toString(list.toArray()); 
+		return convertListToString(list, ",");
+	}
+	
+	protected static String convertListToString(ArrayList<String> list, String separator) {
+		String listString = StringUtils.EMPTY;
+		for(int i = 0; i < list.size(); i++) {
+			if(i == (list.size() -1))
+			 listString += list.get(i);
+			else
+				listString += list.get(i) + separator;
+		}
+		return listString;
 	}
 		
 }

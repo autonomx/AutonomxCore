@@ -2595,7 +2595,17 @@ public class Helper {
 	 * @param list
 	 * @return
 	 */
-	public static String convertListToString(ArrayList<String> list) {
+	public static String convertListToString(ArrayList<String> list, String separator) {
+		return UtilityHelper.convertListToString(list, separator);
+
+	}
+	
+	/**
+	 * convert array list to string separated by ","
+	 * @param list
+	 * @return
+	 */
+	public static String convertListToString(ArrayList<String> list) { 
 		return UtilityHelper.convertListToString(list);
 	}
 	

@@ -24,6 +24,7 @@ import core.support.logger.TestLog;
 import core.support.objects.KeyValue;
 import core.support.objects.MessageObject;
 import core.support.objects.MessageObject.messageType;
+import io.restassured.response.Response;
 import core.support.objects.ServiceObject;
 
 public class MessageQueueHelper {
@@ -84,11 +85,48 @@ public class MessageQueueHelper {
 
 		} while (!errorMessages.isEmpty() && passedTimeInSeconds < maxRetrySeconds);
 
+		// save matching filtered messages to variable specified
+		saveOutBoundValues(serviceObject, filteredMessages, errorMessages);
+		
 		if (!errorMessages.isEmpty()) {
 			String errorString = StringUtils.join(errorMessages, "\n error: ");
 			TestLog.ConsoleLog(errorString);
 			Helper.assertFalse(StringUtils.join(errorMessages, "\n error: "));
 		}
+	}
+	
+	public static void saveOutBoundValues(ServiceObject serviceObject, CopyOnWriteArrayList<MessageObject> filteredMessages,  List<String> errorMessages) {
+		if (filteredMessages.isEmpty() || !errorMessages.isEmpty() || serviceObject.getOutputParams().isEmpty())
+			return;
+		
+		// get all the filtered messages
+		ArrayList<String> messages = new ArrayList<String>();
+		for(MessageObject message : filteredMessages) {
+			messages.add(message.getMessage());
+		}
+		
+		String outputParam = serviceObject.getOutputParams();
+		// replace parameters for outputParam
+		outputParam = DataHelper.replaceParameters(outputParam);
+
+		List<KeyValue> keywords = DataHelper.getValidationMap(outputParam);
+		for (KeyValue keyword : keywords) {
+
+			// fail if value is wrong format
+			if (!keyword.key.toString().startsWith("<") || !keyword.key.toString().contains("$")
+					|| !keyword.key.toString().endsWith(">"))
+				Helper.assertFalse("variable placement must of format path: <$variable>. invalid value: "
+						+ keyword.key.toString());
+
+			String key = (String) keyword.key;
+			key = key.replace("$", "").replace("<", "").replace(">", "").trim();
+			// gets json value. if list, returns string separated by comma
+			String value = Helper.convertListToString(messages);
+
+			Config.putValue(key, value, false);
+			TestLog.logPass("output parameter: " + key + " value: " + value);
+		}
+		
 	}
 	
 	/**
