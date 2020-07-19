@@ -18,6 +18,7 @@ import org.openqa.selenium.safari.SafariDriver;
 import com.microsoft.appcenter.appium.EnhancedAndroidDriver;
 import com.microsoft.appcenter.appium.Factory;
 
+import core.helpers.Helper;
 import core.helpers.UtilityHelper;
 import core.support.configReader.Config;
 import core.support.configReader.PropertiesReader;
@@ -175,10 +176,18 @@ public class WebDriverSetup {
 		boolean isForceCache = Config.getBooleanValue("web.driver.manager.proxy.forceCache");
 		int timeout_seconds = Config.getIntValue("web.driver.manager.timeoutSeconds");
 			
+		// if manual driver path is set, then use manual path insetad of webDriverManager
+		String webDriverPath = Config.getValue("web.driver.manual.path");
+		if(!webDriverPath.isEmpty()) {
+			setManualDriverPath(driverObject.browserType);
+			return;
+		}
+		String path = manager.getBinaryPath();
+		
 		// force cache, not checking online
 		if (isForceCache)
 			manager = manager.useLocalVersionsPropertiesFirst();
-
+		
 		// detect if proxy is required or not
 		boolean isProxyEnabled = UtilityHelper.isProxyRequired(driverObject.getInitURL());
 
@@ -197,6 +206,36 @@ public class WebDriverSetup {
 			}
 		}
 		manager.driverVersion(driverObject.driverVersion).timeout(timeout_seconds).setup();
+	}
+	
+	public static void setManualDriverPath(BrowserType browserType) {
+		String path = Helper.getRootDir() + Config.getValue("web.driver.manual.path");
+		
+		switch (browserType) {
+		case FIREFOX:
+			 System.setProperty("webdriver.gecko.driver", path );
+			break;
+		case FIREFOX_HEADLESS:
+			 System.setProperty("webdriver.gecko.driver", path );
+			break;
+		case INTERNET_EXPLORER:
+			 System.setProperty("webdriver.ie.driver", path );
+			break;
+		case MICROSOFT_EDGE:
+			 System.setProperty("webdriver.edge.driver", path );
+			break;
+		case CHROME:
+	        System.setProperty("webdriver.chrome.driver", path );
+			break;
+		case CHROME_HEADLESS:
+			 System.setProperty("webdriver.chrome.driver", path );
+			break;
+		case OPERA:
+			 System.setProperty("webdriver.opera.driver", path );
+			break;
+		default:
+			throw new IllegalStateException("Unsupported browsertype " + browserType);
+		}
 	}
 	
 	public static boolean getProxyState() {

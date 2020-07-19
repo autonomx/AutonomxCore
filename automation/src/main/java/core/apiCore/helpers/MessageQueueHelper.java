@@ -24,7 +24,6 @@ import core.support.logger.TestLog;
 import core.support.objects.KeyValue;
 import core.support.objects.MessageObject;
 import core.support.objects.MessageObject.messageType;
-import io.restassured.response.Response;
 import core.support.objects.ServiceObject;
 
 public class MessageQueueHelper {
