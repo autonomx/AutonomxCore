@@ -21,6 +21,7 @@ import com.aventstack.extentreports.gherkin.model.But;
 import com.aventstack.extentreports.gherkin.model.Given;
 import com.aventstack.extentreports.gherkin.model.Then;
 import com.aventstack.extentreports.gherkin.model.When;
+import com.aventstack.extentreports.markuputils.ExtentColor;
 import com.aventstack.extentreports.markuputils.Markup;
 import com.aventstack.extentreports.markuputils.MarkupHelper;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.TextToSpeech;
@@ -229,7 +230,32 @@ public class TestLog {
 			return;
 
 		TestObject.getTestInfo().testSubSteps.add(subStep);
-		Markup m = MarkupHelper.createCodeBlock(subStep);
+		
+		String label = "<head>\r\n" + 
+				"    <meta charset=\"UTF-8\">\r\n" + 
+				"    <title>Textarea autoresize</title>\r\n" + 
+				"    <style>\r\n" + 
+				"    textarea {\r\n" + 
+				"        border-style: none;\r\n" + 
+				"        border-color: Transparent;\r\n" + 
+				"        background-color: #f0f3f5;\r\n" + 
+				"        font-size: 14px;\r\n" + 
+	
+				"        overflow: hidden;\r\n" + 
+				"    }\r\n" + 
+				"    </style>\r\n" + 
+				"    <script>\r\n" + 
+				"    function resizeTextarea(ev) {\r\n" + 
+				"        this.style.height = '24px';\r\n" + 
+				"        this.style.height = this.scrollHeight + 12 + 'px';\r\n" + 
+				"    }\r\n" + 
+				"\r\n" + 
+				"    var te = document.querySelector('textarea');\r\n" + 
+				"    te.addEventListener('input', resizeTextarea);\r\n" + 
+				"    </script>\r\n" + 
+				"</head> <body>\r\n" + 
+				"    <textarea> "+subStep+"</textarea>\r\n";
+		Markup m = MarkupHelper.createLabel(label, ExtentColor.WHITE);
 		getTestStep().pass(m);
 	}
 
