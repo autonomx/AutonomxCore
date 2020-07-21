@@ -270,7 +270,8 @@ public class WebCapability {
 				shortErrorMessage = message[0];
 			
 			TestLog.logWarning("\n\n" + shortErrorMessage + "\n\nLooks like webdriver manager is not able to find the new browser version \n\n"
-					+ "*** Please try setting browser version manually at web.driver.manager.version at web.property ***\n\n");			
+					+ "*** Please try setting browser version manually at web.driver.manager.version at web.property ***\n\n"
+					+ "Alternatively, you can set the webdriver manual path at web.driver.manual.path at web.property ***\n\n");			
 			return true;
 		}
 		return false;

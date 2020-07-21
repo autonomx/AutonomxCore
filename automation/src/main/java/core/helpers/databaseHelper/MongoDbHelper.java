@@ -23,6 +23,7 @@ public class MongoDbHelper {
 	 * @throws UnsupportedEncodingException
 	 * @throws MalformedURLException
 	 */
+	@SuppressWarnings("deprecation")
 	public static void deleteData(MongoObject mongo) throws Exception {
 		/*
 		 * MongoCredential credential = MongoCredential.createCredential(mongo.username,
@@ -48,7 +49,6 @@ public class MongoDbHelper {
 				MongoCredential.createMongoCRCredential(mongo.username, mongo.database, mongo.password.toCharArray()));
 		MongoClient mongoClient = new MongoClient(seeds, credentials);
 
-		@SuppressWarnings("deprecation")
 		DB db = mongoClient.getDB(mongo.database);
 
 		DBCollection collection = db.getCollection("Person");

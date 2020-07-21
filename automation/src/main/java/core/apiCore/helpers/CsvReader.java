@@ -7,9 +7,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.IntStream;
 
@@ -26,6 +28,7 @@ import core.apiCore.TestDataProvider;
 import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.configReader.PropertiesReader;
+import core.support.logger.TestLog;
 import core.support.objects.KeyValue;
 import core.support.objects.ServiceObject;
 import core.support.objects.TestObject;
@@ -93,12 +96,36 @@ public class CsvReader {
 		// filter tests based on test case range. eg. test2-test10 if specified
 		testCaseList = setTestCaseRange(testCaseFile, testCaseList);
 		
+		 //print out warning for duplicated test names
+		detectDuplicateTests(testCaseList);
+		
 		List<Object> tests = new ArrayList<Object>();
 		for(Object[] object : testCaseList) {
 			tests.add(object);
 		}
 		
 		return tests;
+	}
+	
+	/**
+	 * print out warning for duplicated test names
+	 * @param testCaseList
+	 */
+	public static void detectDuplicateTests(List<Object[]> testCaseList) {
+		
+		ArrayList<String> ids = new ArrayList<String>();
+		for(Object[] test : testCaseList) {
+			ServiceObject serviceObject = mapToServiceObject(test); 
+			ids.add(serviceObject.getTestCaseID());
+		}
+		
+		final Set<String> dups = new LinkedHashSet<String>();
+	    final Set<String> set = new LinkedHashSet<String>();
+	    for (final String id: ids)
+	        if (!set.add(id))
+	            dups.add(id);
+	    
+	    TestLog.logWarning(Arrays.toString(dups.toArray()));
 	}
 	
 	/**

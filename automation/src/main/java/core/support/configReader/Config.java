@@ -492,7 +492,7 @@ public class Config {
 			if (isFailable)
 				Helper.assertFalse("value not found in config files: " + key);
 		}
-		if (!value.isEmpty()) {
+		if (value !=null && !value.isEmpty()) {
 			items = new ArrayList<String>(Arrays.asList(value.split(",")));
 			items.replaceAll(String::trim);
 		}

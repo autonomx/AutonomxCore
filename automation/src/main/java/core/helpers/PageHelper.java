@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
@@ -294,6 +295,7 @@ public class PageHelper {
 	 * @return
 	 */
 	public String getPageTitle() {
+		if(AbstractDriver.getWebDriver() == null) return StringUtils.EMPTY;
 		return AbstractDriver.getWebDriver().getTitle();
 	}
 
@@ -303,6 +305,7 @@ public class PageHelper {
 	 * @return
 	 */
 	public String getCurrentUrl() {
+		if(AbstractDriver.getWebDriver() == null) return StringUtils.EMPTY;
 		return AbstractDriver.getWebDriver().getCurrentUrl();
 	}
 
@@ -312,6 +315,7 @@ public class PageHelper {
 	 * @return
 	 */
 	public String getPageSource() {
+		if(AbstractDriver.getWebDriver() == null) return StringUtils.EMPTY;
 		return AbstractDriver.getWebDriver().getPageSource();
 	}
 
