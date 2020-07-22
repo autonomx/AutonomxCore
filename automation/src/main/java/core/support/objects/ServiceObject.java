@@ -375,12 +375,11 @@ public class ServiceObject {
 		return this.tcIndex.split(":")[1];
 	}
 
-public static String normalizeLog(String value) {
+	public static String normalizeLog(String value) {
 		
 		value = TestLog.setMaxLength(value);
 		
-		// remove new lines. very slow operation
-		value = value.replaceAll("\\R+", " ");
+        value = value.replaceAll(System.lineSeparator(), " ");
 
 		// reduces spaces to single space. eg. " " to " "
 		value = value.trim().replaceAll(" +", " ");

@@ -92,7 +92,7 @@ public class DriverObject {
 				driverList.remove(driver);
 				AbstractDriver.setWebDriver(null); // set driver to null so starts fresh with next run
 			} catch (Exception e) {
-				e.getMessage();
+				TestLog.ConsoleLogDebug(e.getMessage());
 			}
 		}
 		

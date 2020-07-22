@@ -125,7 +125,7 @@ public class CsvReader {
 	        if (!set.add(id))
 	            dups.add(id);
 	    
-	    TestLog.logWarning(Arrays.toString(dups.toArray()));
+	    TestLog.logWarning("Duplicate test case ids detected. please use unique names: " + Arrays.toString(dups.toArray()));
 	}
 	
 	/**
