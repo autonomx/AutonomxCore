@@ -1467,7 +1467,7 @@ public class DataHelper {
 		logicString = removeAndOrIndicator(logicString);
 		
 		ScriptEngineManager mgr = new ScriptEngineManager();
-	    ScriptEngine engine = mgr.getEngineByName("JavaScript"); 
+	    ScriptEngine engine = mgr.getEngineByName("graal.js"); 
 	    boolean result = false;
 		try {
 			result = Boolean.valueOf((boolean) engine.eval(logicString.trim()));
