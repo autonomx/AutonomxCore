@@ -69,8 +69,6 @@ public class sourceChangeDetector {
 				"import java.util.Arrays;\n" + 
 				"import java.util.List;\n" + 
 				"\n" + 
-				"import org.apache.commons.io.FileUtils;\n" + 
-				"import org.apache.commons.lang.StringUtils;\n" + 
 				"\n" + 
 				"\n" + 
 				"public class SourceChangeDetector {\n" + 
@@ -117,7 +115,7 @@ public class sourceChangeDetector {
 				"		ArrayList<String> sourceListStringArray = getSourceFileList();\n" + 
 				"\n" + 
 				"		String targetFile = GENERATED_SOURCE_DIR + \"src_dir.txt\";\n" + 
-				"		String oldFileList = StringUtils.EMPTY;\n" + 
+				"		String oldFileList = \"\";\n" + 
 				"		boolean hasSourceChanged = true;\n" + 
 				"\n" + 
 				"		if (new File(targetFile).exists()) {\n" + 
@@ -244,19 +242,21 @@ public class sourceChangeDetector {
 				"\n" + 
 				"	private static void deleteFile(String absolutePath) {\n" + 
 				"		File file = new File(absolutePath);\n" + 
-				"		if(file.isDirectory())\n" + 
-				"			deleteDirectory(absolutePath);\n" + 
-				"		else\n" + 
+				"		if(file.isDirectory()) {\n" + 
+				"			File fileDir = new File(absolutePath);\n" + 
+				"			deleteDirectory(fileDir);\n" + 
+				"		}else\n" + 
 				"			deleteSingleFile(absolutePath);\n" + 
 				"	}\n" + 
 				"\n" + 
-				"	private static void deleteDirectory(String absolutePath) {\n" + 
-				"		File file = new File(absolutePath);\n" + 
-				"		try {\n" + 
-				"			FileUtils.deleteDirectory(file);\n" + 
-				"		} catch (IOException e) {\n" + 
-				"			e.printStackTrace();\n" + 
-				"		}\n" + 
+				"	private static void deleteDirectory(File file) {\n" + 
+				"	    File[] contents = file.listFiles();\n" + 
+				"	    if (contents != null) {\n" + 
+				"	        for (File f : contents) {\n" + 
+				"	            	deleteDirectory(f);\n" + 
+				"	        }\n" + 
+				"	    }\n" + 
+				"	    file.delete();\n" + 
 				"	}\n" + 
 				"	\n" + 
 				"	private static void deleteSingleFile(String absolutePath) {\n" + 

@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 
 
 public class SourceChangeDetector {
@@ -57,7 +55,7 @@ public class SourceChangeDetector {
 		ArrayList<String> sourceListStringArray = getSourceFileList();
 
 		String targetFile = GENERATED_SOURCE_DIR + "src_dir.txt";
-		String oldFileList = StringUtils.EMPTY;
+		String oldFileList = "";
 		boolean hasSourceChanged = true;
 
 		if (new File(targetFile).exists()) {
@@ -184,19 +182,21 @@ public class SourceChangeDetector {
 
 	private static void deleteFile(String absolutePath) {
 		File file = new File(absolutePath);
-		if(file.isDirectory())
-			deleteDirectory(absolutePath);
-		else
+		if(file.isDirectory()) {
+			File fileDir = new File(absolutePath);
+			deleteDirectory(fileDir);
+		}else
 			deleteSingleFile(absolutePath);
 	}
 
-	private static void deleteDirectory(String absolutePath) {
-		File file = new File(absolutePath);
-		try {
-			FileUtils.deleteDirectory(file);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	private static void deleteDirectory(File file) {
+	    File[] contents = file.listFiles();
+	    if (contents != null) {
+	        for (File f : contents) {
+	            	deleteDirectory(f);
+	        }
+	    }
+	    file.delete();
 	}
 	
 	private static void deleteSingleFile(String absolutePath) {
