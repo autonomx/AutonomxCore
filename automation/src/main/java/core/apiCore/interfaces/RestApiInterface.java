@@ -282,9 +282,7 @@ public class RestApiInterface {
 			List<String> errors = new ArrayList<String>();
 			serviceObject.withErrorMessages(errors);
 
-			if (currentRetryCount > 1) {
-				TestLog.ConsoleLog("attempt #" + (currentRetryCount));
-			
+			if (currentRetryCount > 1) {			
 				// set options. options initially set before evaluateRequestAndReceiveResponse
 				evaluateOption(serviceObject);
 			}
@@ -324,13 +322,17 @@ public class RestApiInterface {
 
 	private static void logTestRunError(int currentRetryCount, List<String> errorMessages) {
 		int waitTime = Config.getIntValue(ServiceManager.SERVICE_RESPONSE_DELAY_BETWEEN_ATTEMPTS_SECONDS);
-
+		double waitMultiplier = Config.getDoubleValue(ServiceManager.SERVICE_RESPONSE_DELAY_BETWEEN_ATTEMPTS_MULTIPLIER);
+		
 		String errors = StringUtils.join(errorMessages, "\n error: ");
 		if(!errors.isEmpty())
 			TestLog.ConsoleLog("attempt failed with message: " + ServiceObject.normalizeLog(errors));
 		
-		if (currentRetryCount > 1)
-			Helper.waitForSeconds(waitTime);
+		if (currentRetryCount > 0) {
+			double waitTimeSeconds = waitTime * Math.pow(waitMultiplier, currentRetryCount - 1);
+			Helper.waitForSeconds(waitTimeSeconds);
+			TestLog.ConsoleLog("attempt #" + (currentRetryCount) + " waiting seconds: " + waitTimeSeconds);
+		}
 	}
 
 	/**

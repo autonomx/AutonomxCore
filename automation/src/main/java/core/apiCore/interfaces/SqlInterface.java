@@ -413,7 +413,12 @@ public class SqlInterface {
 
 			if (currentRetryCount > 0) {
 				int waitTime = Config.getIntValue(ServiceManager.SERVICE_RESPONSE_DELAY_BETWEEN_ATTEMPTS_SECONDS);
-				Helper.waitForSeconds(waitTime);
+				double waitMultiplier = Config.getDoubleValue(ServiceManager.SERVICE_RESPONSE_DELAY_BETWEEN_ATTEMPTS_MULTIPLIER);
+				
+				double waitTimeSeconds = waitTime * Math.pow(waitMultiplier, currentRetryCount - 1);
+				Helper.waitForSeconds(waitTimeSeconds);
+				TestLog.ConsoleLog("attempt #" + (currentRetryCount) + " waiting seconds: " + waitTimeSeconds);
+				
 				String errors = StringUtils.join(errorMessages, "\n error: ");
 				TestLog.ConsoleLog("attempt failed with message: " + errors);
 				TestLog.ConsoleLog("attempt #" + (currentRetryCount + 1));
