@@ -327,7 +327,6 @@ public class RestApiInterface {
 		String errors = StringUtils.join(errorMessages, "\n error: ");
 		if(!errors.isEmpty())
 			TestLog.ConsoleLog("attempt failed with message: " + ServiceObject.normalizeLog(errors));
-		
 		if (currentRetryCount > 0) {
 			double waitTimeSeconds = waitTime * Math.pow(waitMultiplier, currentRetryCount - 1);
 			Helper.waitForSeconds(waitTimeSeconds);

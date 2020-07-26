@@ -8,8 +8,10 @@ package core.support.annotation.processor;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -82,6 +84,9 @@ public class MainGenerator extends AbstractProcessor {
 
 			Logger.debug("Annotation called");
 
+			// disable console logging
+			disableConsoleLogging();
+			
 			// map of modules and class with @Panel annotation
 			AnnotationObject annotation = new AnnotationObject().panel();
 			Map<String, List<String>> panelMap = ModuleMapHelper.getModuleMap(annotation);
@@ -222,5 +227,25 @@ public class MainGenerator extends AbstractProcessor {
 		
 		return null;
 	}
+	
+	/**
+	 * disable console log for annotation generation 
+	 * if annotations are running, without compilation error, then console log will be disabled
+	 */
+	public static void disableConsoleLogging() {
+		File disabledLog = new File(Helper.getRootDir() + ".externalToolBuilders" +  File.separator + "annotation_generator_withoutLog.launch");
+		File log = new File(Helper.getRootDir() + ".externalToolBuilders" +  File.separator + "annotation_generator.launch");
 
+		if(!disabledLog.exists() || !log.exists())
+			return;
+		
+		Path from = disabledLog.toPath(); //convert from File to Path
+		Path to = log.toPath(); //convert from String to Path
+		
+		try {
+			Files.copy(from, to, StandardCopyOption.REPLACE_EXISTING);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }
