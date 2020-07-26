@@ -233,7 +233,7 @@ public class MainGenerator extends AbstractProcessor {
 	 * if annotations are running, without compilation error, then console log will be disabled
 	 */
 	public static void disableConsoleLogging() {
-		File disabledLog = new File(Helper.getRootDir() + ".externalToolBuilders" +  File.separator + "annotation_generator_withoutLog.launch");
+		File disabledLog = new File(Helper.getRootDir() + ".externalToolBuilders" +  File.separator + "annotation_generator_disableLog.launch");
 		File log = new File(Helper.getRootDir() + ".externalToolBuilders" +  File.separator + "annotation_generator.launch");
 
 		if(!disabledLog.exists() || !log.exists())
