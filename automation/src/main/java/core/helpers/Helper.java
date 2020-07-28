@@ -1757,6 +1757,15 @@ public class Helper {
 	public static void swtichUrl(String url) {
 		page.swtichUrl(url);
 	}
+	
+	/**
+	 * navigate to a different url
+	 * 
+	 * @param url
+	 */
+	public static void getUrl(String url) {
+		page.navigateToUrl(url);
+	}
 
 	/**
 	 * navigate to a different url

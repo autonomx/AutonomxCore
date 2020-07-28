@@ -385,10 +385,9 @@ public class PageHelper {
 				success = true;
 			}catch(TimeoutException e) {
 				e.printStackTrace();
+				TestLog.ConsoleLog("get url failed, retrying: " + url);
 			}
 			
-			if(retry < 3)
-				TestLog.ConsoleLog("get url failed, retrying: " + url);
 			retry--;
 		}while(!success && retry >= 0);
 	}
