@@ -1103,6 +1103,19 @@ public class Helper {
 	public HashMap<Integer, List<String>> getTableMap(EnhancedBy dataRows, EnhancedBy dataCells) {
 		return getTableMap(dataRows, dataCells);
 	}
+	
+	/**
+	 * Selects list item from a parent container eg. delete button in a list defined
+	 * by name find the container containing the name And Then finds the delete
+	 * button in that container as target
+	 * 
+	 * @param list
+	 * @param option
+	 * @param target
+	 */
+	public static void selectElementContainedInList(EnhancedBy listValue, String option, EnhancedBy target, int targetIndex) {
+		list.selectElementContainedInList(listValue, option, target, targetIndex);
+	}
 
 	/**
 	 * Selects list item from a parent container eg. delete button in a list defined

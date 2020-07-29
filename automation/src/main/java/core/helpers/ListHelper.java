@@ -112,15 +112,29 @@ public class ListHelper {
 	 * @param target
 	 */
 	public void selectElementContainedInList(EnhancedBy list, String option, EnhancedBy target) {
+		selectElementContainedInList(list, option, target, 0);
+	}
+
+	/**
+	 * Selects list item from a parent container eg. delete button in a list defined
+	 * by name find the container containing the name And Then finds the delete
+	 * button in that container as target
+	 * 
+	 * @param list
+	 * @param option selectListItemContainsFromContainer
+	 * @param target
+	 */
+	public void selectElementContainedInList(EnhancedBy list, String option, EnhancedBy target, int targetIndex) {
 		Helper.wait.waitForElementToLoad(list);
 		int index = getElementIndexContainByText(list, option);
 		AssertHelper.assertTrue("option not found in list: " + list.name, index > -1);
 
 		EnhancedWebElement targetElement = Element.findElements(list, index, target);
 
-		targetElement.click();
+		targetElement.click(targetIndex);
 		TestLog.logPass("I select list option '" + option + "' from list '" + list.name + "'");
 	}
+
 
 	/**
 	 * find the index of the target element in list eg. list A, 5 rows, has element
