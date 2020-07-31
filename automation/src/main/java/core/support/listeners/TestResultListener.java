@@ -27,15 +27,14 @@ public class TestResultListener extends TestListenerAdapter {
     public void onTestFailure(ITestResult tr) {
     	
     	// print stack trace
-    	TestLog.ConsoleLog("stack trace: " + Helper.stringNormalize(ExceptionUtils.getStackTrace(tr.getThrowable())));
-
+    	Helper.page.printStackTrace(tr.getThrowable());
     }
     
     @Override
     public void onTestSkipped(ITestResult tr) {
     	
     	// print stack trace
-    	TestLog.ConsoleLog("stack trace: " + Helper.stringNormalize(ExceptionUtils.getStackTrace(tr.getThrowable())));
+    	Helper.page.printStackTrace(tr.getThrowable());
     }
     
 

@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.StaleElementReferenceException;
-import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 
 import core.support.logger.TestLog;
@@ -51,10 +51,14 @@ public class PageHelper {
 	 * reload page
 	 */
 	public void refreshPage() {
-		if (Helper.isWebDriver())
-			AbstractDriver.getWebDriver().navigate().refresh();
-		if (Helper.mobile_isMobile())
-			Helper.refreshMobileApp();
+		try {
+			if (Helper.isWebDriver())
+				AbstractDriver.getWebDriver().navigate().refresh();
+			if (Helper.mobile_isMobile())
+				Helper.refreshMobileApp();
+		}catch(Exception e) {
+			e.getMessage();
+		}
 
 		Helper.wait.waitForSeconds(1);
 	}
@@ -383,8 +387,8 @@ public class PageHelper {
 			try {
 				AbstractDriver.getWebDriver().get(url);
 				success = true;
-			}catch(TimeoutException e) {
-				e.printStackTrace();
+			}catch(Exception e) {
+		    	Helper.page.printStackTrace(e.getCause());
 				TestLog.ConsoleLog("get url failed, retrying: " + url);
 			}
 			
@@ -481,6 +485,15 @@ public class PageHelper {
 	 */
 	public WebDriver getWebdriver() {
 	    return AbstractDriver.getWebDriver();
+	}
+	
+	/**
+	 * prints stack trace
+	 * @param trace
+	 */
+	public void printStackTrace(Throwable throwable) {
+    	TestLog.ConsoleLog("stack trace: " + Helper.stringNormalize(ExceptionUtils.getStackTrace(throwable)));
+
 	}
     
 }
