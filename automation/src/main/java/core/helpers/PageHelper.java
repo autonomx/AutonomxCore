@@ -388,7 +388,7 @@ public class PageHelper {
 				AbstractDriver.getWebDriver().get(url);
 				success = true;
 			}catch(Exception e) {
-		    	Helper.page.printStackTrace(e.getCause());
+		    	Helper.page.printStackTrace(e);
 				TestLog.ConsoleLog("get url failed, retrying: " + url);
 			}
 			

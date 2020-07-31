@@ -197,6 +197,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				String cause = e.getMessage().toString();
 				exception.add(cause);
 				TestLog.ConsoleLog("click failed for element: " + elementName + ": " + cause);
+				Helper.page.printStackTrace(e);
 			}
 		} while (!success && retry > 0);
 	}
@@ -373,7 +374,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				exception.add(cause);
 				if(retry == 0)
 				 TestLog.ConsoleLog("send keys failed for element: " + elementName + ": " + Arrays.toString(exception.toArray()));
-
+				
 			}
 		} while (!success && retry > 0);
 	}
@@ -396,6 +397,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				resetElement();
 				String cause = e.getMessage().toString();
 				TestLog.ConsoleLog("sendkey failed: " + cause);
+				Helper.page.printStackTrace(e);
 			}
 		} while (!success && retry > 0);
 
