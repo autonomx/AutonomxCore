@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.testng.IClassListener;
 import org.testng.IConfigurationListener;
 import org.testng.ISuite;
@@ -206,7 +207,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		
 		// mobile device is now available again
 		DeviceManager.setDeviceAvailability(true);
-
+		
 		// stop screen recording if enabled
 		ScreenRecorderHelper.stopRecording();
 		
@@ -240,14 +241,14 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		// mobile device is now available again
 		DeviceManager.setDeviceAvailability(true);
-
+		
 		// stop screen recording if enabled
 		ScreenRecorderHelper.stopRecording();
 		
 		// print page source on fail
 		if(Config.getBooleanValue(CONSOLE_PAGESOURCE_ON_FAIL))
 			Helper.printPageSource();
-
+		
 		// quit current driver after failure
 		Helper.quitCurrentDriver();
 	}

@@ -9,6 +9,7 @@ import org.testng.ITestResult;
 import org.testng.Reporter;
 import org.testng.TestListenerAdapter;
 
+import core.helpers.Helper;
 import core.support.logger.TestLog;
 
 public class TestResultListener extends TestListenerAdapter {
@@ -20,6 +21,21 @@ public class TestResultListener extends TestListenerAdapter {
     	
     	// print stack trace
     	TestLog.ConsoleLog(ExceptionUtils.getStackTrace(result.getThrowable()));
+    }
+    
+    @Override
+    public void onTestFailure(ITestResult tr) {
+    	
+    	// print stack trace
+    	TestLog.ConsoleLog("stack trace: " + Helper.stringNormalize(ExceptionUtils.getStackTrace(tr.getThrowable())));
+
+    }
+    
+    @Override
+    public void onTestSkipped(ITestResult tr) {
+    	
+    	// print stack trace
+    	TestLog.ConsoleLog("stack trace: " + Helper.stringNormalize(ExceptionUtils.getStackTrace(tr.getThrowable())));
     }
     
 
