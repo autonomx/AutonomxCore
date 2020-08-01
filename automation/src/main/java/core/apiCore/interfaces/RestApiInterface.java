@@ -273,16 +273,16 @@ public class RestApiInterface {
 		long passedTimeInSeconds = 0;
 
 		int maxRetrySeconds = -1;
-		int currentRetryCount = 0;
+		int currentRunCount = 0;
 
 		do {
-			currentRetryCount++;
+			currentRunCount++;
 			
 			// reset error list
 			List<String> errors = new ArrayList<String>();
 			serviceObject.withErrorMessages(errors);
 
-			if (currentRetryCount > 1) {			
+			if (currentRunCount > 1) {			
 				// set options. options initially set before evaluateRequestAndReceiveResponse
 				evaluateOption(serviceObject);
 			}
@@ -309,28 +309,28 @@ public class RestApiInterface {
 				break;
 
 			// log errors if exist
-			logTestRunError(currentRetryCount, serviceObject.getErrorMessages());
+			logTestRunError(currentRunCount, serviceObject.getErrorMessages());
 
 		} while (!serviceObject.getErrorMessages().isEmpty() && passedTimeInSeconds < maxRetrySeconds);
 
 		if (!serviceObject.getErrorMessages().isEmpty()) {
-			TestLog.ConsoleLog("Validation failed after: " + passedTimeInSeconds + " seconds with " + currentRetryCount + " retries");
+			TestLog.ConsoleLog("Validation failed after: " + passedTimeInSeconds + " seconds with " + currentRunCount + " retries");
 		}
 
 		return serviceObject;
 	}
 
-	private static void logTestRunError(int currentRetryCount, List<String> errorMessages) {
+	private static void logTestRunError(int currentRunCount, List<String> errorMessages) {
 		int waitTime = Config.getIntValue(ServiceManager.SERVICE_RESPONSE_DELAY_BETWEEN_ATTEMPTS_SECONDS);
 		double waitMultiplier = Config.getDoubleValue(ServiceManager.SERVICE_RESPONSE_DELAY_BETWEEN_ATTEMPTS_MULTIPLIER);
 		
 		String errors = StringUtils.join(errorMessages, "\n error: ");
 		if(!errors.isEmpty())
 			TestLog.ConsoleLog("attempt failed with message: " + ServiceObject.normalizeLog(errors));
-		if (currentRetryCount > 0) {
-			double waitTimeSeconds = waitTime * Math.pow(waitMultiplier, currentRetryCount - 1);
+		if (currentRunCount > 1) {
+			double waitTimeSeconds = waitTime * Math.pow(waitMultiplier, currentRunCount - 1);
 			Helper.waitForSeconds(waitTimeSeconds);
-			TestLog.ConsoleLog("attempt #" + (currentRetryCount) + " waiting seconds: " + waitTimeSeconds);
+			TestLog.ConsoleLog("attempt #" + (currentRunCount) + " waiting seconds: " + waitTimeSeconds);
 		}
 	}
 
