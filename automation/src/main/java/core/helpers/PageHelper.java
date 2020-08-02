@@ -32,7 +32,7 @@ public class PageHelper {
 			AbstractDriver.getWebDriver().manage().window().maximize();
 		} catch (Exception e) {
 			TestLog.logWarning("Page was not maximized");
-			e.printStackTrace();
+			printStackTrace(e);
 		}
 	}
 
@@ -495,5 +495,4 @@ public class PageHelper {
     	TestLog.ConsoleLog("stack trace: " + Helper.stringNormalize(ExceptionUtils.getStackTrace(throwable)));
 
 	}
-    
 }

@@ -122,6 +122,7 @@ public class TestObject {
 	public ScreenRecorder screenRecorder = null;
 
 	public List<LogObject> testLog = new ArrayList<LogObject>();
+	public List<LogObject> testLogAll = new ArrayList<LogObject>();
 
 	public Map<String, String> languageMap = new ConcurrentHashMap<String, String>();
 	public Map<String, ServiceObject> apiMap = new ConcurrentHashMap<String, ServiceObject>();// api keywords

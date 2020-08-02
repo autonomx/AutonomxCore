@@ -116,13 +116,14 @@ public class ApiTestDriver {
 	 * getTestInfo().testLog: tracks logs of individual service tests
 	 * on test success or failure, contains all the logs of all tests for batch logging
 	 */
-	public static void trackServiceTestLogs() {
-		if(!isRunningServiceTest()) return;
+	public static void trackBatchTestLogs() {
+		TestObject.getTestInfo().testLogAll = new ArrayList<LogObject>();
 		
-		ApiTestDriver.getParentTestObject().testLog.addAll(TestObject.getTestInfo().testLog);
-		
-		TestObject.getTestInfo().testLog = new ArrayList<LogObject>();
-		TestObject.getTestInfo().testLog.addAll(ApiTestDriver.getParentTestObject().testLog);
+		if(isRunningServiceTest()) {
+			ApiTestDriver.getParentTestObject().testLog.addAll(TestObject.getTestInfo().testLog);
+			TestObject.getTestInfo().testLogAll.addAll(ApiTestDriver.getParentTestObject().testLog);
+		}else
+			TestObject.getTestInfo().testLogAll.addAll(TestObject.getTestInfo().testLog);
 	}
 
 	/**

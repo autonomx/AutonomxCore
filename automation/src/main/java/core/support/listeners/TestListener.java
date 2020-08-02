@@ -186,7 +186,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		ApiTestDriver.parentTrackChildTests();		
 
 		// if service test, tracks test logs
-		ApiTestDriver.trackServiceTestLogs();
+		ApiTestDriver.trackBatchTestLogs();
 		
 		TestLog.Then("Test is finished successfully");
 		TestLog.printBatchLogsToConsole();
@@ -214,7 +214,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		ApiTestDriver.parentTrackChildTests();
 		
 		// if service test, tracks test logs
-		ApiTestDriver.trackServiceTestLogs();
+		ApiTestDriver.trackBatchTestLogs();
 		
 		TestLog.Then("Test failed");
 
