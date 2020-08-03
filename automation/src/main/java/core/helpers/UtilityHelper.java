@@ -175,8 +175,7 @@ public class UtilityHelper {
 	 * @return
 	 */
 	protected static String stringRemoveLines(String value) {
-		value = value.trim().replace("\n", "").replace("\r", "");
-		value = value.replaceAll("\\r|\\n", "");
+		value = StringUtils.normalizeSpace(value).trim();
 		return value;
 	}
 
