@@ -378,11 +378,7 @@ public class ServiceObject {
 	public static String normalizeLog(String value) {
 		
 		value = TestLog.setMaxLength(value);
-		
-        value = value.replaceAll(System.lineSeparator(), " ");
-
-		// reduces spaces to single space. eg. " " to " "
-		value = value.trim().replaceAll(" +", " ");
+		value =  StringUtils.normalizeSpace(value);
 		return value.replaceAll("[\\u2018\\u2019]", "'").replaceAll("[\\u201C\\u201D]", "\"");
 	}
 
