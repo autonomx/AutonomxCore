@@ -323,7 +323,8 @@ public class RestApiInterface {
 	private static void logTestRunError(int currentRunCount, List<String> errorMessages) {
 		int waitTime = Config.getIntValue(ServiceManager.SERVICE_RESPONSE_DELAY_BETWEEN_ATTEMPTS_SECONDS);
 		double waitMultiplier = Config.getDoubleValue(ServiceManager.SERVICE_RESPONSE_DELAY_BETWEEN_ATTEMPTS_MULTIPLIER);
-		
+		if(waitMultiplier == -1) waitMultiplier = 1;
+
 		String errors = StringUtils.join(errorMessages, "\n error: ");
 		if(!errors.isEmpty())
 			TestLog.ConsoleLog("attempt failed with message: " + ServiceObject.normalizeLog(errors));
