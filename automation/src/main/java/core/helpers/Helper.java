@@ -476,6 +476,16 @@ public class Helper {
 	public static void dragAndDrop(EnhancedBy src, EnhancedBy target) {
 		click.dragAndDrop(src, target);
 	}
+	
+	/**
+	 * drag And drop from src element to target element
+	 * 
+	 * @param src
+	 * @param target
+	 */
+	public void dragAndDrop(EnhancedBy srcParent, int srcParentIndex, EnhancedBy srcChild, int scrChildIndex, EnhancedBy targetParent, int targeParenttIndex, EnhancedBy targetChild, int targetChildIndex) {
+		click.dragAndDrop(srcParent, srcParentIndex, srcChild, scrChildIndex, targetParent, targeParenttIndex, targetChild, targetChildIndex);
+	}
 
 	/**
 	 * drag And drop from src element to target element

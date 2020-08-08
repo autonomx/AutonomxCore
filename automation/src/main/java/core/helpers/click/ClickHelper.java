@@ -453,6 +453,23 @@ public class ClickHelper extends Element {
 		actions.dragAndDrop(srcElement.get(srcIndex), targetElement.get(targetIndex));
 		actions.build().perform();
 	}
+	
+	/**
+	 * drag And drop from src element to target element
+	 * 
+	 * @param src
+	 * @param target
+	 */
+	public void dragAndDrop(EnhancedBy srcParent, int srcParentIndex, EnhancedBy srcChild, int scrChildIndex, EnhancedBy targetParent, int targeParenttIndex, EnhancedBy targetChild, int targetChildIndex) {
+		Helper.wait.waitForElementToLoad(srcParent);
+
+		EnhancedWebElement srcElement = Element.findElements(srcParent, srcParentIndex, srcChild);		
+		EnhancedWebElement targetElement =  Element.findElements(targetParent, targeParenttIndex, targetChild);
+
+		Actions actions = new Actions(AbstractDriver.getWebDriver());
+		actions.dragAndDrop(srcElement.get(scrChildIndex), targetElement.get(targetChildIndex));
+		actions.build().perform();
+	}
 
 	/**
 	 * drag And drop from src element to target element
