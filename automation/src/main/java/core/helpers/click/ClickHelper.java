@@ -444,7 +444,7 @@ public class ClickHelper extends Element {
 	 * @param target
 	 */
 	public void dragAndDrop(EnhancedBy src, int srcIndex, EnhancedBy target, int targetIndex) {
-		Helper.wait.waitForElementToBeClickable(src);
+		Helper.wait.waitForElementToLoad(src);
 
 		EnhancedWebElement srcElement = Element.findElements(src);
 		EnhancedWebElement targetElement = Element.findElements(target);
@@ -461,7 +461,7 @@ public class ClickHelper extends Element {
 	 * @param target
 	 */
 	public void dragAndDrop(EnhancedBy src, int xOffset, int yOffset) {
-		Helper.wait.waitForElementToBeClickable(src);
+		Helper.wait.waitForElementToLoad(src);
 
 		EnhancedWebElement srcElement = Element.findElements(src);
 

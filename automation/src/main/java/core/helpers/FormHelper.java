@@ -332,7 +332,7 @@ public class FormHelper {
 		if (options.length == 0)
 			return;
 
-		TestLog.logPass("I select drop down option(s) '" + options + "'");
+		TestLog.logPass("I select drop down option(s) '" + Arrays.toString(options) + "'");
 
 		Helper.click.clickAndExpect(field, list);
 		

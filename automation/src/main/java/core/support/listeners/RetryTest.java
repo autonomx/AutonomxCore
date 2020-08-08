@@ -12,7 +12,9 @@ import com.aventstack.extentreports.markuputils.Markup;
 import com.aventstack.extentreports.markuputils.MarkupHelper;
 
 import core.helpers.Helper;
+import core.helpers.ScreenRecorderHelper;
 import core.helpers.excelHelper.ExcelObject;
+import core.support.configReader.Config;
 import core.support.logger.TestLog;
 import core.support.objects.TestObject;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
@@ -61,18 +63,28 @@ public class RetryTest implements IRetryAnalyzer {
 
 	@Override
 	public boolean retry(ITestResult iTestResult) {
-
+		
+		TestObject.getTestInfo().isTestFail = true;
+		
+		// if record on fail enabled, increase retry count to record failure
+		if(Config.getBooleanValue(ScreenRecorderHelper.RECORDER_ENABLE_RECORDING)
+				&& Config.getBooleanValue(ScreenRecorderHelper.RECORDER_ON_FAIL_TEST_ONLY))
+		{
+			int maxRetryCount = CrossPlatformProperties.getRetryCount();
+			if(maxRetryCount == 0)
+				Config.putValue(CrossPlatformProperties.RETRY_COUNT, maxRetryCount+1);
+		}
+		
 		// update retry count from config
 		int maxRetryCount = CrossPlatformProperties.getRetryCount();
-		
+				
 		setExtendReport();
 		TestObject.getTestInfo().withCaughtThrowable(iTestResult.getThrowable());
-
+		
 		// if the max retry has not been reached, log the failure And quite the browser
-		maxRetryCount = processTestResult(maxRetryCount);
-
-		// if the max retry has not been reached, increment test count and continue to
-		// retry the test
+		maxRetryCount = processTestResult();
+		
+		// if the max retry has not been reached, increment test count and continue to retry the test
 		if (TestObject.getTestInfo().runCount < maxRetryCount + 1) {
 			TestObject.getTestInfo().incremenetRunCount();
 			return true;
@@ -90,27 +102,26 @@ public class RetryTest implements IRetryAnalyzer {
 	/**
 	 * 
 	 * if the max retry has not been reached, log the failure And quite the browser
-	 * 
-	 * @return
+	 * @return 
 	 */
-	public int processTestResult(int maxRetryCount) {
+	public int processTestResult() {
 		logReport(ReportType.info, "run " + (TestObject.getTestInfo().runCount) + " failed ", null);
-
+		
 		logReport(ReportType.code, TestObject.getTestInfo().caughtThrowable.toString(), null);
 
 		// handle exception by adding extra retries
-		maxRetryCount = errorHandling(TestObject.getTestInfo().caughtThrowable, maxRetryCount);
-
+		int maxRetryCount = errorHandling(TestObject.getTestInfo().caughtThrowable);
+		
 		// capture error screenshot
 		Helper.captureExtentReportScreenshot();
-
+				
 		logError("run " + (TestObject.getTestInfo().runCount) + " failed");
-
+		
 		if (TestObject.getTestInfo().runCount == maxRetryCount + 1) {
 			logReport(ReportType.fail, "giving up after " + (maxRetryCount + 1) + " failures", null);
 			logError("giving up after " + (maxRetryCount + 1) + " failures");
 		}
-
+		
 		return maxRetryCount;
 	}
 
@@ -166,9 +177,10 @@ public class RetryTest implements IRetryAnalyzer {
 	 * PageErrors exists, Then the test will be retried
 	 * 
 	 * @param t
-	 * @return
+	 * @return 
 	 */
-	public int errorHandling(Throwable t, int maxRetryCount) {
+	public int errorHandling(Throwable t) {
+		int maxRetryCount = CrossPlatformProperties.getRetryCount();
 		if (pageHasError(t)) {
 			return ++maxRetryCount;
 		}

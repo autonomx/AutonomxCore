@@ -97,6 +97,7 @@ public class TestObject {
 	public LoginObject login = new LoginObject();
 	public int runCount = 0;
 	public Boolean isTestPass = false;
+	public Boolean isTestFail = false;
 	public Boolean isTestComplete = false;
 	public Logger log;
 
@@ -120,6 +121,7 @@ public class TestObject {
 
 	// screen recorder for web
 	public ScreenRecorder screenRecorder = null;
+	public boolean isScreenRecorderInitiated = false;
 
 	public List<LogObject> testLog = new ArrayList<LogObject>();
 	public List<LogObject> testLogAll = new ArrayList<LogObject>();
