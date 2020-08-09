@@ -215,8 +215,10 @@ public class WebCapability {
 		// account for headless browsers
 		if (browsername.contains("chrome"))
 			browsername = "chrome";
-		if (browsername.contains("firefox"))
+		else if (browsername.contains("firefox"))
 			browsername = "firefox";
+		else if (browsername.contains("microsoftedge"))
+			browsername = "MicrosoftEdge";
 
 		return browsername;
 	}
