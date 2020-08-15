@@ -285,6 +285,12 @@ public class AbstractDriverTestNG implements ITest {
 	}
 
 	private static void getURL(String url) {
+		boolean isRefresh = Config.getBooleanValue("singleSignIn.refresh.on.start");
+		
+		// if refresh option is disabled, skip get url
+		if(CrossPlatformProperties.isSingleSignIn() && !isRefresh && Helper.getCurrentUrl().equals(url))
+			return;
+		
 		if (!url.isEmpty()) {
 			TestLog.logPass("I am the site '" + url + "'");
 			Helper.getUrl(url);

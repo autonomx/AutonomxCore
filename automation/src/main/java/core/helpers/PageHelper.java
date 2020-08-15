@@ -357,8 +357,12 @@ public class PageHelper {
 
 	/**
 	 * brings current browser to front
+	 * webdriver only
 	 */
 	public void bringPageToFront() {
+		if(AbstractDriver.getWebDriver() == null) return;
+		if(!Helper.isWebDriver()) return;
+		
 		try {
 			String currentWindowHandle = AbstractDriver.getWebDriver().getWindowHandle();
 			AbstractDriver.getWebDriver().switchTo().window(currentWindowHandle);
