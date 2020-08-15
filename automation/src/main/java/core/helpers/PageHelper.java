@@ -51,6 +51,8 @@ public class PageHelper {
 	 * reload page
 	 */
 	public void refreshPage() {
+		if(AbstractDriver.getWebDriver() == null) return;
+		
 		try {
 			if (Helper.isWebDriver())
 				AbstractDriver.getWebDriver().navigate().refresh();
@@ -380,6 +382,8 @@ public class PageHelper {
 	 * @param url destination url
 	 */
 	public void navigateToUrl(String url) {
+		if(AbstractDriver.getWebDriver() == null) return;
+		
 		int retry = 3;
 		boolean success = false;
 		do {

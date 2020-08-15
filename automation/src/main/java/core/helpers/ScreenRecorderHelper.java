@@ -70,6 +70,9 @@ public class ScreenRecorderHelper {
 		if(Config.getBooleanValue(RECORDER_ON_FAIL_TEST_ONLY) && !TestObject.getTestInfo().isTestFail)
 			return;
 		
+		// bring the browser to front for recording
+		Helper.bringPageToFront();
+		
 		TestLog.ConsoleLog("initiating screen recording");
 		TestObject.getTestInfo().isScreenRecorderInitiated = true;
 		

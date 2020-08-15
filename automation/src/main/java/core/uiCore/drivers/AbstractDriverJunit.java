@@ -263,7 +263,7 @@ public class AbstractDriverJunit {
 	public void getURL(String url) {
 		if (!url.isEmpty()) {
 			TestLog.And("I am the site '" + url + "'");
-			getWebDriver().get(url);
+			Helper.getUrl(url);
 		}
 	}
 

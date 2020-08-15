@@ -287,7 +287,7 @@ public class AbstractDriverTestNG implements ITest {
 	private static void getURL(String url) {
 		if (!url.isEmpty()) {
 			TestLog.logPass("I am the site '" + url + "'");
-			getWebDriver().get(url);
+			Helper.getUrl(url);
 		}
 	}
 

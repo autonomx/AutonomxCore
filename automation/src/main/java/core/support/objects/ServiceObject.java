@@ -117,7 +117,7 @@ public class ServiceObject {
 		}
 		
 		if(header.isEmpty())
-			Helper.assertFalse("did not find matching test suite name");
+			Helper.assertFalse("did not find matching test suite name. Please check suite name in csv file(s). Suite name must be the same in csv file. Test id must be unique in csv.");
 		
 		return header;
 	}
