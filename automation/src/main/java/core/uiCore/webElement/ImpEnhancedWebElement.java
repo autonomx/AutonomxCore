@@ -184,14 +184,13 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		do {
 			retry--;
 			try {
-				scrollToView(index);
-				if (isExist()) {
-					// highlight the element if enabled
-					Helper.highLightWebElement(element, index);
-					WebElement toClick = getElement(index);
-					toClick.click();
-					success = true;
-				}
+				scrollToView(index);				
+				// highlight the element if enabled
+				Helper.highLightWebElement(element, index);
+				WebElement toClick = getElement(index);
+				toClick.click();
+				success = true;
+			
 			} catch (Exception e) {
 				resetElement();
 				String cause = e.getMessage().toString();
@@ -362,12 +361,10 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 			try {
 				scrollToView(index);
 				isDisplayed(index);
-				if (isExist()) {
-					Helper.highLightWebElement(element, index);
-					WebElement element = getElement(index);
-					element.sendKeys(keysToSend);
-					success = true;
-				}
+				Helper.highLightWebElement(element, index);
+				WebElement element = getElement(index);
+				element.sendKeys(keysToSend);
+				success = true;
 			} catch (Exception e) {
 				resetElement();
 				String cause = e.getMessage().toString();
