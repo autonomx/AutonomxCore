@@ -20,7 +20,6 @@ import core.support.annotation.helper.FileCreatorHelper;
 import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PackageHelper;
 import core.support.configReader.Config;
-import core.support.configReader.PropertiesReader;
 import core.support.objects.ServiceObject;
 
 public class Service {
@@ -39,7 +38,7 @@ public class Service {
 
 	private static void writeServiceClassImplementation() throws Exception {
 		String testFolderPath = Config.getValue(TestDataProvider.API_KEYWORD_PATH);
-		String csvTestPath = PropertiesReader.getLocalRootPath() + testFolderPath;
+		String csvTestPath = Helper.getFullPath(testFolderPath);
 		ArrayList<File> csvFiles = Helper.getFileListByType(csvTestPath, ".csv");
 
 		Map<String, ServiceObject> completeServices = new HashMap<String, ServiceObject>();

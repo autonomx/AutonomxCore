@@ -99,7 +99,7 @@ public class ExternalInterface {
 	public static String getExternalMethodPath(String classmethod) {
 
 		String path = "module" + File.separator + "services" + File.separator + "method";
-		File folder = new File(Helper.getRootDir() + "src" + File.separator + "main");
+		File folder = new File(Helper.getFullPath("src" + File.separator + "main"));
 		String classPath = "module.services.method." + classmethod;
 
 		List<File> listOfFiles = new ArrayList<File>();

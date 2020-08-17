@@ -208,8 +208,8 @@ public class WebDriverSetup {
 	}
 	
 	public static void setManualDriverPath(BrowserType browserType) {
-		String path = Helper.getRootDir() + Config.getValue("web.driver.manual.path");
-		
+		String path = Helper.getFullPath(Config.getValue("web.driver.manual.path"));
+
 		switch (browserType) {
 		case FIREFOX:
 			 System.setProperty("webdriver.gecko.driver", path );

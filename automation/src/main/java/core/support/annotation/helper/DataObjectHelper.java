@@ -7,14 +7,13 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
 import core.helpers.Helper;
-import core.support.configReader.PropertiesReader;
 
 public class DataObjectHelper {
 
 	public static String DATA_FOLDER = "data";
 	public static String OBJECT_FOLDER = "object";
 
-	private static String SOURCE_PATH = PropertiesReader.getLocalRootPath() + "src" + File.separator + "main";
+	private static String SOURCE_PATH = Helper.getFullPath("src" + File.separator + "main");
 
 	/**
 	 * gets all csv files in data folders

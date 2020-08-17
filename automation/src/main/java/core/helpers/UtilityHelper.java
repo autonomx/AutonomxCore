@@ -781,7 +781,7 @@ public class UtilityHelper {
 	 * @param type      type of file
 	 */
 	protected static void writeFile(String value, String directory, String filename, String type) {
-		String fullPath = Helper.getRootDir() + File.separator + directory + File.separator + filename + "." + type;
+		String fullPath = Helper.getFullPath(directory + File.separator + filename + "." + type);
 		writeFile(value, fullPath);
 	}
 
@@ -856,7 +856,7 @@ public class UtilityHelper {
 	 * @param type
 	 */
 	protected static void appendToFile(String value, String directory, String filename, String type) {
-		String fullPath = Helper.getRootDir() + File.separator + directory + File.separator + filename + "." + type;
+		String fullPath = Helper.getFullPath(directory + File.separator + filename + "." + type);
 		appendToFile(value, fullPath);
 	}
 
@@ -1344,7 +1344,7 @@ public class UtilityHelper {
 		MavenXpp3Reader reader = new MavenXpp3Reader();
 		Model model = null;
 		try {
-			model = reader.read(new FileReader(Helper.getRootDir() + "pom.xml"));
+			model = reader.read(new FileReader(Helper.getFullPath("pom.xml")));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

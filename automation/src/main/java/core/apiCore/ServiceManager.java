@@ -20,7 +20,6 @@ import core.apiCore.interfaces.SqlInterface;
 import core.apiCore.interfaces.TestPrepare;
 import core.helpers.Helper;
 import core.support.configReader.Config;
-import core.support.configReader.PropertiesReader;
 import core.support.objects.DriverObject;
 import core.support.objects.KeyValue;
 import core.support.objects.ServiceObject;
@@ -154,8 +153,8 @@ public class ServiceManager {
 			return;
 
 		// run all tests in csv file
-		String csvTestPath = PropertiesReader.getLocalRootPath() + Config.getValue(TEST_BASE_PATH) + BEFORE_CLASS_DIR
-				+ File.separator;
+		String csvTestPath = Helper.getFullPath(Config.getValue(TEST_BASE_PATH) + File.separator + BEFORE_CLASS_DIR
+				+ File.separator);
 
 		String beforeCsvFile = Config.getValue(TEST_BASE_BEFORE_CLASS);
 
@@ -218,9 +217,7 @@ public class ServiceManager {
 		Config.setParentValue(IS_BASE_AFTER_CLASS_COMPLETE, true);
 
 		// run all tests in csv file
-		String csvTestPath = PropertiesReader.getLocalRootPath() + Config.getValue(TEST_BASE_PATH) + AFTER_CLASS_DIR
-				+ File.separator;
-		;
+		String csvTestPath = Helper.getFullPath(Config.getValue(TEST_BASE_PATH) + File.separator + AFTER_CLASS_DIR + File.separator);
 
 		String afterCsvFile = Config.getValue(TEST_BASE_AFTER_CLASS);
 
@@ -244,8 +241,8 @@ public class ServiceManager {
 	public static void runServiceBeforeSuite() {
 
 		// run all tests in csv file
-		String csvTestPath = PropertiesReader.getLocalRootPath() + Config.getValue(TEST_BASE_PATH) + BEFORE_SUITE_DIR
-				+ File.separator;
+		String csvTestPath = Helper.getFullPath(Config.getValue(TEST_BASE_PATH) + File.separator + BEFORE_SUITE_DIR
+				+ File.separator);
 
 		String beforeSuiteFile = Config.getValue(TEST_BASE_BEFORE_SUITE);
 
@@ -269,8 +266,8 @@ public class ServiceManager {
 	public static void runServiceAfterSuite() {
 
 		// run all tests in csv file
-		String csvTestPath = PropertiesReader.getLocalRootPath() + Config.getValue(TEST_BASE_PATH) + AFTER_SUITE_DIR
-				+ File.separator;
+		String csvTestPath = Helper.getFullPath(Config.getValue(TEST_BASE_PATH) + File.separator +  AFTER_SUITE_DIR
+				+ File.separator);
 
 		String afterSuiteFile = Config.getValue(TEST_BASE_AFTER_SUITE);
 

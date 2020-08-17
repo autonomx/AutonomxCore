@@ -17,8 +17,8 @@ import core.support.objects.TestObject;
 public class PropertiesReader {
 
 	public static String LOCAL_ROOT_PATH = Helper.getRootDir();
-	private static String LOCAL_RESOURCE_PATH = LOCAL_ROOT_PATH + "resources" + File.separator;
-	private static String LOCAL_RESOURCE_CLOUD_PATH = LOCAL_ROOT_PATH + "test-classes" + File.separator + "testData"
+	private static String LOCAL_RESOURCE_PATH =  "resources";
+	private static String LOCAL_RESOURCE_CLOUD_PATH = "test-classes" + File.separator + "testData"
 			+ File.separator + "resources" + File.separator;
 	public static String PROPERTIES_TYPE_PROPERTIES = ".property";
 	public static String PROPERTIES_TYPE_CONF = ".conf";
@@ -120,20 +120,13 @@ public class PropertiesReader {
 	}
 
 	/**
-	 * @return path to the project root directory
-	 */
-	public static String getLocalRootPath() {
-		return LOCAL_ROOT_PATH;
-	}
-
-	/**
 	 * @return root path
 	 */
 	public static String getLocalResourcePath() {
 		if (isUsingCloud()) {
-			return LOCAL_RESOURCE_CLOUD_PATH;
+			return Helper.getFullPath(LOCAL_RESOURCE_CLOUD_PATH);
 		} else {
-			return LOCAL_RESOURCE_PATH;
+			return Helper.getFullPath(LOCAL_RESOURCE_PATH);
 		}
 	}
 
@@ -142,7 +135,7 @@ public class PropertiesReader {
 	 */
 	public static boolean isUsingCloud() {
 
-		File f = new File(LOCAL_RESOURCE_CLOUD_PATH);
+		File f = new File(Helper.getFullPath(LOCAL_RESOURCE_CLOUD_PATH));
 		if (f.exists() && f.isDirectory()) {
 			return true;
 		}

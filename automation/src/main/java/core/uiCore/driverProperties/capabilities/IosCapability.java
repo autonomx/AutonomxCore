@@ -65,7 +65,7 @@ public class IosCapability {
 	}
 
 	public String getAppPath() {
-		String appRootPath = PropertiesReader.getLocalRootPath() + Config.getValue(APP_DIR_PATH);
+		String appRootPath = Helper.getFullPath(Config.getValue(APP_DIR_PATH));
 		File appPath = new File(appRootPath, Config.getValue(APP_NAME));
 
 		if (!appPath.exists())

@@ -12,12 +12,11 @@ import org.apache.commons.lang.StringUtils;
 import core.helpers.Helper;
 import core.support.annotation.helper.Logger;
 import core.support.annotation.helper.PackageHelper;
-import core.support.configReader.PropertiesReader;
 
 public class ModuleMapHelper {
 	
 	private static String MODULE_ROOT = "module";
-	private static String SOURCE_PATH = PropertiesReader.getLocalRootPath() + "src" + File.separator + "main";
+	private static String SOURCE_PATH = Helper.getFullPath("src" + File.separator + "main");
 
 
 	/**

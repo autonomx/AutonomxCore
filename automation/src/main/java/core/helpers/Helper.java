@@ -566,6 +566,16 @@ public class Helper {
 	public static boolean isTextDisplayed(String text) {
 		return verify.isTextDisplayed(text);
 	}
+	
+	/**
+	 * verify tool tip is displayed
+	 * @param tooltip
+	 * @param index
+	 * @param text
+	 */
+	public void verifyToolTip(EnhancedBy tooltip, int index, String text) {
+		verify.verifyToolTip(tooltip, index, text);
+	}
 
 	/**
 	 * verifies if element(s) is (are) not displayed

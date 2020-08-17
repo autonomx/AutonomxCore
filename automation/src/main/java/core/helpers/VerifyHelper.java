@@ -142,6 +142,17 @@ public class VerifyHelper {
 			return false;
 		}
 	}
+	
+	/**
+	 * verify tooltip is displayed
+	 * @param tooltip
+	 * @param index
+	 * @param text
+	 */
+	public void verifyToolTip(EnhancedBy tooltip, int index, String text) {
+		Helper.hoverBy(tooltip, index);
+		Helper.verifyTextDisplayed(text);
+	}
 
 	/**
 	 * verifies if element(s) is (are) not displayed

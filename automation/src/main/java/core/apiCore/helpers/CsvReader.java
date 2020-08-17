@@ -27,7 +27,6 @@ import core.apiCore.ServiceManager;
 import core.apiCore.TestDataProvider;
 import core.helpers.Helper;
 import core.support.configReader.Config;
-import core.support.configReader.PropertiesReader;
 import core.support.logger.TestLog;
 import core.support.objects.KeyValue;
 import core.support.objects.ServiceObject;
@@ -358,8 +357,7 @@ public class CsvReader {
 	 * @return 
 	 */
 	public static List<Object[]> addActionCsvTests(List<Object[]> csvList) {
-		String csvTestPath = PropertiesReader.getLocalRootPath()
-				+ Config.getValue(TestDataProvider.TEST_DATA_ACTION_PATH);
+		String csvTestPath = Helper.getFullPath(Config.getValue(TestDataProvider.TEST_DATA_ACTION_PATH));
 		
 		List<Object[]> updateDataList = new ArrayList<Object[]>();
 		boolean hasActionKey = false;
@@ -487,7 +485,7 @@ public class CsvReader {
 	 */
 	public synchronized static void getAllKeywords() {
 		String testFolderPath = Config.getValue(TestDataProvider.API_KEYWORD_PATH);
-		String csvTestPath = PropertiesReader.getLocalRootPath() + testFolderPath;
+		String csvTestPath = Helper.getFullPath(testFolderPath);
 		CsvReader.getAllTestCases(csvTestPath, ".csv");
 	}
 
@@ -531,8 +529,7 @@ public class CsvReader {
 	 * @return
 	 */
 	public static ArrayList<File> getTestDataCsvFileList() {		
-		String csvTestPath = PropertiesReader.getLocalRootPath()
-				+ Config.getValue(TestDataProvider.TEST_DATA_PARALLEL_PATH);
+		String csvTestPath = Helper.getFullPath(Config.getValue(TestDataProvider.TEST_DATA_PARALLEL_PATH));
 		return getCsvFileList(csvTestPath);
 	}
 	
@@ -555,8 +552,7 @@ public class CsvReader {
 	 * @return
 	 */
 	public static int getCsvFileIndex(String fileName) {
-		String csvTestPath = PropertiesReader.getLocalRootPath()
-				+ Config.getValue(TestDataProvider.TEST_DATA_PARALLEL_PATH);
+		String csvTestPath = Helper.getFullPath(Config.getValue(TestDataProvider.TEST_DATA_PARALLEL_PATH));
 		return getCsvFileIndex(csvTestPath, fileName);
 	}
 	
@@ -585,8 +581,7 @@ public class CsvReader {
 	 * @return
 	 */
 	public static List<Object[]> getCsvTestListForTestRunner(String csvFile) {
-		String csvTestPath = PropertiesReader.getLocalRootPath()
-				+ Config.getValue(TestDataProvider.TEST_DATA_PARALLEL_PATH);
+		String csvTestPath = Helper.getFullPath(Config.getValue(TestDataProvider.TEST_DATA_PARALLEL_PATH));
 		
 		return getCsvTestListForTestRunner(csvTestPath, csvFile);	
 	}

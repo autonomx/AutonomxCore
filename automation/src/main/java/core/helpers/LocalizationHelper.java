@@ -176,7 +176,7 @@ public class LocalizationHelper {
 
 	protected static File getCsvFile(String filename) {
 		String path = Config.getValue(LOCALIZATION_PATH);
-		String filePath = Helper.getRootDir() + path + filename;
+		String filePath = Helper.getFullPath(path + filename);
 
 		File csvFile = new File(filePath);
 		if (csvFile.isFile() && csvFile.toString().endsWith(".csv")) {

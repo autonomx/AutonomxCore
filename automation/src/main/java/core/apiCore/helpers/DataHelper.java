@@ -30,7 +30,6 @@ import core.apiCore.TestDataProvider;
 import core.apiCore.interfaces.ExternalInterface;
 import core.helpers.Helper;
 import core.support.configReader.Config;
-import core.support.configReader.PropertiesReader;
 import core.support.logger.TestLog;
 import core.support.objects.KeyValue;
 import core.support.objects.ServiceObject;
@@ -453,21 +452,21 @@ public class DataHelper {
 	
 	public static String getTemplateFileLocation(String file) {
 		String templatePath = Config.getValue(TestDataProvider.TEST_DATA_TEMPLATE_PATH).trim();
-		String templateTestPath = PropertiesReader.getLocalRootPath() + templatePath;
+		String templateTestPath = Helper.getFullPath(templatePath);
 
 		return templateTestPath + file;
 	}
 
 	public static Path getTemplateFilePath(String file) {
 		String templatePath = Config.getValue(TestDataProvider.TEST_DATA_TEMPLATE_PATH).trim();
-		String templateTestPath = PropertiesReader.getLocalRootPath() + templatePath;
+		String templateTestPath = Helper.getFullPath(templatePath);
 		String fullLocation = templateTestPath + file;
 		return new File(fullLocation).toPath();
 	}
 
 	public static File getFile(String filename) {
 		String templatePath = Config.getValue(TestDataProvider.TEST_DATA_TEMPLATE_PATH).trim();
-		String templateTestPath = PropertiesReader.getLocalRootPath() + templatePath;
+		String templateTestPath = Helper.getFullPath(templatePath);
 		File file = new File(templateTestPath + filename);
 		return file;
 	}
@@ -1221,8 +1220,7 @@ public class DataHelper {
 				String expectedDataId = dataInfo[1];
 
 				// get data file in csv format
-				String templateDataFilePath = PropertiesReader.getLocalRootPath()
-						+ Config.getValue(TEST_DATA_TEMPLATE_DATA_PATH);
+				String templateDataFilePath = Helper.getFullPath(Config.getValue(TEST_DATA_TEMPLATE_DATA_PATH));
 				File dataFile = new File(templateDataFilePath + dataFilename + ".csv");
 				try {
 

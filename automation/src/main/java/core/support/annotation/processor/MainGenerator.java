@@ -168,7 +168,7 @@ public class MainGenerator extends AbstractProcessor {
 	 * @param fileName
 	 */
 	private static void createFileList(String sourceDir, String fileName, boolean isAppend) {
-		File Directory = new File(Helper.getRootDir() + sourceDir);
+		File Directory = new File(Helper.getFullPath(sourceDir));
 		ArrayList<String> fileList = PropertiesReader.getAllFiles(Directory);
 		String listString = String.join(",", fileList);
 		if (isAppend)
@@ -233,8 +233,8 @@ public class MainGenerator extends AbstractProcessor {
 	 * if annotations are running, without compilation error, then console log will be disabled
 	 */
 	public static void disableConsoleLogging() {
-		File disabledLog = new File(Helper.getRootDir() + ".externalToolBuilders" +  File.separator + "annotation_generator_disableLog.launch");
-		File log = new File(Helper.getRootDir() + ".externalToolBuilders" +  File.separator + "annotation_generator.launch");
+		File disabledLog = new File(Helper.getFullPath(".externalToolBuilders" +  File.separator + "annotation_generator_disableLog.launch"));
+		File log = new File(Helper.getFullPath(".externalToolBuilders" +  File.separator + "annotation_generator.launch"));
 
 		if(!disabledLog.exists() || !log.exists())
 			return;
