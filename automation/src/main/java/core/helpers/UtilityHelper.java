@@ -1435,7 +1435,7 @@ public class UtilityHelper {
 	 */
 	protected static void printPageSource() {
 		if(AbstractDriver.getWebDriver() != null)
-			TestLog.ConsoleLog("page source: " + AbstractDriver.getWebDriver().getPageSource());
+			TestLog.ConsoleLog("page source: " + Helper.stringNormalize(AbstractDriver.getWebDriver().getPageSource()));
 	}
 	
 	/**
