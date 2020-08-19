@@ -98,8 +98,16 @@ public class WebDriverSetup {
 			}
 			break;
 		case WINAPP_DRIVER:
-			service = AppiumServer.startAppiumServer(driverObject);
-			driver = new WindowsDriver(service.getUrl(), driverObject.capabilities);
+			// if external server is used
+			if (Config.getBooleanValue("appium.useExternalAppiumServer")) {
+				int port = Config.getIntValue("appium.externalPort");
+				String server = Config.getValue("appium.externalServer");
+				driver = new WindowsDriver(new URL("http://" + server + ":" + port + "/wd/hub"),
+						driverObject.capabilities);
+			}else {
+				service = AppiumServer.startAppiumServer(driverObject);
+				driver = new WindowsDriver(service.getUrl(), driverObject.capabilities);
+			}
 			break;
 		default:
 			throw new IllegalStateException("Unsupported driverype " + type);

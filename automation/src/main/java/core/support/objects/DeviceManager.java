@@ -63,6 +63,10 @@ public class DeviceManager {
 		// if its not a mobile test, return
 		if (!Helper.mobile.isMobile())
 			return;
+		
+		// multiple winapp devices not supported
+		if(Helper.mobile.isWinApp())
+			return;
 
 		String deviceName = TestObject.getTestInfo().deviceName;
 

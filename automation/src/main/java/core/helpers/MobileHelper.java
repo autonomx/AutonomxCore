@@ -33,6 +33,7 @@ import io.appium.java_client.ios.IOSDriver;
 import io.appium.java_client.touch.LongPressOptions;
 import io.appium.java_client.touch.WaitOptions;
 import io.appium.java_client.touch.offset.PointOption;
+import io.appium.java_client.windows.WindowsDriver;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class MobileHelper {
@@ -143,6 +144,18 @@ public class MobileHelper {
 	 */
 	public boolean isAndroid() {
 		if (AbstractDriver.getWebDriver() instanceof AndroidDriver) {
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * is win app driver
+	 * 
+	 * @return
+	 */
+	public boolean isWinApp() {
+		if (AbstractDriver.getWebDriver() instanceof WindowsDriver) {
 			return true;
 		}
 		return false;

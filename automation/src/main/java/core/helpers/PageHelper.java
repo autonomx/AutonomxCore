@@ -302,7 +302,12 @@ public class PageHelper {
 	 */
 	public String getPageTitle() {
 		if(AbstractDriver.getWebDriver() == null) return StringUtils.EMPTY;
-		return AbstractDriver.getWebDriver().getTitle();
+		try {
+			return AbstractDriver.getWebDriver().getTitle();
+		}catch(Exception e) {
+			printStackTrace(e);
+		}
+		return StringUtils.EMPTY;
 	}
 
 	/**
@@ -312,7 +317,12 @@ public class PageHelper {
 	 */
 	public String getCurrentUrl() {
 		if(AbstractDriver.getWebDriver() == null) return StringUtils.EMPTY;
-		return AbstractDriver.getWebDriver().getCurrentUrl();
+		try {
+			return AbstractDriver.getWebDriver().getCurrentUrl();
+		}catch(Exception e) {
+			printStackTrace(e);
+		}
+		return StringUtils.EMPTY;
 	}
 
 	/**
@@ -329,6 +339,7 @@ public class PageHelper {
 	 * navigates back
 	 */
 	public void navigateBack() {
+		if(AbstractDriver.getWebDriver() == null) return;
 		AbstractDriver.getWebDriver().navigate().back();
 	}
 
@@ -336,6 +347,7 @@ public class PageHelper {
 	 * navigate forward
 	 */
 	public void navigateForward() {
+		if(AbstractDriver.getWebDriver() == null) return;
 		AbstractDriver.getWebDriver().navigate().forward();
 	}
 
@@ -343,6 +355,7 @@ public class PageHelper {
 	 * delete all cookies
 	 */
 	public void deleteAllCookies() {
+		if(AbstractDriver.getWebDriver() == null) return;
 		AbstractDriver.getWebDriver().manage().deleteAllCookies();
 	}
 
@@ -352,6 +365,7 @@ public class PageHelper {
 	 * @param name
 	 */
 	public void deleteCookieNamed(String name) {
+		if(AbstractDriver.getWebDriver() == null) return;
 		AbstractDriver.getWebDriver().manage().deleteCookieNamed(name);
 	}
 
