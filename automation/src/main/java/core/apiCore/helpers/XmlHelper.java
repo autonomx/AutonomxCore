@@ -251,7 +251,8 @@ public class XmlHelper {
 		if (serviceObject.getRequestBody().isEmpty()) {
 			return xmlFileValue;
 		} else {
-			return replaceRequestTagValues(serviceObject);
+			String xmlString = DataHelper.getServiceObjectTemplateString(serviceObject);
+			return XmlHelper.replaceRequestTagValues(serviceObject.getRequestBody(), xmlString);
 		}
 	}
 
@@ -312,22 +313,24 @@ public class XmlHelper {
 	 * @param serviceObject
 	 * @return
 	 */
-	public static String replaceRequestTagValues(ServiceObject serviceObject) {
-		String xmlString = DataHelper.getServiceObjectTemplateString(serviceObject);
+	public static String replaceRequestTagValues(String requestbody, String xmlString) {
 		Helper.assertTrue("xml string is empty", !xmlString.isEmpty());
 
 		// replace parameters
 		xmlString = DataHelper.replaceParameters(xmlString);
 
 		// if request is valid xml, do not update. only key value pair
-		if (isValidXmlString(serviceObject.getRequestBody())) {
-			return serviceObject.getRequestBody();
+		if (isValidXmlString(requestbody)) {
+			return requestbody;
 		}
 
 		// get key value mapping of header parameters
-		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getRequestBody());
+		List<KeyValue> keywords = DataHelper.getValidationMap(requestbody);
 		for (KeyValue keyword : keywords) {
 			if(keyword.value.toString().isEmpty()) continue;
+		
+			if(keyword.position.isEmpty())
+				keyword.position = "1";
 			
 			xmlString = replaceTagValue(xmlString, keyword.key, keyword.value.toString(),
 					Integer.valueOf(keyword.position));
@@ -357,6 +360,9 @@ public class XmlHelper {
 	public static String getXmlTagValue(String source, String tag, int position) {
 		List<String> values = new ArrayList<String>();
 		try {
+			if(tag.equals("."))
+				return source;
+			
 			String patternString = "<" + tag + ">(.*?)<\\/" + tag + ">";
 			final Pattern pattern = Pattern.compile(patternString);
 			final Matcher matcher = pattern.matcher(source);

@@ -52,6 +52,9 @@ public class DataHelper {
 	public static final String VALIDATION_OR_CONDITION_ECODE = "\\|\\|";
 	public static final String VALIDATION_OR_CONDITION = "||";
 	public static final String VALIDATION_AND_CONDITION = "&&";
+	
+	public static final String REQUEST_BODY_UPDATE_INDICATOR = "_UPDATE_REQUEST_";
+
 
 	
 	public enum JSON_COMMAND {
@@ -1162,26 +1165,43 @@ public class DataHelper {
 
 		// load data file to config
 		loadDataFile(serviceObject);
-
-		// if json template file
-		if (JsonHelper.isJsonFile(serviceObject.getTemplateFile())) {
-			requestbody = JsonHelper.getRequestBodyFromJsonTemplate(serviceObject);
-
-			// if xml template file
-		} else if (XmlHelper.isXmlFile(serviceObject.getTemplateFile())) {
-			requestbody = XmlHelper.getRequestBodyFromXmlTemplate(serviceObject);
-
-			// if other type of file
-		} else if (!serviceObject.getTemplateFile().isEmpty()) {
-			Path templatePath = DataHelper.getTemplateFilePath(serviceObject.getTemplateFile());
-			requestbody = convertFileToString(templatePath);
-
-			// if no template, return request body
-		} else if (requestbody.isEmpty())
-			requestbody = serviceObject.getRequestBody();
-
-		// replace request body parameters
-		requestbody = replaceParameters(requestbody);
+		
+		String[] criterion =  serviceObject.getRequestBody().split(VALIDATION_AND_CONDITION);
+		for(String criteria : criterion) {
+			criteria = Helper.stringRemoveLines(criteria);
+			if(!criteria.startsWith(REQUEST_BODY_UPDATE_INDICATOR)) {
+				serviceObject.withRequestBody(criteria);
+				
+				// if json template file
+				if (JsonHelper.isJsonFile(serviceObject.getTemplateFile())) {
+					requestbody = JsonHelper.getRequestBodyFromJsonTemplate(serviceObject);
+		
+					// if xml template file
+				} else if (XmlHelper.isXmlFile(serviceObject.getTemplateFile())) {
+					requestbody = XmlHelper.getRequestBodyFromXmlTemplate(serviceObject);
+		
+					// if other type of file
+				} else if (!serviceObject.getTemplateFile().isEmpty()) {
+					Path templatePath = DataHelper.getTemplateFilePath(serviceObject.getTemplateFile());
+					requestbody = convertFileToString(templatePath);
+		
+					// if no template, return request body
+				} else if (requestbody.isEmpty())
+					requestbody = serviceObject.getRequestBody();
+		
+				// replace request body parameters
+				requestbody = replaceParameters(requestbody);
+			}else {
+				// remove update indicator _UPDATE_REQUEST_
+				criteria = JsonHelper.removeResponseIndicator(criteria);
+				
+				if(JsonHelper.isJSONValid(requestbody, false))
+					requestbody = JsonHelper.updateJsonFromRequestBody(criteria, requestbody);
+				else if(XmlHelper.isValidXmlString(requestbody))
+					requestbody = XmlHelper.replaceRequestTagValues(criteria, requestbody);
+			}
+		
+		}
 
 		return requestbody;
 	}

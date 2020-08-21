@@ -187,6 +187,9 @@ public class JsonHelper {
 			config = Configuration.defaultConfiguration();
 
 		ReadContext ctx = JsonPath.using(config).parse(json);
+		
+		if(path.equals("."))
+			return json;
 
 		try {
 			values = ctx.read(prefix + path);
@@ -532,12 +535,13 @@ public class JsonHelper {
 		indicator.add(DataHelper.VERIFY_JSON_PART_INDICATOR_UNDERSCORE);
 		indicator.add(DataHelper.VERIFY_HEADER_PART_INDICATOR);
 		indicator.add(DataHelper.VERIFY_TOPIC_PART_INDICATOR);
+		indicator.add(DataHelper.REQUEST_BODY_UPDATE_INDICATOR);
 
 		for (String value : indicator) {
 			expected = expected.replace(value, "");
 		}
 
-		return expected;
+		return expected.trim();
 	}
 
 	/**
@@ -562,7 +566,7 @@ public class JsonHelper {
 		if (serviceObject.getRequestBody().isEmpty()) {
 			return jsonFileValue;
 		} else {
-			return updateJsonFromRequestBody(serviceObject);
+			return updateJsonFromRequestBody(serviceObject.getRequestBody(), jsonFileValue);
 		}
 	}
 
@@ -582,19 +586,18 @@ public class JsonHelper {
 		return Helper.readFileContent(templatePath.toString());
 	}
 
-	public static String updateJsonFromRequestBody(ServiceObject serviceObject) {
-		String jsonString = DataHelper.getServiceObjectTemplateString(serviceObject);
+	public static String updateJsonFromRequestBody(String requestbody, String jsonString) {
 		Helper.assertTrue("json string is empty", !jsonString.isEmpty());
 
 		// replace parameters
 		jsonString = DataHelper.replaceParameters(jsonString);
 
 		// if request body is json, will not replace template
-		if (isJSONValid(serviceObject.getRequestBody(), false))
-			return serviceObject.getRequestBody();
+		if (isJSONValid(requestbody, false))
+			return requestbody;
 
 		// get key value mapping of header parameters
-		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getRequestBody());
+		List<KeyValue> keywords = DataHelper.getValidationMap(requestbody);
 		for (KeyValue keyword : keywords) {
 			if(keyword.value.toString().isEmpty()) continue;
 			
@@ -624,14 +627,13 @@ public class JsonHelper {
 		// in case user forgets to remove prefix
 		if (path.startsWith(prefix))
 			path = path.replace(prefix, "");
-
+		
 		try {
 			doc.set("$." + path, replacementValue);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		JsonObject jsonObj = new GsonBuilder().serializeNulls().create().toJsonTree(doc.json()).getAsJsonObject();
-		return jsonObj.toString();
+		return doc.jsonString();
 	}
 
 	/**
