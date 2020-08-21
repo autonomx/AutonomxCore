@@ -21,6 +21,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 
@@ -1159,6 +1160,7 @@ public class DataHelper {
 	 * @param serviceObject
 	 * @return
 	 */
+	@SuppressWarnings("deprecation")
 	public static String getRequestBodyIncludingTemplate(ServiceObject serviceObject) {
 
 		String requestbody = StringUtils.EMPTY;
@@ -1167,6 +1169,12 @@ public class DataHelper {
 		loadDataFile(serviceObject);
 		
 		String[] criterion =  serviceObject.getRequestBody().split(VALIDATION_AND_CONDITION);
+		
+		// if request only contains request update keyword, set request first index to empty
+		if(criterion.length == 1 && criterion[0].startsWith(REQUEST_BODY_UPDATE_INDICATOR)) {
+			criterion = ArrayUtils.add(criterion, 0, "");
+		}
+		
 		for(String criteria : criterion) {
 			criteria = Helper.stringRemoveLines(criteria);
 			if(!criteria.startsWith(REQUEST_BODY_UPDATE_INDICATOR)) {
@@ -1199,6 +1207,9 @@ public class DataHelper {
 					requestbody = JsonHelper.updateJsonFromRequestBody(criteria, requestbody);
 				else if(XmlHelper.isValidXmlString(requestbody))
 					requestbody = XmlHelper.replaceRequestTagValues(criteria, requestbody);
+			
+				// replace request body parameters
+				requestbody = replaceParameters(requestbody);
 			}
 		
 		}
