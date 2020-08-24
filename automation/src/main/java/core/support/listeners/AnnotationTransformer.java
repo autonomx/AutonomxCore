@@ -69,10 +69,6 @@ public class AnnotationTransformer implements IAnnotationTransformer {
 
 		int csvTestCount = CsvReader.getCsvFileCount();
 
-		// set test run count to 1, for 1 csv file to run
-		if (!(Config.getValue(TestDataProvider.TEST_CASE_FILE).isEmpty())) {
-			csvTestCount = 1;
-		}
 		// set test loop to the number of csv files in the folder
 		// each loop, the next csv file will be executed as a test
 		annotation.setInvocationCount(csvTestCount);

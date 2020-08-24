@@ -42,6 +42,8 @@ public class CsvReader {
 	public static final String SERVICE_CSV_SEPARATOR = "service.csv.separator";
 	public static final String SERVICE_CSV_DATAPROVIDER_COUNT = "service.csv.dataprovider.count";
 	public static final String SERVICE_CSV_INCLUDE_SUB_DIR = "api.csv.include.subdir";
+	public static final String SERVICE_INCLUDE_LIST= "api.includeTests";
+	public static final String SERVICE_EXCLUDE_LIST= "api.excludeTests";
 
 	
 	
@@ -53,6 +55,9 @@ public class CsvReader {
 	public static final String SERVICE_STEP_PREFIX = "step";
 
 	
+	enum TEST_FILTER_TYPES {
+		 INCLUDE, EXCLUDE
+	}
 	
 	enum VALID_TEST_FILE_TYPES {
 		 csv
@@ -65,11 +70,10 @@ public class CsvReader {
 	 */
 	public synchronized static List<Object> getTestCasesFromCsvFile() {
 		int index = getCurrentTestInvocation();
-		// if single test case is specified, Then only load that file
-		String testCaseFile = Config.getValue(TestDataProvider.TEST_CASE_FILE);
-		if (!testCaseFile.isEmpty())
-			index = getCsvFileIndex(testCaseFile);
 
+		// set starting test index based on first test in include list
+		index = setIncludeTestStartingIndex(index);
+		
 		// get current csv file
 		String csvFileName = CsvReader.getCsvFileFromIndex(index);
 
@@ -90,12 +94,9 @@ public class CsvReader {
 		updatedCsvList = setTestSteps(updatedCsvList, testStepMap);
 		
 		// get the test cases based on specifications from config. eg. single file name, or single test case, or all
-		List<Object[]> testCaseList = updateCsvFileFromFile(updatedCsvList, csvFileName, testCaseFile, testStepMap);
+		List<Object[]> testCaseList = updateCsvFileFromFile(updatedCsvList, csvFileName, testStepMap);
 		
-		// filter tests based on test case range. eg. test2-test10 if specified
-		testCaseList = setTestCaseRange(testCaseFile, testCaseList);
-		
-		 //print out warning for duplicated test names
+		//print out warning for duplicated test names
 		detectDuplicateTests(testCaseList);
 		
 		List<Object> tests = new ArrayList<Object>();
@@ -104,6 +105,17 @@ public class CsvReader {
 		}
 		
 		return tests;
+	}
+	
+	private static int setIncludeTestStartingIndex(int index) {
+		// set starting test index based on first test in include list
+		String includeTests = Config.getValue(SERVICE_INCLUDE_LIST);
+		if (!includeTests.isEmpty() && index == 0) {
+			List<KeyValue> filterList = DataHelper.getValidationMap(includeTests);
+			String testCsv = filterList.get(0).key;
+			index = getCsvFileIndex(testCsv);
+		}
+		return index;
 	}
 	
 	/**
@@ -247,7 +259,7 @@ public class CsvReader {
 	 * @param testCaseFile
 	 * @return
 	 */
-	public static List<Object[]> updateCsvFileFromFile(List<Object[]> csvList, String csvFileName, String testCaseFile, Map<String, List<Object[]>> testStepMap) {
+	public static List<Object[]> updateCsvFileFromFile(List<Object[]> csvList, String csvFileName,  Map<String, List<Object[]>> testStepMap) {
 		List<Object[]> testCases = new ArrayList<>();
 		
 		for (int i = 0; i < csvList.size(); i++) {
@@ -274,30 +286,6 @@ public class CsvReader {
 		return testCases;
 	}
 	
-	/**
-	 * gets the list of test cases based on range specified by testcase option
-	 * createUser-createUserInvalidToken, updateUser  or
-	 * 
-	 * @return 
-	 */
-	public static List<Object[]>  setTestCaseRange(String testCaseFile, List<Object[]> csvList) {
-		List<String> testCaseRange = Config.getValueList(TestDataProvider.TEST_CASE);
-		
-		// for test case selection. Both test case file And test case have to be set
-		if(testCaseFile.isEmpty() || testCaseRange.isEmpty())
-			return csvList;
-		
-		List<Object[]> testCases = new ArrayList<>();
-		
-		// iterate through range list and filter list 
-		for(String range : testCaseRange) {		
-			String[] rangeArray = range.split("-");		
-			testCases.addAll(getTestCasesInRange(csvList, rangeArray));
-		}
-		
-		return testCases;
-	}
-	
 	
 	/**
 	 * get list of test cases in range
@@ -307,7 +295,6 @@ public class CsvReader {
 	 * @return
 	 */
 	private static List<Object[]> getTestCasesInRange(List<Object[]> csvList, String[] range) {
-		String testCaseRange = Config.getValue(TestDataProvider.TEST_CASE);
 		List<Object[]> testCases = new ArrayList<>();
 		
 		String startingTestId = range[0].trim();
@@ -316,7 +303,7 @@ public class CsvReader {
 			endTestId = range[1].trim();
 		
 		if(range.length > 2)
-			Helper.assertFalse("test case range must be specified. eg. test1-test3. existing value: " + testCaseRange);
+			Helper.assertFalse("test case range must be specified. eg. test1-test3. existing value: " + Arrays.toString(range));
 		
 		boolean isWithinRange = false;
 
@@ -576,7 +563,6 @@ public class CsvReader {
 
 	/**
 	 * gets csv tests list for service tests
-	 * 
 	 * @param csvFile
 	 * @return
 	 */
@@ -588,7 +574,9 @@ public class CsvReader {
 	
 	/**
 	 * gets csv tests list for service tests
-	 * 
+	 * include and exclude tests
+	 * eg. include: TestCases_UserValidation.csv:createUser-createUserNoToken, createUserInvalidToken;
+	 * eg. exclude: TestCases_UserValidation.csv:createUser-createUserNoToken, createUserInvalidToken;
 	 * @param csvInfo
 	 * @return
 	 */
@@ -621,6 +609,10 @@ public class CsvReader {
 
 	/**
 	 * reads csv file and returns the list of rows 
+	 * include and exclude tests
+	 * eg. include: TestCases_UserValidation.csv:createUser-createUserNoToken, createUserInvalidToken;
+	 * eg. exclude: TestCases_UserValidation.csv:createUser-createUserNoToken, createUserInvalidToken;
+	
 	 * @param file
 	 * @return
 	 */
@@ -630,7 +622,7 @@ public class CsvReader {
 		try {
 			
 		    CSVReader reader = readCsvFile(file);
-
+		    
 			// read header separately
 			String[] header = reader.readNext();
 			ArrayList<String> headerList = new ArrayList<String>();
@@ -665,8 +657,154 @@ public class CsvReader {
 			e.printStackTrace();
 		}
 
+		// filter based on include test cases
+		csvList = setIncludeTestRange(file, csvList);
+		
+		// filter based on exclude test cases
+		csvList = setExcludeTestRange(file, csvList);
+			
 		return csvList;
 	}
+	
+	/**
+	 * api.includeTests = "TestCases_UserValidation.csv:createUser-createUserNoToken, createUserInvalidToken;"
+	 * @param file
+	 * @param csvList
+	 * @return
+	 */
+	private static List<Object[]> setIncludeTestRange(File file, List<Object[]> csvList) {
+		String filterRequirements = StringUtils.EMPTY;
+		
+		// if no filter set, return original list
+		filterRequirements = Config.getValue(SERVICE_INCLUDE_LIST);
+		if(filterRequirements.isEmpty()) return csvList;
+		
+		// will include keyword tests
+		if(file.getAbsolutePath().contains(File.separator + "keywords" + File.separator))
+			return csvList;
+		
+		List<KeyValue> filterList = DataHelper.getValidationMap(filterRequirements);
+		
+		// does test name match test file
+		for(KeyValue filter: filterList ) {
+			if(filter.key.contentEquals(file.getName())){
+				
+				// if no test range
+				if(filter.value.toString().isEmpty()) return csvList;
+				csvList = getIncludeTestRange(csvList, filter.value.toString());
+				return csvList;
+				
+			}	
+		}	  	
+		return new ArrayList<Object[]>();
+	}
+	
+	/**
+	 * format for range: createUser-createUserNoToken, createUserInvalidToken
+	 * @param csvList
+	 * @param range
+	 */
+	private static List<Object[]> getIncludeTestRange(List<Object[]> csvList, String testRange) {
+		List<Object[]> testCases = new ArrayList<Object[]>();
+		String[] rangeArray = testRange.split(",");
+		
+		// for test case selection. Both test case file And test case have to be set
+		// iterate through range list and filter list 
+		for(String rangeValue : rangeArray) {		
+			String[] range = rangeValue.split("-");		
+			testCases.addAll(getTestCasesInRange(csvList, range));
+		}
+		return testCases;
+	}
+	
+	/**
+	 * api.excludeTests = "TestCases_UserValidation.csv:createUser-createUserNoToken, createUserInvalidToken;"
+	 * @param file
+	 * @param csvList
+	 * @return
+	 */
+	private static List<Object[]> setExcludeTestRange(File file, List<Object[]> csvList) {
+		String filterRequirements = StringUtils.EMPTY;
+		
+		// if no filter set, return original list
+		filterRequirements = Config.getValue(SERVICE_EXCLUDE_LIST);
+		if(filterRequirements.isEmpty()) return csvList;
+		
+		List<KeyValue> filterList = DataHelper.getValidationMap(filterRequirements);
+		
+		// does test name match test file
+		for(KeyValue filter: filterList ) {
+			if(filter.key.contentEquals(file.getName())){
+				
+				// if no test range, exclude entire list
+				if(filter.value.toString().isEmpty()) return new ArrayList<Object[]>();
+				
+				csvList = getExcludeTestRange(csvList, filter.value.toString());
+				
+			}	
+		}	
+	    	
+		return csvList;
+	}
+	
+	/**
+	 * format for range: createUser-createUserNoToken, createUserInvalidToken
+	 * @param csvList
+	 * @param range
+	 */
+	private static List<Object[]> getExcludeTestRange(List<Object[]> csvList, String testRange) {
+		List<Object[]> testCases = new ArrayList<Object[]>();
+		String[] rangeArray = testRange.split(",");
+		
+		// for test case selection. Both test case file And test case have to be set
+		// iterate through range list and filter list 
+		for(String rangeValue : rangeArray) {		
+			String[] range = rangeValue.split("-");		
+			testCases.addAll(getTestCasesInRange(csvList, range));
+		}
+		
+		// remove filtered list from the original list
+		csvList.removeAll(testCases);
+		
+		return csvList;
+	}
+	
+	/**
+	 * is file excluded or included
+	 * format:
+	 * api.includeTests = "TestCases_UserValidation.csv:createUser-createUserNoToken, createUserInvalidToken;"
+	 */
+	/*
+	private static boolean isTestFiltered(File file, TEST_FILTER_TYPES filterType) {
+		String filterTests = StringUtils.EMPTY;
+		
+		// include or exclude filter type
+		if(filterType.equals(TEST_FILTER_TYPES.INCLUDE)) {
+			filterTests = Config.getValue(SERVICE_INCLUDE_LIST);
+			if(filterTests.isEmpty()) return true;
+		}else if(filterType.equals(TEST_FILTER_TYPES.EXCLUDE)) {
+			filterTests = Config.getValue(SERVICE_EXCLUDE_LIST);
+			if(filterTests.isEmpty()) return false;
+		}
+		
+		// will include keyword tests
+		if(file.getAbsolutePath().contains(File.separator + "keywords" + File.separator))
+			return true;
+		
+		List<KeyValue> tests = DataHelper.getValidationMap(filterTests);
+		
+		// does test name match test file
+		for(KeyValue test: tests ) {
+			if(test.key.contentEquals(file.getName())){
+				// if file is excluded, however, it has test range, then do not exclude entire test file
+				if(filterType.equals(TEST_FILTER_TYPES.EXCLUDE) && !test.value.toString().isEmpty()) 
+					return false;
+				return true;
+			}
+		}
+		return false;
+	}
+	*/
 	
 	public static CSVReader readCsvFile(File file) {
 		CSVReader reader = null;

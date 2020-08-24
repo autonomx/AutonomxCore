@@ -317,7 +317,7 @@ public class ServiceManager {
 		String updateName = testname;
 
 		// map test list and run through the service runner
-		List<Object[]> updateList = CsvReader.updateCsvFileFromFile(testList, updateName, "", null);
+		List<Object[]> updateList = CsvReader.updateCsvFileFromFile(testList, updateName, null);
 		for (Object[] dataRow : updateList) {
 			ServiceObject testServiceObject = CsvReader.mapToServiceObject(dataRow);
 			testServiceObject.withParent(parent);
