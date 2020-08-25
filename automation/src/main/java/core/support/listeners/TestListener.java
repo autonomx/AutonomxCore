@@ -13,6 +13,7 @@ import org.testng.ITestContext;
 import org.testng.ITestListener;
 import org.testng.ITestNGMethod;
 import org.testng.ITestResult;
+import org.testng.SkipException;
 import org.testng.xml.XmlSuite.ParallelMode;
 
 import com.google.common.base.Joiner;
@@ -36,7 +37,9 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 	public static boolean isTestNG = false;
 	public static final String PARALLEL_TEST_TYPE = "global.parallel.type";
 	public static final String CONSOLE_PAGESOURCE_ON_FAIL = "console.pageSource.onFail";
+	public static final String GLOBAL_SKIP_TESTS = "global.skipTests";
 
+	
 	
 	
 	// Before starting all tests, below method runs.
@@ -152,7 +155,12 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 	}
 
 	public void onTestStart(ITestResult iTestResult) {
-
+	
+		// skip tests set on global.skipTests property. UI tests only
+		ArrayList<String> skipTestName = Config.getValueList(GLOBAL_SKIP_TESTS);
+		if(skipTestName.contains(TestObject.getTestInfo().testId))
+			throw new SkipException("skipped on purpose");
+		
 		setTestClassName(iTestResult);
 		ScreenRecorderHelper.startRecording();
 	}
