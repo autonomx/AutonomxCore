@@ -858,7 +858,7 @@ public class CsvReader {
 				return i;
 			}
 		}
-		Helper.assertTrue("column not found", false);
+		Helper.assertTrue("column not found. Expecting: " + column + ". Perhaps spelling mistake on column names of the csv file? Existing columns: " + Arrays.toString(row), false);
 		return -1;
 	}
 	
