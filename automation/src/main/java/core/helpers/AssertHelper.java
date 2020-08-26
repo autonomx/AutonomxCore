@@ -24,6 +24,7 @@ public class AssertHelper {
 	 * @param value
 	 */
 	protected static void assertTrue(String message, boolean value) {
+
 		try {
 			Assert.assertTrue(value, TestObject.getTestId() + ": " + message);
 		} catch (AssertionError e) {
