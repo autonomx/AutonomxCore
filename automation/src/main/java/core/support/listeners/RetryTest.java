@@ -11,6 +11,7 @@ import com.aventstack.extentreports.Status;
 import com.aventstack.extentreports.markuputils.Markup;
 import com.aventstack.extentreports.markuputils.MarkupHelper;
 
+import core.apiCore.driver.ApiTestDriver;
 import core.helpers.Helper;
 import core.helpers.ScreenRecorderHelper;
 import core.helpers.excelHelper.ExcelObject;
@@ -70,6 +71,11 @@ public class RetryTest implements IRetryAnalyzer {
 		if(Config.getBooleanValue(ScreenRecorderHelper.RECORDER_ENABLE_RECORDING)
 				&& Config.getBooleanValue(ScreenRecorderHelper.RECORDER_ON_FAIL_TEST_ONLY))
 		{
+			
+			// no need for screen recorder for service tests with recording enabled
+			if(ApiTestDriver.isRunningServiceTest())
+				return false;
+			
 			int maxRetryCount = CrossPlatformProperties.getRetryCount();
 			if(maxRetryCount == 0)
 				Config.putValue(CrossPlatformProperties.RETRY_COUNT, maxRetryCount+1);

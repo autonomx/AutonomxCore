@@ -58,10 +58,6 @@ public class ScreenRecorderHelper {
 	 */
 	public synchronized static void startRecording() {
 		
-		// no need for screen recorder for service tests
-		if(ApiTestDriver.isRunningServiceTest())
-			return;
-		
 		// return if enableRecording is false
 		if(!Config.getBooleanValue(RECORDER_ENABLE_RECORDING))
 			return;
