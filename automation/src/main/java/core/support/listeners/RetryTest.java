@@ -67,7 +67,7 @@ public class RetryTest implements IRetryAnalyzer {
 		
 		TestObject.getTestInfo().isTestFail = true;
 		
-		// if record on fail enabled, increase retry count to record failure
+		// if record on fail enabled, and retry is disabled, increase retry count to record failure
 		if(Config.getBooleanValue(ScreenRecorderHelper.RECORDER_ENABLE_RECORDING)
 				&& Config.getBooleanValue(ScreenRecorderHelper.RECORDER_ON_FAIL_TEST_ONLY))
 		{
