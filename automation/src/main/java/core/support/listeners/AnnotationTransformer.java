@@ -2,6 +2,7 @@ package core.support.listeners;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import org.testng.IAnnotationTransformer;
 import org.testng.IRetryAnalyzer;
@@ -9,8 +10,10 @@ import org.testng.annotations.ITestAnnotation;
 
 import core.apiCore.TestDataProvider;
 import core.apiCore.helpers.CsvReader;
+import core.apiCore.helpers.DataHelper;
 import core.helpers.Helper;
 import core.support.configReader.Config;
+import core.support.objects.KeyValue;
 import core.support.objects.TestObject;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 
@@ -68,11 +71,24 @@ public class AnnotationTransformer implements IAnnotationTransformer {
 		setApiThreadCount(annotation, testClass, testConstructor, testMethod);
 
 		int csvTestCount = CsvReader.getCsvFileCount();
+		
+		// set test run count to number of files specified in service include list
+		String configList = Config.getValue(CsvReader.SERVICE_INCLUDE_LIST);
+		if (!configList.isEmpty()) {
+			List<KeyValue> filterList = DataHelper.getValidationMap(configList);
+			csvTestCount = filterList.size();
+		}
+		
+		// set test run count to number of files specified in service include list
+		configList = Config.getValue(CsvReader.SERVICE_EXCLUDE_LIST);
+		if (!configList.isEmpty()) {
+			List<KeyValue> filterList = DataHelper.getValidationMap(configList);
+			csvTestCount = csvTestCount - filterList.size();
+		}
 
 		// set test loop to the number of csv files in the folder
 		// each loop, the next csv file will be executed as a test
 		annotation.setInvocationCount(csvTestCount);
-
 	}
 
 	/**
