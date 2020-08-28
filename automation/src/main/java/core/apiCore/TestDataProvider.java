@@ -16,7 +16,8 @@ public class TestDataProvider {
 	public static String TEST_DATA_PATH;
 	public static final String TEST_DATA_TEMPLATE_PATH = "api.templatePath";
 
-	public static final String TEST_DATA_PARALLEL_PATH = "api.testcasePath";
+	public static final String TEST_DATA_PARALLEL_PATH = "api.parallelTestcasePath";
+	
 	public static final String TEST_DATA_ACTION_PATH = "api.actionTestcasePath";
 
 	public static final String API_KEYWORD_PATH = "api.keywordPath"; // directory to keyword csv files
