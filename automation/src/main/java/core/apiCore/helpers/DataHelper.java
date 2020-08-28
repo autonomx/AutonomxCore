@@ -422,11 +422,12 @@ public class DataHelper {
 		expected = JsonHelper.removeResponseIndicator(expected);
 
 		String[] keyVals = expected.split(separator);
-		String key = "";
-		String position = "";
-		String value = "";
+		
 		for (String keyVal : keyVals) {
-
+			String key = "";
+			String position = "";
+			String value = "";
+			
 			// if empty, skip
 			if (keyVal.isEmpty())
 				continue;

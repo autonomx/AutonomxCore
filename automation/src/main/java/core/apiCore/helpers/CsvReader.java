@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -72,7 +73,7 @@ public class CsvReader {
 		int index = getCurrentTestInvocation();
 
 		// set starting test index based on first test in include list
-		index = setIncludeTestStartingIndex(index);
+		index = setTestRangeIndex();
 		
 		// get current csv file
 		String csvFileName = CsvReader.getCsvFileFromIndex(index);
@@ -107,17 +108,93 @@ public class CsvReader {
 		return tests;
 	}
 	
-	private static int setIncludeTestStartingIndex(int index) {
-		// set starting test index based on first test in include list
-		String includeTests = Config.getValue(SERVICE_INCLUDE_LIST);
-		if (!includeTests.isEmpty() && index == 0) {
-			List<KeyValue> filterList = DataHelper.getValidationMap(includeTests);
-			String testCsv = filterList.get(0).key;
-			index = getCsvFileIndex(testCsv);
+	/**
+	 * sets the index of the file specified in include and exclude tests
+	 * 
+	 * @param index
+	 * @return
+	 */
+	public static int setTestRangeIndex() {
+		int index = 0;
+		
+		// set csv list to include all tests at the beginning of test run
+		if(TestDataProvider.TEST_CSV_LIST.isEmpty()) {
+			TestDataProvider.TEST_CSV_LIST = filterTests();
 		}
+		
+		if(TestDataProvider.TEST_CSV_LIST.isEmpty())
+			Helper.assertFalse("no tests available after fitlering");
+		
+		// get the index of the first test in csv list and remove from list
+		if(!TestDataProvider.TEST_CSV_LIST.isEmpty()) {
+			File testFile = TestDataProvider.TEST_CSV_LIST.get(0);
+			TestDataProvider.TEST_CSV_LIST.remove(testFile);
+			index = getCsvFileIndex(testFile.getName());
+		}
+				
 		return index;
 	}
 	
+	public static ArrayList<File> filterTests(){
+		ArrayList<File> files = getTestDataCsvFileList();
+		
+		//filter csv tests based on include test list
+		files = filterIncludeTestFiles(files);
+	
+		// filters csv tests based on include test list
+		files = filterExcludeTestFiles(files);
+		
+		return files;
+	}
+	
+	/**
+	 * filters csv tests based on include test list
+	 * format: api.includeTests = "TestCases_UserValidation.csv:getAdminToken-updateUser;TestCases_UserValidation2.csv"
+	 */
+	private static ArrayList<File> filterIncludeTestFiles(ArrayList<File> files) {
+		String includeTests = Config.getValue(SERVICE_INCLUDE_LIST);
+		if(includeTests.isEmpty()) return files;
+		
+		ArrayList<File> filterFiles = new ArrayList<File>();
+		
+		List<KeyValue> filterList = DataHelper.getValidationMap(includeTests);
+		for(KeyValue fitler : filterList) {
+			String testCsv = fitler.key;
+			for(File file : files) {
+				if(file.getName().equals(testCsv)) {
+					filterFiles.add(file);
+					break;
+				}
+			}
+		}
+		
+		return filterFiles;
+	}
+	
+	/**
+	 * filters csv tests based on exclude test list
+	 * format: api.excludeTests = "TestCases_UserValidation.csv:getAdminToken-updateUser;TestCases_UserValidation2.csv"
+	 */
+	private static ArrayList<File> filterExcludeTestFiles(ArrayList<File> files) {
+		String excludeTests = Config.getValue(SERVICE_EXCLUDE_LIST);
+		if (excludeTests.isEmpty())
+			return files;
+
+		List<KeyValue> filterList = DataHelper.getValidationMap(excludeTests);
+		Iterator<File> i = files.iterator();
+		while (i.hasNext()) {
+			File csvFile = i.next(); // must be called before you can call i.remove()
+			for (KeyValue fitler : filterList) {
+				String testCsv = fitler.key;
+				String testFilter = fitler.value.toString();
+				if (csvFile.getName().equals(testCsv) && testFilter.isEmpty())
+					i.remove();
+
+			}
+		}
+		return files;
+	}
+
 	/**
 	 * print out warning for duplicated test names
 	 * @param testCaseList

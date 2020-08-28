@@ -1,8 +1,9 @@
 package core.support.listeners;
 
+import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.List;
+import java.util.ArrayList;
 
 import org.testng.IAnnotationTransformer;
 import org.testng.IRetryAnalyzer;
@@ -10,21 +11,18 @@ import org.testng.annotations.ITestAnnotation;
 
 import core.apiCore.TestDataProvider;
 import core.apiCore.helpers.CsvReader;
-import core.apiCore.helpers.DataHelper;
 import core.helpers.Helper;
 import core.support.configReader.Config;
-import core.support.objects.KeyValue;
 import core.support.objects.TestObject;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 
 /**
- * Only runs through suite xml file Running service runner directly will not go
- * through AnnotationTransformer and only single csv file will run
- * 
+ * Only runs through suite xml file
+ * Running service runner directly will not go through AnnotationTransformer and only single csv file will run
  * @author ehsan.matean
  *
  */
-@SuppressWarnings({ "rawtypes" })
+@SuppressWarnings({"rawtypes"})
 
 public class AnnotationTransformer implements IAnnotationTransformer {
 	public static final String THREAD_COUNT = "global.parallel_test_count";
@@ -33,11 +31,11 @@ public class AnnotationTransformer implements IAnnotationTransformer {
 	@SuppressWarnings("deprecation")
 	@Override
 	public void transform(ITestAnnotation annotation, Class testClass, Constructor testConstructor, Method testMethod) {
-
+		
 		// setup default driver after the test is complete
-		if (TestObject.getTestInfo().isTestComplete)
+		if (TestObject.getTestInfo().isTestComplete) 
 			TestObject.setupDefaultDriver();
-
+		
 		IRetryAnalyzer retry = annotation.getRetryAnalyzer();
 		if (retry == null) {
 			annotation.setRetryAnalyzer(RetryTest.class);
@@ -70,22 +68,10 @@ public class AnnotationTransformer implements IAnnotationTransformer {
 		// set thread count for api test type
 		setApiThreadCount(annotation, testClass, testConstructor, testMethod);
 
-		int csvTestCount = CsvReader.getCsvFileCount();
+		// get test count
+		ArrayList<File> csvFiles = CsvReader.filterTests();
+		int csvTestCount = csvFiles.size();
 		
-		// set test run count to number of files specified in service include list
-		String configList = Config.getValue(CsvReader.SERVICE_INCLUDE_LIST);
-		if (!configList.isEmpty()) {
-			List<KeyValue> filterList = DataHelper.getValidationMap(configList);
-			csvTestCount = filterList.size();
-		}
-		
-		// set test run count to number of files specified in service include list
-		configList = Config.getValue(CsvReader.SERVICE_EXCLUDE_LIST);
-		if (!configList.isEmpty()) {
-			List<KeyValue> filterList = DataHelper.getValidationMap(configList);
-			csvTestCount = csvTestCount - filterList.size();
-		}
-
 		// set test loop to the number of csv files in the folder
 		// each loop, the next csv file will be executed as a test
 		annotation.setInvocationCount(csvTestCount);
