@@ -349,6 +349,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 	@Override
 	public void onStart(ISuite suite) {
 		
+		
 		TestLog.setupLog4j();
 
 		// setup default drivers
