@@ -2,7 +2,6 @@ package core.support.logger;
 
 import java.awt.Desktop;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.text.DateFormat;
@@ -404,11 +403,8 @@ public class ExtentManager {
 	public static void clearTestReport() {
 		try {
 			FileUtils.deleteDirectory(new File(getReportRootFullPath()));
-
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
 		} catch(Exception e) {
-			e.printStackTrace();
+			e.getMessage();
 		}
 	}
 
@@ -430,7 +426,7 @@ public class ExtentManager {
 				if (diffDays > maxDays) {
 					try {
 						FileUtils.deleteDirectory(file);
-					} catch (IOException e) {
+					} catch (Exception e) {
 						e.getMessage();
 					}
 				}
