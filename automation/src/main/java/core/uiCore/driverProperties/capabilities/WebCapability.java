@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
+import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
@@ -52,9 +53,18 @@ public class WebCapability {
 
 		// set chrome or firefox preferences based on prefix chrome.pref or firefox.pref
 		setPreferences();
-
-
+		
+		// disable webdriver logging
+		disableLogs();
+		
 		return this;
+	}
+	
+	public void disableLogs() {
+		if(isFirefox()) {
+			System.setProperty(FirefoxDriver.SystemProperty.DRIVER_USE_MARIONETTE,"true");
+			System.setProperty(FirefoxDriver.SystemProperty.BROWSER_LOGFILE,"/dev/null");
+		}
 	}
 
 	/**

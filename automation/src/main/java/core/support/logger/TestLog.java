@@ -481,6 +481,7 @@ public class TestLog {
 	private static void logConsoleMessage(Priority priority, String value) {
 
 		value = Helper.date.getTimestampSeconds() + " : " + getTestLogPrefix() + value;
+		value = Helper.stringRemoveLines(value);
 
 		// if batch logging is disabled, log to console
 		Boolean enableBatchLogging = CrossPlatformProperties.getEnableBatchLogging();

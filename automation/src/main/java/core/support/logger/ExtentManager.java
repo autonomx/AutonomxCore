@@ -2,6 +2,7 @@ package core.support.logger;
 
 import java.awt.Desktop;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.text.DateFormat;
@@ -404,7 +405,9 @@ public class ExtentManager {
 		try {
 			FileUtils.deleteDirectory(new File(getReportRootFullPath()));
 
-		} catch (IOException e) {
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
