@@ -591,7 +591,7 @@ public class TestLog {
 	public static void printLogoOnSuccess() {
 		if (!Config.getBooleanValue("console.printLogoOnSuccess"))
 			return;
-		TestLog.ConsoleLog(
+		System.out.println(
 				"\r\n" + "                   #                   \r\n" + "               /##  /##                \r\n"
 						+ "           ####    #    ###,           \r\n" + "(########      ########      (######## \r\n"
 						+ "#        *###################         #\r\n" + "#  ############### # ############### .#\r\n"
