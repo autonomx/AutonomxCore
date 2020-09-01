@@ -1870,8 +1870,22 @@ public class Helper {
 	/**
 	 * scroll up the browser
 	 */
+	public static void scrollUpBrowser(int count) {
+		page.scrollUpBrowser(count);
+	}
+	
+	/**
+	 * scroll up the browser
+	 */
 	public static void scrollUpBrowser() {
 		page.scrollUpBrowser();
+	}
+	
+	/**
+	 * scroll down the browser
+	 */
+	public static void scrollDownBrowser(int count) {
+		page.scrollDownBrowser(count);
 	}
 	
 	/**

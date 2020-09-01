@@ -339,6 +339,8 @@ public class ListHelper {
 		List<String> stringList = new ArrayList<String>();
 		StopWatchHelper watch = StopWatchHelper.start();
 		long passedTimeInSeconds = 0;
+		int retryCount = 0;
+
 		do {
 			EnhancedWebElement listElements = Element.findElements(list);
 			stringList = listElements.getTextList();
@@ -349,14 +351,17 @@ public class ListHelper {
 			if (index != -1)
 				break;
 			
-			Helper.scrollDownBrowser();
-
+			retryCount++; 
+			
+			Helper.page.scrollDownBrowser();
 			
 		} while (passedTimeInSeconds < AbstractDriver.TIMEOUT_SECONDS);
-
-		if (index == -1)
+		
+		if(index == -1)
 			TestLog.logWarning("option: " + option + " not found in list: " + Arrays.toString(stringList.toArray()));
 
+		Helper.page.scrollUpBrowser(retryCount);
+		
 		return index;
 	}
 
@@ -373,22 +378,25 @@ public class ListHelper {
 		List<String> stringList = new ArrayList<String>();
 		StopWatchHelper watch = StopWatchHelper.start();
 		long passedTimeInSeconds = 0;
+		int retryCount = 0;
 		do {
 			EnhancedWebElement listElements = Element.findElements(list);
 			stringList = listElements.getTextList();
-
 			index = getStringIndexContainByText(list, stringList, option);
 			passedTimeInSeconds = watch.time(TimeUnit.SECONDS);
 			if (index != -1)
 				break;
 			
-			Helper.scrollDownBrowser();
+			retryCount++;
+			Helper.page.scrollDownBrowser();
 			
 		} while (passedTimeInSeconds < AbstractDriver.TIMEOUT_SECONDS);
-
-		if (index == -1)
+		
+		if(index == -1)
 			TestLog.logWarning("option: " + option + " not found in list: " + Arrays.toString(stringList.toArray()));
-
+		
+		Helper.page.scrollUpBrowser(retryCount);
+		
 		return index;
 	}
 

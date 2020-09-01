@@ -529,6 +529,22 @@ public class PageHelper {
 		action.sendKeys(Keys.END).build().perform();
 	}
 	
+	
+	/**
+	 * scroll up browser
+	 */
+	public void scrollUpBrowser(int count) {
+		
+		// only for web browser
+		if(!Helper.isWebDriver()) return;
+		
+		Actions action = new Actions(AbstractDriver.getWebDriver());
+		
+		for(int i=0; i<count; i++) {
+			action.sendKeys(Keys.PAGE_UP).build().perform();
+		}
+	}
+	
 	/**
 	 * scroll up the browser
 	 */
@@ -538,6 +554,22 @@ public class PageHelper {
 		
 		Actions action = new Actions(AbstractDriver.getWebDriver());
 		action.sendKeys(Keys.UP).build().perform();
+	}
+	
+	
+	/**
+	 * scroll down browser
+	 */
+	public void scrollDownBrowser(int count) {
+		
+		// only for web browser
+		if(!Helper.isWebDriver()) return;
+		
+		Actions action = new Actions(AbstractDriver.getWebDriver());
+		
+		for(int i=0; i<count; i++) {
+			action.sendKeys(Keys.PAGE_DOWN).build().perform();
+		}
 	}
 	
 	/**
