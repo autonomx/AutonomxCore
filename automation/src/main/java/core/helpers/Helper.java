@@ -1856,9 +1856,48 @@ public class Helper {
 	 * get current  webdriver
 	 * @return
 	 */
-	public WebDriver getWebdriver() {
+	public static WebDriver getWebdriver() {
 		return page.getWebdriver();
 	}
+	
+	/**
+	 * scroll to bottom of browser
+	 */
+	public static void scrollBottomPageBrowser() {
+		page.scrollBottomPageBrowser();
+	}
+	
+	/**
+	 * scroll up the browser
+	 */
+	public static void scrollUpBrowser() {
+		page.scrollUpBrowser();
+	}
+	
+	/**
+	 * scroll down the browser
+	 */
+	public static void scrollDownBrowser() {
+		page.scrollDownBrowser();
+	}
+	
+	/**
+	 * scroll to web element
+	 * @param element
+	 */
+	public static void scrollToWebElement(EnhancedBy element) {
+		page.scrollToWebElement(element);
+	}
+	
+	/**
+	 * scroll to element
+	 * @param element
+	 * @param index
+	 */
+	public static void scrollToWebElement(EnhancedBy element, int index) {
+		page.scrollToWebElement(element, index);
+	}
+	
 
 	/**
 	 * returns true if the element is visible in the current page only for web

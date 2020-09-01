@@ -348,6 +348,10 @@ public class ListHelper {
 			passedTimeInSeconds = watch.time(TimeUnit.SECONDS);
 			if (index != -1)
 				break;
+			
+			Helper.scrollDownBrowser();
+
+			
 		} while (passedTimeInSeconds < AbstractDriver.TIMEOUT_SECONDS);
 
 		if (index == -1)
@@ -377,6 +381,9 @@ public class ListHelper {
 			passedTimeInSeconds = watch.time(TimeUnit.SECONDS);
 			if (index != -1)
 				break;
+			
+			Helper.scrollDownBrowser();
+			
 		} while (passedTimeInSeconds < AbstractDriver.TIMEOUT_SECONDS);
 
 		if (index == -1)

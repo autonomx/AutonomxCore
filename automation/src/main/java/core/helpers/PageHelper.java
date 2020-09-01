@@ -11,8 +11,10 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.interactions.Actions;
 
 import core.support.logger.TestLog;
 import core.support.objects.DriverObject;
@@ -516,5 +518,62 @@ public class PageHelper {
 	public void printStackTrace(Throwable throwable) {
     	TestLog.ConsoleLog("stack trace: " + Helper.stringNormalize(ExceptionUtils.getStackTrace(throwable)));
 
+	}/**
+	 * scroll to bottom of browser
+	 */
+	public void scrollBottomPageBrowser() {
+		// only for web browser
+		if(!Helper.isWebDriver()) return;
+		
+		Actions action = new Actions(AbstractDriver.getWebDriver());
+		action.sendKeys(Keys.END).build().perform();
+	}
+	
+	/**
+	 * scroll up the browser
+	 */
+	public void scrollUpBrowser() {
+		// only for web browser
+		if(!Helper.isWebDriver()) return;
+		
+		Actions action = new Actions(AbstractDriver.getWebDriver());
+		action.sendKeys(Keys.UP).build().perform();
+	}
+	
+	/**
+	 * scroll down the browser
+	 */
+	public void scrollDownBrowser() {
+		
+		// only for web browser
+		if(!Helper.isWebDriver()) return;
+		
+		Actions action = new Actions(AbstractDriver.getWebDriver());
+		action.sendKeys(Keys.DOWN).build().perform();
+	}
+
+	/**
+	 * scroll to web element
+	 * @param element
+	 */
+	public void scrollToWebElement(EnhancedBy element) {
+		// only for web browser
+		if(!Helper.isWebDriver()) return;
+		
+		EnhancedWebElement targetElement = Element.findElements(element);
+		targetElement.scrollToView(0);
+	}
+	
+	/**
+	 * scroll to element
+	 * @param element
+	 * @param index
+	 */
+	public void scrollToWebElement(EnhancedBy element, int index) {
+		// only for web browser
+		if(!Helper.isWebDriver()) return;
+		
+		EnhancedWebElement targetElement = Element.findElements(element);
+		targetElement.scrollToView(index);
 	}
 }
