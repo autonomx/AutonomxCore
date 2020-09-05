@@ -28,7 +28,6 @@ import core.helpers.emailHelper.EmailSendHelper;
 import core.helpers.excelHelper.ExcelHelper;
 import core.helpers.excelHelper.ExcelObject;
 import core.support.objects.KeyValue;
-import core.uiCore.driverProperties.capabilities.WebCapability;
 import core.uiCore.webElement.EnhancedBy;
 import core.uiCore.webElement.EnhancedWebElement;
 import io.appium.java_client.android.AndroidDriver;

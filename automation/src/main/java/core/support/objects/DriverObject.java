@@ -258,7 +258,7 @@ public class DriverObject {
 		WebCapability capability = new WebCapability().withBrowserOption();
 		
 		return new DriverObject().withApp(App).withDriverType(capability.getWebDriverType())
-				.withBrowserType(capability.getBrowser()).withDriverVersion(capability.getDriverVersion())
+				.withBrowserType(WebCapability.getBrowser()).withDriverVersion(capability.getDriverVersion())
 				.withUrl(capability.getUrl(App, URL))
 				.withCapabilities(capability.getCapability())
 				.withDriverOptions(capability.getDriverOption());
@@ -268,7 +268,7 @@ public class DriverObject {
 		WebCapability capability = new WebCapability().withBrowserOption();
 		
 		return new DriverObject().withDriverType(capability.getWebDriverType())
-				.withBrowserType(capability.getBrowser()).withDriverVersion(capability.getDriverVersion())
+				.withBrowserType(WebCapability.getBrowser()).withDriverVersion(capability.getDriverVersion())
 				.withUrl(URL)
 
 				.withCapabilities(capability.getCapability())
