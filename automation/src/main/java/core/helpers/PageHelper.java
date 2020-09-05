@@ -18,6 +18,7 @@ import org.openqa.selenium.interactions.Actions;
 
 import core.support.logger.TestLog;
 import core.support.objects.DriverObject;
+import core.uiCore.driverProperties.capabilities.WebCapability;
 import core.uiCore.drivers.AbstractDriver;
 import core.uiCore.drivers.AbstractDriverJunit;
 import core.uiCore.drivers.AbstractDriverTestNG;
@@ -516,7 +517,7 @@ public class PageHelper {
 	 * @param trace
 	 */
 	public void printStackTrace(Throwable throwable) {
-    	TestLog.ConsoleLog("stack trace: " + Helper.stringNormalize(ExceptionUtils.getStackTrace(throwable)));
+    	TestLog.ConsoleLogNoLimit("stack trace: " + Helper.stringNormalize(ExceptionUtils.getStackTrace(throwable)), false);
 
 	}/**
 	 * scroll to bottom of browser
@@ -607,5 +608,21 @@ public class PageHelper {
 		
 		EnhancedWebElement targetElement = Element.findElements(element);
 		targetElement.scrollToView(index);
+	}
+	
+	public boolean isFirefox() {
+		return WebCapability.isFirefox();
+	}
+	
+	public boolean isChrome() {
+		return WebCapability.isChrome();
+	}
+	
+	public boolean isSafari() {
+		return WebCapability.isSafari();
+	}
+	
+	public boolean isMicrosoftEdge() {
+		return WebCapability.isMicrosoftEdge();
 	}
 }

@@ -268,6 +268,9 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	 */
 	@Override
 	public boolean isExist(int... index) {
+		
+		if(webDriver == null) return false;
+		
 		webDriver.manage().timeouts().implicitlyWait(1, TimeUnit.MILLISECONDS);
 		boolean isExist = false;
 

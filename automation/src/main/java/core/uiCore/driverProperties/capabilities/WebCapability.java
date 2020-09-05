@@ -213,12 +213,12 @@ public class WebCapability {
 	 * 
 	 * @return
 	 */
-	public BrowserType getBrowser() {
+	public static BrowserType getBrowser() {
 		String value = Config.getValue("web.browserType");
 		return Enum.valueOf(BrowserType.class, value);
 	}
 
-	public String getBrowserName() {
+	public static String getBrowserName() {
 		String browsername = getBrowser().toString().toLowerCase();
 		browsername = browsername.replace("_", "");
 
@@ -233,20 +233,24 @@ public class WebCapability {
 		return browsername;
 	}
 
-	public boolean isChrome() {
+	public static boolean isChrome() {
 		return getBrowserName().equals("chrome");
 	}
 
-	public boolean isFirefox() {
+	public static boolean isFirefox() {
 		return getBrowserName().equals("firefox");
 	}
 	
-	public boolean isInternetExplorer() {
+	public static boolean isInternetExplorer() {
 		return getBrowserName().equals("internet explorer");
 	}
 	
-	public boolean isSafari() {
+	public static boolean isSafari() {
 		return getBrowserName().equals("safari");
+	}
+	
+	public static boolean isMicrosoftEdge() {
+		return getBrowserName().equals("MicrosoftEdge");
 	}
 
 	public String getDriverVersion() {

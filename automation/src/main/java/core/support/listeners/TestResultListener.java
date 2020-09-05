@@ -2,7 +2,6 @@ package core.support.listeners;
 
 import java.util.Iterator;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.testng.ITestContext;
 import org.testng.ITestNGMethod;
 import org.testng.ITestResult;
@@ -10,7 +9,6 @@ import org.testng.Reporter;
 import org.testng.TestListenerAdapter;
 
 import core.helpers.Helper;
-import core.support.logger.TestLog;
 
 public class TestResultListener extends TestListenerAdapter {
    
@@ -20,7 +18,7 @@ public class TestResultListener extends TestListenerAdapter {
     	Reporter.setCurrentTestResult(result);
     	
     	// print stack trace
-    	TestLog.ConsoleLog(ExceptionUtils.getStackTrace(result.getThrowable()));
+    	Helper.page.printStackTrace(result.getThrowable());
     }
     
     @Override

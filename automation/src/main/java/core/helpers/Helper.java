@@ -28,6 +28,7 @@ import core.helpers.emailHelper.EmailSendHelper;
 import core.helpers.excelHelper.ExcelHelper;
 import core.helpers.excelHelper.ExcelObject;
 import core.support.objects.KeyValue;
+import core.uiCore.driverProperties.capabilities.WebCapability;
 import core.uiCore.webElement.EnhancedBy;
 import core.uiCore.webElement.EnhancedWebElement;
 import io.appium.java_client.android.AndroidDriver;
@@ -1901,6 +1902,22 @@ public class Helper {
 	 */
 	public static void scrollToWebElement(EnhancedBy element) {
 		page.scrollToWebElement(element);
+	}
+	
+	public boolean isFirefox() {
+		return page.isFirefox();
+	}
+	
+	public boolean isChrome() {
+		return page.isChrome();
+	}
+	
+	public boolean isSafari() {
+		return page.isSafari();
+	}
+	
+	public boolean isMicrosoftEdge() {
+		return page.isMicrosoftEdge();
 	}
 	
 	/**

@@ -55,6 +55,18 @@ public class TestLog {
 	static marytts.util.data.audio.AudioPlayer player;
 	public static final String LOG4JPATH = Config.RESOURCE_PATH + "/log4j.xml";
 
+	
+	
+	/**
+	 * logs to console
+	 * 
+	 * @param value value to log
+	 * @param args  additional arguments for logging to be formatted
+	 */
+	public static void ConsoleLogNoLimit(String value, Object... args) {
+		logConsoleMessage(Priority.INFO, formatMessageNoLimit(value, args));
+	}
+	
 	/**
 	 * logs to console
 	 * 
@@ -331,7 +343,17 @@ public class TestLog {
 		return TestObject.getTestInfo().testScenerio;
 
 	}
-
+	
+	/**
+	 * 
+	 * @param value value to log
+	 * @param args  additional arguments for logging to be formatted
+	 * @return formatted message based on value and arguments
+	 */
+	public static String formatMessageNoLimit(String value, Object... args) {
+		return formatMessage(value, false, args);
+	}
+	
 	/**
 	 * 
 	 * @param value value to log
@@ -339,7 +361,19 @@ public class TestLog {
 	 * @return formatted message based on value and arguments
 	 */
 	public static String formatMessage(String value, Object... args) {
-		 value = setMaxLength(value);
+		return formatMessage(value, true, args);
+	}
+
+	/**
+	 * 
+	 * @param value value to log
+	 * @param args  additional arguments for logging to be formatted
+	 * @return formatted message based on value and arguments
+	 */
+	public static String formatMessage(String value, boolean isLimitMessage, Object... args) {
+		 
+		if(isLimitMessage)
+			value = setMaxLength(value);
 
 		if (args == null || args.length == 0) {
 			return value;

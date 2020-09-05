@@ -48,7 +48,8 @@ public class WaitHelper {
 	 * @return
 	 */
 	public boolean waitForElementToLoad(final EnhancedBy target, int time, int count) {
-
+		if(AbstractDriver.getWebDriver() == null) return false;
+		
 		ExpectedCondition<Boolean> condition = new ExpectedCondition<Boolean>() {
 			@Override
 			public Boolean apply(WebDriver driver) {
@@ -76,7 +77,8 @@ public class WaitHelper {
 	 * @return
 	 */
 	public void mobile_waitAndRefreshForElementToLoad(final EnhancedBy target, int time) {
-
+		if(AbstractDriver.getWebDriver() == null) return;
+		
 		if (!Helper.mobile_isMobile())
 			return;
 
@@ -113,8 +115,8 @@ public class WaitHelper {
 	 */
 	public boolean waitForFirstElementToLoad(final EnhancedBy element1, final EnhancedBy element2, int time) {
 
-		Helper.assertTrue("driver is null", AbstractDriver.getWebDriver() != null);
-
+		if(AbstractDriver.getWebDriver() == null) return false;
+		
 		ExpectedCondition<Boolean> condition = new ExpectedCondition<Boolean>() {
 			@Override
 			public Boolean apply(WebDriver driver) {
@@ -150,8 +152,8 @@ public class WaitHelper {
 	public boolean waitForFirstElementToLoad(final EnhancedBy element1, final EnhancedBy element2,
 			final EnhancedBy element3, int time) {
 
-		Helper.assertTrue("driver is null", AbstractDriver.getWebDriver() != null);
-
+		if(AbstractDriver.getWebDriver() == null) return false;
+		
 		ExpectedCondition<Boolean> condition = new ExpectedCondition<Boolean>() {
 			@Override
 			public Boolean apply(WebDriver driver) {
@@ -185,6 +187,7 @@ public class WaitHelper {
 	 * @return
 	 */
 	public boolean waitForAdditionalElementsToLoad(final EnhancedBy target, final int originalCount, int time) {
+		if(AbstractDriver.getWebDriver() == null) return false;
 
 		Helper.assertTrue("driver is null", AbstractDriver.getWebDriver() != null);
 
@@ -223,6 +226,7 @@ public class WaitHelper {
 	 * @param time   : maximum amount of time in seconds to wait
 	 */
 	public boolean waitForElementToBeRemoved(final EnhancedBy target, int time) {
+		if(AbstractDriver.getWebDriver() == null) return false;
 
 		ExpectedCondition<Boolean> condition = new ExpectedCondition<Boolean>() {
 			@Override
@@ -259,6 +263,7 @@ public class WaitHelper {
 	 * @return
 	 */
 	public void waitForPageToLoad() {
+		if(AbstractDriver.getWebDriver() == null) return;
 
 		// only applies to web pages
 		if (!Helper.isWebDriver())
@@ -281,6 +286,7 @@ public class WaitHelper {
 	 * @param time
 	 */
 	public void waitForListItemToLoad_Contains(final EnhancedBy list, String option) {
+		if(AbstractDriver.getWebDriver() == null) return;
 
 		ExpectedCondition<Boolean> condition = new ExpectedCondition<Boolean>() {
 			@Override
@@ -309,6 +315,7 @@ public class WaitHelper {
 	 * @param time
 	 */
 	public void waitForTextToLoad(final EnhancedBy target, int time, String text) {
+		if(AbstractDriver.getWebDriver() == null) return;
 
 		ExpectedCondition<Boolean> condition = new ExpectedCondition<Boolean>() {
 			@Override
@@ -324,6 +331,7 @@ public class WaitHelper {
 	}
 
 	public boolean waitForElementToBeClickable(final EnhancedBy target, int time) {
+		if(AbstractDriver.getWebDriver() == null) return false;
 
 		ExpectedCondition<Boolean> condition = new ExpectedCondition<Boolean>() {
 			@Override
@@ -357,6 +365,7 @@ public class WaitHelper {
 	 * @return
 	 */
 	public boolean waitForClassContain(final EnhancedBy target, int index, String value, int time) {
+		if(AbstractDriver.getWebDriver() == null) return false;
 
 		ExpectedCondition<Boolean> condition = new ExpectedCondition<Boolean>() {
 			@Override
@@ -389,6 +398,7 @@ public class WaitHelper {
 	 * @return
 	 */
 	public boolean waitForAnyTextToLoadContaining(final EnhancedBy target, int time, String... text) {
+		if(AbstractDriver.getWebDriver() == null) return false;
 
 		ExpectedCondition<Boolean> condition = new ExpectedCondition<Boolean>() {
 			@Override
@@ -427,6 +437,7 @@ public class WaitHelper {
 	 * @return
 	 */
 	public boolean waitForAnyTextToLoad(final EnhancedBy target, int time, String... text) {
+		if(AbstractDriver.getWebDriver() == null) return false;
 
 		ExpectedCondition<Boolean> condition = new ExpectedCondition<Boolean>() {
 			@Override
@@ -452,7 +463,8 @@ public class WaitHelper {
 	 * @return
 	 */
 	public boolean waitForCondition(ExpectedCondition<Boolean> condition, EnhancedBy target, int time) {
-
+		if(AbstractDriver.getWebDriver() == null) return false;
+		
 		Wait<WebDriver> wait = new WebDriverWait(AbstractDriver.getWebDriver(), time).pollingEvery(Duration.ofMillis(5))
 				.withTimeout(Duration.ofSeconds(time)).ignoring(Exception.class);
 

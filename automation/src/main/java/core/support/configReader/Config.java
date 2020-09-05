@@ -476,7 +476,7 @@ public class Config {
 	 * @return the list of values from key separated by ","
 	 */
 	public static ArrayList<String> getValueList(String key) {
-		return getValueList(key, true);
+		return getValueList(key, false);
 	}
 
 	/**
