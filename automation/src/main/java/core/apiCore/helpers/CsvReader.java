@@ -846,43 +846,6 @@ public class CsvReader {
 		return csvList;
 	}
 	
-	/**
-	 * is file excluded or included
-	 * format:
-	 * api.includeTests = "TestCases_UserValidation.csv:createUser-createUserNoToken, createUserInvalidToken;"
-	 */
-	/*
-	private static boolean isTestFiltered(File file, TEST_FILTER_TYPES filterType) {
-		String filterTests = StringUtils.EMPTY;
-		
-		// include or exclude filter type
-		if(filterType.equals(TEST_FILTER_TYPES.INCLUDE)) {
-			filterTests = Config.getValue(SERVICE_INCLUDE_LIST);
-			if(filterTests.isEmpty()) return true;
-		}else if(filterType.equals(TEST_FILTER_TYPES.EXCLUDE)) {
-			filterTests = Config.getValue(SERVICE_EXCLUDE_LIST);
-			if(filterTests.isEmpty()) return false;
-		}
-		
-		// will include keyword tests
-		if(file.getAbsolutePath().contains(File.separator + "keywords" + File.separator))
-			return true;
-		
-		List<KeyValue> tests = DataHelper.getValidationMap(filterTests);
-		
-		// does test name match test file
-		for(KeyValue test: tests ) {
-			if(test.key.contentEquals(file.getName())){
-				// if file is excluded, however, it has test range, then do not exclude entire test file
-				if(filterType.equals(TEST_FILTER_TYPES.EXCLUDE) && !test.value.toString().isEmpty()) 
-					return false;
-				return true;
-			}
-		}
-		return false;
-	}
-	*/
-	
 	public static CSVReader readCsvFile(File file) {
 		CSVReader reader = null;
 		try {

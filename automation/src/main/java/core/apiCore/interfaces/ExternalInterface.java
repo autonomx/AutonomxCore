@@ -34,7 +34,7 @@ public class ExternalInterface {
 
 	/**
 	 * set method to call within module.services.method package
-	 * 
+	 * supports single command 
 	 * @param serviceObject
 	 * @throws SecurityException
 	 * @throws NoSuchMethodException
@@ -45,11 +45,11 @@ public class ExternalInterface {
 		if (serviceObject.getMethod().isEmpty()) {
 			return null;
 		}
-
-		// replace parameters for request body, including template file (json, xml, or
-		// other)
-		serviceObject.withRequestBody(DataHelper.getRequestBodyIncludingTemplate(serviceObject));
-		List<KeyValue> parameterList = DataHelper.getValidationMap(serviceObject.getRequestBody());
+		
+		List<KeyValue> parameterList = null;
+		
+		// get parameter list
+		parameterList = getParameterList(serviceObject);
 
 		List<KeyValue> keywords = DataHelper.getValidationMap(serviceObject.getMethod());
 
@@ -64,6 +64,30 @@ public class ExternalInterface {
 			}
 		}
 		return null;
+	}
+	
+	/**
+	 * get parameter list
+	 * command type methods 
+	 * @param serviceObject
+	 * @return
+	 */
+	private static List<KeyValue> getParameterList(ServiceObject serviceObject) {
+		List<KeyValue> parameterList = null;
+		
+		// if command type method. command type includes parameters: response, list values
+		if(serviceObject.getMethod().contains("METHOD:Command")) {
+			parameterList = DataHelper.getValidationMap(serviceObject.getRequestBody(),";values:");
+			// set value key value after splitting request body based on ";values:"
+			parameterList.get(1).value = DataHelper.replaceParameters(parameterList.get(1).key);
+			parameterList.get(1).key = "values";
+
+		}else {
+			serviceObject.withRequestBody(DataHelper.getRequestBodyIncludingTemplate(serviceObject));
+			parameterList = DataHelper.getValidationMap(serviceObject.getRequestBody());
+		}
+		
+		return parameterList;
 	}
 
 	/**

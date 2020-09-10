@@ -178,7 +178,6 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	@Override
 	public void click(int index) {
 		int retry = 3;
-		List<String> exception = new ArrayList<String>();
 
 		boolean success = false;
 		do {
@@ -193,9 +192,9 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 			
 			} catch (Exception e) {
 				resetElement();
-				String cause = e.getMessage().toString();
-				exception.add(cause);
-				TestLog.ConsoleLog("click failed for element: " + elementName + ": " + cause);
+				String cause = getCause(e);
+				if(!cause.isEmpty())
+					TestLog.ConsoleLog("click failed for element: " + elementName + ": " + cause);
 				Helper.page.printStackTrace(e);
 			}
 		} while (!success && retry > 0);
@@ -268,7 +267,6 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	 */
 	@Override
 	public boolean isExist(int... index) {
-		
 		if(webDriver == null) return false;
 		
 		webDriver.manage().timeouts().implicitlyWait(1, TimeUnit.MILLISECONDS);
@@ -370,7 +368,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				success = true;
 			} catch (Exception e) {
 				resetElement();
-				String cause = e.getMessage().toString();
+				String cause = getCause(e);
 				exception.add(cause);
 				if(retry == 0)
 				 TestLog.ConsoleLog("send keys failed for element: " + elementName + ": " + Arrays.toString(exception.toArray()));
@@ -395,7 +393,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				}
 			} catch (Exception e) {
 				resetElement();
-				String cause = e.getMessage().toString();
+				String cause = getCause(e);
 				TestLog.ConsoleLog("sendkey failed: " + cause);
 				Helper.page.printStackTrace(e);
 			}
@@ -415,7 +413,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	 * Enter text to an element by action
 	 */
 	public void sendKeyByAction(int index, CharSequence[] keysToSend) {
-
+       
 		WebElement element = getElement(index);
 		Actions action = new Actions(webDriver);
 		action.moveToElement(element).click().sendKeys(keysToSend).build().perform();
@@ -457,7 +455,13 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 
 	@Override
 	public WebElement get(int index) {
-		return getElement(index);
+		WebElement element = null;
+		try {
+			element = getElement(index);
+		}catch(Exception e) {
+			Helper.assertFalse("element: " + getElementName() + " at index: " + index + " was not found");
+		}
+		return element;
 	}
 
 	@Override
@@ -526,10 +530,11 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 
 		WebElement element;
 
-		if (index == 0)
+		if (index == 0) {
 			element = getElement().get(0);
-		else
+		}else {
 			element = getElements().get(index);
+		}
 		return element;
 	}
 
@@ -717,5 +722,15 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	public WebElement findElement(By arg0) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	private String getCause(Exception e) {
+		String cause = StringUtils.EMPTY;
+		try {
+			cause = e.getMessage().toString();
+		}catch(Exception ex) {
+			return cause;
+		}
+		return cause;
 	}
 }

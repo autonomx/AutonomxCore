@@ -298,6 +298,10 @@ public class ServiceObject {
 		this.ExpectedResponse = ExpectedResponse;
 		return this;
 	}
+	public ServiceObject withTcType(String testType) {
+		this.testType = testType;
+		return this;
+	}
 
 	public String getExpectedResponse() {
 		return this.ExpectedResponse;

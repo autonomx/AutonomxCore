@@ -27,7 +27,6 @@ import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -593,7 +592,12 @@ public class UtilityHelper {
 		if (listOfFiles == null) {
 			Helper.assertFalse("test files not found at path: " + directoryPath);
 		}
-		testFiles = new ArrayList<>(Arrays.asList(listOfFiles));
+		
+		for(File file : listOfFiles) {
+			if(file.isFile())
+				testFiles.add(file);
+		}
+		
 		return testFiles;
 	}
 	

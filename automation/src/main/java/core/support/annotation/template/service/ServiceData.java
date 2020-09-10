@@ -246,7 +246,7 @@ public class ServiceData {
 		bw.close();
 	}
 
-	private static String formatString(String val) {
+	public static String formatString(String val) {
 		val = Helper.stringRemoveLines(val);
 		val = val.replace("\"", "\\\"");
 		return val;

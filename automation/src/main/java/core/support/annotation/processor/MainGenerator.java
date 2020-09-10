@@ -51,6 +51,7 @@ import core.support.annotation.template.manager.ModuleManager;
 import core.support.annotation.template.manager.PanelManagerGenerator;
 import core.support.annotation.template.manager.sourceChangeDetector;
 import core.support.annotation.template.service.Service;
+import core.support.annotation.template.service.ServiceClass;
 import core.support.annotation.template.service.ServiceData;
 import core.support.annotation.template.service.ServiceRunner;
 import core.support.configReader.PropertiesReader;
@@ -126,6 +127,9 @@ public class MainGenerator extends AbstractProcessor {
 			ConfigVariableGenerator.writeConfigVariableClass();
 			
 			sourceChangeDetector.writeModuleBaseClass();
+			
+			// generate service test csv to class files
+			ServiceClass.writeServiceGenerationClass();
 			
 			// create marker class
 			createMarkerClass();
