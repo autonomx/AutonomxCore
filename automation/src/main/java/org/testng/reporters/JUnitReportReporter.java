@@ -31,6 +31,7 @@ import org.testng.collections.SetMultiMap;
 import org.testng.collections.Sets;
 import org.testng.internal.Utils;
 import org.testng.xml.XmlSuite;
+import java.lang.reflect.Field;
 
 import core.support.objects.ServiceObject;
 import core.support.objects.TestObject;
@@ -293,14 +294,43 @@ public class JUnitReportReporter implements IReporter {
     String childTag;
     String sysOut;
   }
+  
+  /**
+   * set test method name format: class-method
+   * service tests are already formatted
+   * @param allResults
+   * @param out
+   */
+	private void addResults(Set<ITestResult> allResults, Map<Class<?>, Set<ITestResult>> out) {
+		for (ITestResult tr : allResults) {
 
-  private void addResults(Set<ITestResult> allResults, Map<Class<?>, Set<ITestResult>> out) {
-    for (ITestResult tr : allResults) {
-      Class<?> cls = tr.getMethod().getTestClass().getRealClass();
-      Set<ITestResult> l = out.computeIfAbsent(cls, k -> Sets.newHashSet());
-      l.add(tr);
-    }
-  }
+			String testname = tr.getMethod().getMethodName();
+			String classname = tr.getTestClass().getRealClass().getSimpleName();
+			
+			// service tests method names are already formatted 
+			if(!testname.contains("-")) {			
+				try {
+					Field methodName = org.testng.internal.BaseTestMethod.class.getDeclaredField("m_methodName");
+					methodName.setAccessible(true);
+					methodName.set(tr.getMethod(), classname + "-" + testname);
+				} catch (Exception e) {
+					e.getMessage();
+				}
+			}
+
+			Class<?> cls = tr.getMethod().getTestClass().getRealClass();
+			Set<ITestResult> l = out.computeIfAbsent(cls, k -> Sets.newHashSet());
+			l.add(tr);
+		}
+	}
+
+//  private void addResults(Set<ITestResult> allResults, Map<Class<?>, Set<ITestResult>> out) {
+//    for (ITestResult tr : allResults) {
+//      Class<?> cls = tr.getMethod().getTestClass().getRealClass();
+//      Set<ITestResult> l = out.computeIfAbsent(cls, k -> Sets.newHashSet());
+//      l.add(tr);
+//    }
+//  }
 
   private void addMapping(
       SetMultiMap<Class<?>, ITestNGMethod> mapping, Collection<ITestNGMethod> methods) {
