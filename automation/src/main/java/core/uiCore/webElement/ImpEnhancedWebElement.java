@@ -231,14 +231,14 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	@SuppressWarnings("rawtypes")
 	public void scrollTo_mobile(int index) {
 		if (Helper.mobile.isAndroid()) {
-			webDriver.manage().timeouts().implicitlyWait(1, TimeUnit.MILLISECONDS);
+			setTimeout(1, TimeUnit.MILLISECONDS);
 			WebElement element = getElement(index);
 			int x = element.getLocation().getX();
 			int y = element.getLocation().getY();
 
 			TouchAction action = new TouchAction(Helper.mobile.getAndroidDriver());
 			action.press(PointOption.point(x, y)).moveTo(PointOption.point(x + 90, y)).release().perform();
-			webDriver.manage().timeouts().implicitlyWait(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
+			setTimeout(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
 		}
 	}
 
@@ -253,13 +253,13 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		if (Helper.isVisibleInViewport(element, index))
 			return;
 
-		webDriver.manage().timeouts().implicitlyWait(1, TimeUnit.MILLISECONDS);
+		setTimeout(1, TimeUnit.MILLISECONDS);
 
 		WebElement element = getElement(index);
 		Actions action = new Actions(AbstractDriver.getWebDriver());
 		action.moveToElement(element);
 
-		webDriver.manage().timeouts().implicitlyWait(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
+		setTimeout(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
 	}
 
 	/**
@@ -269,7 +269,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	public boolean isExist(int... index) {
 		if(webDriver == null) return false;
 		
-		webDriver.manage().timeouts().implicitlyWait(1, TimeUnit.MILLISECONDS);
+		setTimeout(1, TimeUnit.MILLISECONDS);
 		boolean isExist = false;
 
 		if (index.length > 0) {
@@ -281,7 +281,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		if (!isExist)
 			resetElement();
 
-		webDriver.manage().timeouts().implicitlyWait(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
+		setTimeout(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
 		return isExist;
 	}
 
@@ -582,7 +582,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 
 		// if multiple element objects, we need to iterate through them quickly
 		if (this.element.elementObject.size() > 1) {
-			webDriver.manage().timeouts().implicitlyWait(1, TimeUnit.MILLISECONDS);
+			setTimeout(1, TimeUnit.MILLISECONDS);
 		}
 
 		for (ElementObject elementObject : this.element.elementObject) {
@@ -607,7 +607,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				e.getMessage();
 			}
 		}
-		webDriver.manage().timeouts().implicitlyWait(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
+		setTimeout(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
 		return this.current;
 	}
 
@@ -620,7 +620,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 
 		// if multiple element objects, we need to iterate through them quickly
 		if (this.element.elementObject.size() > 1) {
-			webDriver.manage().timeouts().implicitlyWait(1, TimeUnit.MILLISECONDS);
+			setTimeout(1, TimeUnit.MILLISECONDS);
 		}
 
 		for (ElementObject elementObject : this.element.elementObject) {
@@ -640,7 +640,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				e.getMessage();
 			}
 		}
-		webDriver.manage().timeouts().implicitlyWait(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
+		setTimeout(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
 		return this.current;
 	}
 
@@ -651,7 +651,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	 * @return
 	 */
 	public WebElement getFirstVisibleElement(List<WebElement> elements) {
-		webDriver.manage().timeouts().implicitlyWait(1, TimeUnit.MILLISECONDS);
+		setTimeout(1, TimeUnit.MILLISECONDS);
 		WebElement element = null;
 		int count = elements.size();
 		if (count > 1) {
@@ -665,7 +665,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 			element = elements.get(0);
 		}
 
-		webDriver.manage().timeouts().implicitlyWait(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
+		setTimeout(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
 		return element;
 	}
 
@@ -732,5 +732,10 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 			return cause;
 		}
 		return cause;
+	}
+	
+	private void setTimeout(long time, TimeUnit unit) {
+		if(webDriver == null ) return;
+		webDriver.manage().timeouts().implicitlyWait(time, unit);
 	}
 }
