@@ -77,9 +77,9 @@ public class ExternalInterface {
 		
 		// if command type method. command type includes parameters: response, list values
 		if(serviceObject.getMethod().contains("METHOD:Command")) {
-			parameterList = DataHelper.getValidationMap(serviceObject.getRequestBody(),";values:");
+			parameterList = DataHelper.getValidationMap(serviceObject.getRequestBody(),";val");
 			// set value key value after splitting request body based on ";values:"
-			parameterList.get(1).value = DataHelper.replaceParameters(parameterList.get(1).key);
+			parameterList.get(1).value = DataHelper.replaceParameters(parameterList.get(1).value.toString());
 			parameterList.get(1).key = "values";
 
 		}else {
