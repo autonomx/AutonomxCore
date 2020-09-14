@@ -311,9 +311,11 @@ public class ClickHelper extends Element {
 	 * @param y  y offset coordinate
 	 */
 	public void clickElementLocationBy(EnhancedBy by, int x, int y) {
+		TestLog.logPass("I click point at x: " + x + " y: " + y);
+
 		EnhancedWebElement targetElement = Element.findElements(by);
 		Actions actions = new Actions(AbstractDriver.getWebDriver());
-		Helper.wait.waitForElementToBeClickable(by);
+		Helper.wait.waitForElementToLoad(by);
 		actions.moveToElement(targetElement.get(0), x, y).click().perform();
 	}
 
@@ -380,6 +382,7 @@ public class ClickHelper extends Element {
 	 * @param y
 	 */
 	public void doubleClickPoints(int x, int y) {
+		TestLog.logPass("I double click point at x: " + x + " y: " + y);
 
 		Actions action = new Actions(AbstractDriver.getWebDriver());
 		action.moveByOffset(x, y).click().release().pause(Duration.ofMillis(250)).click().release().build().perform();
