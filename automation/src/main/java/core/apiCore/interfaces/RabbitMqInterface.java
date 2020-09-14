@@ -158,11 +158,13 @@ public class RabbitMqInterface {
 			switch (keyword.key) {
 
 			default:
+				keyword.value = DataHelper.replaceParameters(keyword.value.toString());
 				map.put(keyword.key, keyword.value);
 				break;
 			}
 		}
 
+		KeyValue.printKeyValue(keywords, "header");
 		props = props.builder().headers(map).build();
 		return props;
 	}
