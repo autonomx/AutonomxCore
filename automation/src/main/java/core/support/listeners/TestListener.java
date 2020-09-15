@@ -2,7 +2,9 @@ package core.support.listeners;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.testng.IClassListener;
 import org.testng.IConfigurationListener;
@@ -11,10 +13,17 @@ import org.testng.ISuiteListener;
 import org.testng.ITestClass;
 import org.testng.ITestContext;
 import org.testng.ITestListener;
+import org.testng.ITestNGListener;
 import org.testng.ITestNGMethod;
 import org.testng.ITestResult;
 import org.testng.SkipException;
+import org.testng.TestListenerAdapter;
+import org.testng.TestNG;
+import org.testng.xml.XmlClass;
+import org.testng.xml.XmlInclude;
+import org.testng.xml.XmlSuite;
 import org.testng.xml.XmlSuite.ParallelMode;
+import org.testng.xml.XmlTest;
 
 import com.google.common.base.Joiner;
 
@@ -38,9 +47,11 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 	public static final String PARALLEL_TEST_TYPE = "global.parallel.type";
 	public static final String CONSOLE_PAGESOURCE_ON_FAIL = "console.pageSource.onFail";
 	public static final String GLOBAL_SKIP_TESTS = "global.skipTests";
+	
+	public static final String FAILED_RERUN_SUITE_NAME = "failed_rerun_suite";
+	public static final String FAILED_RERUN_OPTION = "global.ui.rerun.failed.after.suite ";
+	public static List<String> FAILED_RERUN_SUITE_PASSED_TESTS = new ArrayList<String>();
 
-	
-	
 	
 	// Before starting all tests, below method runs.
 	@SuppressWarnings("deprecation")
@@ -64,9 +75,9 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		// sets parallel run for default user. overwritten by suite xml settings
 		setParallelRun(iTestContext);
-
+		
 		// overwrite existing report
-		ExtentManager.clearTestReport();
+		ExtentManager.clearTestReport(iTestContext.getSuite().getName());
 
 		// delete old reports
 		ExtentManager.clearOldTestReports();
@@ -105,6 +116,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 	 */
 	@Override
 	public void onFinish(ITestContext iTestContext) {
+		
 		ExtentManager.writeTestReport();
 		DriverObject.quitAllDrivers();
 		ExtentManager.launchReportAfterTest();
@@ -203,6 +215,9 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 	@Override
 	public void onTestFailure(ITestResult iTestResult) {
 		
+		// keep track of failed test results for rerunning failed tests at end of suite, if enabled
+		TestObject.getGlobalTestInfo().failedTests.add(iTestResult);
+
 		// sets the class name for logging before class
 		setTestClassName(iTestResult);
 
@@ -235,6 +250,9 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		
 		// quit current driver after failure
 		Helper.quitCurrentDriver();
+		
+	
+		
 	}
 
 	@Override
@@ -410,6 +428,8 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 	@Override
 	public void onFinish(ISuite suite) {
+    
+		
 		// print out suite console logs if batch logging is enabled
 		String testId = getSuiteName(suite.getName()) + TestObject.AFTER_SUITE_PREFIX;
 		TestLog.printBatchToConsole(testId);
@@ -420,6 +440,9 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		// print list of missing config variables
 		Config.printMissingConfigVariables();
+		
+		// rerun failed tests if enabled
+		runFailedTests(suite);
 	}
 
 	private String getSuiteName(String suitename) {
@@ -436,5 +459,78 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		TestObject.getTestInfo().withIsTestComplete(ApiTestDriver.isCsvTestComplete());
 		if(ApiTestDriver.isRunningUITest())
 			TestObject.getTestInfo().withIsTestComplete(true);
+	}
+	
+	/**
+	 * runs failed tests at end of suite
+	 * updates junit report and extent test report
+	 * areas affected: JunitReportReporter.java, ExtentManager.java
+	 */
+	public void runFailedTests(ISuite suite) {
+		
+		// applicable to UI tests only
+		if(!ApiTestDriver.isRunningUITest())
+			return;
+		
+		if(!Config.getBooleanValue(FAILED_RERUN_OPTION))
+			return;
+		
+		// do not run if suite is failed rerun suite
+		if (suite.getName().equals(FAILED_RERUN_SUITE_NAME))
+			return;
+
+		ArrayList<ITestResult> failedTests = TestObject.getGlobalTestInfo().failedTests;
+		if (failedTests.isEmpty())
+			return;
+
+		Map<String, List<XmlInclude>> classToMethodsMap = new HashMap<String, List<XmlInclude>>();
+		for (ITestResult testResult : failedTests) {
+
+			// Create map of failed classes to methods
+			if (classToMethodsMap.get(testResult.getTestClass().getName()) == null) {
+				List<XmlInclude> methods = new ArrayList<XmlInclude>();
+				methods.add(new XmlInclude(testResult.getMethod().getMethodName()));
+				classToMethodsMap.put(testResult.getTestClass().getName(), methods);
+			} else {
+				classToMethodsMap.get(testResult.getTestClass().getName())
+						.add(new XmlInclude(testResult.getTestClass().getName()));
+			}
+		}
+
+		List<XmlClass> xmlClasses = new ArrayList<XmlClass>();
+		for (String className : classToMethodsMap.keySet()) {
+			XmlClass xmlClassToAdd = new XmlClass(className);
+			xmlClassToAdd.setIncludedMethods(classToMethodsMap.get(className));
+			xmlClasses.add(xmlClassToAdd);
+
+		}
+		
+		// reset failed tests results
+		TestObject.getGlobalTestInfo().failedTests = new ArrayList<ITestResult>();
+
+		// Creating a new Suite
+		//XmlSuite suite = TestListener.suite.getXmlSuite();
+        XmlSuite xmlSuite = new XmlSuite();
+        xmlSuite.setName(FAILED_RERUN_SUITE_NAME);
+
+		// Creating a new Test
+		XmlTest test = new XmlTest(xmlSuite);
+		test.setXmlClasses(xmlClasses);
+		test.setSuite(xmlSuite);
+
+		// New list for the Suites
+		List<XmlSuite> suitesList = new ArrayList<XmlSuite>();
+
+		// Add suite to the list
+		suitesList.add(xmlSuite);
+
+
+		// Creating the xml
+		TestNG tng = new TestNG();
+		List<java.lang.Class<? extends ITestNGListener>> listener = new ArrayList<>();
+		listener.add(TestListenerAdapter.class);
+		tng.setXmlSuites(suitesList);
+		tng.setListenerClasses(listener);
+		tng.run();
 	}
 }

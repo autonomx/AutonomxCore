@@ -3,6 +3,7 @@ package org.testng.reporters;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Field;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.DecimalFormat;
@@ -31,13 +32,16 @@ import org.testng.collections.SetMultiMap;
 import org.testng.collections.Sets;
 import org.testng.internal.Utils;
 import org.testng.xml.XmlSuite;
-import java.lang.reflect.Field;
 
+import com.microsoft.azure.servicebus.primitives.StringUtil;
+
+import core.apiCore.driver.ApiTestDriver;
+import core.support.listeners.TestListener;
 import core.support.objects.ServiceObject;
 import core.support.objects.TestObject;
 
 public class JUnitReportReporter implements IReporter {
-
+	
   @Override
   public void generateReport(
       List<XmlSuite> xmlSuites, List<ISuite> suites, String defaultOutputDirectory) {
@@ -47,6 +51,10 @@ public class JUnitReportReporter implements IReporter {
     ListMultiMap<Object, ITestResult> afters = Maps.newListMultiMap();
     SetMultiMap<Class<?>, ITestNGMethod> mapping = new SetMultiMap<>(false);
     for (ISuite suite : suites) {
+    	
+      // get failed rerun passed test list
+      getFailedRerunPassedTests(suite);
+     
       Map<String, ISuiteResult> suiteResults = suite.getResults();
       addMapping(mapping, suite.getExcludedMethods());
       for (ISuiteResult sr : suiteResults.values()) {
@@ -159,6 +167,40 @@ public class JUnitReportReporter implements IReporter {
       Utils.writeUtf8File(outputDirectory, getFileName(cls), xsb.toXML());
     }
   }
+  
+    /**
+     * get list of qualified test names for tests passed in rerun failed test suite
+     * @param suite
+     */
+	private static void getFailedRerunPassedTests(ISuite suite) {
+
+		if(!TestObject.SUITE_NAME.equals(TestListener.FAILED_RERUN_SUITE_NAME))
+			return;
+		
+		// applicable to UI tests only
+		if(!ApiTestDriver.isRunningUITest())
+			return;
+		
+		String testname = StringUtil.EMPTY;
+		String classname = StringUtil.EMPTY;
+		String testId = StringUtil.EMPTY;
+
+		// only run if suite is failed rerun suite
+		if (!suite.getName().equals(TestListener.FAILED_RERUN_SUITE_NAME))
+			return;
+
+		Map<String, ISuiteResult> suiteResults = suite.getResults();
+
+		for (ISuiteResult sr : suiteResults.values()) {
+			ITestContext tc = sr.getTestContext();
+			for (ITestResult tr : tc.getPassedTests().getAllResults()) {
+				testname = tr.getMethod().getMethodName();
+				classname = tr.getTestClass().getRealClass().getSimpleName();
+				testId = classname + "-" + testname;
+				TestListener.FAILED_RERUN_SUITE_PASSED_TESTS.add(testId);
+			}
+		}
+	}
 
   private static Collection<ITestResult> sort(Set<ITestResult> results) {
     List<ITestResult> sortedResults = new ArrayList<>(results);
@@ -306,6 +348,13 @@ public class JUnitReportReporter implements IReporter {
 
 			String testname = tr.getMethod().getMethodName();
 			String classname = tr.getTestClass().getRealClass().getSimpleName();
+			String testId = classname + "-" + testname;
+			
+			// if failed test passed in rerun, set to pass
+			for(String name : TestListener.FAILED_RERUN_SUITE_PASSED_TESTS) {
+				if(testId.equals(name))
+					tr.setStatus(1);
+			}
 			
 			// service tests method names are already formatted 
 			if(!testname.contains("-")) {			

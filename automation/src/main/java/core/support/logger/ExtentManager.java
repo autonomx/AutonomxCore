@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 
 import com.aventstack.extentreports.AnalysisStrategy;
 import com.aventstack.extentreports.ExtentReports;
@@ -30,6 +31,7 @@ import core.helpers.Helper;
 import core.helpers.UtilityHelper;
 import core.helpers.emailHelper.EmailObject;
 import core.support.configReader.Config;
+import core.support.listeners.TestListener;
 import core.support.objects.TestObject;
 import core.support.objects.TestObject.testState;
 
@@ -396,11 +398,24 @@ public class ExtentManager {
 
 		Helper.sendMail(email);
 	}
+	
 
 	/**
 	 * deletes test report for particular run based on test run name
 	 */
 	public static void clearTestReport() {
+		clearTestReport(StringUtils.EMPTY);
+	}
+
+	/**
+	 * deletes test report for particular run based on test run name
+	 */
+	public static void clearTestReport(String suitename) {
+		
+		// do not clear report if running fail test retry suite
+		if (suitename.equals(TestListener.FAILED_RERUN_SUITE_NAME))
+			return;
+		
 		try {
 			FileUtils.deleteDirectory(new File(getReportRootFullPath()));
 		} catch(Exception e) {

@@ -124,11 +124,25 @@ public class RetryTest implements IRetryAnalyzer {
 		logError("run " + (TestObject.getTestInfo().runCount) + " failed");
 		
 		if (TestObject.getTestInfo().runCount == maxRetryCount + 1) {
-			logReport(ReportType.fail, "giving up after " + (maxRetryCount + 1) + " failures", null);
+			logReportResult(maxRetryCount);
 			logError("giving up after " + (maxRetryCount + 1) + " failures");
 		}
 		
 		return maxRetryCount;
+	}
+	
+	/**
+	 * if failed rerun option is enabled, do not log failures until fails after suite
+	 * @param maxRetryCount
+	 */
+	public void logReportResult(int maxRetryCount) {
+			if(ApiTestDriver.isRunningUITest()
+					&& !TestObject.SUITE_NAME.equals(TestListener.FAILED_RERUN_SUITE_NAME)
+					&& Config.getBooleanValue(TestListener.FAILED_RERUN_OPTION)) {
+	
+				logReport(ReportType.info, "giving up after " + (maxRetryCount + 1) + " failures", null);
+			}else 
+				logReport(ReportType.fail, "giving up after " + (maxRetryCount + 1) + " failures", null);
 	}
 
 	public void logReport(ReportType type, String value, Throwable t) {

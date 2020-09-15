@@ -311,7 +311,7 @@ public class ClickHelper extends Element {
 	 * @param y  y offset coordinate
 	 */
 	public void clickElementLocationBy(EnhancedBy by, int x, int y) {
-		TestLog.logPass("I click point at x: " + x + " y: " + y);
+		TestLog.logPass("I click element at position offset by x: " + x + " y: " + y);
 
 		EnhancedWebElement targetElement = Element.findElements(by);
 		Actions actions = new Actions(AbstractDriver.getWebDriver());

@@ -288,7 +288,7 @@ public class Config {
 	 */
 	public static String getValue(String key, boolean isFailable) {
 
-		Object value = TestObject.getTestInfo().config.get(key);
+		Object value = TestObject.getTestInfo().config.get(key.trim());
 		if(value == null) 
 				value = MavenReader.getStringProperty(key);
 	
@@ -326,7 +326,7 @@ public class Config {
 	 * @return returns the object value of key from properties
 	 */
 	public static Object getGlobalObjectValue(String key) {
-		if (TestObject.getGlobalTestInfo().config.get(key) == null)
+		if (TestObject.getGlobalTestInfo().config.get(key.trim()) == null)
 			return StringUtils.EMPTY;
 		Object value = TestObject.getTestInfo().config.get(key);
 		return value;
@@ -364,7 +364,7 @@ public class Config {
 	 */
 	public static String getGlobalValue(String key, boolean isFailable) {
 
-		Object value = TestObject.getGlobalTestInfo().config.get(key);
+		Object value = TestObject.getGlobalTestInfo().config.get(key.trim());
 		if(value == null) 
 			value = MavenReader.getStringProperty(key);
 		
@@ -410,10 +410,10 @@ public class Config {
 	 * @return returns the object value of key from properties
 	 */
 	public static Object getObjectValue(String key) {
-		if (TestObject.getTestInfo().config.get(key) == null) {
+		if (TestObject.getTestInfo().config.get(key.trim()) == null) {
 			return null;
 		}
-		Object value = TestObject.getTestInfo().config.get(key);
+		Object value = TestObject.getTestInfo().config.get(key.trim());
 		return value;
 	}
 
@@ -524,7 +524,7 @@ public class Config {
 
 	public static void putValue(String key, Object value, String info) {
 		TestLog.logPass("storing in key: " + key + " value: " + info);
-		TestObject.getTestInfo().config.put(key, value);
+		TestObject.getTestInfo().config.put(key.trim(), value);
 	}
 
 	/**
@@ -535,7 +535,7 @@ public class Config {
 	 */
 	public static void setParentValue(String key, Object value) {
 		ServiceObject service = TestObject.getTestInfo().serviceObject;
-		TestObject.getParentTestInfo(service).config.put(key, value);
+		TestObject.getParentTestInfo(service).config.put(key.trim(), value);
 
 	}
 
@@ -547,7 +547,7 @@ public class Config {
 	 */
 	public static void setGlobalValue(String key, Object value) {
 		TestLog.logPass("storing in global key: " + key + " value: " + value);
-		TestObject.getGlobalTestInfo().config.put(key, value);
+		TestObject.getGlobalTestInfo().config.put(key.trim(), value);
 	}
 
 	/**

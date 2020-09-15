@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.junit.runner.Description;
 import org.monte.screenrecorder.ScreenRecorder;
 import org.openqa.selenium.WebDriver;
+import org.testng.ITestResult;
 import org.testng.asserts.SoftAssert;
 
 import com.aventstack.extentreports.ExtentTest;
@@ -111,6 +112,8 @@ public class TestObject {
 	public Description description;
 	public Throwable caughtThrowable = null;
 	public ArrayList<String> failTrace = new ArrayList<String>();
+	public ArrayList<ITestResult> failedTests = new ArrayList<ITestResult>();
+
 
 	// extent report info
 	public ExtentTest testFeature;
