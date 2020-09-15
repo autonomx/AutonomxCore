@@ -304,9 +304,6 @@ public class AbstractDriverTestNG implements ITest {
 	@AfterMethod
 	public void shutdown(ITestResult iTestResult) {
 
-		// print after method
-		TestLog.printBatchLogsToConsole();
-
 		letRetryKnowAboutReports();
 
 		// shut down drivers after test
