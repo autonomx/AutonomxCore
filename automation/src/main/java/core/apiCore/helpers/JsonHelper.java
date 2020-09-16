@@ -618,7 +618,14 @@ public class JsonHelper {
 	 */
 	public static String replaceJsonPathValue(String jsonString, String path, String value) {
 		Configuration conf = Configuration.defaultConfiguration().addOptions(Option.DEFAULT_PATH_LEAF_TO_NULL).addOptions(Option.SUPPRESS_EXCEPTIONS);  
-		DocumentContext doc = JsonPath.using(conf).parse(jsonString);
+		DocumentContext doc = null;
+				
+		// if json path value does not exist, we will add a new node
+		if(isJsonPathValueExist(jsonString, path)) {
+			 doc = JsonPath.parse(jsonString);
+		}else	
+			doc = JsonPath.using(conf).parse(jsonString);
+		
 		String prefix = "$.";
 		boolean isJsonPathValueString = JsonHelper.isJsonPathValueString(jsonString, path);
 
@@ -636,6 +643,13 @@ public class JsonHelper {
 		}
 		
 		return doc.jsonString();
+	}
+	
+	public static boolean isJsonPathValueExist(String jsonString, String jsonPath) {
+		String value = JsonHelper.getJsonValue(jsonString, jsonPath);
+		if(value == null)
+			return false;
+		return true;
 	}
 
 	/**
