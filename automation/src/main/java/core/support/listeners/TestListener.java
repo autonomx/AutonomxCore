@@ -19,6 +19,7 @@ import org.testng.ITestResult;
 import org.testng.SkipException;
 import org.testng.TestListenerAdapter;
 import org.testng.TestNG;
+import org.testng.internal.ExitCode;
 import org.testng.xml.XmlClass;
 import org.testng.xml.XmlInclude;
 import org.testng.xml.XmlSuite;
@@ -211,7 +212,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		TestLog.Then("Test is finished successfully");
 		TestLog.printBatchLogsToConsole();
 	}
-
+	
 	@Override
 	public void onTestFailure(ITestResult iTestResult) {
 		
@@ -262,7 +263,12 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		TestObject.getTestInfo().isFirstRun = true;
 		TestObject.getTestInfo().withIsTestPass(false);
 
-		iTestResult.setStatus(ITestResult.SKIP);
+		// check to see if status equals no tests, then fail tests instead of skip. eg. failure at dataprovider skips test run
+	    int status = getTestngStatus();
+	    if(status == ExitCode.HAS_NO_TEST)
+	    	iTestResult.setStatus(ITestResult.FAILURE);
+	    else
+	    	iTestResult.setStatus(ITestResult.SKIP);
 
 		// mobile device is now available again
 		DeviceManager.setDeviceAvailability(true);
@@ -276,6 +282,16 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		
 		// quit current driver after failure
 		Helper.quitCurrentDriver();
+	}
+	
+	@SuppressWarnings("deprecation")
+	private int getTestngStatus() {
+		try {
+			return TestNG.getDefault().getStatus();
+		}catch(Exception e) {
+			e.getMessage();
+			return -1;
+		}
 	}
 
 	@Override
