@@ -225,6 +225,9 @@ public class JsonHelper {
 		} catch (Exception e) {
 			e.getCause();
 		}
+		
+		if(jsonResponse == null)
+			return false;
 
 		if (jsonResponse instanceof List) {
 			net.minidev.json.JSONArray array = (net.minidev.json.JSONArray) jsonResponse;
@@ -614,8 +617,8 @@ public class JsonHelper {
 	 * @return
 	 */
 	public static String replaceJsonPathValue(String jsonString, String path, String value) {
-
-		DocumentContext doc = JsonPath.parse(jsonString);
+		Configuration conf = Configuration.defaultConfiguration().addOptions(Option.DEFAULT_PATH_LEAF_TO_NULL).addOptions(Option.SUPPRESS_EXCEPTIONS);  
+		DocumentContext doc = JsonPath.using(conf).parse(jsonString);
 		String prefix = "$.";
 		boolean isJsonPathValueString = JsonHelper.isJsonPathValueString(jsonString, path);
 
@@ -625,12 +628,13 @@ public class JsonHelper {
 		// in case user forgets to remove prefix
 		if (path.startsWith(prefix))
 			path = path.replace(prefix, "");
-		
+
 		try {
-			doc.set("$." + path, replacementValue);
+			doc.set(JsonPath.compile("$." + path), replacementValue);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 		return doc.jsonString();
 	}
 
