@@ -152,6 +152,19 @@ public class JsonHelper {
 
 		return DataHelper.objectToString(values);
 	}
+	
+	/**
+	 * gets json value as list if applicable, or string if single item converts to
+	 * string separated by "," https://github.com/json-path/JsonPath
+	 *
+	 * @param path https://github.com/json-path/JsonPath
+	 *
+	 *             for testing json path values: http://jsonpath.herokuapp.com/
+	 * @return value string list separated by ","
+	 */
+	public static Object getJsonPathValue(String json, String path, boolean isAlwaysReturnList) {
+		return getJsonPathValue(json, path, isAlwaysReturnList, true);
+	}
 
 	/**
 	 * gets json value as list if applicable, or string if single item converts to
@@ -162,7 +175,7 @@ public class JsonHelper {
 	 *             for testing json path values: http://jsonpath.herokuapp.com/
 	 * @return value string list separated by ","
 	 */
-	public static Object getJsonPathValue(String json, String path, boolean isAlwaysReturnList) {
+	public static Object getJsonPathValue(String json, String path, boolean isAlwaysReturnList, boolean checkError) {
 		String prefix = "$.";
 		Object values = null;
 
@@ -197,13 +210,15 @@ public class JsonHelper {
 			if (e.getMessage().contains(Option.ALWAYS_RETURN_LIST.name()) && isAlwaysReturnList)
 				values = getJsonValue(json, path, false);
 			else
-				TestLog.logWarning("invalid path: '" + path + "' for json string: " + json
+				if(checkError)
+					TestLog.logWarning("invalid path: '" + path + "' for json string: " + json
 						+ "\n. see http://jsonpath.herokuapp.com to validate your path against json string. see https://github.com/json-path/JsonPath for more info. \n"
 						+ e.getMessage());
 		}
 
 		if (values == null)
-			TestLog.logWarning("no results returned: '" + path
+			if(checkError)
+				TestLog.logWarning("no results returned: '" + path
 					+ "'. see http://jsonpath.herokuapp.com to validate your path against json string. see https://github.com/json-path/JsonPath for more info.");
 
 		return values;
@@ -646,7 +661,7 @@ public class JsonHelper {
 	}
 	
 	public static boolean isJsonPathValueExist(String jsonString, String jsonPath) {
-		String value = JsonHelper.getJsonValue(jsonString, jsonPath);
+		Object value = JsonHelper.getJsonPathValue(jsonString, jsonPath, false, false);
 		if(value == null)
 			return false;
 		return true;
