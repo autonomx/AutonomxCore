@@ -173,7 +173,7 @@ public class Config {
 
 		// get list of profiles from key: config.profile
 		for (Entry<String, String> entry : propertiesMap.entrySet()) {
-			String key = entry.getKey().toString();
+			String key = entry.getKey().toString().trim();
 			boolean isConfig = key.startsWith(CONFIG_PREFIX) && !key.startsWith(CONFIG_PROFILE_PREFIX)
 					&& !key.startsWith(CONFIG_GROUP_PREFIX);
 			if (isConfig) {
@@ -202,6 +202,7 @@ public class Config {
 				String profile = entry.getKey().split("\\.")[1];
 				// add profile name to value. eg. environment.dev
 				List<String> values = new ArrayList<String>(Arrays.asList(entry.getValue().split(",")));
+				values = values.stream().map(String::trim).collect(Collectors.toList());
 				profiles.addAll(values.stream().map(c -> profile + "." + c).collect(Collectors.toList()));
 
 			}
@@ -248,6 +249,7 @@ public class Config {
 
 				// add group name to value. eg. repot.value
 				List<String> values = new ArrayList<String>(Arrays.asList(entry.getValue().split(",")));
+				values = values.stream().map(String::trim).collect(Collectors.toList());
 				profiles.addAll(values.stream().map(c -> group + "." + c).collect(Collectors.toList()));
 			}
 		}
