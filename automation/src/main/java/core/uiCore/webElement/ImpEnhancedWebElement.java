@@ -42,7 +42,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		this.webDriver = webDriver;
 		this.parent = parent;
 		this.parentIndex = parentIndex;
-		this.current = null;
+		this.current = new ArrayList<WebElement>();
 		parentElements = new ArrayList<WebElement>();
 	}
 
@@ -502,6 +502,9 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	public List<String> getTextList() {
 		List<String> stringList = new ArrayList<String>();
 		List<WebElement> elementList = getElements();
+		
+		if(elementList == null)
+			return stringList;
 
 		int listSize = elementList.size();
 		for (int i = 0; i < listSize; i++) {
@@ -512,7 +515,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	}
 
 	private void resetElement() {
-		this.current = null;
+		this.current = new ArrayList<WebElement>();
 	}
 
 	@Override
