@@ -158,8 +158,8 @@ public class Helper {
 	 * @param actual
 	 * @param expected
 	 */
-	public static void assertContains(String actual, String expected) {
-		AssertHelper.assertContains(actual, expected);
+	public static void assertContains(String expected, String actual) {
+		AssertHelper.assertContains(expected, actual);
 	}
 
 	public static void softAssertTrue(String message, boolean value) {
@@ -167,11 +167,11 @@ public class Helper {
 	}
 
 	public static void softAssertEqual(String expected, String actual) {
-		AssertHelper.softAssertEqual(actual, expected);
+		AssertHelper.softAssertEqual(expected, actual);
 	}
 
 	public static void softAssertEqual(int expected, int actual) {
-		AssertHelper.softAssertEqual(actual, expected);
+		AssertHelper.softAssertEqual(expected, actual);
 	}
 	
 	public static SoftAssert softAssert() {

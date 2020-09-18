@@ -108,7 +108,7 @@ public class AssertHelper {
 	 * @param actual
 	 * @param expected
 	 */
-	protected static void assertContains(String actual, String expected) {
+	protected static void assertContains(String expected, String actual) {
 		TestLog.logPass("validating if expected: " + expected + " contains actual: " + actual);
 		assertTrue("actual: " + actual + " does not contain expected: " + expected, actual.contains(expected));
 	}
