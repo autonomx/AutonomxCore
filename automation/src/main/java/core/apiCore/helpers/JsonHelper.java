@@ -601,6 +601,11 @@ public class JsonHelper {
 	public static String convertJsonFileToString(Path templatePath) {
 		return Helper.readFileContent(templatePath.toString());
 	}
+	
+	public static String updateJsonFromRequestBody(ServiceObject service) {
+		String jsonString = DataHelper.getServiceObjectTemplateString(service);
+		return updateJsonFromRequestBody(service.getRequestBody(), jsonString);
+	}
 
 	public static String updateJsonFromRequestBody(String requestbody, String jsonString) {
 		Helper.assertTrue("json string is empty", !jsonString.isEmpty());

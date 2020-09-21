@@ -452,13 +452,24 @@ public class MobileHelper {
 	 * @param miliSeconds
 	 * @param expected
 	 */
-	private void longPress(EnhancedBy target, long miliSeconds) {
+	public void longPress(EnhancedBy target, long miliSeconds) {
 		try {
 			EnhancedWebElement targetElement = Element.findElements(target);
 			TouchAction action = new TouchAction(getAppiumDriver());
 			action.longPress(LongPressOptions.longPressOptions()
 					.withElement(io.appium.java_client.touch.offset.ElementOption.element(targetElement.get(0)))
 					.withDuration(Duration.ofMillis(miliSeconds))).release().perform();
+			Thread.sleep(5000);
+		} catch (Exception e) {
+			e.getMessage();
+		}
+	}
+	
+	public void longPress(int x, int y, long miliSeconds) {
+		try {
+			PointOption point = new PointOption().withCoordinates(x, y);
+			TouchAction action = new TouchAction(getAppiumDriver());
+			action.longPress(LongPressOptions.longPressOptions().withPosition(point).withDuration(Duration.ofMillis(miliSeconds))).release().perform();
 			Thread.sleep(5000);
 		} catch (Exception e) {
 			e.getMessage();

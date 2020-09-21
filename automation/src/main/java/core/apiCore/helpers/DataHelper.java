@@ -29,6 +29,7 @@ import com.opencsv.CSVReader;
 
 import core.apiCore.TestDataProvider;
 import core.apiCore.interfaces.ExternalInterface;
+import core.helpers.DateHelper;
 import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.logger.TestLog;
@@ -86,11 +87,11 @@ public class DataHelper {
 		for (String parameter : parameters) {
 			if (parameter.contains("_TIME_MS_")) {
 				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING));
-				Instant time = Instant.parse(newTime);
+				Instant time = getTimeInstance(newTime);
 				value = getTimeSubstring(parameter, String.valueOf(time.toEpochMilli()));
 			}else if (parameter.contains("_TIME_S_")) {
 					newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING));
-					Instant time = Instant.parse(newTime);
+					Instant time = getTimeInstance(newTime);
 					value = getTimeSubstring(parameter, String.valueOf(time.getEpochSecond()));
 			} else if (parameter.contains("_TIME_STRING_")) {
 				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING));
@@ -179,6 +180,28 @@ public class DataHelper {
 
 		return finalTime.substring(0, length);
 	}
+	
+	public static Instant getTimeInstance(String timeString) {
+		LocalDateTime localDateTime = Helper.date.getLocalDateTime(timeString);
+		Instant timeInstant =  localDateTime.toInstant(ZoneOffset.UTC);
+		return timeInstant;
+	}
+	
+	/**
+	 * get time based time modification, format or fixed time eg.
+	 * <@_TIME_ISO_17+30h;setTime:14h23m33s> or
+	 * <@_TIME_ISO_17+30h;FORMAT:yyyyMMddHHmmssSSS>
+	 * 
+	 * @param parameter
+	 * @param timeString
+	 * @return
+	 */
+	public static Instant getTimeInstance(String parameter, String timeString) {
+		String time = getTime(parameter, timeString);
+		LocalDateTime localDateTime = Helper.date.getLocalDateTime(time);
+		Instant timeInstant =  localDateTime.toInstant(ZoneOffset.UTC);
+		return timeInstant;
+	}
 
 	/**
 	 * get time based time modification, format or fixed time eg.
@@ -197,17 +220,25 @@ public class DataHelper {
 		parameter = Helper.date.setTimeParameterFormat(parameter);
 		
 		String[] values = parameter.split(";");
-
+		boolean isTimeConfig = false;
+		
 		for (String value : values) {
 
 			if (value.contains("FORMAT")) {
 				String format = value.split("FORMAT")[1];
 				format = removeFirstAndLastChars(format, ":", "<", ">");
-				timeString = Helper.date.getTime(timeString, format, null);
+				Config.putValue(DateHelper.CONFIG_DATE_FORMAT, format);
+				isTimeConfig = true;
 			} else if (value.contains("ZONE")) {
 				String zone = value.split("ZONE")[1];
 				zone = removeFirstAndLastChars(zone, ":", "<", ">");
-				timeString = Helper.date.getTime(timeString, null, zone);
+				Config.putValue(DateHelper.CONFIG_DATE_ZONE, zone);
+				isTimeConfig = true;
+			} else if (value.contains("LOCALE")) {
+				String locale = value.split("LOCALE")[1];
+				locale = removeFirstAndLastChars(locale, ":", "<", ">");
+				Config.putValue(DateHelper.CONFIG_DATE_local, locale);
+				isTimeConfig = true;
 			} else if (value.contains("setInitialDate")) {
 				String setInitialDate = value.split("setInitialDate")[1];
 				setInitialDate = removeFirstAndLastChars(setInitialDate, ":", "<", ">");
@@ -229,6 +260,12 @@ public class DataHelper {
 				timeString = getTimeWithModification(value, timeString);
 			}
 		}
+		
+		if(isTimeConfig)
+			timeString = Helper.date.getTimeString(timeString, Config.getValue(DateHelper.CONFIG_DATE_FORMAT), Config.getValue(DateHelper.CONFIG_DATE_ZONE), Config.getValue(DateHelper.CONFIG_DATE_local));
+		
+		// reset format, zone, and local values
+		DateHelper.resetDateConfig();
 		return timeString;
 	}
 	
