@@ -33,8 +33,6 @@ import org.testng.collections.Sets;
 import org.testng.internal.Utils;
 import org.testng.xml.XmlSuite;
 
-import com.microsoft.azure.servicebus.primitives.StringUtil;
-
 import core.apiCore.driver.ApiTestDriver;
 import core.support.listeners.TestListener;
 import core.support.objects.ServiceObject;
@@ -181,9 +179,9 @@ public class JUnitReportReporter implements IReporter {
 		if(!ApiTestDriver.isRunningUITest())
 			return;
 		
-		String testname = StringUtil.EMPTY;
-		String classname = StringUtil.EMPTY;
-		String testId = StringUtil.EMPTY;
+		String testname = StringUtils.EMPTY;
+		String classname = StringUtils.EMPTY;
+		String testId = StringUtils.EMPTY;
 
 		// only run if suite is failed rerun suite
 		if (!suite.getName().equals(TestListener.FAILED_RERUN_SUITE_NAME))

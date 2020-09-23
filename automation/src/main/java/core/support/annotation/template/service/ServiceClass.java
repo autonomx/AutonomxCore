@@ -187,7 +187,7 @@ public class ServiceClass {
 			sw.write("}" + "\n");
 			
 	
-			String output = sw.toString();
+			String output = sw.toString().replace("\\\\", "\\");
 			
 		    Formatter formatter = new Formatter();
 			output = formatter.formatSource(output);
