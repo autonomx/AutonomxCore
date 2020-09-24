@@ -1527,13 +1527,18 @@ public class UtilityHelper {
 		if(autonomxCurrentVersionString.isEmpty()) return false;
 		
 		// compare versions
-		ComparableVersion autonomxMavenCentral = new ComparableVersion(versionValue);
-		ComparableVersion localAutonomx = new ComparableVersion(autonomxCurrentVersionString);
-
-		if(autonomxMavenCentral.compareTo(localAutonomx) > 0) {
-			System.out.println("New version of Autonomx is available. current version: <" + autonomxCurrentVersionString + "> Latest version: <" + versionValue + "> Please consider updating to the latest version at the pom.xml file for the dependency: autonomxCore. To disable this message, set console.checkLatestAutonomx to false at report.property");
-			return true;
+		try {
+			ComparableVersion autonomxMavenCentral = new ComparableVersion(versionValue);
+			ComparableVersion localAutonomx = new ComparableVersion(autonomxCurrentVersionString);
+			
+			if(autonomxMavenCentral.compareTo(localAutonomx) > 0) {
+				System.out.println("New version of Autonomx is available. current version: <" + autonomxCurrentVersionString + "> Latest version: <" + versionValue + "> Please consider updating to the latest version at the pom.xml file for the dependency: autonomxCore. To disable this message, set console.checkLatestAutonomx to false at report.property");
+				return true;
+			}
+		}catch(Exception e) {
+			e.getMessage();
 		}
+		
 		return false;
 	}	
 }
