@@ -1,5 +1,7 @@
 package core.helpers;
 
+import static io.restassured.RestAssured.get;
+
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -40,10 +42,13 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import javax.imageio.ImageIO;
+import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.maven.artifact.versioning.ComparableVersion;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.openqa.selenium.By;
@@ -66,6 +71,7 @@ import core.uiCore.drivers.AbstractDriver;
 import core.uiCore.drivers.AbstractDriverTestNG;
 import core.uiCore.webElement.EnhancedBy;
 import core.uiCore.webElement.EnhancedWebElement;
+import io.restassured.response.Response;
 import java8.util.concurrent.ThreadLocalRandom;
 
 public class UtilityHelper {
@@ -1352,8 +1358,27 @@ public class UtilityHelper {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
+		
 		return model.getArtifactId();
+	}
+	
+	public static String getMavenDependencyVersion(String dependency) {
+		MavenXpp3Reader reader = new MavenXpp3Reader();
+		Model model = null;
+		try {
+			model = reader.read(new FileReader(Helper.getFullPath("pom.xml")));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		List<Dependency> dependencies = model.getDependencies();
+		
+		for(Dependency artifact : dependencies) {
+			if(artifact.getArtifactId().equals(dependency))
+				return artifact.getVersion();
+		}
+		
+		return StringUtils.EMPTY;
 	}
 	
 	/**
@@ -1467,5 +1492,48 @@ public class UtilityHelper {
 		}
 		return listString;
 	}
+	
+	/**
+	 * compares autonomx latest version from maven central against current maven version. 
+	 * lets user know a new version of autonomx is available
+	 * @throws XPathExpressionException
+	 */
+	public static boolean checkLatestAutonomxMavenVersion() {
 		
+		if(!Config.getBooleanValue("console.checkLatestAutonomx"))
+			return false;
+		
+		// get autonomx maven version from maven central
+		Response response = get("https://mvnrepository.com/artifact/io.autonomx/autonomx-core/latest");
+		
+		if(response == null) return false;
+		
+		String responseString = response.asString();
+		if(responseString.isEmpty()) return false;
+		
+		// get autonomx version from maven central response
+		String version = StringUtils.EMPTY;
+		String[] lines = responseString.split(File.separator);
+		for(String line : lines) {
+			if(line.contains("io.autonomx:autonomx-core:jar"))
+				version = line;
+		}
+		
+		if(version.isEmpty()) return false;
+		String versionValue = Helper.stringNormalize(version.replace("autonomx-core","").replace("io.autonomx::jar:","").replace("'", "").replace("<", ""));
+		
+		// get current version
+		String autonomxCurrentVersionString = getMavenDependencyVersion("autonomxCore");
+		if(autonomxCurrentVersionString.isEmpty()) return false;
+		
+		// compare versions
+		ComparableVersion autonomxMavenCentral = new ComparableVersion(versionValue);
+		ComparableVersion localAutonomx = new ComparableVersion(autonomxCurrentVersionString);
+
+		if(autonomxMavenCentral.compareTo(localAutonomx) > 0) {
+			System.out.println("New version of Autonomx is available. current version: <" + autonomxCurrentVersionString + "> Latest version: <" + versionValue + "> Please consider updating to the latest version at the pom.xml file for the dependency: autonomxCore. To disable this message, set console.checkLatestAutonomx to false at report.property");
+			return true;
+		}
+		return false;
+	}	
 }

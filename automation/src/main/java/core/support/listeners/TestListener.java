@@ -32,6 +32,7 @@ import core.apiCore.ServiceManager;
 import core.apiCore.driver.ApiTestDriver;
 import core.helpers.Helper;
 import core.helpers.ScreenRecorderHelper;
+import core.helpers.UtilityHelper;
 import core.support.configReader.Config;
 import core.support.logger.ExtentManager;
 import core.support.logger.TestLog;
@@ -122,6 +123,8 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		DriverObject.quitAllDrivers();
 		ExtentManager.launchReportAfterTest();
 		ExtentManager.printReportLink();
+		UtilityHelper.checkLatestAutonomxMavenVersion();
+		
 		sendReport(iTestContext);
 
 		// get suite name, removing spaces
