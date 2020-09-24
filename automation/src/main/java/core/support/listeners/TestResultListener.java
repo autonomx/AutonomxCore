@@ -44,12 +44,13 @@ public class TestResultListener extends TestListenerAdapter {
       while (failedTestCases.hasNext()) {
          ITestResult failedTestCase = failedTestCases.next();
          ITestNGMethod method = failedTestCase.getMethod();
+         String testname = failedTestCase.getTestClass().getRealClass().getSimpleName() + "." + method.getMethodName();
          if (context.getFailedTests().getResults(method).size() > 1) {
-             System.out.println("skipped test case remove from report:" + failedTestCase.getTestClass().toString());
+             System.out.println("skipped test case remove from report:" + testname);
              failedTestCases.remove();
          } else {
              if (context.getPassedTests().getResults(method).size() > 0) {
-                 System.out.println("skipped retries removed from passing test:" + failedTestCase.getTestClass().toString());
+                 System.out.println("skipped retries removed from passing test:" + testname);
                  failedTestCases.remove();
              }
          }
