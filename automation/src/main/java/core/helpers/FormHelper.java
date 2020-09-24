@@ -1,6 +1,5 @@
 package core.helpers;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -546,12 +545,11 @@ public class FormHelper {
 	 * @param location
 	 * @param imageButton
 	 */
-	public void uploadFile(String location, EnhancedBy imageButton) {
+	public void uploadFile(String location, EnhancedBy fileTypeElement) {
 		TestLog.logPass("I upload file at location '" + location + "'");
 
-		File file = new File("");
-		String path = file.getAbsolutePath() + location;
-		setField(imageButton, path);
+		String path = Helper.getFullPath(location);
+		setField(fileTypeElement, path);
 	}
 
 	/**
@@ -578,8 +576,7 @@ public class FormHelper {
 		TestLog.logPass("uploaded file: " + location);
 
 		int imageCount = Helper.list.getListCount(images);
-		File file = new File("");
-		String path = file.getAbsolutePath() + location;
+		String path = Helper.getFullPath(location);
 		setField(imageButton, path);
 		Helper.wait.waitForAdditionalElementsToLoad(images, imageCount);
 	}
