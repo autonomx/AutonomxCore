@@ -49,6 +49,9 @@ public class ServiceClass {
 			// get test rows from csv file
 			List<Object[]> csvList = CsvReader.getCsvTestListForTestRunner(csvFile.getName());
 			
+			// if no tests, move to next csv file
+			if(csvList.isEmpty()) continue;
+			
 			// create empty file 
 			File testClassPath = createClassFile(csvFile);
 			
@@ -132,7 +135,7 @@ public class ServiceClass {
 				sw.write("	* @throws Exception" + "\n");
 				sw.write("	*/" + "\n");
 				sw.write("  @Test(description =\""+ ServiceObject.getDescription() +"\", priority="+priority+" )" + "\n");
-				sw.write("	public void "+ ServiceObject.getTestCaseID() +"() throws Exception {" + "\n");
+				sw.write("	public static void "+ ServiceObject.getTestCaseID() +"() throws Exception {" + "\n");
 				sw.write("  ServiceObject service = new ServiceObject();" + "\n");
 				sw.write(   "service.withTestSuite(\"" + ServiceData.formatString(ServiceObject.getTestSuite()) + "\");" + "\n");
 				sw.write(   "service.withTestCaseID(\"" + ServiceData.formatString(ServiceObject.getTestCaseID()) + "\");" + "\n");
