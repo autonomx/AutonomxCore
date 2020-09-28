@@ -123,7 +123,6 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		DriverObject.quitAllDrivers();
 		ExtentManager.launchReportAfterTest();
 		ExtentManager.printReportLink();
-		UtilityHelper.checkLatestAutonomxMavenVersion();
 		
 		sendReport(iTestContext);
 
@@ -462,6 +461,9 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		
 		// rerun failed tests if enabled
 		runFailedTests(suite);
+		
+		// check autonomx maven version update
+		UtilityHelper.checkLatestAutonomxMavenVersion();
 	}
 
 	private String getSuiteName(String suitename) {

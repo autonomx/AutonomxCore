@@ -60,11 +60,13 @@ import org.zeroturnaround.zip.ZipUtil;
 
 import allbegray.slack.SlackClientFactory;
 import allbegray.slack.webapi.SlackWebApiClient;
+import core.apiCore.interfaces.RestApiInterface;
 import core.support.annotation.processor.MainGenerator;
 import core.support.configReader.Config;
 import core.support.configReader.PropertiesReader;
 import core.support.logger.ExtentManager;
 import core.support.logger.TestLog;
+import core.support.objects.ServiceObject;
 import core.support.objects.TestObject;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import core.uiCore.drivers.AbstractDriver;
@@ -1503,8 +1505,15 @@ public class UtilityHelper {
 		if(!Config.getBooleanValue("console.checkLatestAutonomx"))
 			return false;
 		
+		Config.putValue(TestLog.LOG_SKIP_CONSOLE, true, false);
+		
 		// get autonomx maven version from maven central
-		Response response = get("https://mvnrepository.com/artifact/io.autonomx/autonomx-core/latest");
+		ServiceObject service = new ServiceObject()
+				.withMethod("GET")
+				.withUriPath("https://mvnrepository.com/artifact/io.autonomx/autonomx-core/latest");
+		Response response = RestApiInterface.RestfullApiInterface(service);
+		
+		//Response response = get("https://mvnrepository.com/artifact/io.autonomx/autonomx-core/latest");
 		
 		if(response == null) return false;
 		
@@ -1532,7 +1541,7 @@ public class UtilityHelper {
 			ComparableVersion localAutonomx = new ComparableVersion(autonomxCurrentVersionString);
 			
 			if(autonomxMavenCentral.compareTo(localAutonomx) > 0) {
-				System.out.println("New version of Autonomx is available. current version: <" + autonomxCurrentVersionString + "> Latest version: <" + versionValue + "> Please consider updating to the latest version at the pom.xml file for the dependency: autonomxCore. To disable this message, set console.checkLatestAutonomx to false at report.property");
+				System.out.println("New version of Autonomx is available. current version: <" + autonomxCurrentVersionString + "> Latest version: <" + versionValue + "> Please consider updating to the latest version at the pom.xml file for the dependency: autonomxCore. Release notes at: https://github.com/autonomx/Autonomx/releases. To disable this message, set console.checkLatestAutonomx to false at report.property");
 				return true;
 			}
 		}catch(Exception e) {

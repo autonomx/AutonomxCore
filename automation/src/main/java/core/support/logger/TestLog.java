@@ -44,6 +44,9 @@ public class TestLog {
 	public static final String ENABLE_DEBUG = "console.debug.enable";
 	public static final String IS_LOG_LIMIT = "log.limit.enabled";
 	public static final String LOG_MAX_LIMIT = "log.max.limit.char";
+	public static final String LOG_SKIP_CONSOLE = "console.skip.console.log";
+
+	
 
 	public static String WATSON = "WATSON";
 	public static String MARY = "MARY";
@@ -513,6 +516,9 @@ public class TestLog {
 	 * @param value    string value to log
 	 */
 	private static void logConsoleMessage(Priority priority, String value) {
+		
+		if(Config.getBooleanValue(LOG_SKIP_CONSOLE))
+			return;
 
 		value = Helper.date.getTimestampSeconds() + " : " + getTestLogPrefix() + value;
 		value = Helper.stringRemoveLines(value);
