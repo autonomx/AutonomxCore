@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +28,6 @@ import com.opencsv.CSVReader;
 
 import core.apiCore.TestDataProvider;
 import core.apiCore.interfaces.ExternalInterface;
-import core.helpers.DateHelper;
 import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.logger.TestLog;
@@ -86,21 +84,21 @@ public class DataHelper {
 		String newTime = StringUtils.EMPTY;
 		for (String parameter : parameters) {
 			if (parameter.contains("_TIME_MS_")) {
-				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING));
+				newTime = Helper.date.getTime(parameter, Config.getValue(TestObject.START_TIME_STRING));
 				Instant time = getTimeInstance(newTime);
 				value = getTimeSubstring(parameter, String.valueOf(time.toEpochMilli()));
 			}else if (parameter.contains("_TIME_S_")) {
-					newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING));
+					newTime = Helper.date.getTime(parameter, Config.getValue(TestObject.START_TIME_STRING));
 					Instant time = getTimeInstance(newTime);
 					value = getTimeSubstring(parameter, String.valueOf(time.getEpochSecond()));
 			} else if (parameter.contains("_TIME_STRING_")) {
-				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING));
+				newTime = Helper.date.getTime(parameter, Config.getValue(TestObject.START_TIME_STRING));
 				value = getTimeSubstring(parameter, Helper.date.getTime(newTime, "yyyyMMddHHmmssSSS", null));
 			} else if (parameter.contains("_TIME_ISO_")) {
-				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING));
+				newTime = Helper.date.getTime(parameter, Config.getValue(TestObject.START_TIME_STRING));
 				value = getTimeSubstring(parameter, newTime);
 			} else if (parameter.contains("_TIME")) {
-				newTime = getTime(parameter, Config.getValue(TestObject.START_TIME_STRING));
+				newTime = Helper.date.getTime(parameter, Config.getValue(TestObject.START_TIME_STRING));
 				value = getTimeSubstring(parameter, newTime);
 			} else if (parameter.contains("_RANDUUID")) {	
 				value = Helper.generateUUID();
@@ -172,7 +170,8 @@ public class DataHelper {
 		// values after the last "_", then after the last :
 		String[] values = parameter.split(";");
 		
-		int length = Helper.getFirstNumber(values[0]);
+		String modifier = values[0].split("[+-]")[0];
+		int length = Helper.getFirstNumber(modifier);
 
 		int maxLength = finalTime.length();
 		if (length > maxLength || length == -1 || length == 0)
@@ -186,255 +185,7 @@ public class DataHelper {
 		Instant timeInstant =  localDateTime.toInstant(ZoneOffset.UTC);
 		return timeInstant;
 	}
-	
-	/**
-	 * get time based time modification, format or fixed time eg.
-	 * <@_TIME_ISO_17+30h;setTime:14h23m33s> or
-	 * <@_TIME_ISO_17+30h;FORMAT:yyyyMMddHHmmssSSS>
-	 * 
-	 * @param parameter
-	 * @param timeString
-	 * @return
-	 */
-	public static Instant getTimeInstance(String parameter, String timeString) {
-		String time = getTime(parameter, timeString);
-		LocalDateTime localDateTime = Helper.date.getLocalDateTime(time);
-		Instant timeInstant =  localDateTime.toInstant(ZoneOffset.UTC);
-		return timeInstant;
-	}
 
-	/**
-	 * get time based time modification, format or fixed time eg.
-	 * <@_TIME_ISO_17+30h;setTime:14h23m33s> or
-	 * <@_TIME_ISO_17+30h;FORMAT:yyyyMMddHHmmssSSS>
-	 * 
-	 * @param parameter
-	 * @param timeString
-	 * @return
-	 */
-	public static String getTime(String parameter, String timeString) {
-
-		parameter = DataHelper.replaceParameters(parameter, "\\{@(.+?)\\}","{@", "}");
-
-		// ensure ZONE and FORMAT are ordered at the end
-		parameter = Helper.date.setTimeParameterFormat(parameter);
-		
-		String[] values = parameter.split(";");
-		boolean isTimeConfig = false;
-		
-		for (String value : values) {
-
-			if (value.contains("FORMAT")) {
-				String format = value.split("FORMAT")[1];
-				format = removeFirstAndLastChars(format, ":", "<", ">");
-				Config.putValue(DateHelper.CONFIG_DATE_FORMAT, format);
-				isTimeConfig = true;
-			} else if (value.contains("ZONE")) {
-				String zone = value.split("ZONE")[1];
-				zone = removeFirstAndLastChars(zone, ":", "<", ">");
-				Config.putValue(DateHelper.CONFIG_DATE_ZONE, zone);
-				isTimeConfig = true;
-			} else if (value.contains("LOCALE")) {
-				String locale = value.split("LOCALE")[1];
-				locale = removeFirstAndLastChars(locale, ":", "<", ">");
-				Config.putValue(DateHelper.CONFIG_DATE_local, locale);
-				isTimeConfig = true;
-			} else if (value.contains("setInitialDate")) {
-				String setInitialDate = value.split("setInitialDate")[1];
-				setInitialDate = removeFirstAndLastChars(setInitialDate, ":", "<", ">");
-				timeString = setInitialDate(setInitialDate);
-			} else if (value.contains("setTime")) {
-				String setTime = value.split("setTime")[1];
-				setTime = removeFirstAndLastChars(setTime, ":", "<", ">");
-				timeString = setTime(setTime, timeString);
-			} else if (value.contains("setDay")) {
-				String setDay = value.split("setDay")[1];
-				setDay = removeFirstAndLastChars(setDay, ":", "<", ">");
-				timeString = setDay(setDay, timeString);
-			} else if (value.contains("setMonth")) {
-				String setDay = value.split("setMonth")[1];
-				setDay = removeFirstAndLastChars(setDay, ":", "<", ">");
-				timeString = setMonth(setDay, timeString);
-			} else {
-				value = removeFirstAndLastChars(value, ":", "<", ">");
-				timeString = getTimeWithModification(value, timeString);
-			}
-		}
-		
-		if(isTimeConfig)
-			timeString = Helper.date.getTimeString(timeString, Config.getValue(DateHelper.CONFIG_DATE_FORMAT), Config.getValue(DateHelper.CONFIG_DATE_ZONE), Config.getValue(DateHelper.CONFIG_DATE_local));
-		
-		// reset format, zone, and local values
-		DateHelper.resetDateConfig();
-		return timeString;
-	}
-	
-	/**
-	 * set time to time 
-	 * overwrites the TestObject.START_TIME_STRING value
-	 * @param parameter
-	 * @return
-	 */
-	public static String setInitialDate(String parameter) {
-		LocalDateTime date = Helper.date.getLocalDateTime(parameter);
-		Instant time = date.atZone(ZoneId.of("UTC")).toInstant();
-		return time.toString();
-	}
-
-
-	/**
-	 * sets time based on format: setTime:hh:mm:ss eg: 14:42:33 any combination will
-	 * work uses utc zone to set time
-	 * 
-	 * @param parameter
-	 * @param timeString
-	 * @return
-	 */
-	public static String setTime(String parameter, String timeString) {
-		LocalDateTime date = Helper.date.getLocalDateTime(timeString);
-		Instant time = date.atZone(ZoneId.of("UTC")).toInstant();
-
-		String[] parameters = parameter.split(":");
-		if (parameters.length != 3)
-			Helper.assertFalse("format must be hh:mm:ss. value: " + parameter);
-		int hour = Helper.getIntFromString(parameters[0]);
-		int minute = Helper.getIntFromString(parameters[1]);
-		int second = Helper.getIntFromString(parameters[2]);
-
-		time = time.atZone(ZoneOffset.UTC).withHour(hour).withMinute(minute).withSecond(second).withNano(0).toInstant();
-		return time.toString();
-	}
-
-	/**
-	 * set day based on format setDay:Day
-	 * 
-	 * @param parameter
-	 * @param timeString
-	 * @return
-	 */
-	public static String setDay(String dayName, String timeString) {
-		LocalDateTime time = Helper.date.getLocalDateTime(timeString);
-
-		int currentDay = Helper.date.getDayOfWeekIndex(time);
-		int targetDay = Helper.date.getDayOfWeekIndex(dayName);
-		int timeDifference = targetDay - currentDay;
-
-		time = time.plusDays(timeDifference);
-		return time.toString();
-	}
-
-	/**
-	 * set month based on format setMonth:Month
-	 * 
-	 * @param monthName
-	 * @param timeString
-	 * @return
-	 */
-	public static String setMonth(String monthName, String timeString) {
-		LocalDateTime time = Helper.date.getLocalDateTime(timeString);
-
-		int currentMonth = Helper.date.getMonthOfYearIndex(time);
-		int targetMonth = Helper.date.getMonthOfYearIndex(monthName);
-		int timeDifference = targetMonth - currentMonth;
-
-		time = time.plusMonths(timeDifference);
-		return time.toString();
-	}
-
-	/**
-	 * removes surrounding character from string
-	 * 
-	 * @param value
-	 * @param toRemove
-	 * @return
-	 */
-	public static String removeFirstAndLastChars(String value, String... toRemove) {
-		if (StringUtils.isBlank(value))
-			return value;
-		if (toRemove.length == 0)
-			return value;
-
-		for (String remove : toRemove) {
-			if (value.startsWith(remove))
-				value = StringUtils.removeStart(value, remove);
-			if (value.endsWith(remove))
-				value = StringUtils.removeEnd(value, remove);
-		}
-		return value;
-	}
-
-	/**
-	 * time: _TIME_STRING_17-72h or _TIME_STRING_17+72h
-	 * 
-	 * @param parameter: time parameter with modification. eg. _TIME_STRING_17-72h
-	 * @param timeString
-	 * @return
-	 */
-	public static String getTimeWithModification(String parameter, String timeString) {
-		LocalDateTime localTime = Helper.date.getLocalDateTime(timeString);
-		Instant newTime = localTime.atZone(ZoneId.of("UTC")).toInstant();
-
-
-		String[] parameterArray = parameter.split("[+-]");
-
-		// return non modified time if modifier not set
-		if (parameterArray.length == 1)
-			return newTime.toString();
-
-		String modifier = parameter.split("[+-]")[1];
-
-		String modiferSign = parameter.replaceAll("[^+-]", "");
-		int modifierDuration = Helper.getIntFromString(modifier);
-		String modifierUnit = modifier.replaceAll("[^A-Za-z]+", "");
-
-		if (modiferSign.isEmpty() || modifierDuration == -1 || modifierUnit.isEmpty())
-			Helper.assertFalse("invalid time modifier. format: eg. _TIME_STRING_17+72h or _TIME_STRING_17-72m");
-
-		switch (modifierUnit) {
-		case "y":
-			if (modiferSign.equals("+"))
-				localTime = localTime.plusYears(modifierDuration);
-			else if (modiferSign.equals("-"))
-				localTime = localTime.minusYears(modifierDuration);
-			break;
-		case "mo":
-			if (modiferSign.equals("+"))
-				localTime = localTime.plusMonths(modifierDuration);
-			else if (modiferSign.equals("-"))
-				localTime = localTime.minusMonths(modifierDuration);
-			break;
-		case "w":
-			if (modiferSign.equals("+"))
-				localTime = localTime.plusWeeks(modifierDuration);
-			else if (modiferSign.equals("-"))
-				localTime = localTime.minusWeeks(modifierDuration);
-			break;
-		case "d":
-			if (modiferSign.equals("+"))
-				localTime = localTime.plusDays(modifierDuration);
-			else if (modiferSign.equals("-"))
-				localTime = localTime.minusDays(modifierDuration);
-			break;
-		case "h":
-			if (modiferSign.equals("+"))
-				localTime = localTime.plusHours(modifierDuration);
-			else if (modiferSign.equals("-"))
-				localTime = localTime.minusHours(modifierDuration);
-			break;
-		case "m":
-			if (modiferSign.equals("+"))
-				localTime = localTime.plusMinutes(modifierDuration);
-			else if (modiferSign.equals("-"))
-				localTime = localTime.minusMinutes(modifierDuration);
-			break;
-		default:
-			Helper.assertFalse("invalid time modifier. format: eg. +2d or +72h or -72m or +1mo or +2y");
-
-		}
-		String dateString = localTime.toInstant(ZoneOffset.UTC).toString();
-		return dateString;
-	}
-	
 	/**
 	 * gets the map of the validation requirements split by ";"
 	 * 
@@ -1078,7 +829,7 @@ public class DataHelper {
 			if (matcher.find())
 				position = matcher.group(0);
 			result.add(resultArray[0]);
-			result.add(removeFirstAndLastChars(position, ":"));
+			result.add(Helper.date.removeFirstAndLastChars(position, ":"));
 			if(resultArray.length == 2)
 				result.add(resultArray[1]);
 			else

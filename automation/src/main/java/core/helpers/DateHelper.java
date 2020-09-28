@@ -10,24 +10,43 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.WeekFields;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
 import org.reflections8.util.Joiner;
 
+import core.apiCore.helpers.DataHelper;
 import core.support.configReader.Config;
 import core.support.objects.DateFormats;
 
 public class DateHelper {
 	
 	public static final String CONFIG_DATE_FORMAT = "date.format";
-	public static final String CONFIG_DATE_ZONE = "date.zone";
-	public static final String CONFIG_DATE_local = "date.local";
+	public static final String CONFIG_DATE_CURRENT_ZONE = "date.current.zone";
+	public static final String CONFIG_DATE_OUTPUT_ZONE = "date.output.zone";
+	public static final String CONFIG_DATE_LOCAL = "date.local";
 	
 	// get time in milliseconds
 	public String getTimestampMiliseconds() {
-		return getTime("yyyyMMddHHmmssSSSSS");
+		return getCurrentTime("yyyyMMddHHmmssSSSSS");
+	}
+	
+	public String getCurrentTimeEpochSeconds() {
+		String value = String.valueOf( Instant.now().getEpochSecond());
+		return value;
+	}
+	
+	public String getCurrentTimeEpochMS() {
+		String value = String.valueOf( Instant.now().toEpochMilli());
+		return value;
+	}
+	
+	public String getTimeEpochMS(ZonedDateTime time) {
+		String value = String.valueOf(time.toInstant().toEpochMilli());
+		return value;
 	}
 
 	public String getTimeInstance() {
@@ -35,7 +54,7 @@ public class DateHelper {
 	}
 
 	public String getTimestampSeconds() {
-		return getTime("yyyy-MM-dd HH:mm:ss");
+		return getCurrentTime("yyyy-MM-dd HH:mm:ss");
 	}
 
 	public String getTimeISOInstant() {
@@ -44,15 +63,14 @@ public class DateHelper {
 
 	/**
 	 * get current time based on format and time zone
-	 * 
+	 * output zone will be UTC
 	 * @param format
 	 * @param zone
 	 * @return
 	 */
-	public String getTime(String format, String zone) {
+	public String getCurrentTime(String format, String currentZone) {
 		Instant time = Instant.now();
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format).withZone(ZoneId.of(zone));
-		return formatter.format(time);
+		return getTime(time, format, currentZone);
 	}
 
 	/**
@@ -61,56 +79,155 @@ public class DateHelper {
 	 * @param format
 	 * @return
 	 */
-	public String getTime(String format) {
+	public String getCurrentTime(String format) {
 		Instant time = Instant.now();
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format).withZone(ZoneId.of("UTC"));
-		return formatter.format(time);
+		return getTime(time, format);
 	}
-
+	
+	/**
+	 * get current time based on locale
+	 * 
+	 * @param format
+	 * @return
+	 */
+	public String getCurrentTime(Locale locale) {
+		Instant time = Instant.now();
+		return getTime(time, locale);
+	}
+	
+	/**
+	 * get current time based on locale
+	 * 
+	 * @param format
+	 * @return
+	 */
+	public String getCurrentTime(String format, String currentZone, String outputZone, Locale locale) {
+		Instant time = Instant.now();
+		return getTime(time, format, currentZone, outputZone, locale);
+	}
+	
+	/**
+	 * get time string
+	 * output time zone will be UTC by default
+	 * @param time
+	 * @param format
+	 * @return
+	 */
+	public String getTime(Instant time) {
+		
+		return getTime(time, StringUtils.EMPTY, "UTC", "UTC", null);
+	}
+	
+	/**
+	 * get time based on locale
+	 * output time zone will be UTC by default
+	 * @param time
+	 * @param format
+	 * @return
+	 */
+	public String getTime(Instant time, Locale locale) {
+		
+		return getTime(time, StringUtils.EMPTY, "UTC", "UTC", locale);
+	}
+	
 	/**
 	 * get time based on format
-	 * 
+	 * output time zone will be UTC by default
+	 * @param time
+	 * @param format
+	 * @return
+	 */
+	public String getTime(Instant time, String format) {
+		
+		return getTime(time, format, "UTC", "UTC", null);
+	}
+	
+	/**
+	 * get time based on format
+	 * output time zone will be UTC by default
+	 * @param time
+	 * @param format
+	 * @return
+	 */
+	public String getTime(Instant time, String format, Locale locale) {
+		
+		return getTime(time, format, "UTC", "UTC", locale);
+	}
+	
+	/**
+	 * get time based on format
+	 * output time zone will be UTC by default
+	 * @param time
+	 * @param format
+	 * @return
+	 */
+	public String getTime(Instant time, String format, String zone) {
+		
+		return getTime(time, format, zone, "UTC", null);
+	}
+	
+	/**
+	 * get time based on format
+	 * output time zone will be UTC by default
 	 * @param time
 	 * @param format
 	 * @return
 	 */
 	public String getTime(Instant time, String format, String zone, Locale locale) {
 		
-		// set time zone
-		if(!StringUtils.isBlank(zone)) {
+		return getTime(time, format, zone, "UTC", locale);
+	}
+	
+
+	/**
+	 * get time based on format
+	 * @param time
+	 * @param format
+	 * @return
+	 */
+	public String getTime(Instant time, String format, String currentZone, String outputZone, Locale locale) {
+		
+		ZonedDateTime zdt = null;
+		
+		// set default time zone
+		if(StringUtils.isBlank(currentZone)) currentZone = "UTC";
+		if(StringUtils.isBlank(outputZone)) outputZone = "UTC";
+		
+		// set time zone to "zone" value
+		if(!StringUtils.isBlank(currentZone)) {
+			
+			// set time to zone specified
 			LocalDateTime timelocal = LocalDateTime.ofInstant(time, ZoneId.of("UTC"));
-			ZoneId zoneId = ZoneId.of( zone );
-			ZonedDateTime zdt = timelocal.atZone( zoneId );
-			time = zdt.toInstant();
+			zdt = ZonedDateTime.of(timelocal, ZoneId.of(currentZone)); 
 		}
 		
+		// convert zone to utc
+		zdt = zdt.withZoneSameInstant(ZoneId.of(outputZone));
 		
+		// default format. required for zone and locale
+		if(StringUtils.isBlank(format))
+			format = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
+
 		
+		// format year
 		if(format.startsWith("cc") || format.startsWith("CC")) {
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY").withZone(ZoneId.of("UTC"));
 			String year = formatter.format(time).substring(0, 2);
 			int cc = Integer.valueOf(year) + 1;
 			
 			format = format.replace("cc", "").replace("CC", "");
-			formatter = DateTimeFormatter.ofPattern(format).withZone(ZoneId.of("UTC"));
-			return String.valueOf(cc) + formatter.format(time);
+			formatter = DateTimeFormatter.ofPattern(format);
+			return String.valueOf(cc) + formatter.format(zdt);
 		}
 		
-		
-		if(StringUtils.isBlank(format) && StringUtils.isBlank(zone) && locale == null)
-			return time.toString();
-		
-		// default format. required for zone and locale
-		if(StringUtils.isBlank(format))
-			format = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
-
 		DateTimeFormatter formatter = null;
 		if(locale != null)
-			formatter = DateTimeFormatter.ofPattern(format).withZone(ZoneId.of("UTC")).withLocale(locale);
+			formatter = DateTimeFormatter.ofPattern(format).withLocale(locale);
 		else
-			formatter = DateTimeFormatter.ofPattern(format).withZone(ZoneId.of("UTC"));
-		return formatter.format(time);
+			formatter = DateTimeFormatter.ofPattern(format);
+		return formatter.format(zdt);
 	}
+	
 	
 	/**
 	 * get time based on format and time zone
@@ -121,10 +238,22 @@ public class DateHelper {
 	 * @return
 	 */
 	public String getTime(String timeString, String format, String zone) {
-		return getTime(timeString, format, zone, null);
+		return getTime(timeString, format, zone, StringUtils.EMPTY, null);
 	}
 	
-	public String getTimeString(String timeString, String format, String zone, String localeStr) {
+	/**
+	 * get time based on format and time zone
+	 * 
+	 * @param time
+	 * @param format
+	 * @param zone
+	 * @return
+	 */
+	public String getTime(String timeString, String format, String outputZone, String zone) {
+		return getTime(timeString, format, zone, outputZone, null);
+	}
+	
+	public String getTimeString(String timeString, String format, String zone, String outputZone, String localeStr) {
 		Locale locale = null;
 				
 		switch(localeStr) {
@@ -168,7 +297,7 @@ public class DateHelper {
 			 else
 				 Helper.assertFalse("correct local not selected. options: english, france, germany, canada, china, jpan, italy, uk, taiwan, korea, us");
 		}
-		return getTime(timeString, format, zone, locale) ;
+		return getTime(timeString, format, zone, outputZone, locale);
 		
 	}
 
@@ -180,11 +309,11 @@ public class DateHelper {
 	 * @param zone
 	 * @return
 	 */
-	public String getTime(String timeString, String format, String zone, Locale locale) {
+	public String getTime(String timeString, String format, String zone, String outputZone, Locale locale) {
 		LocalDateTime date1Date = getLocalDateTime(timeString);
 		Instant timeInstant = date1Date.atZone(ZoneId.of("UTC")).toInstant();
 		
-		return getTime(timeInstant, format, zone, locale);
+		return getTime(timeInstant, format, zone, outputZone, locale);
 	}
 
 	/**
@@ -450,57 +579,300 @@ public class DateHelper {
 		return null;
 	}
 	
+	/**
+	 * reset format, zone, and local values
+	 */
+	private static void resetDateConfig() {
+		Config.putValue(DateHelper.CONFIG_DATE_FORMAT, "");
+		Config.putValue(DateHelper.CONFIG_DATE_CURRENT_ZONE, "");
+		Config.putValue(DateHelper.CONFIG_DATE_OUTPUT_ZONE, "");
+		Config.putValue(DateHelper.CONFIG_DATE_LOCAL, "");
+	}
 	
 	/**
-	 * reorders time zone and format 
-	 * zone and format will come at the end
-	 * eg. _TIME_MS_23+1w;FORMAT:YYYY-MM-DD;ZONE:Canada/Pacific;setDay:Monday;setTime:09:00:00
-	 * becomes _TIME_MS_23+1w;setDay:Monday;setTime:09:00:00;ZONE:Canada/Pacific;FORMAT:YYYY-MM-DD
-	 * @param value
+	 * get time based time modification, format or fixed time eg.
+	 * <@_TIME_ISO_17+30h;setTime:14h23m33s> or
+	 * <@_TIME_ISO_17+30h;FORMAT:yyyyMMddHHmmssSSS>
+	 * 
+	 * order of calculation: setTime,setDay,setMonth,time modification (+-hmdwm), format,timezone,locale
+	 * 
+	 * @param parameter
+	 * @param timeString
+	 * @return
+	 */
+	public String getTime(String parameter, String timeString) {
+
+		parameter = DataHelper.replaceParameters(parameter, "\\{@(.+?)\\}","{@", "}");
+
+		// ensure setTime, setDay, setMonth is added at beginning
+		parameter = Helper.date.setTimeParameterFormat(parameter);
+		
+		String[] values = parameter.split(";");
+		boolean isTimeConfig = false;
+		
+		for (String value : values) {
+
+			if (value.contains("FORMAT")) {
+				String format = value.split("FORMAT")[1];
+				format = removeFirstAndLastChars(format, ":", "<", ">");
+				Config.putValue(DateHelper.CONFIG_DATE_FORMAT, format, false);
+				isTimeConfig = true;
+			} else if (value.contains("OUTPUT_ZONE")) {
+				String zone = value.split("OUTPUT_ZONE")[1];
+				zone = removeFirstAndLastChars(zone, ":", "<", ">");
+				Config.putValue(DateHelper.CONFIG_DATE_OUTPUT_ZONE, zone, false);
+				isTimeConfig = true;
+			} else if (value.contains("ZONE")) {
+				String zone = value.split("ZONE")[1];
+				zone = removeFirstAndLastChars(zone, ":", "<", ">");
+				Config.putValue(DateHelper.CONFIG_DATE_CURRENT_ZONE, zone, false);
+				isTimeConfig = true;
+			} else if (value.contains("LOCALE")) {
+				String locale = value.split("LOCALE")[1];
+				locale = removeFirstAndLastChars(locale, ":", "<", ">");
+				Config.putValue(DateHelper.CONFIG_DATE_LOCAL, locale, false);
+				isTimeConfig = true;
+			} else if (value.contains("setInitialDate")) {
+				String setInitialDate = value.split("setInitialDate")[1];
+				setInitialDate = removeFirstAndLastChars(setInitialDate, ":", "<", ">");
+				timeString = setInitialDate(setInitialDate);
+			} else if (value.contains("setTime")) {
+				String setTime = value.split("setTime")[1];
+				setTime = removeFirstAndLastChars(setTime, ":", "<", ">");
+				timeString = setTime(setTime, timeString);
+			} else if (value.contains("setDay")) {
+				String setDay = value.split("setDay")[1];
+				setDay = removeFirstAndLastChars(setDay, ":", "<", ">");
+				timeString = setDay(setDay, timeString);
+			} else if (value.contains("setMonth")) {
+				String setDay = value.split("setMonth")[1];
+				setDay = removeFirstAndLastChars(setDay, ":", "<", ">");
+				timeString = setMonth(setDay, timeString);
+			} else {
+				value = removeFirstAndLastChars(value, ":", "<", ">");
+				timeString = getTimeWithModification(value, timeString);
+			}
+		}
+		
+		if(isTimeConfig)
+			timeString = Helper.date.getTimeString(timeString, Config.getValue(DateHelper.CONFIG_DATE_FORMAT), Config.getValue(DateHelper.CONFIG_DATE_CURRENT_ZONE), Config.getValue(DateHelper.CONFIG_DATE_OUTPUT_ZONE), Config.getValue(DateHelper.CONFIG_DATE_LOCAL));
+		
+		// reset format, zone, and local values
+		DateHelper.resetDateConfig();
+		return timeString;
+	}
+	
+	/**
+	 * setTime, setDay, setMonth parameters at beginning of date modification list
+	 * @param parameter
 	 * @return
 	 */
 	public String setTimeParameterFormat(String parameter) {
-		String FormatString = "FORMAT";
-		String ZoneString = "ZONE";
-		String LocaleString = "LOCAL";
-		
-		if(!parameter.contains(ZoneString) && !parameter.contains(FormatString))
+		String setTimeString = "setTime";
+		String setDayString = "setDay";
+		String setMonthString = "setMonth";
+
+		if(!parameter.contains(setTimeString) && !parameter.contains(setDayString) && !parameter.contains(setMonthString))
 			return parameter;
 		
 		String[] values = parameter.split(";");
 		List<String> updatedParameters = new ArrayList<String>();
-		String zoneParameter = StringUtils.EMPTY;
-		String FormatParameter = StringUtils.EMPTY;
-		String LocaleParameter = StringUtils.EMPTY;
+		List<String> existingParameters = new ArrayList<String>();
 
 		// set updatedParameters list to store all values other than zone and format parameters
 		for(String value : values) {
-			if(!value.contains(ZoneString) && !value.contains(FormatString) && !value.contains(LocaleString))
+			if(!value.contains(setTimeString) && !value.contains(setDayString) && !value.contains(setMonthString))
+				existingParameters.add(value);
+			else if(value.contains(setDayString)) {
 				updatedParameters.add(value);
-			if(value.contains(ZoneString)) {
-				zoneParameter = value;
 			}
-			if(value.contains(FormatString))
-				FormatParameter = value;
-			if(value.contains(LocaleString))
-				LocaleParameter = value;
+			else if(value.contains(setTimeString)) {
+				updatedParameters.add(value);
+			}
+			else if(value.contains(setMonthString)) {
+				updatedParameters.add(value);
+			}
 		}
 		
-		// add zone, format, and locale parameters at the end
-		updatedParameters.add(zoneParameter);
-		updatedParameters.add(LocaleParameter);
-		updatedParameters.add(FormatParameter);
+		// add setTime at beginning
+		updatedParameters.addAll(existingParameters);
 
 		parameter = Joiner.on(";").join(updatedParameters); 
 		return parameter;
 	}
 	
 	/**
-	 * reset format, zone, and local values
+	 * set time to time 
+	 * overwrites the TestObject.START_TIME_STRING value
+	 * @param parameter
+	 * @return
 	 */
-	public static void resetDateConfig() {
-		Config.putValue(DateHelper.CONFIG_DATE_FORMAT, "");
-		Config.putValue(DateHelper.CONFIG_DATE_ZONE, "");
-		Config.putValue(DateHelper.CONFIG_DATE_local, "");
+	public String setInitialDate(String parameter) {
+		LocalDateTime date = Helper.date.getLocalDateTime(parameter);
+		Instant time = date.atZone(ZoneId.of("UTC")).toInstant();
+		return time.toString();
 	}
+
+
+	/**
+	 * sets time based on format: setTime:hh:mm:ss eg: 14:42:33 any combination will
+	 * work uses utc zone to set time
+	 * 
+	 * @param parameter
+	 * @param timeString
+	 * @return
+	 */
+	public String setTime(String parameter, String timeString) {
+		LocalDateTime date = Helper.date.getLocalDateTime(timeString);
+		Instant time = date.atZone(ZoneId.of("UTC")).toInstant();
+
+		String[] parameters = parameter.split(":");
+		if (parameters.length != 3)
+			Helper.assertFalse("format must be hh:mm:ss. value: " + parameter);
+		int hour = Helper.getIntFromString(parameters[0]);
+		int minute = Helper.getIntFromString(parameters[1]);
+		int second = Helper.getIntFromString(parameters[2]);
+
+		time = time.atZone(ZoneOffset.UTC).withHour(hour).withMinute(minute).withSecond(second).withNano(0).toInstant();
+		return time.toString();
+	}
+
+	/**
+	 * set day based on format setDay:Day
+	 * 
+	 * @param parameter
+	 * @param timeString
+	 * @return
+	 */
+	public String setDay(String dayName, String timeString) {
+		LocalDateTime time = Helper.date.getLocalDateTime(timeString);
+
+		int currentDay = Helper.date.getDayOfWeekIndex(time);
+		int targetDay = Helper.date.getDayOfWeekIndex(dayName);
+		int timeDifference = targetDay - currentDay;
+
+		time = time.plusDays(timeDifference);
+		return time.toString();
+	}
+
+	/**
+	 * set month based on format setMonth:Month
+	 * 
+	 * @param monthName
+	 * @param timeString
+	 * @return
+	 */
+	public String setMonth(String monthName, String timeString) {
+		LocalDateTime time = Helper.date.getLocalDateTime(timeString);
+
+		int currentMonth = Helper.date.getMonthOfYearIndex(time);
+		int targetMonth = Helper.date.getMonthOfYearIndex(monthName);
+		int timeDifference = targetMonth - currentMonth;
+
+		time = time.plusMonths(timeDifference);
+		return time.toString();
+	}
+
+	/**
+	 * removes surrounding character from string
+	 * 
+	 * @param value
+	 * @param toRemove
+	 * @return
+	 */
+	public String removeFirstAndLastChars(String value, String... toRemove) {
+		if (StringUtils.isBlank(value))
+			return value;
+		if (toRemove.length == 0)
+			return value;
+
+		for (String remove : toRemove) {
+			if (value.startsWith(remove))
+				value = StringUtils.removeStart(value, remove);
+			if (value.endsWith(remove))
+				value = StringUtils.removeEnd(value, remove);
+		}
+		return value;
+	}
+
+	/**
+	 * time: _TIME_STRING_17-72h or _TIME_STRING_17+72h
+	 * 
+	 * @param parameter: time parameter with modification. eg. _TIME_STRING_17-72h
+	 * @param timeString
+	 * @return
+	 */
+	public String getTimeWithModification(String parameter, String timeString) {
+		LocalDateTime localTime = Helper.date.getLocalDateTime(timeString);
+		Instant newTime = localTime.atZone(ZoneId.of("UTC")).toInstant();
+
+		String[] parameterArray = parameter.split("(?=[+-])");
+		List<String> parameterList = new LinkedList<String>(Arrays.asList(parameterArray));
+		
+		if(!parameterList.get(0).contains("_TIME"))
+			Helper.assertFalse("Date does not have correct format. must start with: _TIME");
+		
+		parameterList.remove(0);
+		
+		for(String value: parameterList) {
+
+			// return non modified time if modifier not set
+			if (parameterArray.length == 1)
+				return newTime.toString();
+	
+			String modifier = value.split("[+-]")[1];
+	
+			String modiferSign = value.replaceAll("[^+-]", "");
+			int modifierDuration = Helper.getIntFromString(modifier);
+			String modifierUnit = modifier.replaceAll("[^A-Za-z]+", "");
+	
+			if (modiferSign.isEmpty() || modifierDuration == -1 || modifierUnit.isEmpty())
+				Helper.assertFalse("invalid time modifier. format: eg. _TIME_STRING_17+72h or _TIME_STRING_17-72m");
+	
+			switch (modifierUnit) {
+			case "y":
+				if (modiferSign.equals("+"))
+					localTime = localTime.plusYears(modifierDuration);
+				else if (modiferSign.equals("-"))
+					localTime = localTime.minusYears(modifierDuration);
+				break;
+			case "mo":
+				if (modiferSign.equals("+"))
+					localTime = localTime.plusMonths(modifierDuration);
+				else if (modiferSign.equals("-"))
+					localTime = localTime.minusMonths(modifierDuration);
+				break;
+			case "w":
+				if (modiferSign.equals("+"))
+					localTime = localTime.plusWeeks(modifierDuration);
+				else if (modiferSign.equals("-"))
+					localTime = localTime.minusWeeks(modifierDuration);
+				break;
+			case "d":
+				if (modiferSign.equals("+"))
+					localTime = localTime.plusDays(modifierDuration);
+				else if (modiferSign.equals("-"))
+					localTime = localTime.minusDays(modifierDuration);
+				break;
+			case "h":
+				if (modiferSign.equals("+"))
+					localTime = localTime.plusHours(modifierDuration);
+				else if (modiferSign.equals("-"))
+					localTime = localTime.minusHours(modifierDuration);
+				break;
+			case "m":
+				if (modiferSign.equals("+"))
+					localTime = localTime.plusMinutes(modifierDuration);
+				else if (modiferSign.equals("-"))
+					localTime = localTime.minusMinutes(modifierDuration);
+				break;
+			default:
+				Helper.assertFalse("invalid time modifier. format: eg. +2d or +72h or -72m or +1mo or +2y");
+	
+			}
+		}
+		String dateString = localTime.toInstant(ZoneOffset.UTC).toString();
+		return dateString;
+	}
+	
 }

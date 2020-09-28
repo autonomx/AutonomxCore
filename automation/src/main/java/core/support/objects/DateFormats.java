@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 
 public class DateFormats {
-//2020-04-05T03:49:53.879765Z
 	public static List<String> dateFormats = Arrays.asList(
 			"EEEE, dd MMMM",
 			"EEEE, dd MMMM, yyyy",
@@ -44,7 +43,6 @@ public class DateFormats {
 			"yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS'Z'",
 			"yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSS",
 			"yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSS'Z'",
-			
 			"yyyy-MM-dd'T'HH:mm",
 			"yyyy-MM-dd'T'HH:mm:ss",
 			"yyyy-MM-dd'T'HH:mm:ssZ",
@@ -59,7 +57,18 @@ public class DateFormats {
 			"yyyyy.MMMMM.dd GGG hh:mm aaa",
 			"h:mm a",
 			"yyyyy.MMMMM.dd GGG hh:mm aaa",
-			"ccyy-mm-dd"
+			"ccyy-mm-dd",
+			"yyyy/MM/dd HH:mm:ss",
+			"MM/dd/yyyy HH:mm:ss",
+			"MM/dd/yyyy HH:mm:ss.SSS",
+			"MM/dd/yyyy, HH:mm:ss",
+			"MM/dd/yyyy, HH:mm:ss aaa",
+			"MM/dd/yyyy, HH:mm:ss.SSS aaa",
+			"dd/MM/yyyy",
+			"dd/MM/yyyy HH:mm:ss",
+			"dd/MM/yyyy HH:mm:ss.SSS",
+			"dd/MM/yyyy HH:mm:ss.SSS aaa",
+			"E, dd MMM yyyy HH:mm:ss z",
+			"E, dd MMM yyyy HH:mm:ss"
 			);
 }
-
