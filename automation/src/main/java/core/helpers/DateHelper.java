@@ -189,9 +189,13 @@ public class DateHelper {
 		
 		ZonedDateTime zdt = null;
 		
+		String formatDefault = Config.getValue("date.format.default");
+		String zoneInputDefault = Config.getValue("date.zone.input.default");
+		String zoneOoutputDefault = Config.getValue("date.zone.output.default");
+		
 		// set default time zone
-		if(StringUtils.isBlank(currentZone)) currentZone = "UTC";
-		if(StringUtils.isBlank(outputZone)) outputZone = "UTC";
+		if(StringUtils.isBlank(currentZone)) currentZone = zoneInputDefault;
+		if(StringUtils.isBlank(outputZone)) outputZone = zoneOoutputDefault;
 		
 		// set time zone to "zone" value
 		if(!StringUtils.isBlank(currentZone)) {
@@ -206,7 +210,7 @@ public class DateHelper {
 		
 		// default format. required for zone and locale
 		if(StringUtils.isBlank(format))
-			format = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
+			format = formatDefault;
 
 		
 		// format year
@@ -608,7 +612,6 @@ public class DateHelper {
 		parameter = Helper.date.setTimeParameterFormat(parameter);
 		
 		String[] values = parameter.split(";");
-		boolean isTimeConfig = false;
 		
 		for (String value : values) {
 
@@ -616,22 +619,18 @@ public class DateHelper {
 				String format = value.split("FORMAT")[1];
 				format = removeFirstAndLastChars(format, ":", "<", ">");
 				Config.putValue(DateHelper.CONFIG_DATE_FORMAT, format, false);
-				isTimeConfig = true;
 			} else if (value.contains("OUTPUT_ZONE")) {
 				String zone = value.split("OUTPUT_ZONE")[1];
 				zone = removeFirstAndLastChars(zone, ":", "<", ">");
 				Config.putValue(DateHelper.CONFIG_DATE_OUTPUT_ZONE, zone, false);
-				isTimeConfig = true;
 			} else if (value.contains("ZONE")) {
 				String zone = value.split("ZONE")[1];
 				zone = removeFirstAndLastChars(zone, ":", "<", ">");
 				Config.putValue(DateHelper.CONFIG_DATE_CURRENT_ZONE, zone, false);
-				isTimeConfig = true;
 			} else if (value.contains("LOCALE")) {
 				String locale = value.split("LOCALE")[1];
 				locale = removeFirstAndLastChars(locale, ":", "<", ">");
 				Config.putValue(DateHelper.CONFIG_DATE_LOCAL, locale, false);
-				isTimeConfig = true;
 			} else if (value.contains("setInitialDate")) {
 				String setInitialDate = value.split("setInitialDate")[1];
 				setInitialDate = removeFirstAndLastChars(setInitialDate, ":", "<", ">");
@@ -654,8 +653,8 @@ public class DateHelper {
 			}
 		}
 		
-		if(isTimeConfig)
-			timeString = Helper.date.getTimeString(timeString, Config.getValue(DateHelper.CONFIG_DATE_FORMAT), Config.getValue(DateHelper.CONFIG_DATE_CURRENT_ZONE), Config.getValue(DateHelper.CONFIG_DATE_OUTPUT_ZONE), Config.getValue(DateHelper.CONFIG_DATE_LOCAL));
+	
+		timeString = Helper.date.getTimeString(timeString, Config.getValue(DateHelper.CONFIG_DATE_FORMAT), Config.getValue(DateHelper.CONFIG_DATE_CURRENT_ZONE), Config.getValue(DateHelper.CONFIG_DATE_OUTPUT_ZONE), Config.getValue(DateHelper.CONFIG_DATE_LOCAL));
 		
 		// reset format, zone, and local values
 		DateHelper.resetDateConfig();
