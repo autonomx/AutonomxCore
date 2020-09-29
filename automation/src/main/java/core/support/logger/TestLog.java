@@ -9,9 +9,12 @@ import java.util.Set;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
+import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Priority;
 import org.apache.log4j.xml.DOMConfigurator;
+import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.aventstack.extentreports.ExtentTest;
@@ -28,12 +31,16 @@ import com.ibm.watson.developer_cloud.text_to_speech.v1.TextToSpeech;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.model.SynthesizeOptions;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.util.WaveUtils;
 
+import core.apiCore.interfaces.RestApiInterface;
 import core.helpers.Helper;
+import core.helpers.UtilityHelper;
 import core.support.configReader.Config;
+import core.support.objects.ServiceObject;
 import core.support.objects.TestObject;
 import core.support.objects.TestObject.testState;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import core.uiCore.drivers.AbstractDriver;
+import io.restassured.response.Response;
 import marytts.LocalMaryInterface;
 import marytts.MaryInterface;
 
@@ -645,4 +652,72 @@ public class TestLog {
 						+ "              ,##    ,##               \r\n" + "                  ##, ");
 
 	}
+	
+	/**
+	 * compares autonomx latest version from maven central against current maven version. 
+	 * lets user know a new version of autonomx is available
+	 * @throws XPathExpressionException
+	 */
+	public static boolean checkLatestAutonomxMavenVersion() {
+		try {
+			return checkLatestAutonomx();
+		}catch(Exception e) {
+			System.out.println("Something has gone wrong with maven version check. To disable this message, set console.checkLatestAutonomx to false at report.property");
+			Helper.page.printStackTrace(e);
+		}
+		return false;
+	}
+	
+	/**
+	 * compares autonomx latest version from maven central against current maven version. 
+	 * lets user know a new version of autonomx is available
+	 * @throws XPathExpressionException
+	 */
+	public static boolean checkLatestAutonomx() {
+		
+		if(!Config.getBooleanValue("console.checkLatestAutonomx"))
+			return false;
+		
+		//Config.putValue(TestLog.LOG_SKIP_CONSOLE, true, false);
+		
+		// get autonomx maven version from maven central
+		ServiceObject service = new ServiceObject()
+				.withMethod("GET")
+				.withUriPath("https://mvnrepository.com/artifact/io.autonomx/autonomx-core/latest");
+		Response response = RestApiInterface.RestfullApiInterface(service);
+		
+		//Response response = get("https://mvnrepository.com/artifact/io.autonomx/autonomx-core/latest");
+		
+		if(response == null) return false;
+		
+		String responseString = response.asString();
+		if(responseString.isEmpty()) return false;
+		
+		// get autonomx version from maven central response
+		String version = StringUtils.EMPTY;
+		
+		version = UtilityHelper.getValueBetweenStrings(responseString, "https://mvnrepository.com/artifact/io.autonomx/autonomx-core/", "/>", 1);
+		
+		if(version.isEmpty()) return false;
+		String versionValue = Helper.stringNormalize(version);
+		
+		// get current version
+		String autonomxCurrentVersionString = UtilityHelper.getMavenDependencyVersion("autonomxCore");
+		if(autonomxCurrentVersionString.isEmpty()) return false;
+		
+		// compare versions
+		try {
+			ComparableVersion autonomxMavenCentral = new ComparableVersion(versionValue);
+			ComparableVersion localAutonomx = new ComparableVersion(autonomxCurrentVersionString);
+			
+			if(autonomxMavenCentral.compareTo(localAutonomx) > 0) {
+				System.out.println("New version of Autonomx is available. current version: <" + autonomxCurrentVersionString + "> Latest version: <" + versionValue + "> Please consider updating to the latest version at the pom.xml file for the dependency: autonomxCore. Release notes at: https://github.com/autonomx/Autonomx/releases. To disable this message, set console.checkLatestAutonomx to false at report.property");
+				return true;
+			}
+		}catch(Exception e) {
+			e.getMessage();
+		}
+		
+		return false;
+	}	
 }

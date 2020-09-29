@@ -27,6 +27,7 @@ import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -40,12 +41,10 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import javax.imageio.ImageIO;
-import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
@@ -58,20 +57,17 @@ import org.zeroturnaround.zip.ZipUtil;
 
 import allbegray.slack.SlackClientFactory;
 import allbegray.slack.webapi.SlackWebApiClient;
-import core.apiCore.interfaces.RestApiInterface;
 import core.support.annotation.processor.MainGenerator;
 import core.support.configReader.Config;
 import core.support.configReader.PropertiesReader;
 import core.support.logger.ExtentManager;
 import core.support.logger.TestLog;
-import core.support.objects.ServiceObject;
 import core.support.objects.TestObject;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import core.uiCore.drivers.AbstractDriver;
 import core.uiCore.drivers.AbstractDriverTestNG;
 import core.uiCore.webElement.EnhancedBy;
 import core.uiCore.webElement.EnhancedWebElement;
-import io.restassured.response.Response;
 import java8.util.concurrent.ThreadLocalRandom;
 
 public class UtilityHelper {
@@ -1494,58 +1490,34 @@ public class UtilityHelper {
 	}
 	
 	/**
-	 * compares autonomx latest version from maven central against current maven version. 
-	 * lets user know a new version of autonomx is available
-	 * @throws XPathExpressionException
+	 * get value between 2 strings. eg. <tag1> value <tag2>. <tag1> and <tag2> are the 2 values passed.
+	 * @param source
+	 * @param value1
+	 * @param value2
+	 * @param position
+	 * @return
 	 */
-	public static boolean checkLatestAutonomxMavenVersion() {
-		
-		if(!Config.getBooleanValue("console.checkLatestAutonomx"))
-			return false;
-		
-		Config.putValue(TestLog.LOG_SKIP_CONSOLE, true, false);
-		
-		// get autonomx maven version from maven central
-		ServiceObject service = new ServiceObject()
-				.withMethod("GET")
-				.withUriPath("https://mvnrepository.com/artifact/io.autonomx/autonomx-core/latest");
-		Response response = RestApiInterface.RestfullApiInterface(service);
-		
-		//Response response = get("https://mvnrepository.com/artifact/io.autonomx/autonomx-core/latest");
-		
-		if(response == null) return false;
-		
-		String responseString = response.asString();
-		if(responseString.isEmpty()) return false;
-		
-		// get autonomx version from maven central response
-		String version = StringUtils.EMPTY;
-		String[] lines = responseString.split(File.separator);
-		for(String line : lines) {
-			if(line.contains("io.autonomx:autonomx-core:jar"))
-				version = line;
-		}
-		
-		if(version.isEmpty()) return false;
-		String versionValue = Helper.stringNormalize(version.replace("autonomx-core","").replace("io.autonomx::jar:","").replace("'", "").replace("<", ""));
-		
-		// get current version
-		String autonomxCurrentVersionString = getMavenDependencyVersion("autonomxCore");
-		if(autonomxCurrentVersionString.isEmpty()) return false;
-		
-		// compare versions
+	public static String getValueBetweenStrings(String source, String value1, String value2, int position) {
+		List<String> values = new ArrayList<String>();
 		try {
-			ComparableVersion autonomxMavenCentral = new ComparableVersion(versionValue);
-			ComparableVersion localAutonomx = new ComparableVersion(autonomxCurrentVersionString);
 			
-			if(autonomxMavenCentral.compareTo(localAutonomx) > 0) {
-				System.out.println("New version of Autonomx is available. current version: <" + autonomxCurrentVersionString + "> Latest version: <" + versionValue + "> Please consider updating to the latest version at the pom.xml file for the dependency: autonomxCore. Release notes at: https://github.com/autonomx/Autonomx/releases. To disable this message, set console.checkLatestAutonomx to false at report.property");
-				return true;
+			String patternString = value1 + "(.*?)" + value2;
+			final Pattern pattern = Pattern.compile(patternString);
+			final Matcher matcher = pattern.matcher(source);
+			while (matcher.find()) {
+				values.add(matcher.group(1));
 			}
-		}catch(Exception e) {
+		} catch (Exception e) {
 			e.getMessage();
 		}
-		
-		return false;
-	}	
+		if (position == 0)
+			Helper.assertFalse("position starts at 1. your position: " + position + ".");
+		if (values.isEmpty())
+			Helper.assertFalse(
+					"value between positions value1:" + value1 + "and value2: " + value2 + " at position: " + position + " was not found at xml: \n" + source + " \n\n");
+		if (position > values.size())
+			Helper.assertFalse("position is greater than response size. position: " + position + ". response size: "
+					+ values.size() + ". values: " + Arrays.toString(values.toArray()));
+		return values.get(position - 1);
+	}
 }

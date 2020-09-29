@@ -32,7 +32,6 @@ import core.apiCore.ServiceManager;
 import core.apiCore.driver.ApiTestDriver;
 import core.helpers.Helper;
 import core.helpers.ScreenRecorderHelper;
-import core.helpers.UtilityHelper;
 import core.support.configReader.Config;
 import core.support.logger.ExtentManager;
 import core.support.logger.TestLog;
@@ -463,7 +462,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		runFailedTests(suite);
 		
 		// check autonomx maven version update
-		UtilityHelper.checkLatestAutonomxMavenVersion();
+		TestLog.checkLatestAutonomxMavenVersion();
 	}
 
 	private String getSuiteName(String suitename) {
