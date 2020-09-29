@@ -485,13 +485,13 @@ public class DataHelper {
 			TestLog.logPass("verifying: " + responseString + " is greater than " + expectedString);
 			val = compareNumbers(responseString, expectedString, "greaterThan");
 			if (!val)
-				return "actual: " + responseString + " is less than expected: " + expectedString;
+				return "actual: " + responseString + " is not greater than expected: " + expectedString;
 			break;
 		case integerLessThan:
 			TestLog.logPass("verifying: " + responseString + " is less than " + expectedString);
 			val = compareNumbers(responseString, expectedString, "lessThan");
 			if (!val)
-				return "actual: " + responseString + " is greater than expected: " + expectedString;
+				return "actual: " + responseString + " is not less than expected: " + expectedString;
 			break;
 		case integerEqual:
 			TestLog.logPass("verifying: " + responseString + " is equal to " + expectedString);

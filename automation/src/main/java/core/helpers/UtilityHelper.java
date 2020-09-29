@@ -1,7 +1,5 @@
 package core.helpers;
 
-import static io.restassured.RestAssured.get;
-
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;

@@ -131,10 +131,10 @@ public class ServiceClass {
 				ServiceObject ServiceObject = CsvReader.mapToServiceObject(testRow); 
 							
 				sw.write("	/**" + "\n");
-				sw.write("	* " + ServiceObject.getDescription() + "\n");
+				sw.write("	* " + ServiceData.formatString(ServiceObject.getDescription()) + "\n");
 				sw.write("	* @throws Exception" + "\n");
 				sw.write("	*/" + "\n");
-				sw.write("  @Test(description =\""+ ServiceObject.getDescription() +"\", priority="+priority+" )" + "\n");
+				sw.write("  @Test(description =\""+ ServiceData.formatString(ServiceObject.getDescription()) +"\", priority="+priority+" )" + "\n");
 				sw.write("	public static void "+ ServiceObject.getTestCaseID() +"() throws Exception {" + "\n");
 				sw.write("  ServiceObject service = new ServiceObject();" + "\n");
 				sw.write(   "service.withTestSuite(\"" + ServiceData.formatString(ServiceObject.getTestSuite()) + "\");" + "\n");
