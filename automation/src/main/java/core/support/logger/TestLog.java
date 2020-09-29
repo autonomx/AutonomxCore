@@ -662,6 +662,7 @@ public class TestLog {
 		try {
 			return checkLatestAutonomx();
 		}catch(Exception e) {
+			Config.putValue(TestLog.LOG_SKIP_CONSOLE, false, false);
 			System.out.println("Something has gone wrong with maven version check. To disable this message, set console.checkLatestAutonomx to false at report.property");
 			Helper.page.printStackTrace(e);
 		}
@@ -678,7 +679,7 @@ public class TestLog {
 		if(!Config.getBooleanValue("console.checkLatestAutonomx"))
 			return false;
 		
-		//Config.putValue(TestLog.LOG_SKIP_CONSOLE, true, false);
+		Config.putValue(TestLog.LOG_SKIP_CONSOLE, true, false);
 		
 		// get autonomx maven version from maven central
 		ServiceObject service = new ServiceObject()
