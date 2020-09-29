@@ -663,7 +663,7 @@ public class TestLog {
 			return checkLatestAutonomx();
 		}catch(Exception e) {
 			Config.putValue(TestLog.LOG_SKIP_CONSOLE, false, false);
-			System.out.println("Something has gone wrong with maven version check. To disable this message, set console.checkLatestAutonomx to false at report.property");
+			System.out.println("Something has gone wrong with maven version check. error <: "+ e.getMessage() +"> To disable this message, set console.checkLatestAutonomx to false at report.property");
 		}
 		return false;
 	}
