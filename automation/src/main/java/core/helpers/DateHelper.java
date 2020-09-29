@@ -29,6 +29,12 @@ public class DateHelper {
 	public static final String CONFIG_DATE_OUTPUT_ZONE = "date.output.zone";
 	public static final String CONFIG_DATE_LOCAL = "date.local";
 	
+	public static final String CONFIG_DATE_FORMAT_DEFAULT = "date.format.default";
+	public static final String CONFIG_DATE_ZONE_INPUT_DEFAULT = "date.zone.input.default";
+	public static final String CONFIG_DATE_ZONE_OUTPUT_DEFAULT = "date.zone.output.default";
+
+	
+	
 	// get time in milliseconds
 	public String getTimestampMiliseconds() {
 		return getCurrentTime("yyyyMMddHHmmssSSSSS");
@@ -189,9 +195,14 @@ public class DateHelper {
 		
 		ZonedDateTime zdt = null;
 		
-		String formatDefault = Config.getValue("date.format.default");
-		String zoneInputDefault = Config.getValue("date.zone.input.default");
-		String zoneOoutputDefault = Config.getValue("date.zone.output.default");
+		String formatDefault = Config.getValue(CONFIG_DATE_FORMAT_DEFAULT);
+		String zoneInputDefault = Config.getValue(CONFIG_DATE_ZONE_INPUT_DEFAULT);
+		String zoneOoutputDefault = Config.getValue(CONFIG_DATE_ZONE_OUTPUT_DEFAULT);
+		
+		// if default values left blank, set to these values
+		if(StringUtils.isBlank(formatDefault) && StringUtils.isBlank(format)) format = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+		if(StringUtils.isBlank(zoneInputDefault) && StringUtils.isBlank(currentZone)) currentZone = "UTC";
+		if(StringUtils.isBlank(zoneOoutputDefault) && StringUtils.isBlank(outputZone)) outputZone = "UTC";
 		
 		// set default time zone
 		if(StringUtils.isBlank(currentZone)) currentZone = zoneInputDefault;
