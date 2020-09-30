@@ -301,7 +301,7 @@ public class XmlHelper {
 		Matcher m = Pattern.compile(regex).matcher(source);
 		for (int i = 0; i < groupOccurrence; i++)
 			if (!m.find())
-				return source; // pattern not met, may also throw an exception here
+				Helper.assertFalse("pattern not found for: " + regex + " at source: " +  source);
 		return new StringBuilder(source).replace(m.start(groupToReplace), m.end(groupToReplace), replacement)
 				.toString();
 	}
