@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
+import org.openqa.selenium.NoSuchSessionException;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.Rectangle;
@@ -268,20 +269,24 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	@Override
 	public boolean isExist(int... index) {
 		if(webDriver == null) return false;
-		
-		setTimeout(1, TimeUnit.MILLISECONDS);
 		boolean isExist = false;
-
-		if (index.length > 0) {
-			isExist = isElementExist(index[0]);
-		} else {
-			isExist = isListExist();
+		try {
+			setTimeout(1, TimeUnit.MILLISECONDS);
+	
+	
+			if (index.length > 0) {
+				isExist = isElementExist(index[0]);
+			} else {
+				isExist = isListExist();
+			}
+			// reset element if no element found.
+			if (!isExist)
+				resetElement();
+	
+			setTimeout(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
+		}catch(Exception e) {
+			return false;
 		}
-		// reset element if no element found.
-		if (!isExist)
-			resetElement();
-
-		setTimeout(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
 		return isExist;
 	}
 
@@ -289,15 +294,19 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	 * returns if any element in a list is displayed
 	 */
 	public boolean isListExist() {
-		List<WebElement> elements = getElements();
-
-		if (elements == null || elements.isEmpty())
+		try {
+			List<WebElement> elements = getElements();
+	
+			if (elements == null || elements.isEmpty())
+				return false;
+	
+			int size = elements.size();
+			for (int i = 0; i < size; i++) {
+				if (isExist(i))
+					return true;
+			}
+		}catch(Exception e) {
 			return false;
-
-		int size = elements.size();
-		for (int i = 0; i < size; i++) {
-			if (isExist(i))
-				return true;
 		}
 		return false;
 	}
@@ -739,6 +748,10 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	
 	private void setTimeout(long time, TimeUnit unit) {
 		if(webDriver == null ) return;
-		webDriver.manage().timeouts().implicitlyWait(time, unit);
+		try {
+			webDriver.manage().timeouts().implicitlyWait(time, unit);
+		}catch(NoSuchSessionException e) {
+			Helper.page.printStackTrace(e);
+		}
 	}
 }
