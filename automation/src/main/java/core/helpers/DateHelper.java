@@ -598,10 +598,10 @@ public class DateHelper {
 	 * reset format, zone, and local values
 	 */
 	private static void resetDateConfig() {
-		Config.putValue(DateHelper.CONFIG_DATE_FORMAT, "");
-		Config.putValue(DateHelper.CONFIG_DATE_CURRENT_ZONE, "");
-		Config.putValue(DateHelper.CONFIG_DATE_OUTPUT_ZONE, "");
-		Config.putValue(DateHelper.CONFIG_DATE_LOCAL, "");
+		Config.putValue(DateHelper.CONFIG_DATE_FORMAT, "", false);
+		Config.putValue(DateHelper.CONFIG_DATE_CURRENT_ZONE, "", false);
+		Config.putValue(DateHelper.CONFIG_DATE_OUTPUT_ZONE, "", false);
+		Config.putValue(DateHelper.CONFIG_DATE_LOCAL, "", false);
 	}
 	
 	/**

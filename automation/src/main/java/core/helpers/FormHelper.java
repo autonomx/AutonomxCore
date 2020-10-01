@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.Keys;
 
+import core.apiCore.helpers.DataHelper;
 import core.support.logger.TestLog;
 import core.uiCore.webElement.EnhancedBy;
 import core.uiCore.webElement.EnhancedWebElement;
@@ -328,7 +329,7 @@ public class FormHelper {
 	 * @param list   : the list items in the drop down list
 	 */
 	public void selectDropDown(EnhancedBy field, EnhancedBy list, String... options) {
-		if (options.length == 0)
+		if(DataHelper.removeEmptyElements(options).length == 0)
 			return;
 
 		TestLog.logPass("I select drop down option(s) '" + Arrays.toString(options) + "'");

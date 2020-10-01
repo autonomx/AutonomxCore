@@ -48,7 +48,8 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 	public static final String PARALLEL_TEST_TYPE = "global.parallel.type";
 	public static final String CONSOLE_PAGESOURCE_ON_FAIL = "console.pageSource.onFail";
 	public static final String GLOBAL_SKIP_TESTS = "global.skipTests";
-	
+	public static final String GLOBAL_SKIP_TESTS_MESSAGE = "skipped on purpose";
+
 	public static final String FAILED_RERUN_SUITE_NAME = "failed_rerun_suite";
 	public static final String FAILED_RERUN_OPTION = "global.ui.rerun.failed.after.suite ";
 	public static List<String> FAILED_RERUN_SUITE_PASSED_TESTS = new ArrayList<String>();
@@ -173,7 +174,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		// skip tests set on global.skipTests property. UI tests only
 		ArrayList<String> skipTestName = Config.getValueList(GLOBAL_SKIP_TESTS);
 		if(skipTestName.contains(TestObject.getTestInfo().testId))
-			throw new SkipException("skipped on purpose");
+			throw new SkipException(GLOBAL_SKIP_TESTS_MESSAGE);
 		
 		setTestClassName(iTestResult);
 		ScreenRecorderHelper.startRecording();
@@ -265,7 +266,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		TestObject.getTestInfo().withIsTestPass(false);
 
 		// check to see if status equals no tests, then fail tests instead of skip. eg. failure at dataprovider skips test run
-	    int status = getTestngStatus();
+	    int status = getTestngStatus(iTestResult);
 	    if(status == ExitCode.HAS_NO_TEST)
 	    	iTestResult.setStatus(ITestResult.FAILURE);
 	    else
@@ -286,8 +287,12 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 	}
 	
 	@SuppressWarnings("deprecation")
-	private int getTestngStatus() {
+	private int getTestngStatus(ITestResult iTestResult) {
+		
 		try {
+			boolean isSkipOnPurpose = iTestResult.getThrowable().getMessage().equals(GLOBAL_SKIP_TESTS_MESSAGE);
+			if(isSkipOnPurpose) return 3;
+			
 			return TestNG.getDefault().getStatus();
 		}catch(Exception e) {
 			e.getMessage();
