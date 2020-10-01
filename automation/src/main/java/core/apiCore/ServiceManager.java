@@ -131,7 +131,7 @@ public class ServiceManager {
 			// CsvReader.getTestCasesFromCsvFile() method
 			break;
 		default:
-			// if only description is set, the log the description
+			// if only description is set, then log the description
 			if(serviceObject.getDescription().isEmpty())
 				Helper.assertFalse("no interface found: " + serviceObject.getInterfaceType() + ". Options:"
 					+ "Authentication, RESTfulAPI, SQLDB, RABBITMQ, KAFKA, SERVICEBUS, EXTERNAL");

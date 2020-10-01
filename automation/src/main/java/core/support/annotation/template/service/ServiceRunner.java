@@ -255,7 +255,8 @@ public class ServiceRunner {
 		bw.newLine();
 		
 		bw.append("		ServiceObject serviceObject = TestObject.getTestInfo().activeServiceObject;" + " \n");
-		bw.append("		TestLog.logPass(\"description: \" + serviceObject.getDescription());" + " \n");
+		bw.append("		if (!serviceObject.getDescription().isEmpty())" + " \n");
+		bw.append("			TestLog.logPass(\"description: \" + serviceObject.getDescription());" + " \n");
 		bw.append("		switch (serviceObject.getInterfaceType()) {");
 
 		for (Entry<String, List<String>> entry : serviceMap.entrySet()) {
