@@ -1,5 +1,6 @@
 package core.uiCore.driverProperties.globalProperties;
 
+import core.apiCore.driver.ApiTestDriver;
 import core.support.configReader.Config;
 
 /**
@@ -23,7 +24,13 @@ public class CrossPlatformProperties {
 	private static String ENABLE_BATCH_LOGGING = "report.enableBatchLogging";
 	public static String LOCALIZATION_FILE = "localize.file";
 
+	/**
+	 * retry count only applicable to UI tests only
+	 * @return
+	 */
 	public static int getRetryCount() {
+		if(ApiTestDriver.isRunningServiceTest())
+			return 0;
 		return Config.getIntValue(RETRY_COUNT);
 	}
 
