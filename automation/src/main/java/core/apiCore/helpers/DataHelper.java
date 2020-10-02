@@ -16,12 +16,10 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.Value;
 import org.json.JSONArray;
 
 import com.opencsv.CSVReader;
@@ -1284,12 +1282,12 @@ public class DataHelper {
 		
 		logicString = removeAndOrIndicator(logicString);
 		
-		ScriptEngineManager mgr = new ScriptEngineManager();
-	    ScriptEngine engine = mgr.getEngineByName("graal.js"); 
 	    boolean result = false;
 		try {
-			result = Boolean.valueOf((boolean) engine.eval(logicString.trim()));
-		} catch (ScriptException e) {
+			 Context polyglot = Context.create();
+		     Value array = polyglot.eval("js", logicString.trim());
+		     result = array.asBoolean();
+		} catch (Exception e) {
 			e.printStackTrace();
 			Helper.assertFalse(e.getMessage());	
 		}

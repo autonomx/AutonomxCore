@@ -273,14 +273,20 @@ public class IosCapability {
 
 		if (isHybridApp) {
 			String chromeVersion = Config.getValue(CHROME_VERSION);
-
-			// if version is LATEST, download latest
-			if (chromeVersion.equals("LATEST"))
-				WebDriverManager.chromedriver().setup();
-			else {
-				WebDriverManager.chromedriver().driverVersion(chromeVersion).setup();
-				String chromePath = WebDriverManager.chromedriver().getBinaryPath();
-				capabilities.setCapability("chromedriverExecutable", chromePath);
+			
+			try {
+				// if version is LATEST, download latest
+				if (chromeVersion.equals("LATEST"))
+					WebDriverManager.chromedriver().setup();
+				else {
+					WebDriverManager.chromedriver().driverVersion(chromeVersion).setup();
+					String chromePath = WebDriverManager.chromedriver().getDownloadedDriverPath();
+					capabilities.setCapability("chromedriverExecutable", chromePath);
+				}
+			} catch (java.lang.NoSuchMethodError er) {
+				er.getMessage();
+			} catch (Exception e) {
+				e.getMessage();
 			}
 
 			TestLog.ConsoleLog("setting chrome version: " + chromeVersion);
