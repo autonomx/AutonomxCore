@@ -42,6 +42,10 @@ public class ServiceClass {
 		boolean includeSubDir = Config.getBooleanValue(CsvReader.SERVICE_CSV_INCLUDE_SUB_DIR);
 		String testCsvPath = Config.getValue(TestDataProvider.TEST_DATA_PARALLEL_PATH);
 		
+		// if test directory does not exist, return
+		if(!new File(Helper.getFullPath(testCsvPath)).exists())
+			return;
+		
 		ArrayList<File> testCsvFileList = Helper.getFileListByType(testCsvPath, ".csv", includeSubDir);
 		
 		for(File csvFile : testCsvFileList) {
