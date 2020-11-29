@@ -3,7 +3,10 @@ package core.uiCore.driverProperties.capabilities;
 /**
  */
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -12,9 +15,11 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
+import core.apiCore.helpers.DataHelper;
 import core.support.configReader.Config;
 import core.support.logger.TestLog;
 import core.support.objects.DriverOption;
+import core.support.objects.KeyValue;
 import core.support.objects.TestObject;
 import core.uiCore.driverProperties.browserType.BrowserType;
 import core.uiCore.driverProperties.driverType.DriverType;
@@ -56,7 +61,7 @@ public class WebCapability {
 		
 		// disable webdriver logging
 		disableLogs();
-		
+			
 		return this;
 	}
 	
@@ -152,7 +157,7 @@ public class WebCapability {
 	/**
 	 * set chrome options with prefix chrome.options set firefox options with prefix
 	 * firefox.options https://peter.sh/experiments/chromium-command-line-switches/
-	 * eg. chrome.options="--start-maximized" iterates through all property values
+	 * eg. options eg: chrome.options = "--headless; user-agent=test-user-agent"
 	 * with such prefix And adds them to android desired capabilities
 	 * 
 	 * @return
@@ -170,17 +175,25 @@ public class WebCapability {
 			boolean isOption = entry.getKey().toString().startsWith(CHROME_OPTIONS_PREFIX)
 					|| entry.getKey().toString().startsWith(FIREFOX_OPTIONS_PREFIX);
 
+			// options eg: chrome.options = "--headless; user-agent=test-user-agent"
 			if (isOption) {
+				List<String> optionsList = new ArrayList<String>();
 				String fullKey = entry.getKey().toString();
-				String[] split = fullKey.split("options.");
-				String key = "--" + split[1].trim();
-				boolean isEnable = Boolean.valueOf(entry.getValue().toString().trim());
-				if (isEnable && isChrome() && fullKey.contains(CHROME_OPTIONS_PREFIX))
-					options.getChromeOptions().addArguments(key);
-				else if (isEnable && isFirefox() && fullKey.contains(FIREFOX_OPTIONS_PREFIX)) {
-					options.getFirefoxOptions().addArguments(key);
+				List<KeyValue> keywords = DataHelper.getValidationMap(entry.getValue().toString());
+				for(KeyValue keyword : keywords) {		
+					if (isChrome() && fullKey.contains(CHROME_OPTIONS_PREFIX)) {
+						options.getChromeOptions().addArguments(keyword.key);
+						optionsList.add(keyword.key);
+					}
+					else if (isFirefox() && fullKey.contains(FIREFOX_OPTIONS_PREFIX)) {
+						options.getFirefoxOptions().addArguments(keyword.key);
+						optionsList.add(keyword.key);					
+					}
 				}
-
+				
+				// log options
+				if( keywords.size() > 0)
+					TestLog.ConsoleLog("browser options" + Arrays.toString(optionsList.toArray()));
 			}
 		}
 
