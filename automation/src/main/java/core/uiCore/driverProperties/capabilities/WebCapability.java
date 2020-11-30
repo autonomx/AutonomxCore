@@ -16,6 +16,7 @@ import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 import core.apiCore.helpers.DataHelper;
+import core.helpers.Helper;
 import core.support.configReader.Config;
 import core.support.logger.TestLog;
 import core.support.objects.DriverOption;
@@ -157,7 +158,7 @@ public class WebCapability {
 	/**
 	 * set chrome options with prefix chrome.options set firefox options with prefix
 	 * firefox.options https://peter.sh/experiments/chromium-command-line-switches/
-	 * eg. options eg: chrome.options = "--headless; user-agent=test-user-agent"
+	 * eg. options eg: chrome.options = [--headless] [user-agent=test-user-agent]
 	 * with such prefix And adds them to android desired capabilities
 	 * 
 	 * @return
@@ -175,24 +176,24 @@ public class WebCapability {
 			boolean isOption = entry.getKey().toString().startsWith(CHROME_OPTIONS_PREFIX)
 					|| entry.getKey().toString().startsWith(FIREFOX_OPTIONS_PREFIX);
 
-			// options eg: chrome.options = "--headless; user-agent=test-user-agent"
+			// options eg: chrome.options = [--headless] [user-agent=test-user-agent]
 			if (isOption) {
 				List<String> optionsList = new ArrayList<String>();
 				String fullKey = entry.getKey().toString();
-				List<KeyValue> keywords = DataHelper.getValidationMap(entry.getValue().toString());
-				for(KeyValue keyword : keywords) {		
+				String[] keywords = StringUtils.substringsBetween(entry.getValue().toString(), "[", "]");
+				for(String keyword : keywords) {		
 					if (isChrome() && fullKey.contains(CHROME_OPTIONS_PREFIX)) {
-						options.getChromeOptions().addArguments(keyword.key);
-						optionsList.add(keyword.key);
+						options.getChromeOptions().addArguments(keyword);
+						optionsList.add(keyword);
 					}
 					else if (isFirefox() && fullKey.contains(FIREFOX_OPTIONS_PREFIX)) {
-						options.getFirefoxOptions().addArguments(keyword.key);
-						optionsList.add(keyword.key);					
+						options.getFirefoxOptions().addArguments(keyword);
+						optionsList.add(keyword);					
 					}
 				}
 				
 				// log options
-				if( keywords.size() > 0)
+				if( keywords.length > 0)
 					TestLog.ConsoleLog("browser options" + Arrays.toString(optionsList.toArray()));
 			}
 		}
