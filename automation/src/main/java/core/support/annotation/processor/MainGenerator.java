@@ -199,9 +199,7 @@ public class MainGenerator extends AbstractProcessor {
 		    Paths.get(fileObject.toUri()).toFile().delete();
 			
 			File workingDir = getRootPath_reverseNavigation(projectPath.toFile(), "pom.xml");
-			ANNOATION_WORKING_DIR = workingDir.getAbsolutePath();
-			System.out.println("ANNOATION_WORKING_DIR root:  " + ANNOATION_WORKING_DIR);
-		
+			ANNOATION_WORKING_DIR = workingDir.getAbsolutePath();		
 		} catch (IOException e) {
 			e.printStackTrace();
 		}		
