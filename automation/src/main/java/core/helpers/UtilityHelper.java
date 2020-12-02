@@ -442,10 +442,6 @@ public class UtilityHelper {
 		if(!MainGenerator.ANNOATION_WORKING_DIR.isEmpty())
 			return MainGenerator.ANNOATION_WORKING_DIR + File.separator;
 		
-		// navigate forward through file structure to find working directory
-		File rootDir = discoverRootDir();
-		if (isFilenameInDir(rootDir, "pom")) 
-			return rootDir.getAbsolutePath().toString() + File.separator;
 
 		Helper.assertFalse(
 		"invalid root directory. is annotations processor turned off? " + currentWorkingDir.toString());
@@ -661,18 +657,6 @@ public class UtilityHelper {
 				return file;
 		}
 		Helper.assertFalse("file: <" + filename + "> not found at path: " + path);
-		return null;
-	}
-	
-	private static File discoverRootDir() {
-		List<File> files = new ArrayList<File>();
-		files = Helper.getFileListWithSubfolders(".", ".xml", files);
-		for(File file: files) {
-			if(file.getName().equals("pom.xml") && (file.getParentFile().getName().equals("automation") || file.getParentFile().getName().equals(".")))
-				return file.getParentFile();
-		}
-		
-		Helper.assertFalse("pom file not found: base: " + new File(".").getAbsolutePath());
 		return null;
 	}
 	

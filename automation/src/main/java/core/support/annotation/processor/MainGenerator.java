@@ -20,17 +20,13 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
-import javax.tools.StandardLocation;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -182,20 +178,33 @@ public class MainGenerator extends AbstractProcessor {
 	}
 	
 	
+	/**
+	 * creates a file and gets its path
+	 * uses the path to find pom.xml file
+	 * @param processingEnv
+	 */
 	private static void setRootWorkingDirectory(ProcessingEnvironment processingEnv) {
 		if(!ANNOATION_WORKING_DIR.isEmpty())
 			return;
 		
-		Filer filer = processingEnv.getFiler();
 		try {
-			FileObject resource = filer.createResource(StandardLocation.CLASS_OUTPUT, "", "tmp", (Element[]) null);
-			Path projectPath = Paths.get(resource.toUri()).getParent().getParent();
-			resource.delete();
+			JavaFileObject fileObject =	MainGenerator.PROCESS_ENV.getFiler().createSourceFile("root");
+			BufferedWriter bw = new BufferedWriter(fileObject.openWriter());
+
+			bw.append("/**Auto generated code,don't modify it. */ \n");
+			bw.append("package marker;");
+			bw.append("public class root {}");
+			bw.flush();
+			Path projectPath = Paths.get(fileObject.toUri()).getParent().getParent();
+		    Paths.get(fileObject.toUri()).toFile().delete();
+			
 			File workingDir = getRootPath_reverseNavigation(projectPath.toFile(), "pom.xml");
 			ANNOATION_WORKING_DIR = workingDir.getAbsolutePath();
+			System.out.println("ANNOATION_WORKING_DIR root:  " + ANNOATION_WORKING_DIR);
+		
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
+		}		
 	}
 	
 	
