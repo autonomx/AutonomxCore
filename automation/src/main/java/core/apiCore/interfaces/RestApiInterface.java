@@ -518,7 +518,7 @@ public class RestApiInterface {
 				if (basicRequest == null || basicRequest.size() != 2)
 					Helper.assertFalse("basicRequest request info not correct. Should include username, password: "
 							+ Arrays.toString(basicRequest.toArray()));
-				request = request.auth().basic(basicRequest.get(0), basicRequest.get(1));
+				request = request.auth().preemptive().basic(basicRequest.get(0), basicRequest.get(1));
 				keyword.value = Arrays.toString(basicRequest.toArray());
 				break;
 				

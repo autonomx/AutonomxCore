@@ -773,7 +773,7 @@ public class Helper {
 	 * @param field  : the drop down field
 	 * @param list   : the list items in the drop down list
 	 */
-	public void selectDropDown(EnhancedBy field, EnhancedBy list, String... options) {
+	public static void selectDropDown(EnhancedBy field, EnhancedBy list, String... options) {
 		form.selectDropDown(field, list, options);
 	}
 

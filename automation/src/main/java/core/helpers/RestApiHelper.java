@@ -1,5 +1,7 @@
 package core.helpers;
 
+import java.util.List;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -33,10 +35,10 @@ public class RestApiHelper {
 		// gets all api values
 		ServiceObject api = TestObject.getApiDef(getApi);
 		Response response = RestApiInterface.RestfullApiInterface(api);
-		JSONArray valueArray = new JSONArray(response.body().asString());
+		String[] valueArray = JsonHelper.getJsonValue(response, identifier).split(",");
 		String responseString = response.body().asString();
 
-		for (int i = 0; i < valueArray.length(); i++) {
+		for (int i = 0; i < valueArray.length; i++) {
 
 			String name = JsonHelper.getJsonValue(responseString, identifier).split(",")[i];
 			String id = JsonHelper.getJsonValue(responseString, targetApiId).split(",")[i];

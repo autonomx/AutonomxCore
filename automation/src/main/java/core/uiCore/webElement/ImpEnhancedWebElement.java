@@ -116,11 +116,8 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 
 	@Override
 	public int count() {
-		if (isExist()) {
-			List<WebElement> elements = getElements();
-			return elements.size();
-		}
-		return 0;
+		List<WebElement> elements = getElements();
+		return elements.size();
 	}
 
 	@Override
