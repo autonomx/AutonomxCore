@@ -149,6 +149,9 @@ public class WebDriverSetup {
 		case CHROME:
 			setDriverManager(driverObject, WebDriverManager.chromedriver());
 			driver = new ChromeDriver(driverObject.getOptions().getChromeOptions());
+			
+//			WebDriverManager.chromedriver().setup();
+//			driver = new ChromeDriver();
 			break;
 		case CHROME_HEADLESS:
 			setDriverManager(driverObject, WebDriverManager.chromedriver());
@@ -266,6 +269,7 @@ public class WebDriverSetup {
 
 		Capabilities caps = ((RemoteWebDriver) driver).getCapabilities();
 		String browserName = caps.getBrowserName();
+		@SuppressWarnings("deprecation")
 		String browserVersion = caps.getVersion();
 		TestLog.ConsoleLog("browser name: '" + browserName + "' browser version: " + browserVersion);
 	}

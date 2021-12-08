@@ -247,6 +247,7 @@ public class AbstractDriverTestNG implements ITest {
 		return className;
 	}
 
+	@SuppressWarnings("deprecation")
 	private static WebDriver createDriver(DriverObject driverObject) throws Exception {
 		int retry = 3;
 		WebDriver driver = null;

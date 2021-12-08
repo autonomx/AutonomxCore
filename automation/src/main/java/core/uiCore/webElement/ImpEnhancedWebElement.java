@@ -743,6 +743,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		return cause;
 	}
 	
+	@SuppressWarnings("deprecation")
 	private void setTimeout(long time, TimeUnit unit) {
 		if(webDriver == null ) return;
 		try {

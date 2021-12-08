@@ -90,6 +90,7 @@ public class MavenCommandRunner {
 	 * @throws IOException
 	 * @throws MalformedURLException
 	 */
+	@SuppressWarnings("resource")
 	public static void downloadMavenIfNotExist() throws Exception {
 		if (!MAVEN_PATH.isEmpty())
 			return;
