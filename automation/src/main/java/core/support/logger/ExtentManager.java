@@ -31,6 +31,7 @@ import core.helpers.Helper;
 import core.helpers.UtilityHelper;
 import core.helpers.emailHelper.EmailObject;
 import core.support.configReader.Config;
+import core.support.listeners.ParamOverrideTestNgService;
 import core.support.listeners.TestListener;
 import core.support.objects.TestObject;
 import core.support.objects.TestObject.testState;
@@ -318,7 +319,7 @@ public class ExtentManager {
 	}
 
 	/**
-	 * prints the test report link for klov or html report type
+	 * prints the test report link for klov or html or report portal report type
 	 */
 	public static void printReportLink() {
 		String link = "";
@@ -329,6 +330,12 @@ public class ExtentManager {
 			link = new File(getReportHTMLFullPath()).toURI().toString();
 		}
 		System.out.println("Extent test report link: " + link);
+		
+		// print out report portal link
+		if(Config.getBooleanValue(ParamOverrideTestNgService.REPORT_PORTAL_ENABLE)) {
+			String url = Config.getValue(ParamOverrideTestNgService.ENDPOINT);
+			System.out.println("Report Portal test report link: " + url);
+		}
 	}
 
 	/**
@@ -343,6 +350,7 @@ public class ExtentManager {
 	}
 
 	/**
+	 * TODO: replace slack api with newer library
 	 * sends test report to slack slack notification must be enabled in properties
 	 * file
 	 * 

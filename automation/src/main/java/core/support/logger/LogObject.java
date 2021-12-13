@@ -1,16 +1,16 @@
 package core.support.logger;
 
-import org.apache.log4j.Priority;
+import org.apache.logging.log4j.Level;
 
 public class LogObject {
 
 	public String value;
-	public Priority priority;
+	public Level priority;
 
 	public LogObject() {
 	}
 
-	public LogObject(String value, Priority priority) {
+	public LogObject(String value, Level priority) {
 		this.value = value;
 		this.priority = priority;
 	}

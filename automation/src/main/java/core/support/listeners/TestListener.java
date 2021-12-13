@@ -42,6 +42,7 @@ import core.uiCore.driverProperties.driverType.DriverType;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import core.uiCore.drivers.AbstractDriverTestNG;
 
+
 public class TestListener implements ITestListener, IClassListener, ISuiteListener, IConfigurationListener {
 
 	public static boolean isTestNG = false;
@@ -54,6 +55,10 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 	public static final String FAILED_RERUN_OPTION = "global.ui.rerun.failed.after.suite ";
 	public static List<String> FAILED_RERUN_SUITE_PASSED_TESTS = new ArrayList<String>();
 
+	
+	public TestListener() {
+		TestLog.setupLog4j();
+	}
 	
 	// Before starting all tests, below method runs.
 	@SuppressWarnings("deprecation")

@@ -335,7 +335,7 @@ public class PageHelper {
 	 */
 	public String getPageSource() {
 		if(AbstractDriver.getWebDriver() == null) return StringUtils.EMPTY;
-		return AbstractDriver.getWebDriver().getPageSource();
+		return AbstractDriver.getWebDriver().getPageSource().toString();
 	}
 
 	/**

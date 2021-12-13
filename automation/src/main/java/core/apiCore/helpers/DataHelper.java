@@ -1284,7 +1284,9 @@ public class DataHelper {
 		
 	    boolean result = false;
 		try {
-			 Context polyglot = Context.create();
+			 Context polyglot = Context.newBuilder("js")
+					    .option("engine.WarnInterpreterOnly", "false")
+					    .build();
 		     Value array = polyglot.eval("js", logicString.trim());
 		     result = array.asBoolean();
 		} catch (Exception e) {

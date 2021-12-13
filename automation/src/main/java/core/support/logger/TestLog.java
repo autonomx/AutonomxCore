@@ -1,7 +1,11 @@
 package core.support.logger;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,9 +16,10 @@ import javax.sound.sampled.AudioSystem;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Priority;
-import org.apache.log4j.xml.DOMConfigurator;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.maven.artifact.versioning.ComparableVersion;
+import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.aventstack.extentreports.ExtentTest;
@@ -44,6 +49,7 @@ import io.restassured.response.Response;
 import marytts.LocalMaryInterface;
 import marytts.MaryInterface;
 
+
 @SuppressWarnings("deprecation")
 public class TestLog {
 
@@ -63,7 +69,7 @@ public class TestLog {
 	}
 
 	static marytts.util.data.audio.AudioPlayer player;
-	public static final String LOG4JPATH = Config.RESOURCE_PATH + "/log4j.xml";
+	public static final String LOG4JPATH = Config.RESOURCE_PATH + "/log4j2.xml";
 
 	
 	
@@ -74,7 +80,7 @@ public class TestLog {
 	 * @param args  additional arguments for logging to be formatted
 	 */
 	public static void ConsoleLogNoLimit(String value, Object... args) {
-		logConsoleMessage(Priority.INFO, formatMessageNoLimit(value, args));
+		logConsoleMessage(Level.INFO, formatMessageNoLimit(value, args));
 	}
 	
 	/**
@@ -84,7 +90,7 @@ public class TestLog {
 	 * @param args  additional arguments for logging to be formatted
 	 */
 	public static void ConsoleLog(String value, Object... args) {
-		logConsoleMessage(Priority.INFO, formatMessage(value, args));
+		logConsoleMessage(Level.INFO, formatMessage(value, args));
 	}
 
 	/**
@@ -94,7 +100,7 @@ public class TestLog {
 	 * @param args  additional arguments for logging to be formatted
 	 */
 	public static void ConsoleLogWarn(String value, Object... args) {
-		logConsoleMessage(Priority.WARN, formatMessage(value, args));
+		logConsoleMessage(Level.WARN, formatMessage(value, args));
 
 	}
 
@@ -107,7 +113,7 @@ public class TestLog {
 	public static void ConsoleLogDebug(String value, Object... args) {
 		boolean isDebug = Config.getBooleanValue(ENABLE_DEBUG);
 		if (isDebug)
-			logConsoleMessage(Priority.WARN, formatMessage(value, args));
+			logConsoleMessage(Level.WARN, formatMessage(value, args));
 
 	}
 
@@ -118,7 +124,7 @@ public class TestLog {
 	 * @param args  additional arguments for logging to be formatted
 	 */
 	public static void ConsoleLogError(String value, Object... args) {
-		logConsoleMessage(Priority.ERROR, formatMessage(value, args));
+		logConsoleMessage(Level.ERROR, formatMessage(value, args));
 
 	}
 
@@ -139,7 +145,7 @@ public class TestLog {
 	 * @param args  additional arguments for logging to be formatted
 	 */
 	public synchronized static void But(String value, Object... args) {
-		logConsoleMessage(Priority.INFO, "But " + formatMessage(value, args));
+		logConsoleMessage(Level.INFO, "But " + formatMessage(value, args));
 		setTestStep(gherkins.But, value, args);
 	}
 
@@ -150,7 +156,7 @@ public class TestLog {
 	 * @param args  additional arguments for logging to be formatted
 	 */
 	public synchronized static void Given(String value, Object... args) {
-		logConsoleMessage(Priority.INFO, "Given " + formatMessage(value, args));
+		logConsoleMessage(Level.INFO, "Given " + formatMessage(value, args));
 		setTestStep(gherkins.Given, value, args);
 	}
 
@@ -161,7 +167,7 @@ public class TestLog {
 	 * @param args  additional arguments for logging to be formatted
 	 */
 	public synchronized static void When(String value, Object... args) {
-		logConsoleMessage(Priority.INFO, "When " + formatMessage(value, args));
+		logConsoleMessage(Level.INFO, "When " + formatMessage(value, args));
 
 		setTestStep(gherkins.When, value, args);
 		playAudio(gherkins.When.name() + " " + formatMessage(value, args));
@@ -174,7 +180,7 @@ public class TestLog {
 	 * @param args  additional arguments for logging to be formatted
 	 */
 	public synchronized static void And(String value, Object... args) {
-		logConsoleMessage(Priority.INFO, "And " + formatMessage(value, args));
+		logConsoleMessage(Level.INFO, "And " + formatMessage(value, args));
 
 		setTestStep(gherkins.And, value, args);
 		playAudio(gherkins.And.name() + " " + formatMessage(value, args));
@@ -187,7 +193,7 @@ public class TestLog {
 	 * @param args  additional arguments for logging to be formatted
 	 */
 	public synchronized static void Then(String value, Object... args) {
-		logConsoleMessage(Priority.INFO, "Then " + formatMessage(value, args));
+		logConsoleMessage(Level.INFO, "Then " + formatMessage(value, args));
 
 		setTestStep(gherkins.Then, value, args);
 		playAudio(gherkins.Then.name() + " " + formatMessage(value, args));
@@ -308,6 +314,22 @@ public class TestLog {
 		TestObject.getTestInfo().testSubSteps.add("screen recording relative path: " + path);
 
 	}
+	
+	/**
+	 * link video file to report portal
+	 * currently attaching avi files does not work properly, hence linking url instead
+	 * @param path
+	 */
+	public static void attachVideoLogToReportPortal(File video) {
+		URL url;
+		try {
+			url = video.toURI().toURL();
+			TestLog.ConsoleLog("path to file: ", url);
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+
+	}
 
 	/**
 	 * log pass is used for test steps for extend report, enable if properties
@@ -317,7 +339,7 @@ public class TestLog {
 	 * @param args  additional arguments for logging to be formatted
 	 */
 	public static void logPass(String value, Object... args) {
-		logConsoleMessage(Priority.INFO, formatMessage(value, args));
+		logConsoleMessage(Level.INFO, formatMessage(value, args));
 		if (Config.getValue(ENABLE_EXTENT_SUBSTEPS).equals("true")) {
 			// this will only throw exception with before suite
 			setPassSubTestStep(formatMessage(value, args));
@@ -331,7 +353,7 @@ public class TestLog {
 	 * @param args  additional arguments for logging to be formatted
 	 */
 	public static void logFail(String value, Object... args) {
-		logConsoleMessage(Priority.ERROR, formatMessage(value, args));
+		logConsoleMessage(Level.ERROR, formatMessage(value, args));
 
 		// AbstractDriver.getLog().get().error(formatMessage(value, args));
 	}
@@ -343,7 +365,7 @@ public class TestLog {
 	 * @param args  additional arguments for logging to be formatted
 	 */
 	public static void logWarning(String value, Object... args) {
-		logConsoleMessage(Priority.WARN, formatMessage(value, args));
+		logConsoleMessage(Level.WARN, formatMessage(value, args));
 	}
 
 	/**
@@ -440,7 +462,13 @@ public class TestLog {
 	 * sets up log4j loggin
 	 */
 	public static void setupLog4j() {
-		DOMConfigurator.configure(TestLog.LOG4JPATH);
+		File f = new File(TestLog.LOG4JPATH);
+		URI fc = f.toURI();  
+		LoggerContext.getContext().setConfigLocation(fc);
+		
+		// set logging for slf4j logger. applicable to third party loggers
+		ch.qos.logback.classic.Logger rootLogger = (ch.qos.logback.classic.Logger)LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+		rootLogger.setLevel(ch.qos.logback.classic.Level.ERROR);
 	}
 
 	/**
@@ -522,7 +550,7 @@ public class TestLog {
 	 * @param priority priority of the message. eg. info, error, warn
 	 * @param value    string value to log
 	 */
-	private static void logConsoleMessage(Priority priority, String value) {
+	private static void logConsoleMessage(Level priority, String value) {
 		
 		if(Config.getBooleanValue(LOG_SKIP_CONSOLE))
 			return;
@@ -533,8 +561,9 @@ public class TestLog {
 		// if batch logging is disabled, log to console
 		Boolean enableBatchLogging = CrossPlatformProperties.getEnableBatchLogging();
 		if (!enableBatchLogging) {
-			TestObject.getTestInfo().log.log(priority, value);
-			//Reporter.log(value);
+			TestObject.getTestInfo().log.info(value);
+			
+			
 		}
 		
 		// keep track of the logs
@@ -625,8 +654,9 @@ public class TestLog {
 		for (LogObject log : testLog) {
 			if (testId.isEmpty()) {
 				TestObject.getTestInfo().log.log(log.priority, log.value);
+
 			} else
-				TestObject.getTestInfo(testId).log.log(log.priority, log.value);
+			 TestObject.getTestInfo(testId).log.log(log.priority, log.value);
 		}
 		if (testId.isEmpty())
 			TestObject.getTestInfo().testLog = new ArrayList<LogObject>();

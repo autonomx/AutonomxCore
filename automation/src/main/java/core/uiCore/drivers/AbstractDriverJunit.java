@@ -4,7 +4,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -143,7 +144,7 @@ public class AbstractDriverJunit {
 		TestObject.initializeTest(driverObject, testId);
 
 		// initiallize logging
-		Logger log = Logger.getLogger(testId);
+		Logger log = LogManager.getLogger(testId);
 		TestObject.getTestInfo().log = log;
 
 		// sets current driver info for the test

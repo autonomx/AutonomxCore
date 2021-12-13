@@ -1,5 +1,7 @@
 package core.support.runner;
 
+import java.io.File;
+import java.net.URI;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.CompletionService;
@@ -9,7 +11,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.xml.DOMConfigurator;
+import org.apache.logging.log4j.core.LoggerContext;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.RunnerScheduler;
@@ -31,7 +33,9 @@ public class ParallelRunner extends BlockJUnit4ClassRunner {
 
 	public ParallelRunner(final Class<?> klass) throws InitializationError {
 		super(klass);
-		DOMConfigurator.configure(TestLog.LOG4JPATH);
+		File f = new File(TestLog.LOG4JPATH);
+		URI fc = f.toURI(); 
+		LoggerContext.getContext().setConfigLocation(fc);
 		numTestsWaitingToStart.incrementAndGet();
 		setScheduler(new RunnerScheduler() {
 

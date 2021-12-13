@@ -21,6 +21,7 @@ public class PropertiesReader {
 	private static String LOCAL_RESOURCE_CLOUD_PATH = "test-classes" + File.separator + "testData"
 			+ File.separator + "resources" + File.separator;
 	public static String PROPERTIES_TYPE_PROPERTIES = ".property";
+	public static String PROPERTIES_TYPE_PROPERTIES_TYPE2 = ".property";
 	public static String PROPERTIES_TYPE_CONF = ".conf";
 
 	/**
@@ -39,6 +40,7 @@ public class PropertiesReader {
 			properties.addAll(getPropertiesByFileType(path, StringUtils.EMPTY));
 		} else {
 			properties.addAll(getPropertiesByFileType(path, PROPERTIES_TYPE_PROPERTIES));
+			//properties.addAll(getPropertiesByFileType(path, PROPERTIES_TYPE_PROPERTIES_TYPE2));
 			properties.addAll(getPropertiesByFileType(path, PROPERTIES_TYPE_CONF));
 
 			if (Helper.getFileList(path).isEmpty())

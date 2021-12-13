@@ -6,7 +6,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.runner.Description;
 import org.monte.screenrecorder.ScreenRecorder;
 import org.openqa.selenium.WebDriver;
@@ -457,7 +458,7 @@ public class TestObject {
 	}
 
 	public static void setLogging() {
-		Logger log = Logger.getLogger("");
+		Logger log = LogManager.getLogger("");
 		TestObject.getTestInfo().log = log;
 	}
 

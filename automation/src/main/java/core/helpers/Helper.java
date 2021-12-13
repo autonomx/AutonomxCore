@@ -3072,7 +3072,7 @@ public class Helper {
 	 * @param description
 	 */
 	public synchronized static void captureExtentReportScreenshot() {
-		UtilityHelper.captureExtentReportScreenshot();
+		UtilityHelper.captureReportScreenshot();
 	}
 
 	// action helper

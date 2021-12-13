@@ -4,7 +4,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.testng.ITest;
 import org.testng.ITestContext;
@@ -21,6 +22,7 @@ import com.aventstack.extentreports.ExtentTest;
 import core.apiCore.driver.ApiTestDriver;
 import core.helpers.Helper;
 import core.support.configReader.Config;
+import core.support.listeners.ReportPortalListener;
 import core.support.listeners.RetryTest;
 import core.support.logger.ExtentManager;
 import core.support.logger.TestLog;
@@ -33,7 +35,7 @@ import core.uiCore.driverProperties.capabilities.AndroidCapability;
 import core.uiCore.driverProperties.capabilities.WebCapability;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 
-@Listeners({core.support.listeners.TestListener.class, core.support.listeners.TestResultListener.class})
+@Listeners({core.support.listeners.TestListener.class, core.support.listeners.TestResultListener.class, ReportPortalListener.class })
 
 public class AbstractDriverTestNG implements ITest {
 
@@ -55,7 +57,7 @@ public class AbstractDriverTestNG implements ITest {
 		new ApiTestDriver().initTest(apiObject);
 
 		// initiallize logging
-		Logger log = Logger.getLogger("");
+		Logger log = LogManager.getLogger("");
 		TestObject.getTestInfo().log = log;
 
 		ExtentManager.reportSetup();

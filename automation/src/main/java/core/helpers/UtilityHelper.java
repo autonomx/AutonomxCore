@@ -55,8 +55,8 @@ import org.openqa.selenium.Point;
 import org.openqa.selenium.TakesScreenshot;
 import org.zeroturnaround.zip.ZipUtil;
 
-import allbegray.slack.SlackClientFactory;
-import allbegray.slack.webapi.SlackWebApiClient;
+import com.epam.reportportal.message.ReportPortalMessage;
+
 import core.support.annotation.processor.MainGenerator;
 import core.support.configReader.Config;
 import core.support.configReader.PropertiesReader;
@@ -466,27 +466,28 @@ public class UtilityHelper {
 	}
 
 	/**
+	 * TODO: replace slack api with newer library
 	 * sends slack notification token: generate at:
 	 * https://api.slack.com/custom-integrations/legacy-tokens for channel id: right
 	 * click And channel And copy link. the id is attached to the link see
 	 * properties file for values to use
 	 */
 	public static void slackNotificationWithFile(String title, String comment, String filePath) {
-		String token = Config.getValue("slack.slackToken");
-		String channelId = Config.getValue("slack.channelId");
-
-		SlackWebApiClient webApiClient = SlackClientFactory.createWebApiClient(token);
-		File testfile = new File(filePath);
-
-		try {
-			webApiClient.auth();
-			if (testfile != null && testfile.exists()) {
-				webApiClient.uploadFile(testfile, title, comment, channelId);
-			}
-		} catch (Exception e) {
-			TestLog.ConsoleLog("slack notification error: " + e.getMessage());
-			e.printStackTrace();
-		}
+//		String token = Config.getValue("slack.slackToken");
+//		String channelId = Config.getValue("slack.channelId");
+//
+//		SlackWebApiClient webApiClient = SlackClientFactory.createWebApiClient(token);
+//		File testfile = new File(filePath);
+//
+//		try {
+//			webApiClient.auth();
+//			if (testfile != null && testfile.exists()) {
+//				webApiClient.uploadFile(testfile, title, comment, channelId);
+//			}
+//		} catch (Exception e) {
+//			TestLog.ConsoleLog("slack notification error: " + e.getMessage());
+//			e.printStackTrace();
+//		}
 	}
 
 	/**
@@ -854,14 +855,15 @@ public class UtilityHelper {
 	 * captures screenshot And attaches to extent test report
 	 * 
 	 */
-	protected static void captureExtentReportScreenshot() {
+	
+	protected static void captureReportScreenshot() {
 		Date now = new Date();
 
 		String format1 = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss", Locale.ENGLISH).format(now);
 		String extentReportImageFullPath = ExtentManager.getScreenshotsFolderFullPath()
 				+ TestObject.getTestInfo().testName + "-" + format1 + ".png";
 
-		String extentReportImageRelativePath = ExtentManager.getScreenshotsFolderRelativePath()
+		String imageRelativePath = ExtentManager.getScreenshotsFolderRelativePath()
 				+ TestObject.getTestInfo().testName + "-" + format1 + ".png";
 
 		try {
@@ -870,13 +872,21 @@ public class UtilityHelper {
 			FileUtils.copyFile(scrFile, new File(extentReportImageFullPath));
 
 			// for hmtl report, use relative path (we need to be able to email the report)
-			if (Config.getValue(ExtentManager.REPORT_TYPE).equals(ExtentManager.HTML_REPORT_TYPE))
-				AbstractDriver.getStep().get().info("").addScreenCaptureFromPath(extentReportImageRelativePath);
-			else
+			if (Config.getValue(ExtentManager.REPORT_TYPE).equals(ExtentManager.HTML_REPORT_TYPE)) {
+
+				AbstractDriver.getStep().get().info("").addScreenCaptureFromPath(imageRelativePath);
+			}else {
+	
 				AbstractDriver.getStep().get().info("").addScreenCaptureFromPath(extentReportImageFullPath);
+			}
+			
+			// log screenshot for report portal 
+			File screenshot = new File(extentReportImageFullPath);
+			ReportPortalMessage message = new ReportPortalMessage(screenshot, screenshot.getName());
+			TestObject.getTestInfo().log.info(message);
 
 		} catch (Exception e) {
-			e.getMessage();
+			TestLog.logPass(e.getMessage());
 		}
 	}
 

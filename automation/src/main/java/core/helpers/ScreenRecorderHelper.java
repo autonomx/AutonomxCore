@@ -192,6 +192,9 @@ public class ScreenRecorderHelper {
 				
 				// attach video to extent report
 				TestLog.attachVideoLog(extentMediaRelativePathFromReport, true);
+				
+				// link video to report portal
+				TestLog.attachVideoLogToReportPortal(media);
 
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -225,6 +228,9 @@ public class ScreenRecorderHelper {
 						
 						// attach video to extent report
 						TestLog.attachVideoLog(extentReportImageRelativePath, false);
+						
+						// link video to report portal
+						TestLog.attachVideoLogToReportPortal(path.toFile());
 
 					}catch(Exception e) {
 						e.printStackTrace();
