@@ -15,6 +15,7 @@ import com.epam.reportportal.utils.properties.PropertiesLoader;
 import com.epam.ta.reportportal.ws.model.attribute.ItemAttributesRQ;
 import com.epam.ta.reportportal.ws.model.launch.StartLaunchRQ;
 
+import core.helpers.Helper;
 import core.support.configReader.Config;
 
 	public class ParamOverrideTestNgService extends TestNGService {
@@ -44,8 +45,7 @@ import core.support.configReader.Config;
 			parameters.setDescription(Config.getValue(DESCRIPTION));
 			parameters.setConvertImage(Config.getBooleanValue(CONVERT_IMAGE));
 			parameters.setBatchLogsSize(Config.getIntValue(BATCH_SIZE));		
-			Set<ItemAttributesRQ> attributes = setAttributes();
-			parameters.setAttributes(attributes);
+			parameters = setAttributes(parameters);
 			
 			ReportPortal reportPortal = ReportPortal.builder().withParameters(parameters).build();
 			StartLaunchRQ rq = buildStartLaunch(reportPortal.getParameters());
@@ -61,11 +61,16 @@ import core.support.configReader.Config;
 		 * convert attribute string list to Set<ItemAttributesRQ> for report portal
 		 * @return
 		 */
-		private static Set<ItemAttributesRQ> setAttributes() {
+		private static ListenerParameters setAttributes(ListenerParameters parameters) {
 			String attributeString = Config.getValue(ATTRIBUTES);
-			String[] attributes = attributeString.split(";");
 			
+			if(attributeString.isEmpty()) {
+				return parameters;
+			}
+			
+			String[] attributes = attributeString.split(";");			
 			Set<ItemAttributesRQ> attributeSet = new HashSet<>();
+			
 			ItemAttributesRQ items = null;
 			for(String attribute: attributes) {
 				 String[] keyValue = attribute.split(":");
@@ -78,7 +83,8 @@ import core.support.configReader.Config;
 					 items = new ItemAttributesRQ(key);
 				 attributeSet.add(items);
 			}
-			return attributeSet;
+			parameters.setAttributes(attributeSet);
+			return parameters;
 		}
 
 		private static StartLaunchRQ buildStartLaunch(ListenerParameters parameters) {
