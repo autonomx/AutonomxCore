@@ -886,7 +886,7 @@ public class UtilityHelper {
 			TestObject.getTestInfo().log.info(message);
 
 		} catch (Exception e) {
-			TestLog.logPass(e.getMessage());
+			Helper.logStackTrace(e);
 		}
 	}
 

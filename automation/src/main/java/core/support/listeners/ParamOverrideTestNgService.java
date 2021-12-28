@@ -15,7 +15,6 @@ import com.epam.reportportal.utils.properties.PropertiesLoader;
 import com.epam.ta.reportportal.ws.model.attribute.ItemAttributesRQ;
 import com.epam.ta.reportportal.ws.model.launch.StartLaunchRQ;
 
-import core.helpers.Helper;
 import core.support.configReader.Config;
 
 	public class ParamOverrideTestNgService extends TestNGService {

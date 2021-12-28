@@ -120,6 +120,13 @@ public class AssertHelper {
 		TestLog.ConsoleLog(exceptionAsString);	
 	}
 	
+	protected static void logStackTrace(Exception e) {
+		StringWriter sw = new StringWriter();
+		e.printStackTrace(new PrintWriter(sw));
+		String exceptionAsString = sw.toString();// stack trace as a string
+		TestLog.ConsoleLog(exceptionAsString);	
+	}
+	
 	
 	/**
 	 * added test steps with stack trace

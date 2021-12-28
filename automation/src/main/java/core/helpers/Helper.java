@@ -181,6 +181,14 @@ public class Helper {
 	public static void softAssertAll() {
 		AssertHelper.softAssertAll();
 	}
+	
+	public static void logStackTrace(AssertionError e) {
+		AssertHelper.logStackTrace(e);
+	}
+	
+	public static void logStackTrace(Exception e) {
+		AssertHelper.logStackTrace(e);
+	}
 
 	// Element Helper
 	/**
@@ -3072,6 +3080,10 @@ public class Helper {
 	 * @param description
 	 */
 	public synchronized static void captureExtentReportScreenshot() {
+		UtilityHelper.captureReportScreenshot();
+	}
+	
+	public synchronized static void screenshotCapture() {
 		UtilityHelper.captureReportScreenshot();
 	}
 

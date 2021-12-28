@@ -21,6 +21,7 @@ import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
+import org.testng.util.Strings;
 
 import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.gherkin.model.And;
@@ -355,7 +356,6 @@ public class TestLog {
 	public static void logFail(String value, Object... args) {
 		logConsoleMessage(Level.ERROR, formatMessage(value, args));
 
-		// AbstractDriver.getLog().get().error(formatMessage(value, args));
 	}
 
 	/**
@@ -441,11 +441,20 @@ public class TestLog {
 	 * @return truncated message to maximum length
 	 */
 	public static String setMaxLength(String value, int length) {
+		
 		// limit the max size of string
+		try {
 		int maxLength = (value.length() < length) ? value.length() : length;
+		
 		if (maxLength == length)
 			return value.substring(0, maxLength) + "...";
 		return value.substring(0, maxLength);
+		}catch(Exception e) {
+			System.out.println("value: " + value);
+			System.out.println("length: " + length);
+			e.getMessage();
+		}
+		return "";
 	}
 
 	/**
@@ -551,6 +560,9 @@ public class TestLog {
 	 * @param value    string value to log
 	 */
 	private static void logConsoleMessage(Level priority, String value) {
+		
+		if(Strings.isNullOrEmpty(value))
+			return;
 		
 		if(Config.getBooleanValue(LOG_SKIP_CONSOLE))
 			return;
