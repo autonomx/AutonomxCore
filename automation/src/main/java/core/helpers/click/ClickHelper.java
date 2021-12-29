@@ -102,8 +102,6 @@ public class ClickHelper extends Element {
 			if (Helper.isPresent(target))
 				targetElement.click(index);
 			isExpectedFound = Helper.wait.waitForElementToLoad(expected, targetWaitTimeInSeconds);
-			if (!isExpectedFound && mobileRefresh)
-				Helper.mobile.refreshMobileApp();
 			TestLog.ConsoleLog("clickAndExpect: expected: " + expected.name + " : " + isExpectedFound);
 		} while (!isExpectedFound && retry > 0);
 
