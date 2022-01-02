@@ -47,7 +47,11 @@ public class TestObject {
 	public static enum testState {
 		parent, beforeSuite, suite, testClass, testMethod, apiTestMethod, defaultState
 	}
-
+	
+	
+	// if true, property files will not load. useful for using helpers only in project
+	public static boolean IS_PROPERTIES_DISABLED = false; 
+	
 	// proxy info
 	public final static String PROXY_ENABLED = "proxy.enabled";
 	public final static String PROXY_HOST = "proxy.host";
@@ -183,7 +187,7 @@ public class TestObject {
 			// loads all property values into config map
 			// if config from inherited layer is empty ( empty for default (autonomx), and
 			// before suite )
-			if (test.config.isEmpty())
+			if (test.config.isEmpty() && !IS_PROPERTIES_DISABLED)
 				Config.loadConfig(testId);
 
 			// set random string and time per test

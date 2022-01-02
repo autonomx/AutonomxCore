@@ -16,7 +16,7 @@ public class LoginHelper {
 	 * 
 	 * @throws Exception
 	 */
-	protected static void handleDifferentUser() {
+	public static void handleDifferentUser() {
 
 		// if driver not set, nothing to handle
 		if(!DriverObject.isDriverSet())

@@ -28,7 +28,7 @@ public class RestApiHelper {
 	 * @param targerApi:   api to call. eg. deleteCompany
 	 * @throws JSONException
 	 */
-	protected static void runApiContaining(String identifier, String prefix, String getApi, String targetApiId,
+	public static void runApiContaining(String identifier, String prefix, String getApi, String targetApiId,
 			String variable, String targerApi) throws JSONException {
 		// gets all api values
 		ServiceObject api = TestObject.getApiDef(getApi);
@@ -64,7 +64,7 @@ public class RestApiHelper {
 	 * @param targerApi:   api to call. eg. deleteCompany
 	 * @throws JSONException
 	 */
-	protected static void runApiEquals(String identifier, String value, String getApi, String targetApiId,
+	public static void runApiEquals(String identifier, String value, String getApi, String targetApiId,
 			String variable, String targerApi) throws JSONException {
 		// gets all api values
 		ServiceObject api = TestObject.getApiDef(getApi);

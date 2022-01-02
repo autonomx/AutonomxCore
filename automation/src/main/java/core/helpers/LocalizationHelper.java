@@ -38,7 +38,7 @@ public class LocalizationHelper {
 	public static String DEFAULT_LOCAL = "English";
 	public static String LOCALIZATION_PATH = "localize.path";
 
-	protected static String localize(String key) {
+	public static String localize(String key) {
 		String localFile = CrossPlatformProperties.getLocalizationFile();
 		String translation = "";
 		if (localFile.endsWith(".csv")) {
@@ -51,7 +51,7 @@ public class LocalizationHelper {
 		return key;
 	}
 
-	protected static String localizeFromCsv(String value) {
+	public static String localizeFromCsv(String value) {
 		// get local value
 		String translation = TestObject.getTestInfo().languageMap.get(value);
 
@@ -63,7 +63,7 @@ public class LocalizationHelper {
 	 * 
 	 * @param language
 	 */
-	protected static void localizationSetupCsv(String language) {
+	public static void localizationSetupCsv(String language) {
 		TestObject.getTestInfo().language = language;
 		loadCsvFileContent();
 	}
@@ -74,7 +74,7 @@ public class LocalizationHelper {
 	 * @param key
 	 * @return
 	 */
-	protected static String localizeFromJson(String key) {
+	public static String localizeFromJson(String key) {
 		if (TestObject.getTestInfo().languageMap.isEmpty()) {
 			String localFile = CrossPlatformProperties.getLocalizationFile();
 			localizationLoadJson(localFile);
@@ -88,7 +88,7 @@ public class LocalizationHelper {
 	 * 
 	 * @param fileName
 	 */
-	protected static void localizationLoadJson(String fileName) {
+	public static void localizationLoadJson(String fileName) {
 
 		String filePath = PropertiesReader.getLocalResourcePath() + fileName;
 		TestObject.getTestInfo().languageMap = jsonFileToMap(filePath);
@@ -96,7 +96,7 @@ public class LocalizationHelper {
 	}
 
 	@SuppressWarnings("serial")
-	protected static Map<String, String> jsonStringToMap(String jsonString) {
+	public static Map<String, String> jsonStringToMap(String jsonString) {
 		Type type = new TypeToken<Map<String, String>>() {
 		}.getType();
 		Gson gson = new Gson();
@@ -104,7 +104,7 @@ public class LocalizationHelper {
 	}
 
 	@SuppressWarnings({ "unchecked" })
-	protected static Map<String, String> jsonFileToMap(String filePath) {
+	public static Map<String, String> jsonFileToMap(String filePath) {
 		JSONObject json = null;
 		try {
 			BufferedReader buff = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), "UTF-8"));
@@ -129,7 +129,7 @@ public class LocalizationHelper {
 	 * @throws Exception
 	 * 
 	 */
-	protected static void loadCsvFileContent() {
+	public static void loadCsvFileContent() {
 
 		if (TestObject.getTestInfo().languageMap.isEmpty()) {
 			String localFile = CrossPlatformProperties.getLocalizationFile();
@@ -165,7 +165,7 @@ public class LocalizationHelper {
 	 * @param parser
 	 * @return
 	 */
-	protected static List<String> getColumnHeaders(CSVParser parser) {
+	public static List<String> getColumnHeaders(CSVParser parser) {
 		List<String> columns = new ArrayList<String>();
 		Map<String, Integer> header = parser.getHeaderMap();
 		for (Entry<String, Integer> entry : header.entrySet()) {
@@ -174,7 +174,7 @@ public class LocalizationHelper {
 		return columns;
 	}
 
-	protected static File getCsvFile(String filename) {
+	public static File getCsvFile(String filename) {
 		String path = Config.getValue(LOCALIZATION_PATH);
 		String filePath = Helper.getFullPath(path + filename);
 

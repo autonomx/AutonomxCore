@@ -23,7 +23,7 @@ public class AssertHelper {
 	 * @param message
 	 * @param value
 	 */
-	protected static void assertTrue(String message, boolean value) {
+	public static void assertTrue(String message, boolean value) {
 
 		try {
 			Assert.assertTrue(value, TestObject.getTestId() + ": " + message);
@@ -34,7 +34,7 @@ public class AssertHelper {
 		}
 	}
 
-	protected static void assertFalse(String message) {	
+	public static void assertFalse(String message) {	
 		
 		try {	
 			Assert.assertTrue(false, TestObject.getTestId() + ": " + message);
@@ -45,7 +45,7 @@ public class AssertHelper {
 		}
 	}
 
-	protected static void assertFalse(String message, boolean value) {
+	public static void assertFalse(String message, boolean value) {
 		try {
 			message = getLogsAsString(message);
 			Assert.assertTrue(!value, TestObject.getTestId() + ": " + message);
@@ -56,7 +56,7 @@ public class AssertHelper {
 		}
 	}
 
-	protected static void assertEquals(String expected, String actual) {
+	public static void assertEquals(String expected, String actual) {
 		TestLog.logPass("validating if expected: " + expected + " equals to actual: " + actual);
 		if(expected == null)
 			assertTrue("expected value: " + expected + " actual:" + actual, expected == actual);
@@ -65,21 +65,21 @@ public class AssertHelper {
 
 	}
 
-	protected static void assertEquals(boolean expected, boolean actual) {
+	public static void assertEquals(boolean expected, boolean actual) {
 		assertTrue("expected value: " + expected + " actual:" + actual, java.util.Objects.equals(expected, actual));
 	}
 
-	protected static void assertEquals(int expected, int actual) {
+	public static void assertEquals(int expected, int actual) {
 		assertTrue("expected value: " + expected + " actual:" + actual, expected == actual);
 
 	}
 
-	protected static void softAssertTrue(String message, boolean value) {
+	public static void softAssertTrue(String message, boolean value) {
 		TestObject.getTestInfo().softAssert.assertTrue(value, message);
 		if(!value) TestLog.ConsoleLogWarn("soft assert failed: " + message);
 	}
 
-	protected static void softAssertEqual(String expected, String actual) {
+	public static void softAssertEqual(String expected, String actual) {
 		TestObject.getTestInfo().softAssert.assertEquals(actual, expected);
 		if (expected != null && !expected.equals(actual))
 			TestLog.ConsoleLogWarn("soft assert failed: expected: " + expected + " but actual was: " + actual);
@@ -88,17 +88,17 @@ public class AssertHelper {
 
 	}
 
-	protected static void softAssertEqual(int expected, int actual) {
+	public static void softAssertEqual(int expected, int actual) {
 		TestObject.getTestInfo().softAssert.assertEquals(actual, expected);
 		if(expected != actual)
 			TestLog.ConsoleLogWarn("soft assert failed: expected: " + expected + " but actual was: " + actual);
 	}
 	
-	protected static SoftAssert softAssert() {
+	public static SoftAssert softAssert() {
 		return TestObject.getTestInfo().softAssert;
 	}
 	
-	protected static void softAssertAll() {
+	public static void softAssertAll() {
 		TestObject.getTestInfo().softAssert.assertAll();
 	}
 
@@ -108,19 +108,19 @@ public class AssertHelper {
 	 * @param actual
 	 * @param expected
 	 */
-	protected static void assertContains(String expected, String actual) {
+	public static void assertContains(String expected, String actual) {
 		TestLog.logPass("validating if expected: " + expected + " contains actual: " + actual);
 		assertTrue("actual: " + actual + " does not contain expected: " + expected, actual.contains(expected));
 	}
 	
-	protected static void logStackTrace(AssertionError e) {
+	public static void logStackTrace(AssertionError e) {
 		StringWriter sw = new StringWriter();
 		e.printStackTrace(new PrintWriter(sw));
 		String exceptionAsString = sw.toString();// stack trace as a string
 		TestLog.ConsoleLog(exceptionAsString);	
 	}
 	
-	protected static void logStackTrace(Exception e) {
+	public static void logStackTrace(Exception e) {
 		StringWriter sw = new StringWriter();
 		e.printStackTrace(new PrintWriter(sw));
 		String exceptionAsString = sw.toString();// stack trace as a string

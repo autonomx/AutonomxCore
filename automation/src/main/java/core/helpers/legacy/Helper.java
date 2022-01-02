@@ -1,4 +1,4 @@
-package core.helpers;
+package core.helpers.legacy;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -16,9 +16,29 @@ import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.html5.Location;
 import org.testng.asserts.SoftAssert;
 
+import core.helpers.AssertHelper;
+import core.helpers.DateHelper;
+import core.helpers.Element;
+import core.helpers.ElementActionHelper;
+import core.helpers.ElementHelper;
+import core.helpers.ExternalClassHelper;
+import core.helpers.FormHelper;
+import core.helpers.ImageProcessingHelper;
+import core.helpers.ListHelper;
+import core.helpers.LocalizationHelper;
+import core.helpers.LoginHelper;
+import core.helpers.Loginbuilder;
+import core.helpers.MobileHelper;
+import core.helpers.PageHelper;
+import core.helpers.RestApiHelper;
+import core.helpers.StopWatchHelper;
+import core.helpers.UtilityHelper;
+import core.helpers.VerifyHelper;
+import core.helpers.WaitHelper;
 import core.helpers.click.ClickHelper;
 import core.helpers.click.ClickHelperAction;
 import core.helpers.click.ClickHelperJs;
@@ -33,7 +53,7 @@ import core.uiCore.webElement.EnhancedWebElement;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.ios.IOSDriver;
 
-public class Helper {
+public class Helper extends core.helpers.Helper {
 
 	public static ClickHelper click = new ClickHelper();
 	public static WaitHelper wait = new WaitHelper();
@@ -189,6 +209,15 @@ public class Helper {
 	public static void logStackTrace(Exception e) {
 		AssertHelper.logStackTrace(e);
 	}
+	
+	// Driver Legacy
+	public static void setDriver(WebDriver driver) {
+		 DriverLegacy.setDriver(driver);
+	}
+	
+	public static void setDriver(WebDriver driver, boolean isPropertyDisabled, int timeoutSec, int implicitSec) {
+		DriverLegacy.setDriver(driver, isPropertyDisabled, timeoutSec, implicitSec);
+	}
 
 	// Element Helper
 	/**
@@ -198,8 +227,10 @@ public class Helper {
 	 * @param parent
 	 * @return
 	 */
-	protected static EnhancedWebElement findElements(EnhancedBy parent, EnhancedBy child) {
-		return Element.findElements(parent, child);
+	protected static EnhancedWebElement findElements(WebElement parent, WebElement child) {
+		EnhancedBy elementParent = DriverLegacy.getEnhancedElement(parent);
+		EnhancedBy elementChild = DriverLegacy.getEnhancedElement(child);
+		return core.helpers.Helper.findElements(elementParent, elementChild);
 	}
 
 	/**
@@ -208,8 +239,9 @@ public class Helper {
 	 * @param element
 	 * @return
 	 */
-	protected static EnhancedWebElement findElements(EnhancedBy element) {
-		return Element.findElements(element);
+	protected static EnhancedWebElement findElements(WebElement element) {
+		EnhancedBy elementBy = DriverLegacy.getEnhancedElement(element);
+		return core.helpers.Helper.findElements(elementBy);
 	}
 
 	/**
@@ -219,8 +251,11 @@ public class Helper {
 	 * @param parent
 	 * @return
 	 */
-	protected static EnhancedWebElement findElements(EnhancedBy parent, int parentIndex, EnhancedBy child) {
-		return Element.findElements(child, parentIndex, parent);
+	protected static EnhancedWebElement findElements(WebElement parent, int parentIndex, WebElement child) {
+		EnhancedBy parentBy = DriverLegacy.getEnhancedElement(parent);
+		EnhancedBy childBy = DriverLegacy.getEnhancedElement(child);
+
+		return core.helpers.Helper.findElements(childBy, parentIndex, parentBy);
 	}
 
 	/**
@@ -274,8 +309,11 @@ public class Helper {
 	 * @param target
 	 * @param expected
 	 */
-	public static void clickAndExpect(EnhancedBy target, EnhancedBy expected) {
-		click.clickAndExpect(target, expected);
+	public static void clickAndExpect(WebElement target, WebElement expected) {
+		EnhancedBy elementTarget = DriverLegacy.getEnhancedElement(target);
+		EnhancedBy elementExpected = DriverLegacy.getEnhancedElement(expected);
+
+		click.clickAndExpect(elementTarget, elementExpected);
 	}
 
 	/**
@@ -286,8 +324,10 @@ public class Helper {
 	 * @param text
 	 * @param expected
 	 */
-	public static void clickAndExpect(EnhancedBy target, String text, EnhancedBy expected) {
-		click.clickAndExpectByText(target, text, expected);
+	public static void clickAndExpect(WebElement target, String text, WebElement expected) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		EnhancedBy expectedBy = DriverLegacy.getEnhancedElement(expected);
+		click.clickAndExpectByText(targetBy, text, expectedBy);
 	}
 
 	/**
@@ -298,8 +338,10 @@ public class Helper {
 	 * @param text
 	 * @param expected
 	 */
-	public void clickAndExpectContainsByText(EnhancedBy target, String text, EnhancedBy expected) {
-		click.clickAndExpectContainsByText(target, text, expected);
+	public void clickAndExpectContainsByText(WebElement target, String text, WebElement expected) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		EnhancedBy expectedBy = DriverLegacy.getEnhancedElement(expected);
+		click.clickAndExpectContainsByText(targetBy, text, expectedBy);
 	}
 
 	/**
@@ -308,8 +350,10 @@ public class Helper {
 	 * @param target
 	 * @param expected
 	 */
-	public static void clickAndExpect(EnhancedBy target, EnhancedBy expected, boolean isMobileRefresh) {
-		click.clickAndExpect(target, expected, isMobileRefresh);
+	public static void clickAndExpect(WebElement target, WebElement expected, boolean isMobileRefresh) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		EnhancedBy expectedBy = DriverLegacy.getEnhancedElement(expected);
+		click.clickAndExpect(targetBy, expectedBy, isMobileRefresh);
 	}
 
 	/**
@@ -320,8 +364,11 @@ public class Helper {
 	 * @param expected1
 	 * @param expected2
 	 */
-	public static void clickAndExpect(EnhancedBy target, int index, EnhancedBy expected1, EnhancedBy expected2) {
-		click.clickAndExpect(target, index, expected1, expected2);
+	public static void clickAndExpect(WebElement target, int index, WebElement expected1, WebElement expected2) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		EnhancedBy expected1By = DriverLegacy.getEnhancedElement(expected1);
+		EnhancedBy expected2By = DriverLegacy.getEnhancedElement(expected2);
+		click.clickAndExpect(targetBy, index, expected1By, expected2By);
 	}
 
 	/**
@@ -331,8 +378,10 @@ public class Helper {
 	 * @param index
 	 * @param expected
 	 */
-	public static void clickAndExpect(EnhancedBy target, int index, EnhancedBy expected) {
-		click.clickAndExpect(target, index, expected, true);
+	public static void clickAndExpect(WebElement target, int index, WebElement expected) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		EnhancedBy expectedBy = DriverLegacy.getEnhancedElement(expected);
+		click.clickAndExpect(targetBy, index, expectedBy, true);
 	}
 
 	/**
@@ -343,8 +392,11 @@ public class Helper {
 	 * @param expected
 	 * @param spinner
 	 */
-	public static void clickAndExpect(EnhancedBy target, EnhancedBy expected, EnhancedBy spinner) {
-		click.clickAndExpect(target, expected, spinner);
+	public static void clickAndExpect(WebElement target, WebElement expected, WebElement spinner) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		EnhancedBy expectedBy = DriverLegacy.getEnhancedElement(expected);
+		EnhancedBy spinnerBy = DriverLegacy.getEnhancedElement(spinner);
+		click.clickAndExpect(targetBy, expectedBy, spinnerBy);
 	}
 
 	/**
@@ -353,8 +405,10 @@ public class Helper {
 	 * @param target
 	 * @param expected
 	 */
-	public static void clickAndNotExpect(EnhancedBy target, EnhancedBy expected) {
-		click.clickAndNotExpect(target, expected);
+	public static void clickAndNotExpect(WebElement target, WebElement expected) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		EnhancedBy expectedBy = DriverLegacy.getEnhancedElement(expected);
+		click.clickAndNotExpect(targetBy, expectedBy);
 	}
 
 	/**
@@ -363,8 +417,9 @@ public class Helper {
 	 * @param target
 	 * @param expected
 	 */
-	public static void clickAndWait(EnhancedBy target, double timeInSeconds) {
-		click.clickAndWait(target, timeInSeconds);
+	public static void clickAndWait(WebElement target, double timeInSeconds) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		click.clickAndWait(targetBy, timeInSeconds);
 	}
 
 	/**
@@ -373,12 +428,15 @@ public class Helper {
 	 * @param target
 	 * @param expected
 	 */
-	public static void clickAndWait(EnhancedBy target, int index, double timeInSeconds) {
-		click.clickAndWait(target, index, timeInSeconds);
+	public static void clickAndWait(WebElement target, int index, double timeInSeconds) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		click.clickAndWait(targetBy, index, timeInSeconds);
 	}
 
-	public static void clickAndNotExpect(EnhancedBy target, int index, EnhancedBy expected) {
-		click.clickAndNotExpect(target, index, expected);
+	public static void clickAndNotExpect(WebElement target, int index, WebElement expected) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		EnhancedBy expectedBy = DriverLegacy.getEnhancedElement(expected);
+		click.clickAndNotExpect(targetBy, index, expectedBy);
 	}
 
 	/**
@@ -388,8 +446,9 @@ public class Helper {
 	 * @param x  x offset coordinate
 	 * @param y  y offset coordinate
 	 */
-	public static void clickElementLocationBy(EnhancedBy by, int x, int y) {
-		click.clickElementLocationBy(by, x, y);
+	public static void clickElementLocationBy(WebElement target, int x, int y) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		click.clickElementLocationBy(targetBy, x, y);
 	}
 
 	/**
@@ -410,8 +469,9 @@ public class Helper {
 	 * @param y
 	 * @param expected
 	 */
-	public static void clickPointsAndExpect(int x, int y, EnhancedBy expected) {
-		click.clickPointsAndExpect(x, y, expected);
+	public static void clickPointsAndExpect(int x, int y, WebElement expected) {
+		EnhancedBy expectedBy = DriverLegacy.getEnhancedElement(expected);
+		click.clickPointsAndExpect(x, y, expectedBy);
 	}
 
 	/**
@@ -430,8 +490,9 @@ public class Helper {
 	 * @param target
 	 * @param index
 	 */
-	public static void doubleClick(EnhancedBy target, int index) {
-		clickAction.doubleClick(target, index);
+	public static void doubleClick(WebElement target, int index) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		clickAction.doubleClick(targetBy, index);
 	}
 
 	/**
@@ -440,8 +501,9 @@ public class Helper {
 	 * @param target
 	 * @param index
 	 */
-	public static void rightClick(EnhancedBy target, int index) {
-		clickAction.rightClick(target, index);
+	public static void rightClick(WebElement target, int index) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		clickAction.rightClick(targetBy, index);
 	}
 
 	/**
@@ -450,8 +512,9 @@ public class Helper {
 	 * @param by
 	 * @param text
 	 */
-	public static void clickElementContinsByText(EnhancedBy by, String text) {
-		click.clickElementContinsByText(by, text);
+	public static void clickElementContinsByText(WebElement target, String text) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		click.clickElementContinsByText(targetBy, text);
 	}
 
 	/**
@@ -460,8 +523,9 @@ public class Helper {
 	 * @param target
 	 * @param seconds
 	 */
-	public static void clickAndHold(EnhancedBy target, double seconds) {
-		click.clickAndHold(target, seconds);
+	public static void clickAndHold(WebElement target, double seconds) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		click.clickAndHold(targetBy, seconds);
 	}
 
 	/**
@@ -471,8 +535,9 @@ public class Helper {
 	 * @param index
 	 * @param seconds
 	 */
-	public static void clickAndHold(EnhancedBy target, int index, double seconds) {
-		click.clickAndHold(target, index, seconds);
+	public static void clickAndHold(WebElement target, int index, double seconds) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		click.clickAndHold(targetBy, index, seconds);
 	}
 
 	/**
@@ -481,8 +546,11 @@ public class Helper {
 	 * @param src
 	 * @param target
 	 */
-	public static void dragAndDrop(EnhancedBy src, EnhancedBy target) {
-		click.dragAndDrop(src, target);
+	public static void dragAndDrop(WebElement src, WebElement target) {
+		EnhancedBy srcBy = DriverLegacy.getEnhancedElement(src);
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+
+		click.dragAndDrop(srcBy, targetBy);
 	}
 	
 	/**
@@ -491,8 +559,13 @@ public class Helper {
 	 * @param src
 	 * @param target
 	 */
-	public void dragAndDrop(EnhancedBy srcParent, int srcParentIndex, EnhancedBy srcChild, int scrChildIndex, EnhancedBy targetParent, int targeParenttIndex, EnhancedBy targetChild, int targetChildIndex) {
-		click.dragAndDrop(srcParent, srcParentIndex, srcChild, scrChildIndex, targetParent, targeParenttIndex, targetChild, targetChildIndex);
+	public void dragAndDrop(WebElement srcParent, int srcParentIndex, WebElement srcChild, int scrChildIndex, WebElement targetParent, int targeParenttIndex, WebElement targetChild, int targetChildIndex) {
+		EnhancedBy srcParentBy = DriverLegacy.getEnhancedElement(srcParent);
+		EnhancedBy srcChildBy = DriverLegacy.getEnhancedElement(srcChild);
+		EnhancedBy targetParentBy = DriverLegacy.getEnhancedElement(targetParent);
+		EnhancedBy targetChildBy = DriverLegacy.getEnhancedElement(targetChild);
+
+		click.dragAndDrop(srcParentBy, srcParentIndex, srcChildBy, scrChildIndex, targetParentBy, targeParenttIndex, targetChildBy, targetChildIndex);
 	}
 
 	/**
@@ -501,8 +574,9 @@ public class Helper {
 	 * @param src
 	 * @param target
 	 */
-	public static void dragAndDrop(EnhancedBy src, int xOffset, int yOffset) {
-		click.dragAndDrop(src, xOffset, yOffset);
+	public static void dragAndDrop(WebElement src, int xOffset, int yOffset) {
+		EnhancedBy srcBy = DriverLegacy.getEnhancedElement(src);
+		click.dragAndDrop(srcBy, xOffset, yOffset);
 	}
 
 	// VerifyHelper
@@ -511,8 +585,9 @@ public class Helper {
 	 * 
 	 * @param by
 	 */
-	public static void verifyElementIsDisplayed(EnhancedBy by) {
-		verify.verifyElementIsDisplayed(by);
+	public static void verifyElementIsDisplayed(WebElement target) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		verify.verifyElementIsDisplayed(targetBy);
 	}
 
 	/**
@@ -521,8 +596,9 @@ public class Helper {
 	 * @param element
 	 * @return
 	 */
-	public static boolean isDisplayed(EnhancedBy element) {
-		return verify.isPresent(element);
+	public static boolean isDisplayed(WebElement target) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		return verify.isPresent(targetBy);
 	}
 
 	/**
@@ -531,8 +607,9 @@ public class Helper {
 	 * @param element
 	 * @return
 	 */
-	public static boolean isPresent(EnhancedBy element) {
-		return verify.isPresent(element);
+	public static boolean isPresent(WebElement target) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		return verify.isPresent(targetBy);
 	}
 
 	/**
@@ -542,8 +619,9 @@ public class Helper {
 	 * @param text
 	 * @return
 	 */
-	public static boolean isElementContainingText(EnhancedBy element, String text) {
-		return verify.isElementContainingText(element, text);
+	public static boolean isElementContainingText(WebElement target, String text) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		return verify.isElementContainingText(targetBy, text);
 	}
 
 	/**
@@ -552,8 +630,9 @@ public class Helper {
 	 * @param element
 	 * @param text
 	 */
-	public static void verifyElementContainingText(EnhancedBy element, String text) {
-		verify.verifyElementContainingText(element, text);
+	public static void verifyElementContainingText(WebElement target, String text) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		verify.verifyElementContainingText(targetBy, text);
 	}
 
 	/**
@@ -581,8 +660,9 @@ public class Helper {
 	 * @param index
 	 * @param text
 	 */
-	public void verifyToolTip(EnhancedBy tooltip, int index, String text) {
-		verify.verifyToolTip(tooltip, index, text);
+	public void verifyToolTip(WebElement tooltip, int index, String text) {
+		EnhancedBy tooltipBy = DriverLegacy.getEnhancedElement(tooltip);
+		verify.verifyToolTip(tooltipBy, index, text);
 	}
 
 	/**
@@ -590,8 +670,9 @@ public class Helper {
 	 * 
 	 * @param by
 	 */
-	public static void verifyElementIsNotDisplayed(EnhancedBy by) {
-		verify.verifyElementIsNotDisplayed(by);
+	public static void verifyElementIsNotDisplayed(WebElement target) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		verify.verifyElementIsNotDisplayed(targetBy);
 	}
 
 	/**
@@ -600,8 +681,9 @@ public class Helper {
 	 * @param by
 	 * @param value
 	 */
-	public static void verifyElementText(EnhancedBy by, String value) {
-		verify.verifyElementText(by, value);
+	public static void verifyElementText(WebElement target, String value) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		verify.verifyElementText(targetBy, value);
 	}
 
 	/**
@@ -610,8 +692,9 @@ public class Helper {
 	 * @param by
 	 * @param value
 	 */
-	public static void verifyElementCount(EnhancedBy by, int value, int... correction) {
-		verify.verifyElementCount(by, value, correction);
+	public static void verifyElementCount(WebElement target, int value, int... correction) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		verify.verifyElementCount(targetBy, value, correction);
 	}
 
 	/**
@@ -620,8 +703,9 @@ public class Helper {
 	 * @param target
 	 * @param values
 	 */
-	public static void verifyAnyTextContaining(EnhancedBy target, String... values) {
-		verify.verifyAnyTextContaining(target, values);
+	public static void verifyAnyTextContaining(WebElement target, String... values) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		verify.verifyAnyTextContaining(targetBy, values);
 	}
 
 	/**
@@ -630,8 +714,9 @@ public class Helper {
 	 * @param target
 	 * @param values
 	 */
-	public static void verifyAnyText(EnhancedBy target, String... values) {
-		verify.verifyAnyText(target, values);
+	public static void verifyAnyText(WebElement target, String... values) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		verify.verifyAnyText(targetBy, values);
 	}
 
 	// FormHelper Class
@@ -643,8 +728,9 @@ public class Helper {
 	 * @param field
 	 * @param index
 	 */
-	public static void setField(String value, EnhancedBy field, int index) {
-		form.setField(field, index, value);
+	public static void setField(String value, WebElement field, int index) {
+		EnhancedBy element = DriverLegacy.getEnhancedElement(field);
+		form.setField(element, index, value);
 	}
 
 	/**
@@ -653,24 +739,30 @@ public class Helper {
 	 * @param field
 	 * @param value
 	 */
-	public static void setField(EnhancedBy field, CharSequence... value) {
-		form.setField(field, value);
+	public static void setField(WebElement field, CharSequence... value) {
+		EnhancedBy element = DriverLegacy.getEnhancedElement(field);
+		form.setField(element, value);
+	}
+	
+
+	public static void setFieldByAction(WebElement field, int index, CharSequence... value) {
+		EnhancedBy element = DriverLegacy.getEnhancedElement(field);
+		form.setFieldByAction(element, index, value);
 	}
 
-	public static void setFieldByAction(EnhancedBy field, int index, CharSequence... value) {
-		form.setFieldByAction(field, index, value);
+	public static void setFieldByAction(WebElement field, CharSequence... value) {
+		EnhancedBy element = DriverLegacy.getEnhancedElement(field);
+		form.setFieldByAction(element, 0, value);
 	}
 
-	public static void setFieldByAction(EnhancedBy field, CharSequence... value) {
-		form.setFieldByAction(field, 0, value);
+	public static void setFieldByJs(WebElement field, int index, CharSequence... value) {
+		EnhancedBy element = DriverLegacy.getEnhancedElement(field);
+		form.setFieldByJs(element, index, value);
 	}
 
-	public static void setFieldByJs(EnhancedBy field, int index, CharSequence... value) {
-		form.setFieldByJs(field, index, value);
-	}
-
-	public static void setFieldByJs(EnhancedBy field, CharSequence... value) {
-		form.setFieldByJs(field, 0, value);
+	public static void setFieldByJs(WebElement field, CharSequence... value) {
+		EnhancedBy element = DriverLegacy.getEnhancedElement(field);
+		form.setFieldByJs(element, 0, value);
 	}
 
 	/**
@@ -679,8 +771,9 @@ public class Helper {
 	 * @param field
 	 * @param value
 	 */
-	public static void clearAndSetField(EnhancedBy field, CharSequence... value) {
-		form.clearAndSetField(field, value);
+	public static void clearAndSetField(WebElement field, CharSequence... value) {
+		EnhancedBy fieldBy = DriverLegacy.getEnhancedElement(field);
+		form.clearAndSetField(fieldBy, value);
 	}
 
 	/**
@@ -690,8 +783,9 @@ public class Helper {
 	 * @param index
 	 * @param value
 	 */
-	public static void clearAndSetField(EnhancedBy field, int index, CharSequence... value) {
-		form.clearAndSetField(field, index, value);
+	public static void clearAndSetField(WebElement field, int index, CharSequence... value) {
+		EnhancedBy fieldBy = DriverLegacy.getEnhancedElement(field);
+		form.clearAndSetField(fieldBy, index, value);
 	}
 
 	/**
@@ -703,9 +797,11 @@ public class Helper {
 	 * @param childIndex
 	 * @param value
 	 */
-	public static void setChildField(EnhancedBy parent, int parentIndex, EnhancedBy child, int childIndex,
+	public static void setChildField(WebElement parent, int parentIndex, WebElement child, int childIndex,
 			CharSequence... value) {
-		form.setKeyChildField(parent, parentIndex, child, childIndex, value);
+		EnhancedBy parentBy = DriverLegacy.getEnhancedElement(parent);
+		EnhancedBy childBy = DriverLegacy.getEnhancedElement(child);
+		form.setKeyChildField(parentBy, parentIndex, childBy, childIndex, value);
 	}
 
 	/**
@@ -714,8 +810,9 @@ public class Helper {
 	 * @param field
 	 * @param value
 	 */
-	public static void setFieldAndEnter(EnhancedBy field, CharSequence... value) {
-		form.setFieldAndEnter(field, value);
+	public static void setFieldAndEnter(WebElement field, CharSequence... value) {
+		EnhancedBy fieldBy = DriverLegacy.getEnhancedElement(field);
+		form.setFieldAndEnter(fieldBy, value);
 	}
 
 	/**
@@ -724,8 +821,9 @@ public class Helper {
 	 * @param key
 	 * @param field
 	 */
-	public static void setKey(Keys key, EnhancedBy field) {
-		form.setKey(key, field);
+	public static void setKey(Keys key, WebElement field) {
+		EnhancedBy fieldBy = DriverLegacy.getEnhancedElement(field);
+		form.setKey(key, fieldBy);
 	}
 
 	/**
@@ -735,8 +833,10 @@ public class Helper {
 	 * @param expected
 	 * 
 	 */
-	public static void formSubmit(EnhancedBy button, EnhancedBy expected) {
-		form.formSubmit(button, expected);
+	public static void formSubmit(WebElement button, WebElement expected) {
+		EnhancedBy buttonBy = DriverLegacy.getEnhancedElement(button);
+		EnhancedBy expectedBy = DriverLegacy.getEnhancedElement(expected);
+		form.formSubmit(buttonBy, expectedBy);
 	}
 
 	/**
@@ -747,8 +847,11 @@ public class Helper {
 	 * @param expected
 	 * @param spinner
 	 */
-	public static void formSubmit(EnhancedBy button, EnhancedBy expected, EnhancedBy spinner) {
-		form.formSubmit(button, expected, spinner);
+	public static void formSubmit(WebElement button, WebElement expected, WebElement spinner) {
+		EnhancedBy buttonBy = DriverLegacy.getEnhancedElement(button);
+		EnhancedBy expectedBy = DriverLegacy.getEnhancedElement(expected);
+		EnhancedBy spinnerBy = DriverLegacy.getEnhancedElement(spinner);
+		form.formSubmit(buttonBy, expectedBy, spinnerBy);
 	}
 
 	/**
@@ -758,8 +861,11 @@ public class Helper {
 	 * @param field
 	 * @param list
 	 */
-	public static void selectDropDownWithDoubleClick(String option, EnhancedBy field, EnhancedBy listValue) {
-		form.selectDropDownWithDoubleClick(option, field, listValue);
+	public static void selectDropDownWithDoubleClick(String option, WebElement field, WebElement listValue) {
+		EnhancedBy fieldBy = DriverLegacy.getEnhancedElement(field);
+		EnhancedBy listValueBy = DriverLegacy.getEnhancedElement(listValue);
+
+		form.selectDropDownWithDoubleClick(option, fieldBy, listValueBy);
 	}
 
 	/**
@@ -769,8 +875,10 @@ public class Helper {
 	 * @param field
 	 * @param list
 	 */
-	public static void selectDropDownWithDoubleClick(String option, EnhancedBy field, int index, EnhancedBy listValue) {
-		form.selectDropDownWithDoubleClick(option, field, index, listValue);
+	public static void selectDropDownWithDoubleClick(String option, WebElement field, int index, WebElement listValue) {
+		EnhancedBy fieldBy = DriverLegacy.getEnhancedElement(field);
+		EnhancedBy listValueBy = DriverLegacy.getEnhancedElement(listValue);
+		form.selectDropDownWithDoubleClick(option, fieldBy, index, listValueBy);
 	}
 	
 	
@@ -781,8 +889,10 @@ public class Helper {
 	 * @param field  : the drop down field
 	 * @param list   : the list items in the drop down list
 	 */
-	public static void selectDropDown(EnhancedBy field, EnhancedBy list, String... options) {
-		form.selectDropDown(field, list, options);
+	public static void selectDropDown(WebElement field, WebElement list, String... options) {
+		EnhancedBy fieldBy = DriverLegacy.getEnhancedElement(field);
+		EnhancedBy listBy = DriverLegacy.getEnhancedElement(list);
+		form.selectDropDown(fieldBy, listBy, options);
 	}
 
 	/**
@@ -794,8 +904,10 @@ public class Helper {
 	 * @param list   : the list items in the drop down list
 	 */
 	@Deprecated 
-	public static void selectDropDown(String option, EnhancedBy field, EnhancedBy listValue) {
-		form.selectDropDown(option, field, listValue);
+	public static void selectDropDown(String option, WebElement field, WebElement listValue) {
+		EnhancedBy fieldBy = DriverLegacy.getEnhancedElement(field);
+		EnhancedBy listValueBy = DriverLegacy.getEnhancedElement(listValue);
+		form.selectDropDown(option, fieldBy, listValueBy);
 	}
 
 	/**
@@ -806,8 +918,10 @@ public class Helper {
 	 * @param field_Identifier
 	 * @param list
 	 */
-	public static void selectDropDown(String option, EnhancedBy field, String field_Identifier, EnhancedBy listValue) {
-		form.selectDropDown(option, field, field_Identifier, listValue);
+	public static void selectDropDown(String option, WebElement field, String field_Identifier, WebElement listValue) {
+		EnhancedBy fieldBy = DriverLegacy.getEnhancedElement(field);
+		EnhancedBy listValueBy = DriverLegacy.getEnhancedElement(listValue);
+		form.selectDropDown(option, fieldBy, field_Identifier, listValueBy);
 	}
 
 	/**
@@ -817,8 +931,10 @@ public class Helper {
 	 * @param field
 	 * @param list
 	 */
-	public static void selectDropDown(int index, EnhancedBy field, EnhancedBy listValue) {
-		form.selectDropDown(index, field, listValue);
+	public static void selectDropDown(int index, WebElement field, WebElement listValue) {
+		EnhancedBy fieldBy = DriverLegacy.getEnhancedElement(field);
+		EnhancedBy listValueBy = DriverLegacy.getEnhancedElement(listValue);
+		form.selectDropDown(index, fieldBy, listValueBy);
 	}
 
 	/**
@@ -828,8 +944,10 @@ public class Helper {
 	 * @param field
 	 * @param list
 	 */
-	public static void selectDropDown(EnhancedBy field, EnhancedBy item) {
-		form.selectDropDown(field, item);
+	public static void selectDropDown(WebElement field, WebElement item) {
+		EnhancedBy fieldBy = DriverLegacy.getEnhancedElement(field);
+		EnhancedBy itemBy = DriverLegacy.getEnhancedElement(item);
+		form.selectDropDown(fieldBy, itemBy);
 	}
 
 	/**
@@ -842,8 +960,10 @@ public class Helper {
 	 * @param list
 	 * @param listIndex
 	 */
-	public static void selectDropDown(String option, EnhancedBy field, EnhancedBy listValue, int listIndex) {
-		form.selectDropDown(option, field, listValue, listIndex);
+	public static void selectDropDown(String option, WebElement field, WebElement listValue, int listIndex) {
+		EnhancedBy fieldBy = DriverLegacy.getEnhancedElement(field);
+		EnhancedBy listValueBy = DriverLegacy.getEnhancedElement(listValue);
+		form.selectDropDown(option, fieldBy, listValueBy, listIndex);
 	}
 
 	/**
@@ -857,8 +977,10 @@ public class Helper {
 	 * @param list
 	 * @param listIndex
 	 */
-	public static void selectDropDown(String option, EnhancedBy field, int index, EnhancedBy list, int listIndex) {
-		form.selectDropDown(option, field, index, list, listIndex);
+	public static void selectDropDown(String option, WebElement field, int index, WebElement list, int listIndex) {
+		EnhancedBy fieldBy = DriverLegacy.getEnhancedElement(field);
+		EnhancedBy listBy = DriverLegacy.getEnhancedElement(list);
+		form.selectDropDown(option, fieldBy, index, listBy, listIndex);
 	}
 
 	/**
@@ -869,8 +991,10 @@ public class Helper {
 	 * @param index
 	 * @param list
 	 */
-	public static void selectDropDown(String option, EnhancedBy field, int index, EnhancedBy listValue) {
-		form.selectDropDown(option, field, index, listValue);
+	public static void selectDropDown(String option, WebElement field, int index, WebElement listValue) {
+		EnhancedBy fieldBy = DriverLegacy.getEnhancedElement(field);
+		EnhancedBy listValueBy = DriverLegacy.getEnhancedElement(listValue);
+		form.selectDropDown(option, fieldBy, index, listValueBy);
 	}
 
 	/**
@@ -879,8 +1003,9 @@ public class Helper {
 	 * @param button
 	 * @param isSelect
 	 */
-	public static void selectCheckBox(EnhancedBy button, boolean isSelect) {
-		form.selectCheckBox(button, isSelect);
+	public static void selectCheckBox(WebElement button, boolean isSelect) {
+		EnhancedBy buttonBy = DriverLegacy.getEnhancedElement(button);
+		form.selectCheckBox(buttonBy, isSelect);
 	}
 
 	/**
@@ -889,8 +1014,9 @@ public class Helper {
 	 * @param option
 	 * @param buttons
 	 */
-	public static void selectRadioButton(String option, EnhancedBy buttons) {
-		form.selectRadioButton(option, buttons);
+	public static void selectRadioButton(String option, WebElement buttons) {
+		EnhancedBy buttonsBy = DriverLegacy.getEnhancedElement(buttons);
+		form.selectRadioButton(option, buttonsBy);
 	}
 
 	/**
@@ -898,8 +1024,9 @@ public class Helper {
 	 * 
 	 * @param button
 	 */
-	public static void selectRadioButton(EnhancedBy button) {
-		form.selectRadioButton(button);
+	public static void selectRadioButton(WebElement button) {
+		EnhancedBy buttonBy = DriverLegacy.getEnhancedElement(button);
+		form.selectRadioButton(buttonBy);
 	}
 
 	/**
@@ -908,8 +1035,9 @@ public class Helper {
 	 * @param selections
 	 * @param checkboxes
 	 */
-	public static void selectMultipleCheckboxOptions(List<String> selections, EnhancedBy checkboxes) {
-		form.selectMultipleCheckboxOptions(selections, checkboxes);
+	public static void selectMultipleCheckboxOptions(List<String> selections, WebElement checkboxes) {
+		EnhancedBy checkboxesBy = DriverLegacy.getEnhancedElement(checkboxes);
+		form.selectMultipleCheckboxOptions(selections, checkboxesBy);
 	}
 
 	// uploadHelper
@@ -919,8 +1047,9 @@ public class Helper {
 	 * @param location
 	 * @param imageButton
 	 */
-	public static void uploadFile(String location, EnhancedBy imageButton) {
-		form.uploadFile(location, imageButton);
+	public static void uploadFile(String location, WebElement imageButton) {
+		EnhancedBy imageButtonBy = DriverLegacy.getEnhancedElement(imageButton);
+		form.uploadFile(location, imageButtonBy);
 	}
 
 	/**
@@ -930,8 +1059,10 @@ public class Helper {
 	 * @param imageButton
 	 * @param images      : uploaded image
 	 */
-	public static void uploadImages(List<String> locations, EnhancedBy imageButton, EnhancedBy images) {
-		form.uploadImages(locations, imageButton, images);
+	public static void uploadImages(List<String> locations, WebElement imageButton, WebElement images) {
+		EnhancedBy imageButtonBy = DriverLegacy.getEnhancedElement(imageButton);
+		EnhancedBy imagesBy = DriverLegacy.getEnhancedElement(images);
+		form.uploadImages(locations, imageButtonBy, imagesBy);
 	}
 
 	/**
@@ -941,8 +1072,10 @@ public class Helper {
 	 * @param imageButton
 	 * @param images      : uploaded image
 	 */
-	public static void uploadImage(String location, EnhancedBy imageButton, EnhancedBy images) {
-		form.uploadImage(location, imageButton, images);
+	public static void uploadImage(String location, WebElement imageButton, WebElement images) {
+		EnhancedBy imageButtonBy = DriverLegacy.getEnhancedElement(imageButton);
+		EnhancedBy imagesBy = DriverLegacy.getEnhancedElement(images);
+		form.uploadImage(location, imageButtonBy, imagesBy);
 	}
 
 	/**
@@ -951,8 +1084,9 @@ public class Helper {
 	 * @param element
 	 * @return
 	 */
-	public static String getTextValue(EnhancedBy element) {
-		return form.getTextValue(element);
+	public static String getTextValue(WebElement target) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		return form.getTextValue(targetBy);
 	}
 
 	/**
@@ -961,8 +1095,9 @@ public class Helper {
 	 * @param element
 	 * @return
 	 */
-	public static String getTextValue(EnhancedBy element, int index) {
-		return form.getTextValue(element, index);
+	public static String getTextValue(WebElement target, int index) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		return form.getTextValue(targetBy, index);
 	}
 	
 	/**
@@ -971,8 +1106,9 @@ public class Helper {
 	 * @param index
 	 * @return
 	 */
-	public boolean isElementEditable(EnhancedBy element) {
-		return isElementEditable(element);
+	public boolean isElementEditable(WebElement target) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		return isElementEditable(targetBy);
 	}
 	
 	/**
@@ -981,8 +1117,9 @@ public class Helper {
 	 * @param index
 	 * @return
 	 */
-	public boolean isElementEditable(EnhancedBy element, int index) {
-		return isElementEditable(element, index);
+	public boolean isElementEditable(WebElement target, int index) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		return isElementEditable(targetBy, index);
 	}
 
 	// ListHelper
@@ -993,19 +1130,9 @@ public class Helper {
 	 * @param list
 	 * @param index
 	 */
-	public static void selectElementInList(EnhancedBy listValue, int index) {
-		list.selectElementInList(listValue, index);
-	}
-
-	/**
-	 * selects an element in list by its index value And waits for expected element
-	 * 
-	 * @param list
-	 * @param index
-	 * @param expected
-	 */
-	public static void selectElementInList(EnhancedBy listValue, int index, EnhancedBy expected) {
-		list.selectElementInList(listValue, index);
+	public static void selectElementInList(WebElement listValue, int index) {
+		EnhancedBy listValueBy = DriverLegacy.getEnhancedElement(listValue);
+		list.selectElementInList(listValueBy, index);
 	}
 
 	/**
@@ -1016,8 +1143,10 @@ public class Helper {
 	 * @param byTarget
 	 * @param spinner
 	 */
-	public static void searchAndWaitForResults(String searchQuery, EnhancedBy byTarget, EnhancedBy spinner) {
-		list.searchAndWaitForResults(searchQuery, byTarget, spinner);
+	public static void searchAndWaitForResults(String searchQuery, WebElement target, WebElement spinner) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		EnhancedBy spinnerBy = DriverLegacy.getEnhancedElement(spinner);
+		list.searchAndWaitForResults(searchQuery, targetBy, spinnerBy);
 	}
 
 	/**
@@ -1026,8 +1155,10 @@ public class Helper {
 	 * @param list
 	 * @param option
 	 */
-	public static void selectListItemEqualsByName(EnhancedBy listValue, String option) {
-		list.selectListItemEqualsByName(listValue, option);
+	public static void selectListItemEqualsByName(WebElement listValue, String option) {
+		EnhancedBy listValueBy = DriverLegacy.getEnhancedElement(listValue);
+
+		list.selectListItemEqualsByName(listValueBy, option);
 	}
 
 	/**
@@ -1039,8 +1170,11 @@ public class Helper {
 	 * @param option
 	 * @param target
 	 */
-	public static void selectListItemEqualsByName(EnhancedBy listValue, String option, EnhancedBy target) {
-		list.selectListItemEqualsByName(listValue, option, target);
+	public static void selectListItemEqualsByName(WebElement listValue, String option, WebElement target) {
+		EnhancedBy listValueBy = DriverLegacy.getEnhancedElement(listValue);
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+
+		list.selectListItemEqualsByName(listValueBy, option, targetBy);
 	}
 
 	/**
@@ -1051,8 +1185,11 @@ public class Helper {
 	 * @param option
 	 * @param target
 	 */
-	public static void selectListItemContainsByName(EnhancedBy listValue, String option, EnhancedBy target) {
-		list.selectListItemContainsByName(listValue, option, target);
+	public static void selectListItemContainsByName(WebElement listValue, String option, WebElement target) {
+		EnhancedBy listValueBy = DriverLegacy.getEnhancedElement(listValue);
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+
+		list.selectListItemContainsByName(listValueBy, option, targetBy);
 	}
 
 	/**
@@ -1063,8 +1200,11 @@ public class Helper {
 	 * @param target
 	 * @return index of element in list
 	 */
-	public static int getElementIndexInList(EnhancedBy srcList, EnhancedBy target) {
-		return list.getElementIndexInList(srcList, target);
+	public static int getElementIndexInList(WebElement srcList, WebElement target) {
+		EnhancedBy srcListBy = DriverLegacy.getEnhancedElement(srcList);
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+
+		return list.getElementIndexInList(srcListBy, targetBy);
 	}
 
 	/**
@@ -1075,8 +1215,11 @@ public class Helper {
 	 * @param rows
 	 * @return
 	 */
-	public List<String> getRowValuesFromList(EnhancedBy list, int index, EnhancedBy rows) {
-		return getRowValuesFromList(list, index, rows);
+	public List<String> getRowValuesFromList(WebElement list, int index, WebElement rows) {
+		EnhancedBy listBy = DriverLegacy.getEnhancedElement(list);
+		EnhancedBy rowsBy = DriverLegacy.getEnhancedElement(rows);
+
+		return getRowValuesFromList(listBy, index, rowsBy);
 	}
 
 	/**
@@ -1086,8 +1229,12 @@ public class Helper {
 	 * @param dataRows
 	 * @return
 	 */
-	public HashMap<String, List<String>> getTableMap(EnhancedBy columns, EnhancedBy dataRows, EnhancedBy dataCells) {
-		return getTableMap(columns, dataRows, dataCells);
+	public HashMap<String, List<String>> getTableMap(WebElement columns, WebElement dataRows, WebElement dataCells) {
+		EnhancedBy columnsBy = DriverLegacy.getEnhancedElement(columns);
+		EnhancedBy dataRowsBy = DriverLegacy.getEnhancedElement(dataRows);
+		EnhancedBy dataCellsBy = DriverLegacy.getEnhancedElement(dataCells);
+		
+		return getTableMap(columnsBy, dataRowsBy, dataCellsBy);
 	}
 
 	/**
@@ -1099,9 +1246,13 @@ public class Helper {
 	 * @param maxRows
 	 * @return
 	 */
-	public HashMap<String, List<String>> getTableMap(EnhancedBy columns, EnhancedBy dataRows, EnhancedBy dataCells,
+	public HashMap<String, List<String>> getTableMap(WebElement columns, WebElement dataRows, WebElement dataCells,
 			int maxRows) {
-		return getTableMap(columns, dataRows, dataCells, maxRows);
+		EnhancedBy columnsBy = DriverLegacy.getEnhancedElement(columns);
+		EnhancedBy dataRowsBy = DriverLegacy.getEnhancedElement(dataRows);
+		EnhancedBy dataCellsBy = DriverLegacy.getEnhancedElement(dataCells);
+
+		return getTableMap(columnsBy, dataRowsBy, dataCellsBy, maxRows);
 	}
 
 	/**
@@ -1115,9 +1266,12 @@ public class Helper {
 	 * @param maxRows
 	 * @return
 	 */
-	public HashMap<String, List<String>> getTableMap(EnhancedBy columns, int columnInitialIndex, EnhancedBy dataRows,
-			int rowInitialIndex, EnhancedBy dataCells, int maxRows) {
-		return getTableMap(columns, columnInitialIndex, dataRows, rowInitialIndex, dataCells, maxRows);
+	public HashMap<String, List<String>> getTableMap(WebElement columns, int columnInitialIndex, WebElement dataRows,
+			int rowInitialIndex, WebElement dataCells, int maxRows) {
+		EnhancedBy columnsBy = DriverLegacy.getEnhancedElement(columns);
+		EnhancedBy dataRowsBy = DriverLegacy.getEnhancedElement(dataRows);
+		EnhancedBy dataCellsBy = DriverLegacy.getEnhancedElement(dataCells);
+		return getTableMap(columnsBy, columnInitialIndex, dataRowsBy, rowInitialIndex, dataCellsBy, maxRows);
 	}
 
 	/**
@@ -1128,8 +1282,10 @@ public class Helper {
 	 * @param dataCells
 	 * @return
 	 */
-	public HashMap<Integer, List<String>> getTableMap(EnhancedBy dataRows, EnhancedBy dataCells) {
-		return getTableMap(dataRows, dataCells);
+	public HashMap<Integer, List<String>> getTableMap(WebElement dataRows, WebElement dataCells) {
+		EnhancedBy dataRowsBy = DriverLegacy.getEnhancedElement(dataRows);
+		EnhancedBy dataCellsBy = DriverLegacy.getEnhancedElement(dataCells);
+		return getTableMap(dataRowsBy, dataCellsBy);
 	}
 	
 	/**
@@ -1141,8 +1297,10 @@ public class Helper {
 	 * @param option
 	 * @param target
 	 */
-	public static void selectElementContainedInList(EnhancedBy listValue, String option, EnhancedBy target, int targetIndex) {
-		list.selectElementContainedInList(listValue, option, target, targetIndex);
+	public static void selectElementContainedInList(WebElement listValue, String option, WebElement target, int targetIndex) {
+		EnhancedBy listValueBy = DriverLegacy.getEnhancedElement(listValue);
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		list.selectElementContainedInList(listValueBy, option, targetBy, targetIndex);
 	}
 
 	/**
@@ -1154,8 +1312,10 @@ public class Helper {
 	 * @param option
 	 * @param target
 	 */
-	public static void selectElementContainedInList(EnhancedBy listValue, String option, EnhancedBy target) {
-		list.selectElementContainedInList(listValue, option, target);
+	public static void selectElementContainedInList(WebElement listValue, String option, WebElement target) {
+		EnhancedBy listValueBy = DriverLegacy.getEnhancedElement(listValue);
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		list.selectElementContainedInList(listValueBy, option, targetBy);
 	}
 
 	/**
@@ -1166,8 +1326,9 @@ public class Helper {
 	 * @param list
 	 * @param option
 	 */
-	public static void selectListItemContainsByName(EnhancedBy listValue, String option) {
-		list.selectListItemContainsByName(listValue, option);
+	public static void selectListItemContainsByName(WebElement listValue, String option) {
+		EnhancedBy listValueBy = DriverLegacy.getEnhancedElement(listValue);
+		list.selectListItemContainsByName(listValueBy, option);
 	}
 
 	/**
@@ -1176,9 +1337,9 @@ public class Helper {
 	 * @param list
 	 * @param option
 	 */
-	public static void selectListItemByIndex(EnhancedBy listValue, int index) {
-		;
-		list.selectListItemByIndex(listValue, index);
+	public static void selectListItemByIndex(WebElement listValue, int index) {
+		EnhancedBy listValueBy = DriverLegacy.getEnhancedElement(listValue);
+		list.selectListItemByIndex(listValueBy, index);
 	}
 
 	/**
@@ -1187,8 +1348,9 @@ public class Helper {
 	 * @param list
 	 * @return
 	 */
-	public static int getListCount(EnhancedBy listValue) {
-		return list.getListCount(listValue);
+	public static int getListCount(WebElement listValue) {
+		EnhancedBy listValueBy = DriverLegacy.getEnhancedElement(listValue);
+		return list.getListCount(listValueBy);
 	}
 
 	/**
@@ -1198,8 +1360,9 @@ public class Helper {
 	 * @param option
 	 * @return
 	 */
-	public static int getElementIndexEqualsByText(EnhancedBy listValue, String option) {
-		return list.getElementIndexEqualsByText(listValue, option);
+	public static int getElementIndexEqualsByText(WebElement listValue, String option) {
+		EnhancedBy listValueBy = DriverLegacy.getEnhancedElement(listValue);
+		return list.getElementIndexEqualsByText(listValueBy, option);
 	}
 
 	/**
@@ -1209,8 +1372,9 @@ public class Helper {
 	 * @param option
 	 * @return
 	 */
-	public static int getElementIndexContainByText(EnhancedBy listValue, String option) {
-		return list.getElementIndexContainByText(listValue, option);
+	public static int getElementIndexContainByText(WebElement listValue, String option) {
+		EnhancedBy listValueBy = DriverLegacy.getEnhancedElement(listValue);
+		return list.getElementIndexContainByText(listValueBy, option);
 	}
 
 	/**
@@ -1243,8 +1407,9 @@ public class Helper {
 	 * @param list
 	 * @param option
 	 */
-	public static void verifyContainsIsInList(EnhancedBy listValue, String option) {
-		list.verifyContainsIsInList(listValue, option);
+	public static void verifyContainsIsInList(WebElement listValue, String option) {
+		EnhancedBy listValueBy = DriverLegacy.getEnhancedElement(listValue);
+		list.verifyContainsIsInList(listValueBy, option);
 	}
 
 	/**
@@ -1254,8 +1419,9 @@ public class Helper {
 	 * @param list
 	 * @param option
 	 */
-	public static void verifyIsInList(EnhancedBy listValue, String option) {
-		list.verifyIsInList(listValue, option);
+	public static void verifyIsInList(WebElement listValue, String option) {
+		EnhancedBy listValueBy = DriverLegacy.getEnhancedElement(listValue);
+		list.verifyIsInList(listValueBy, option);
 	}
 
 	/**
@@ -1265,8 +1431,9 @@ public class Helper {
 	 * @param indicator
 	 * @param option
 	 */
-	public static void verifyIsInList(EnhancedBy listValue, String indicator, String option) {
-		list.verifyIsInList(listValue, indicator, option);
+	public static void verifyIsInList(WebElement listValue, String indicator, String option) {
+		EnhancedBy listValueBy = DriverLegacy.getEnhancedElement(listValue);
+		list.verifyIsInList(listValueBy, indicator, option);
 	}
 
 	/**
@@ -1276,8 +1443,9 @@ public class Helper {
 	 * @param option
 	 * @return
 	 */
-	public static boolean isContainedInList(EnhancedBy listValue, String option) {
-		return list.isContainedInList(listValue, option);
+	public static boolean isContainedInList(WebElement listValue, String option) {
+		EnhancedBy listValueBy = DriverLegacy.getEnhancedElement(listValue);
+		return list.isContainedInList(listValueBy, option);
 	}
 
 	/**
@@ -1287,8 +1455,9 @@ public class Helper {
 	 * @param option
 	 * @return
 	 */
-	public static boolean isExactMatchInList(EnhancedBy listValue, String option) {
-		return list.isExactMatchInList(listValue, option);
+	public static boolean isExactMatchInList(WebElement listValue, String option) {
+		EnhancedBy listValueBy = DriverLegacy.getEnhancedElement(listValue);
+		return list.isExactMatchInList(listValueBy, option);
 	}
 
 	/**
@@ -1297,8 +1466,9 @@ public class Helper {
 	 * @param list
 	 * @return
 	 */
-	public static List<String> getListValues(EnhancedBy listValue) {
-		return list.getListValues(listValue);
+	public static List<String> getListValues(WebElement listValue) {
+		EnhancedBy listValueBy = DriverLegacy.getEnhancedElement(listValue);
+		return list.getListValues(listValueBy);
 	}
 
 	/**
@@ -1307,8 +1477,9 @@ public class Helper {
 	 * @param list
 	 * @return
 	 */
-	public static List<String> getTextList(EnhancedBy listValue) {
-		return list.getTextList(listValue);
+	public static List<String> getTextList(WebElement listValue) {
+		EnhancedBy listValueBy = DriverLegacy.getEnhancedElement(listValue);
+		return list.getTextList(listValueBy);
 	}
 
 	// MobileHelper
@@ -1417,8 +1588,9 @@ public class Helper {
 	/**
 	 * swipe right on the screen based on element position
 	 */
-	public void mobile_swipeRight(EnhancedBy element, int index, double durationInSeconds) {
-		mobile.mobile_swipeRight(element, index, durationInSeconds);
+	public void mobile_swipeRight(WebElement element, int index, double durationInSeconds) {
+		EnhancedBy elementBy = DriverLegacy.getEnhancedElement(element);
+		mobile.mobile_swipeRight(elementBy, index, durationInSeconds);
 	}
 
 	/**
@@ -1431,15 +1603,17 @@ public class Helper {
 	/**
 	 * swipe left on the screen based on element position
 	 */
-	public void mobile_swipeLeft(EnhancedBy element, int index, double durationInSeconds) {
-		mobile.mobile_swipeLeft(element, index, durationInSeconds);
+	public void mobile_swipeLeft(WebElement element, int index, double durationInSeconds) {
+		EnhancedBy elementBy = DriverLegacy.getEnhancedElement(element);
+		mobile.mobile_swipeLeft(elementBy, index, durationInSeconds);
 	}
 
 	/**
 	 * swipe up on the screen based on element position
 	 */
-	public void mobile_swipeUp(EnhancedBy element, int index, double durationInSeconds) {
-		mobile.mobile_swipeUp(element, index, durationInSeconds);
+	public void mobile_swipeUp(WebElement element, int index, double durationInSeconds) {
+		EnhancedBy elementBy = DriverLegacy.getEnhancedElement(element);
+		mobile.mobile_swipeUp(elementBy, index, durationInSeconds);
 	}
 
 	/**
@@ -1459,8 +1633,9 @@ public class Helper {
 	/**
 	 * swipe down on the screen based on element position
 	 */
-	public void mobile_swipeDown(EnhancedBy element, int index, double durationInSeconds) {
-		mobile.mobile_swipeDown(element, index, durationInSeconds);
+	public void mobile_swipeDown(WebElement element, int index, double durationInSeconds) {
+		EnhancedBy elementBy = DriverLegacy.getEnhancedElement(element);
+		mobile.mobile_swipeDown(elementBy, index, durationInSeconds);
 	}
 
 	/**
@@ -1508,8 +1683,9 @@ public class Helper {
 	 * @param miliSeconds
 	 * @param expected
 	 */
-	public static void mobile_longPress(EnhancedBy target, long miliSeconds) {
-		mobile.mobile_longPress(target, miliSeconds);
+	public static void mobile_longPress(WebElement target, long miliSeconds) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		mobile.mobile_longPress(targetBy, miliSeconds);
 	}
 
 	/**
@@ -1519,8 +1695,10 @@ public class Helper {
 	 * @param miliSeconds
 	 * @param expected
 	 */
-	public static void mobile_longPressAndExpect(EnhancedBy target, long miliSeconds, EnhancedBy expected) {
-		mobile.mobile_longPressAndExpect(target, miliSeconds, expected);
+	public static void mobile_longPressAndExpect(WebElement target, long miliSeconds, WebElement expected) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		EnhancedBy expectedBy = DriverLegacy.getEnhancedElement(expected);
+		mobile.mobile_longPressAndExpect(targetBy, miliSeconds, expectedBy);
 	}
 
 	/**
@@ -1538,8 +1716,9 @@ public class Helper {
 	 * @param zoomLevel
 	 * @param indicator
 	 */
-	public static void mobile_zoomOut(EnhancedBy indicator) {
-		mobile.mobile_zoomOut(indicator);
+	public static void mobile_zoomOut(WebElement indicator) {
+		EnhancedBy indicatorBy = DriverLegacy.getEnhancedElement(indicator);
+		mobile.mobile_zoomOut(indicatorBy);
 	}
 
 	/**
@@ -1548,8 +1727,9 @@ public class Helper {
 	 * @param zoomLevel
 	 * @param indicator
 	 */
-	public static void mobile_zoomIn(EnhancedBy indicator) {
-		mobile.mobile_zoomIn(indicator);
+	public static void mobile_zoomIn(WebElement indicator) {
+		EnhancedBy indicatorBy = DriverLegacy.getEnhancedElement(indicator);
+		mobile.mobile_zoomIn(indicatorBy);
 	}
 
 	/**
@@ -1573,8 +1753,9 @@ public class Helper {
 	 * 
 	 * @param target
 	 */
-	public static void mobile_scrollToElement(EnhancedBy target) {
-		mobile.mobile_scrollToElement(target);
+	public static void mobile_scrollToElement(WebElement target) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		mobile.mobile_scrollToElement(targetBy);
 	}
 
 	// PageHelper
@@ -1608,8 +1789,9 @@ public class Helper {
 	 * 
 	 * @param frame
 	 */
-	public static void switchIframe(EnhancedBy frame) {
-		page.switchIframe(frame);
+	public static void switchIframe(WebElement frame) {
+		EnhancedBy frameBy = DriverLegacy.getEnhancedElement(frame);
+		page.switchIframe(frameBy);
 	}
 
 	/**
@@ -1856,8 +2038,9 @@ public class Helper {
 	 * @param by
 	 * @return
 	 */
-	public static Boolean isVisibleInViewport(EnhancedBy by, int index) {
-		return page.isVisibleInViewport(by, index);
+	public static Boolean isVisibleInViewport(WebElement element, int index) {
+		EnhancedBy elementBy = DriverLegacy.getEnhancedElement(element);
+		return page.isVisibleInViewport(elementBy, index);
 	}
 	
 	/**
@@ -1907,8 +2090,9 @@ public class Helper {
 	 * scroll to web element
 	 * @param element
 	 */
-	public static void scrollToWebElement(EnhancedBy element) {
-		page.scrollToWebElement(element);
+	public static void scrollToWebElement(WebElement element) {
+		EnhancedBy elementBy = DriverLegacy.getEnhancedElement(element);
+		page.scrollToWebElement(elementBy);
 	}
 	
 	public boolean isFirefox() {
@@ -1932,8 +2116,9 @@ public class Helper {
 	 * @param element
 	 * @param index
 	 */
-	public static void scrollToWebElement(EnhancedBy element, int index) {
-		page.scrollToWebElement(element, index);
+	public static void scrollToWebElement(WebElement element, int index) {
+		EnhancedBy elementBy = DriverLegacy.getEnhancedElement(element);
+		page.scrollToWebElement(elementBy, index);
 	}
 	
 
@@ -1944,8 +2129,9 @@ public class Helper {
 	 * @param by
 	 * @return
 	 */
-	public static Boolean isVisibleInViewport(EnhancedBy by) {
-		return page.isVisibleInViewport(by);
+	public static Boolean isVisibleInViewport(WebElement element) {
+		EnhancedBy elementBy = DriverLegacy.getEnhancedElement(element);
+		return page.isVisibleInViewport(elementBy);
 	}
 
 	/**
@@ -1955,9 +2141,10 @@ public class Helper {
 	 * @param index
 	 * @param attribute
 	 */
-	public static String getAttribute(EnhancedBy byValue, String attribute) {
-		Helper.wait.waitForElementToLoad(byValue);
-		return ElementHelper.getAttribute(byValue, attribute);
+	public static String getAttribute(WebElement byValue, String attribute) {
+		EnhancedBy byValueBy = DriverLegacy.getEnhancedElement(byValue);
+		Helper.wait.waitForElementToLoad(byValueBy);
+		return ElementHelper.getAttribute(byValueBy, attribute);
 	}
 
 	/**
@@ -1967,8 +2154,9 @@ public class Helper {
 	 * @param classValue
 	 * @return
 	 */
-	public static boolean isElementContainingClass(EnhancedBy by, String classValue) {
-		return ElementHelper.isElementContainingClass(by, classValue);
+	public static boolean isElementContainingClass(WebElement element, String classValue) {
+		EnhancedBy elementBy = DriverLegacy.getEnhancedElement(element);
+		return ElementHelper.isElementContainingClass(elementBy, classValue);
 	}
 
 	/**
@@ -1978,8 +2166,9 @@ public class Helper {
 	 * @param classValue
 	 * @return
 	 */
-	public static boolean isAttributeContaining(EnhancedBy by, String attribute, String value) {
-		return ElementHelper.isAttributeContaining(by, attribute, value);
+	public static boolean isAttributeContaining(WebElement element, String attribute, String value) {
+		EnhancedBy elementBy = DriverLegacy.getEnhancedElement(element);
+		return ElementHelper.isAttributeContaining(elementBy, attribute, value);
 	}
 
 	/**
@@ -1989,8 +2178,9 @@ public class Helper {
 	 * @param index
 	 * @param attribute
 	 */
-	public static String getAttribute(EnhancedBy byValue, int index, String attribute) {
-		return ElementHelper.getAttribute(byValue, index, attribute);
+	public static String getAttribute(WebElement element, int index, String attribute) {
+		EnhancedBy elementBy = DriverLegacy.getEnhancedElement(element);
+		return ElementHelper.getAttribute(elementBy, index, attribute);
 	}
 
 	/**
@@ -2000,8 +2190,9 @@ public class Helper {
 	 * @param attribute
 	 * @param value
 	 */
-	public static void setAttribute(EnhancedBy by, String attribute, String value) {
-		ElementHelper.setAttribute(by, attribute, value);
+	public static void setAttribute(WebElement element, String attribute, String value) {
+		EnhancedBy elementBy = DriverLegacy.getEnhancedElement(element);
+		ElementHelper.setAttribute(elementBy, attribute, value);
 	}
 
 	/**
@@ -2012,8 +2203,9 @@ public class Helper {
 	 * @param attribute
 	 * @param value
 	 */
-	public static void setAttribute(EnhancedBy by, int index, String attribute, String value) {
-		ElementHelper.setAttribute(by, index, attribute, value);
+	public static void setAttribute(WebElement element, int index, String attribute, String value) {
+		EnhancedBy elementBy = DriverLegacy.getEnhancedElement(element);
+		ElementHelper.setAttribute(elementBy, index, attribute, value);
 	}
 
 	/**
@@ -2022,8 +2214,9 @@ public class Helper {
 	 * @param by
 	 * @return
 	 */
-	public static Dimension getElementSize(EnhancedBy by) {
-		return ElementHelper.getElementSize(by);
+	public static Dimension getElementSize(WebElement element) {
+		EnhancedBy elementBy = DriverLegacy.getEnhancedElement(element);
+		return ElementHelper.getElementSize(elementBy);
 	}
 
 	/**
@@ -2032,8 +2225,9 @@ public class Helper {
 	 * @param by
 	 * @return
 	 */
-	public static Point getElementPosition(EnhancedBy by) {
-		return ElementHelper.getElementPosition(by);
+	public static Point getElementPosition(WebElement element) {
+		EnhancedBy elementBy = DriverLegacy.getEnhancedElement(element);
+		return ElementHelper.getElementPosition(elementBy);
 	}
 
 	/**
@@ -2043,8 +2237,9 @@ public class Helper {
 	 * @param index
 	 * @return
 	 */
-	public static Point getElementPosition(EnhancedBy by, int index) {
-		return ElementHelper.getElementPosition(by, index);
+	public static Point getElementPosition(WebElement element, int index) {
+		EnhancedBy elementBy = DriverLegacy.getEnhancedElement(element);
+		return ElementHelper.getElementPosition(elementBy, index);
 	}
 
 	/**
@@ -2053,8 +2248,9 @@ public class Helper {
 	 * @param target
 	 * @return
 	 */
-	public static int[] findElementCoordinates(EnhancedBy target) {
-		return ElementHelper.findMiddleOfElement(target);
+	public static int[] findElementCoordinates(WebElement target) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		return ElementHelper.findMiddleOfElement(targetBy);
 	}
 
 	/**
@@ -2063,8 +2259,9 @@ public class Helper {
 	 * @param target
 	 * @return
 	 */
-	public static int[] findMiddleOfElement(EnhancedBy target) {
-		return ElementHelper.findMiddleOfElement(target);
+	public static int[] findMiddleOfElement(WebElement target) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		return ElementHelper.findMiddleOfElement(targetBy);
 	}
 
 	// WaitHelper
@@ -2074,8 +2271,9 @@ public class Helper {
 	 * 
 	 * @param target
 	 */
-	public static void waitForElementToLoad(final EnhancedBy target) {
-		wait.waitForElementToLoad(target);
+	public static void waitForElementToLoad(final WebElement target) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		wait.waitForElementToLoad(targetBy);
 	}
 
 	/**
@@ -2085,8 +2283,9 @@ public class Helper {
 	 * @param target
 	 * @param time
 	 */
-	public static boolean waitForElementToLoad(final EnhancedBy target, int time) {
-		return wait.waitForElementToLoad(target, time);
+	public static boolean waitForElementToLoad(final WebElement target, int time) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		return wait.waitForElementToLoad(targetBy, time);
 	}
 
 	/**
@@ -2097,9 +2296,12 @@ public class Helper {
 	 * @param time
 	 * @return
 	 */
-	public static boolean waitForFirstElementToLoad(final EnhancedBy element1, final EnhancedBy element2,
-			final EnhancedBy element3) {
-		return wait.waitForFirstElementToLoad(element1, element2, element3);
+	public static boolean waitForFirstElementToLoad(final WebElement element1, final WebElement element2,
+			final WebElement element3) {
+		EnhancedBy element1By = DriverLegacy.getEnhancedElement(element1);
+		EnhancedBy element2By = DriverLegacy.getEnhancedElement(element2);
+		EnhancedBy element3By = DriverLegacy.getEnhancedElement(element3);
+		return wait.waitForFirstElementToLoad(element1By, element2By, element3By);
 	}
 
 	/**
@@ -2110,9 +2312,12 @@ public class Helper {
 	 * @param time
 	 * @return
 	 */
-	public static boolean waitForFirstElementToLoad(final EnhancedBy element1, final EnhancedBy element2,
-			final EnhancedBy element3, int time) {
-		return wait.waitForFirstElementToLoad(element1, element2, element3, time);
+	public static boolean waitForFirstElementToLoad(final WebElement element1, final WebElement element2,
+			final WebElement element3, int time) {
+		EnhancedBy element1By = DriverLegacy.getEnhancedElement(element1);
+		EnhancedBy element2By = DriverLegacy.getEnhancedElement(element2);
+		EnhancedBy element3By = DriverLegacy.getEnhancedElement(element3);
+		return wait.waitForFirstElementToLoad(element1By, element2By, element3By, time);
 	}
 
 	/**
@@ -2123,8 +2328,10 @@ public class Helper {
 	 * @param time
 	 * @return
 	 */
-	public static boolean waitForFirstElementToLoad(final EnhancedBy element1, final EnhancedBy element2, int time) {
-		return wait.waitForFirstElementToLoad(element1, element2, time);
+	public static boolean waitForFirstElementToLoad(final WebElement element1, final WebElement element2, int time) {
+		EnhancedBy element1By = DriverLegacy.getEnhancedElement(element1);
+		EnhancedBy element2By = DriverLegacy.getEnhancedElement(element2);
+		return wait.waitForFirstElementToLoad(element1By, element2By, time);
 	}
 
 	/**
@@ -2135,8 +2342,10 @@ public class Helper {
 	 * @param time
 	 * @return
 	 */
-	public static boolean waitForFirstElementToLoad(final EnhancedBy element1, final EnhancedBy element2) {
-		return wait.waitForFirstElementToLoad(element1, element2);
+	public static boolean waitForFirstElementToLoad(final WebElement element1, final WebElement element2) {
+		EnhancedBy element1By = DriverLegacy.getEnhancedElement(element1);
+		EnhancedBy element2By = DriverLegacy.getEnhancedElement(element2);
+		return wait.waitForFirstElementToLoad(element1By, element2By);
 	}
 
 	/**
@@ -2144,8 +2353,9 @@ public class Helper {
 	 * 
 	 * @param target
 	 */
-	public static void mobile_waitAndRefreshForElementToLoad(final EnhancedBy target, int time) {
-		wait.mobile_waitAndRefreshForElementToLoad(target, time);
+	public static void mobile_waitAndRefreshForElementToLoad(final WebElement target, int time) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		wait.mobile_waitAndRefreshForElementToLoad(targetBy, time);
 	}
 
 	/**
@@ -2153,8 +2363,9 @@ public class Helper {
 	 * 
 	 * @param target
 	 */
-	public static void mobile_waitAndRefreshForElementToLoad(final EnhancedBy target) {
-		wait.mobile_waitAndRefreshForElementToLoad(target);
+	public static void mobile_waitAndRefreshForElementToLoad(final WebElement target) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		wait.mobile_waitAndRefreshForElementToLoad(targetBy);
 	}
 
 	/**
@@ -2166,8 +2377,9 @@ public class Helper {
 	 * @param count:  minimum count of elements to wait for in list
 	 * @return
 	 */
-	public static boolean waitForElementToLoad(final EnhancedBy target, int time, int count) {
-		return wait.waitForElementToLoad(target, time, count);
+	public static boolean waitForElementToLoad(final WebElement target, int time, int count) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		return wait.waitForElementToLoad(targetBy, time, count);
 	}
 
 	/**
@@ -2177,8 +2389,9 @@ public class Helper {
 	 * @param target
 	 * @param originalCount
 	 */
-	public static void waitForAdditionalElementsToLoad(final EnhancedBy target, final int originalCount) {
-		wait.waitForAdditionalElementsToLoad(target, originalCount);
+	public static void waitForAdditionalElementsToLoad(final WebElement target, final int originalCount) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		wait.waitForAdditionalElementsToLoad(targetBy, originalCount);
 	}
 
 	/**
@@ -2188,8 +2401,9 @@ public class Helper {
 	 * @param target
 	 * @param originalCount
 	 */
-	public static void waitForAdditionalElementsToLoad(final EnhancedBy target, final int originalCount, int time) {
-		wait.waitForAdditionalElementsToLoad(target, originalCount, time);
+	public static void waitForAdditionalElementsToLoad(final WebElement target, final int originalCount, int time) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		wait.waitForAdditionalElementsToLoad(targetBy, originalCount, time);
 	}
 
 	/**
@@ -2198,8 +2412,9 @@ public class Helper {
 	 * @param target
 	 * @return 
 	 */
-	public static boolean waitForElementToBeRemoved(final EnhancedBy target) {
-		return wait.waitForElementToBeRemoved(target);
+	public static boolean waitForElementToBeRemoved(final WebElement target) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		return wait.waitForElementToBeRemoved(targetBy);
 	}
 
 	/**
@@ -2208,8 +2423,9 @@ public class Helper {
 	 * @param target
 	 * @param time   : maximum amount of time in seconds to wait
 	 */
-	public static boolean waitForElementToBeRemoved(final EnhancedBy target, int time) {
-		return wait.waitForElementToBeRemoved(target, time);
+	public static boolean waitForElementToBeRemoved(final WebElement target, int time) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		return wait.waitForElementToBeRemoved(targetBy, time);
 	}
 	
 	/**
@@ -2219,8 +2435,9 @@ public class Helper {
 	 * @param time   : maximum amount of time in seconds to wait. use AbstractDriver.TIMEOUT_SECONDS for default timeout
 	 * @param waitForTargetToLoadInSeconds wait for element to load before waiting for element to be removed  
 	 */
-	public static boolean waitForElementToBeRemoved(final EnhancedBy target, int time, int waitForTargetToLoadInSeconds) {
-		return wait.waitForElementToBeRemoved(target, time, waitForTargetToLoadInSeconds);
+	public static boolean waitForElementToBeRemoved(final WebElement target, int time, int waitForTargetToLoadInSeconds) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		return wait.waitForElementToBeRemoved(targetBy, time, waitForTargetToLoadInSeconds);
 	}
 
 	/**
@@ -2246,8 +2463,9 @@ public class Helper {
 	 * @param option
 	 * @param time
 	 */
-	public static void waitForListItemToLoad_Contains(final EnhancedBy list, String option) {
-		wait.waitForListItemToLoad_Contains(list, option);
+	public static void waitForListItemToLoad_Contains(final WebElement list, String option) {
+		EnhancedBy listBy = DriverLegacy.getEnhancedElement(list);
+		wait.waitForListItemToLoad_Contains(listBy, option);
 	}
 
 	/**
@@ -2255,8 +2473,9 @@ public class Helper {
 	 * 
 	 * @param target
 	 */
-	public static void waitForTextToLoad(final EnhancedBy target, String text) {
-		wait.waitForTextToLoad(target, text);
+	public static void waitForTextToLoad(final WebElement target, String text) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		wait.waitForTextToLoad(targetBy, text);
 	}
 
 	/**
@@ -2266,8 +2485,9 @@ public class Helper {
 	 * @param target
 	 * @param time
 	 */
-	public static void waitForTextToLoad(final EnhancedBy target, int time, String text) {
-		wait.waitForTextToLoad(target, text);
+	public static void waitForTextToLoad(final WebElement target, int time, String text) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		wait.waitForTextToLoad(targetBy, text);
 	}
 
 	/**
@@ -2277,8 +2497,9 @@ public class Helper {
 	 * @param selector
 	 * @return
 	 */
-	public static boolean waitForElementToBeClickable(EnhancedBy selector) {
-		return wait.waitForElementToBeClickable(selector);
+	public static boolean waitForElementToBeClickable(WebElement selector) {
+		EnhancedBy selectorBy = DriverLegacy.getEnhancedElement(selector);
+		return wait.waitForElementToBeClickable(selectorBy);
 	}
 
 	/**
@@ -2288,8 +2509,9 @@ public class Helper {
 	 * @param selector
 	 * @return
 	 */
-	public static boolean waitForElementToBeClickable(EnhancedBy selector, int timeInSeconds) {
-		return wait.waitForElementToBeClickable(selector, timeInSeconds);
+	public static boolean waitForElementToBeClickable(WebElement selector, int timeInSeconds) {
+		EnhancedBy selectorBy = DriverLegacy.getEnhancedElement(selector);
+		return wait.waitForElementToBeClickable(selectorBy, timeInSeconds);
 	}
 
 	/**
@@ -2300,8 +2522,9 @@ public class Helper {
 	 * @param value
 	 * @return
 	 */
-	public boolean waitForClassContain(final EnhancedBy target, int index, String value) {
-		return wait.waitForClassContain(target, index, value);
+	public boolean waitForClassContain(final WebElement target, int index, String value) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		return wait.waitForClassContain(targetBy, index, value);
 	}
 
 	/**
@@ -2313,8 +2536,9 @@ public class Helper {
 	 * @param time
 	 * @return
 	 */
-	public boolean waitForClassContain(final EnhancedBy target, int index, String value, int time) {
-		return wait.waitForClassContain(target, index, value, time);
+	public boolean waitForClassContain(final WebElement target, int index, String value, int time) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		return wait.waitForClassContain(targetBy, index, value, time);
 	}
 
 	/**
@@ -2325,8 +2549,9 @@ public class Helper {
 	 * @param text
 	 * @return
 	 */
-	public static boolean waitForAnyTextToLoadContaining(final EnhancedBy target, String... text) {
-		return wait.waitForAnyTextToLoad(target, text);
+	public static boolean waitForAnyTextToLoadContaining(final WebElement target, String... text) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		return wait.waitForAnyTextToLoad(targetBy, text);
 	}
 
 	/**
@@ -2337,8 +2562,9 @@ public class Helper {
 	 * @param text
 	 * @return
 	 */
-	public static boolean waitForAnyTextToLoadContaining(final EnhancedBy target, int time, String... text) {
-		return wait.waitForAnyTextToLoad(target, time, text);
+	public static boolean waitForAnyTextToLoadContaining(final WebElement target, int time, String... text) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		return wait.waitForAnyTextToLoad(targetBy, time, text);
 	}
 
 	/**
@@ -2349,8 +2575,9 @@ public class Helper {
 	 * @param text
 	 * @return
 	 */
-	public static boolean waitForAnyTextToLoad(final EnhancedBy target, String... text) {
-		return wait.waitForAnyTextToLoad(target, text);
+	public static boolean waitForAnyTextToLoad(final WebElement target, String... text) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		return wait.waitForAnyTextToLoad(targetBy, text);
 	}
 
 	/**
@@ -2361,8 +2588,9 @@ public class Helper {
 	 * @param text
 	 * @return
 	 */
-	public static boolean waitForAnyTextToLoad(final EnhancedBy target, int time, String... text) {
-		return wait.waitForAnyTextToLoad(target, time, text);
+	public static boolean waitForAnyTextToLoad(final WebElement target, int time, String... text) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		return wait.waitForAnyTextToLoad(targetBy, time, text);
 	}
 
 	// StopWatchHelper
@@ -2451,8 +2679,9 @@ public class Helper {
 	 * @param by
 	 * @param index
 	 */
-	public static void highLightWebElement(EnhancedBy by, int index) {
-		UtilityHelper.highLightWebElement(by, index);
+	public static void highLightWebElement(WebElement target, int index) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		UtilityHelper.highLightWebElement(targetBy, index);
 	}
 
 	/**
@@ -3094,8 +3323,9 @@ public class Helper {
 	 * 
 	 * @param by
 	 */
-	public static void hoverBy(EnhancedBy by) {
-		ElementActionHelper.hoverBy(by, 0);
+	public static void hoverBy(WebElement element) {
+		EnhancedBy elementBy = DriverLegacy.getEnhancedElement(element);
+		ElementActionHelper.hoverBy(elementBy, 0);
 	}
 
 	/**
@@ -3103,22 +3333,25 @@ public class Helper {
 	 * 
 	 * @param by
 	 */
-	public static void hoverBy(EnhancedBy by, int index) {
-		ElementActionHelper.hoverBy(by, index);
+	public static void hoverBy(WebElement element, int index) {
+		EnhancedBy elementBy = DriverLegacy.getEnhancedElement(element);
+		ElementActionHelper.hoverBy(elementBy, index);
 	}
 
 	/*
 	 * Enter text to an element by action
 	 */
-	public void inputTextByAction(EnhancedBy by, String text) {
-		ElementActionHelper.inputTextByAction(by, text);
+	public void inputTextByAction(WebElement element, String text) {
+		EnhancedBy elementBy = DriverLegacy.getEnhancedElement(element);
+		ElementActionHelper.inputTextByAction(elementBy, text);
 	}
 
 	/*
 	 * Double click an element
 	 */
-	public static void doubleClickBy(EnhancedBy by) {
-		ElementActionHelper.doubleClickBy(by);
+	public static void doubleClickBy(WebElement element) {
+		EnhancedBy elementBy = DriverLegacy.getEnhancedElement(element);
+		ElementActionHelper.doubleClickBy(elementBy);
 	}
 
 	/**
@@ -3137,8 +3370,9 @@ public class Helper {
 	 * @param target
 	 * @param index
 	 */
-	public static void moveToElement(EnhancedBy target, int index) {
-		ElementActionHelper.moveToElement(target, index);
+	public static void moveToElement(WebElement target, int index) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		ElementActionHelper.moveToElement(targetBy, index);
 	}
 
 	/**
@@ -3147,8 +3381,9 @@ public class Helper {
 	 * @param target
 	 * @param index
 	 */
-	public static void moveToElement(EnhancedBy target, int index, int xOffset, int yOffset) {
-		ElementActionHelper.moveToElement(target, index, xOffset, yOffset);
+	public static void moveToElement(WebElement target, int index, int xOffset, int yOffset) {
+		EnhancedBy targetBy = DriverLegacy.getEnhancedElement(target);
+		ElementActionHelper.moveToElement(targetBy, index, xOffset, yOffset);
 	}
 
 	// email helper

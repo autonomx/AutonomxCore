@@ -23,7 +23,7 @@ public class ElementHelper {
 	 * @param index
 	 * @param attribute
 	 */
-	protected static String getAttribute(EnhancedBy byValue, String attribute) {
+	public static String getAttribute(EnhancedBy byValue, String attribute) {
 		return getAttribute(byValue, 0, attribute);
 	}
 
@@ -34,14 +34,14 @@ public class ElementHelper {
 	 * @param index
 	 * @param attribute
 	 */
-	protected static String getAttribute(EnhancedBy byValue, int index, String attribute) {
+	public static String getAttribute(EnhancedBy byValue, int index, String attribute) {
 		Helper.waitForElementToLoad(byValue);
 
 		EnhancedWebElement element = Element.findElements(byValue);
 		return element.getAttribute(attribute, index);
 	}
 
-	protected static boolean isElementContainingClass(EnhancedBy by, String value) {
+	public static boolean isElementContainingClass(EnhancedBy by, String value) {
 		return isAttributeContaining(by, "class", value);
 	}
 
@@ -52,7 +52,7 @@ public class ElementHelper {
 	 * @param classValue
 	 * @return
 	 */
-	protected static boolean isAttributeContaining(EnhancedBy by, String attribute, String value) {
+	public static boolean isAttributeContaining(EnhancedBy by, String attribute, String value) {
 		String attributeValues = getAttribute(by, 0, attribute);
 		return attributeValues.contains(value);
 	}
@@ -64,7 +64,7 @@ public class ElementHelper {
 	 * @param attribute
 	 * @param value
 	 */
-	protected static void setAttribute(EnhancedBy by, String attribute, String value) {
+	public static void setAttribute(EnhancedBy by, String attribute, String value) {
 		setAttribute(by, 0, attribute, value);
 	}
 
@@ -76,7 +76,7 @@ public class ElementHelper {
 	 * @param attribute
 	 * @param value
 	 */
-	protected static void setAttribute(EnhancedBy by, int index, String attribute, String value) {
+	public static void setAttribute(EnhancedBy by, int index, String attribute, String value) {
 
 		if (StringUtils.isBlank(value))
 			return;
@@ -101,7 +101,7 @@ public class ElementHelper {
 	 * @param by
 	 * @return
 	 */
-	protected static Dimension getElementSize(EnhancedBy by) {
+	public static Dimension getElementSize(EnhancedBy by) {
 		Helper.waitForElementToLoad(by);
 		EnhancedWebElement element = Element.findElements(by);
 		return element.getSize();
@@ -113,7 +113,7 @@ public class ElementHelper {
 	 * @param by
 	 * @return
 	 */
-	protected static Point getElementPosition(EnhancedBy by) {
+	public static Point getElementPosition(EnhancedBy by) {
 		return getElementPosition(by, 0);
 	}
 
@@ -124,7 +124,7 @@ public class ElementHelper {
 	 * @param index
 	 * @return
 	 */
-	protected static Point getElementPosition(EnhancedBy by, int index) {
+	public static Point getElementPosition(EnhancedBy by, int index) {
 		Helper.waitForElementToLoad(by);
 		EnhancedWebElement element = Element.findElements(by);
 		return element.getLocation(index);
@@ -136,7 +136,7 @@ public class ElementHelper {
 	 * @param target
 	 * @return
 	 */
-	protected static int[] findMiddleOfElement(EnhancedBy target) {
+	public static int[] findMiddleOfElement(EnhancedBy target) {
 		Helper.waitForElementToLoad(target);
 
 		EnhancedWebElement targetElement = Element.findElements(target);

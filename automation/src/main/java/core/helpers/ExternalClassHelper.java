@@ -20,7 +20,7 @@ import core.support.objects.KeyValue;
 public class ExternalClassHelper {
 	
 	
-	protected static Object runInternalClass(String sourcePath, String methodName, List<KeyValue> parameterList) throws Exception {
+	public static Object runInternalClass(String sourcePath, String methodName, List<KeyValue> parameterList) throws Exception {
 		
 		Class<?> externalClass = Class.forName(sourcePath);
 

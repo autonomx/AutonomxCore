@@ -14,7 +14,7 @@ public class ElementActionHelper {
 	 * 
 	 * @param by
 	 */
-	protected static void hoverBy(EnhancedBy by, int index) {
+	public static void hoverBy(EnhancedBy by, int index) {
 
 		Actions actions = new Actions(AbstractDriver.getWebDriver());
 		EnhancedWebElement targetElement = Element.findElements(by);
@@ -25,7 +25,7 @@ public class ElementActionHelper {
 	/*
 	 * Enter text to an element by action
 	 */
-	protected static void inputTextByAction(EnhancedBy by, String text) {
+	public static void inputTextByAction(EnhancedBy by, String text) {
 		EnhancedWebElement targetElement = Element.findElements(by);
 		Actions action = new Actions(AbstractDriver.getWebDriver());
 		action.moveToElement(targetElement.get(0)).click().sendKeys(text).build().perform();
@@ -34,7 +34,7 @@ public class ElementActionHelper {
 	/*
 	 * Double click an element
 	 */
-	protected static void doubleClickBy(EnhancedBy by) {
+	public static void doubleClickBy(EnhancedBy by) {
 		EnhancedWebElement targetElement = Element.findElements(by);
 		Helper.wait.waitForElementToBeClickable(by);
 		Actions action = new Actions(AbstractDriver.getWebDriver());
@@ -48,7 +48,7 @@ public class ElementActionHelper {
 	 * @param x
 	 * @param y
 	 */
-	protected static void hoverPoints(int x, int y) {
+	public static void hoverPoints(int x, int y) {
 		Actions action = new Actions(AbstractDriver.getWebDriver());
 
 		TestLog.ConsoleLog("Hovering at: point x: " + x + " point y: " + y);
@@ -63,7 +63,7 @@ public class ElementActionHelper {
 	 * @param target
 	 * @param index
 	 */
-	protected static void moveToElement(EnhancedBy target, int index) {
+	public static void moveToElement(EnhancedBy target, int index) {
 		Actions action = new Actions(AbstractDriver.getWebDriver());
 		EnhancedWebElement targetElement = Element.findElements(target);
 		action.moveToElement(targetElement.get(index));
@@ -75,7 +75,7 @@ public class ElementActionHelper {
 	 * @param target
 	 * @param index
 	 */
-	protected static void moveToElement(EnhancedBy target, int index, int xOffset, int yOffset) {
+	public static void moveToElement(EnhancedBy target, int index, int xOffset, int yOffset) {
 		Actions action = new Actions(AbstractDriver.getWebDriver());
 		EnhancedWebElement targetElement = Element.findElements(target);
 		action.moveToElement(targetElement.get(index), xOffset, yOffset);

@@ -78,7 +78,7 @@ public class UtilityHelper {
 	 * @param len
 	 * @return
 	 */
-	protected static String generateRandomString(int len) {
+	public static String generateRandomString(int len) {
 		String AB = "0123456789abcdefghijklmnopqrstuvwxyz";
 		SecureRandom rnd = new SecureRandom();
 
@@ -94,7 +94,7 @@ public class UtilityHelper {
 	 * @param len
 	 * @return
 	 */
-	protected static String generateRandomInteger(int len) {
+	public static String generateRandomInteger(int len) {
 		String AB = "0123456789";
 		SecureRandom rnd = new SecureRandom();
 
@@ -111,7 +111,7 @@ public class UtilityHelper {
 	 * @param max
 	 * @return
 	 */
-	protected static int generateRandomNumber(int min, int max) {
+	public static int generateRandomNumber(int min, int max) {
 		int random = ThreadLocalRandom.current().nextInt(min, max + 1);
 		return random;
 	}
@@ -120,7 +120,7 @@ public class UtilityHelper {
 	 * generate uuid
 	 * @return
 	 */
-	protected static String generateUUID() {
+	public static String generateUUID() {
 		return generateUUID(-1, true);
 	}
 	
@@ -129,7 +129,7 @@ public class UtilityHelper {
 	 * @param includeDash
 	 * @return
 	 */
-	protected static String generateUUID(boolean includeDash) {
+	public static String generateUUID(boolean includeDash) {
 		return generateUUID(-1, includeDash);
 	}
 	
@@ -138,7 +138,7 @@ public class UtilityHelper {
 	 * @param length
 	 * @return
 	 */
-	protected static String generateUUID(int length) {
+	public static String generateUUID(int length) {
 		return generateUUID(length, true);
 	}
 	/**
@@ -146,7 +146,7 @@ public class UtilityHelper {
 	 * @param length
 	 * @return
 	 */
-	protected static String generateUUID(int length, boolean includeDash) {
+	public static String generateUUID(int length, boolean includeDash) {
 		 String uuid = UUID.randomUUID().toString();
 		 if(!includeDash)
 			 uuid = uuid.replace("-", "");
@@ -161,7 +161,7 @@ public class UtilityHelper {
 	 * @param value
 	 * @return
 	 */
-	protected static String stringNormalize(String value) {
+	public static String stringNormalize(String value) {
 		value = StringUtils.normalizeSpace(value);
 		value = value.trim().replace("\n", "").replace("\r", "").replace("\"", "");
 		value = value.replaceAll("\\r|\\n", "");
@@ -175,7 +175,7 @@ public class UtilityHelper {
 	 * @param value
 	 * @return
 	 */
-	protected static String stringRemoveLines(String value) {
+	public static String stringRemoveLines(String value) {
 		value = StringUtils.normalizeSpace(value).trim();
 		return value;
 	}
@@ -187,7 +187,7 @@ public class UtilityHelper {
 	 * @return
 	 * @throws Exception
 	 */
-	protected static boolean isProcessRunning(String serviceName) throws Exception {
+	public static boolean isProcessRunning(String serviceName) throws Exception {
 		String TASKLIST = "tasklist";
 
 		Process p = Runtime.getRuntime().exec(TASKLIST);
@@ -210,13 +210,13 @@ public class UtilityHelper {
 	 * @return
 	 * @throws Exception
 	 */
-	protected static void killWindowsProcess(String serviceName) {
+	public static void killWindowsProcess(String serviceName) {
 		String KILL = "taskkill /F /IM ";
-		excuteCommand(KILL + serviceName);
+		executeCommand(KILL + serviceName);
 	}
 
-	protected static void killMacProcess(String serviceName) {
-		excuteCommand("killall " + serviceName);
+	public static void killMacProcess(String serviceName) {
+		executeCommand("killall " + serviceName);
 	}
 
 	/**
@@ -227,7 +227,7 @@ public class UtilityHelper {
 	 * @return
 	 * @throws IOException
 	 */
-	protected static ArrayList<String> excuteCommand(String command) {
+	public static ArrayList<String> executeCommand(String command) {
 		ArrayList<String> results = new ArrayList<String>();
 
 		if (Helper.isMac() || Helper.isUnix()) {
@@ -246,7 +246,7 @@ public class UtilityHelper {
 	 * @param filePath path from the root directory ( where pom.xml is )
 	 * @return the results as arraylist
 	 */
-	protected static ArrayList<String> excuteCommandFromFile(String filePath) {
+	public static ArrayList<String> excuteCommandFromFile(String filePath) {
 		filePath = Helper.getFullPath(filePath);
 		
 		File file = new File(filePath);
@@ -304,7 +304,7 @@ public class UtilityHelper {
 	 * @param dirFrom
 	 * @param dirTo
 	 */
-	protected static void copyDirectory(String dirFrom, String dirTo) {
+	public static void copyDirectory(String dirFrom, String dirTo) {
 		File srcDir = new File(dirFrom);
 		File destDir = new File(dirTo);
 		try {
@@ -315,7 +315,7 @@ public class UtilityHelper {
 		}
 	}
 
-	protected static void executeJavascript(String script) {
+	public static void executeJavascript(String script) {
 		JavascriptExecutor js = (JavascriptExecutor) AbstractDriver.getWebDriver();
 		js.executeScript(script);
 	}
@@ -328,14 +328,14 @@ public class UtilityHelper {
 	 * @return
 	 * @throws Exception
 	 */
-	protected static ZipOutputStream zipFolder(String srcFolder, String destZipFile) throws Exception {
+	public static ZipOutputStream zipFolder(String srcFolder, String destZipFile) throws Exception {
 		ZipOutputStream zip = createZip(destZipFile);
 		zip.flush();
 		zip.close();
 		return zip;
 	}
 
-	protected static ZipOutputStream createZip(String destZipFile) throws FileNotFoundException {
+	public static ZipOutputStream createZip(String destZipFile) throws FileNotFoundException {
 		ZipOutputStream zip = null;
 		FileOutputStream fileWriter = null;
 		fileWriter = new FileOutputStream(destZipFile);
@@ -343,7 +343,7 @@ public class UtilityHelper {
 		return zip;
 	}
 
-	protected static void addFileToZip(String path, String srcFile, ZipOutputStream zip) throws Exception {
+	public static void addFileToZip(String path, String srcFile, ZipOutputStream zip) throws Exception {
 
 		File folder = new File(srcFile);
 		if (folder.isDirectory()) {
@@ -380,7 +380,7 @@ public class UtilityHelper {
 	 * @param value
 	 * @return
 	 */
-	protected static List<String> getAllValuesStartringWith(String source, String value) {
+	public static List<String> getAllValuesStartringWith(String source, String value) {
 		List<String> values = new ArrayList<String>();
 		Pattern pattern = Pattern.compile(value + "\\w+");
 
@@ -397,7 +397,7 @@ public class UtilityHelper {
 	 * @param pattern regular expression pattern
 	 * @return
 	 */
-	protected static String getValueFromPattern(String str, String pattern) {
+	public static String getValueFromPattern(String str, String pattern) {
 		return getValuesFromPattern(str, pattern).get(0);
 	}
 
@@ -407,7 +407,7 @@ public class UtilityHelper {
 	 * @param pattern regular expression pattern
 	 * @return
 	 */
-	protected static List<String> getValuesFromPattern(String str, String pattern) {
+	public static List<String> getValuesFromPattern(String str, String pattern) {
 		List<String> tagValues = new ArrayList<String>();
 
 		try {
@@ -429,7 +429,7 @@ public class UtilityHelper {
 	 * 
 	 * @return
 	 */
-	protected static String getRootDir() {
+	public static String getRootDir() {
 		if(PropertiesReader.LOCAL_ROOT_PATH !=  null && !PropertiesReader.LOCAL_ROOT_PATH.isEmpty()) {
 			return PropertiesReader.LOCAL_ROOT_PATH;
 		}
@@ -450,7 +450,7 @@ public class UtilityHelper {
 	}
 	
 	
-	protected static boolean isFilenameInDir(File dir, String name) {
+	public static boolean isFilenameInDir(File dir, String name) {
 		if(dir.isFile() && dir.getName().contains(name)) 
 			return true;
 			
@@ -510,7 +510,7 @@ public class UtilityHelper {
 	 * 
 	 * @return
 	 */
-	protected static ArrayList<File> getFileListByType(String directoryPath, String type) {
+	public static ArrayList<File> getFileListByType(String directoryPath, String type) {
 		return getFileListByType(directoryPath, type, false);
 	}
 
@@ -519,7 +519,7 @@ public class UtilityHelper {
 	 * 
 	 * @return
 	 */
-	protected static ArrayList<File> getFileListByType(String directoryPath, String type, boolean includeSubDir) {
+	public static ArrayList<File> getFileListByType(String directoryPath, String type, boolean includeSubDir) {
 		directoryPath = Helper.getFullPath(directoryPath);
 		
 		ArrayList<File> filteredFiles = new ArrayList<File>();
@@ -539,7 +539,7 @@ public class UtilityHelper {
 	 * @param directoryPath
 	 * @return
 	 */
-	protected static ArrayList<File> getFileList(String directoryPath, boolean includeSubDir) {
+	public static ArrayList<File> getFileList(String directoryPath, boolean includeSubDir) {
 		ArrayList<File> testFiles = new ArrayList<File>();
 		if (includeSubDir)
 			testFiles = getFileList(directoryPath, testFiles);
@@ -556,7 +556,7 @@ public class UtilityHelper {
 	 * @param directoryPath
 	 * @return
 	 */
-	protected static ArrayList<File> getFileList(String directoryPath, ArrayList<File> files) {
+	public static ArrayList<File> getFileList(String directoryPath, ArrayList<File> files) {
 		directoryPath = Helper.getFullPath(directoryPath);
 		
 		File directory = new File(directoryPath);
@@ -580,7 +580,7 @@ public class UtilityHelper {
 	 * @param directoryPath
 	 * @return
 	 */
-	protected static ArrayList<File> getFileList(String directoryPath) {
+	public static ArrayList<File> getFileList(String directoryPath) {
 		directoryPath = Helper.getFullPath(directoryPath);
 		
 		File folder = new File(directoryPath);
@@ -606,7 +606,7 @@ public class UtilityHelper {
 	 * @param path
 	 * @return
 	 */
-	protected static String getFullPath(String path) {
+	public static String getFullPath(String path) {
 		path = path.replace("\\", File.separator).replace("//", File.separator);
 		
 		if(!path.contains(Helper.getRootDir()))
@@ -621,7 +621,7 @@ public class UtilityHelper {
 	 * @param directoryPath
 	 * @return
 	 */
-	protected static File getFile(String directoryPath) {
+	public static File getFile(String directoryPath) {
 		directoryPath = Helper.getFullPath(directoryPath);
 		
 		File file = new File(directoryPath);
@@ -637,7 +637,7 @@ public class UtilityHelper {
 	 * @param filename
 	 * @return
 	 */
-	protected static File getFileByName(String path, String filename) {
+	public static File getFileByName(String path, String filename) {
 		return getFileByName(path, filename, false);
 	}
 
@@ -648,7 +648,7 @@ public class UtilityHelper {
 	 * @param filename
 	 * @return
 	 */
-	protected static File getFileByName(String path, String filename, boolean includeSubDir) {
+	public static File getFileByName(String path, String filename, boolean includeSubDir) {
 		path = Helper.getFullPath(path);
 		
 		List<File> files = Helper.getFileList(path, includeSubDir);
@@ -661,7 +661,7 @@ public class UtilityHelper {
 		return null;
 	}
 	
-	protected static List<File> getFileListWithSubfolders(String directoryName, List<File> files) {
+	public static List<File> getFileListWithSubfolders(String directoryName, List<File> files) {
 		return getFileListWithSubfolders(directoryName, StringUtils.EMPTY, files);
 	}
 
@@ -670,7 +670,7 @@ public class UtilityHelper {
 	 * 
 	 * @return
 	 */
-	protected static List<File> getFileListWithSubfolders(String directoryName, String type, List<File> files) {
+	public static List<File> getFileListWithSubfolders(String directoryName, String type, List<File> files) {
 		File directory = new File(directoryName);
 
 		// Get all files from a directory.
@@ -694,7 +694,7 @@ public class UtilityHelper {
 	 * @param absolutePath
 	 * @return
 	 */
-	protected static String readFileContent(String absolutePath) {
+	public static String readFileContent(String absolutePath) {
 		return getFileContent(absolutePath);
 	}
 	
@@ -704,7 +704,7 @@ public class UtilityHelper {
 	 * @param absolutePath
 	 * @return
 	 */
-	protected static String getFileContent(String absolutePath) {
+	public static String getFileContent(String absolutePath) {
 		return getFileContent(absolutePath, true);
 	}
 
@@ -714,7 +714,7 @@ public class UtilityHelper {
 	 * @param absolutePath
 	 * @return
 	 */
-	protected static String getFileContent(String absolutePath, boolean verifyFileExists) {
+	public static String getFileContent(String absolutePath, boolean verifyFileExists) {
 		absolutePath = Helper.getFullPath(absolutePath);
 
 		
@@ -741,7 +741,7 @@ public class UtilityHelper {
 	 * @param path
 	 * @return 
 	 */
-	protected static File createFileFromPath(String absolutePath) {
+	public static File createFileFromPath(String absolutePath) {
 		absolutePath = Helper.getFullPath(absolutePath);
 
 		File file = new File(absolutePath);
@@ -771,7 +771,7 @@ public class UtilityHelper {
 	 * @param filename  name of the file
 	 * @param type      type of file
 	 */
-	protected static void writeFile(String value, String directory, String filename, String type) {
+	public static void writeFile(String value, String directory, String filename, String type) {
 		String fullPath = Helper.getFullPath(directory + File.separator + filename + "." + type);
 		writeFile(value, fullPath);
 	}
@@ -782,7 +782,7 @@ public class UtilityHelper {
 	 * @param value
 	 * @param absolutePath
 	 */
-	protected static void writeFile(String value, String absolutePath) {
+	public static void writeFile(String value, String absolutePath) {
 		Helper.createFileFromPath(absolutePath);
 
 		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(absolutePath), "utf-8"))) {
@@ -797,7 +797,7 @@ public class UtilityHelper {
 	 * 
 	 * @param absolutePath
 	 */
-	protected static void deleteFile(String absolutePath) {
+	public static void deleteFile(String absolutePath) {
 		File file = new File(absolutePath);
 		if(file.isDirectory())
 			deleteDirectory(absolutePath);
@@ -825,7 +825,7 @@ public class UtilityHelper {
 	 * @param value
 	 * @param absolutePath
 	 */
-	protected static void appendToFile(String value, String absolutePath) {
+	public static void appendToFile(String value, String absolutePath) {
 
 		BufferedWriter writer = null;
 		try {
@@ -846,7 +846,7 @@ public class UtilityHelper {
 	 * @param filename
 	 * @param type
 	 */
-	protected static void appendToFile(String value, String directory, String filename, String type) {
+	public static void appendToFile(String value, String directory, String filename, String type) {
 		String fullPath = Helper.getFullPath(directory + File.separator + filename + "." + type);
 		appendToFile(value, fullPath);
 	}
@@ -856,7 +856,7 @@ public class UtilityHelper {
 	 * 
 	 */
 	
-	protected static void captureReportScreenshot() {
+	public static void captureReportScreenshot() {
 		Date now = new Date();
 
 		String format1 = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss", Locale.ENGLISH).format(now);
@@ -977,7 +977,7 @@ public class UtilityHelper {
 	 * @param by
 	 * @param index
 	 */
-	protected static void highLightWebElement(EnhancedBy by, int index) {
+	public static void highLightWebElement(EnhancedBy by, int index) {
 		// return if not web
 		if (!Helper.isWebDriver())
 			return;
@@ -1001,7 +1001,7 @@ public class UtilityHelper {
 	 * 
 	 * @return
 	 */
-	protected static boolean isMac() {
+	public static boolean isMac() {
 		String osName = System.getProperty("os.name").toLowerCase();
 		return osName.contains("mac");
 	}
@@ -1011,7 +1011,7 @@ public class UtilityHelper {
 	 * 
 	 * @return
 	 */
-	protected static boolean isWindows() {
+	public static boolean isWindows() {
 		String osName = System.getProperty("os.name").toLowerCase();
 		return osName.contains("win");
 	}
@@ -1021,7 +1021,7 @@ public class UtilityHelper {
 	 * 
 	 * @return
 	 */
-	protected static boolean isUnix() {
+	public static boolean isUnix() {
 		String osName = System.getProperty("os.name");
 		return (osName.indexOf("nix") >= 0 || osName.indexOf("linux") >= 0 || osName.indexOf("nux") >= 0
 				|| osName.indexOf("aix") > 0);
@@ -1033,7 +1033,7 @@ public class UtilityHelper {
 	 * @param value
 	 * @return
 	 */
-	protected static boolean isUUID(String value) {
+	public static boolean isUUID(String value) {
 		try {
 			UUID.fromString(value);
 		} catch (Exception e) {
@@ -1048,7 +1048,7 @@ public class UtilityHelper {
 	 * @param value
 	 * @return
 	 */
-	protected static boolean isBoolean(String value) {
+	public static boolean isBoolean(String value) {
 		value = value.toLowerCase();
 		return (value.equals("true") || value.equals("false"));
 	}
@@ -1059,7 +1059,7 @@ public class UtilityHelper {
 	 * @param str
 	 * @return
 	 */
-	protected static boolean isNumeric(String str) {
+	public static boolean isNumeric(String str) {
 		try {
 			Double.parseDouble(str);
 			return true;
@@ -1073,7 +1073,7 @@ public class UtilityHelper {
 	 * 
 	 * @param script
 	 */
-	protected static Object executeJs(String script, Object... args) {
+	public static Object executeJs(String script, Object... args) {
 		JavascriptExecutor js = (JavascriptExecutor) AbstractDriver.getWebDriver();
 		Object value = js.executeScript(script, args);
 		return value;
@@ -1085,7 +1085,7 @@ public class UtilityHelper {
 	 * @param script
 	 */
 	@SuppressWarnings("unchecked")
-	protected static List<String> executeJsWithListReturn(String script, Object... args) {
+	public static List<String> executeJsWithListReturn(String script, Object... args) {
 		Object valueObject = executeJs(script, args);
 		List<String> value = (List<String>) valueObject;
 		return value;
@@ -1096,7 +1096,7 @@ public class UtilityHelper {
 	 * 
 	 * @param script
 	 */
-	protected static String executeJsWithStringReturn(String script, Object... args) {
+	public static String executeJsWithStringReturn(String script, Object... args) {
 		Object valueObject = executeJs(script, args);
 		String value = (String) valueObject;
 		return value;
@@ -1109,12 +1109,12 @@ public class UtilityHelper {
 	 * @param isFailOnNoInt
 	 * @return
 	 */
-	protected static int getIntFromString(String value, boolean isFailOnNoInt) {
+	public static int getIntFromString(String value, boolean isFailOnNoInt) {
 		double doubleVal = getDoubleFromString(value, isFailOnNoInt);
 		return (int) doubleVal;
 	}
 	
-	protected static int getFirstNumber(String value) {
+	public static int getFirstNumber(String value) {
 		int number = -1;
 		Matcher matcher = Pattern.compile("\\d+").matcher(value);
 		matcher.find();
@@ -1133,7 +1133,7 @@ public class UtilityHelper {
 	 * @param isFailOnNoInt
 	 * @return
 	 */
-	protected static double getDoubleFromString(String value, boolean isFailOnNoInt) {
+	public static double getDoubleFromString(String value, boolean isFailOnNoInt) {
 		if (!isStringContainNumber(value)) {
 			if (isFailOnNoInt)
 				Helper.assertFalse("numeric value not found from String: " + value);
@@ -1166,7 +1166,7 @@ public class UtilityHelper {
 	 * @param value
 	 * @return
 	 */
-	protected static boolean isStringContainOnlyNumber(String value) {
+	public static boolean isStringContainOnlyNumber(String value) {
 		boolean isNumb = NumberUtils.isCreatable(value);
 		return isNumb;
 	}
@@ -1177,7 +1177,7 @@ public class UtilityHelper {
 	 * @param value
 	 * @return
 	 */
-	protected static boolean isStringContainNumber(String value) {
+	public static boolean isStringContainNumber(String value) {
 		value = value.replaceAll("[^\\d.]", "");
 		value = value.replace(".", "");
 		if (StringUtils.isBlank(value))
@@ -1191,7 +1191,7 @@ public class UtilityHelper {
 	 * @param value
 	 * @return
 	 */
-	protected static String removeSurroundingQuotes(String value) {
+	public static String removeSurroundingQuotes(String value) {
 		if(value == null) return null;
 		
 		if (value.length() >= 2 && value.charAt(0) == '"' && value.charAt(value.length() - 1) == '"') {
@@ -1206,7 +1206,7 @@ public class UtilityHelper {
 	 * @param url
 	 * @return
 	 */
-	protected static URL convertToUrl(String url) {
+	public static URL convertToUrl(String url) {
 		URL aURL = null;
 
 		try {
@@ -1378,7 +1378,7 @@ public class UtilityHelper {
 	 * @return
 	 */
 	
-	protected static boolean isFileContainString(String value, File file) {
+	public static boolean isFileContainString(String value, File file) {
 		List<String> lines = new ArrayList<String>();
 		try (Stream<String> stream = Files.lines(file.toPath())) {
 				lines = Files.lines(file.toPath())
@@ -1398,7 +1398,7 @@ public class UtilityHelper {
 	 * @param file
 	 * @return
 	 */
-	protected static boolean isLineInFileStartWithString(String value, File file) {
+	public static boolean isLineInFileStartWithString(String value, File file) {
 		List<String> lines = new ArrayList<String>();
 		try (Stream<String> stream = Files.lines(file.toPath())) {
 				lines = Files.lines(file.toPath())
@@ -1419,7 +1419,7 @@ public class UtilityHelper {
 	 * @param file
 	 * @return
 	 */
-	protected static List<String> getLinesInFileStartingWith(String value, File file) {
+	public static List<String> getLinesInFileStartingWith(String value, File file) {
 		List<String> lines = new ArrayList<String>();
 		try (Stream<String> stream = Files.lines(file.toPath())) {
 				lines = Files.lines(file.toPath())
@@ -1437,7 +1437,7 @@ public class UtilityHelper {
 	 * @param file
 	 * @return
 	 */
-	protected static List<String> getLinesInFileContainingWith(String value, File file) {
+	public static List<String> getLinesInFileContainingWith(String value, File file) {
 		List<String> lines = new ArrayList<String>();
 		try (Stream<String> stream = Files.lines(file.toPath())) {
 				lines = Files.lines(file.toPath())
@@ -1452,7 +1452,7 @@ public class UtilityHelper {
 	/**
 	 * prints page source to console
 	 */
-	protected static void printPageSource() {
+	public static void printPageSource() {
 		if(AbstractDriver.getWebDriver() != null)
 			TestLog.ConsoleLog("page source: " + Helper.stringNormalize(AbstractDriver.getWebDriver().getPageSource()));
 	}
@@ -1461,18 +1461,18 @@ public class UtilityHelper {
 	 * gets page source
 	 * @return
 	 */
-	protected static String getPageSource() {
+	public static String getPageSource() {
 		if(AbstractDriver.getWebDriver() != null)
 			return AbstractDriver.getWebDriver().getPageSource();
 		
 		return StringUtils.EMPTY;
 	}
 	
-	protected static String convertListToString(ArrayList<String> list) {
+	public static String convertListToString(ArrayList<String> list) {
 		return convertListToString(list, ",");
 	}
 	
-	protected static String convertListToString(ArrayList<String> list, String separator) {
+	public static String convertListToString(ArrayList<String> list, String separator) {
 		String listString = StringUtils.EMPTY;
 		for(int i = 0; i < list.size(); i++) {
 			if(i == (list.size() -1))
