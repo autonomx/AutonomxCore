@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.autonomx</groupId>
 	<artifactId>autonomxCore</artifactId>
-	<version>1.1.13</version>
+	<version>1.1.14</version>
 	<packaging>jar</packaging>
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
