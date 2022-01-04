@@ -87,6 +87,45 @@ public class EnhancedBy {
 	public EnhancedBy byClass(String element) {
 		return byClass(element, name);
 	}
+	
+	public EnhancedBy byTagName(String element, String name) {
+		Helper.assertTrue("element cannot be empty", !element.isEmpty());
+
+		ElementObject locatorObject = new ElementObject(By.tagName(element), name, element, LocatorType.tagName);
+		elementObject.add(locatorObject);
+		this.name = name;
+		return this;
+	}
+
+	public EnhancedBy byTagname(String element) {
+		return byClass(element, name);
+	}
+	
+	public EnhancedBy byLinkText(String element, String name) {
+		Helper.assertTrue("element cannot be empty", !element.isEmpty());
+
+		ElementObject locatorObject = new ElementObject(By.linkText(element), name, element, LocatorType.linkText);
+		elementObject.add(locatorObject);
+		this.name = name;
+		return this;
+	}
+
+	public EnhancedBy byLinkText(String element) {
+		return byClass(element, name);
+	}
+	
+	public EnhancedBy byPartialLinkText(String element, String name) {
+		Helper.assertTrue("element cannot be empty", !element.isEmpty());
+
+		ElementObject locatorObject = new ElementObject(By.partialLinkText(element), name, element, LocatorType.partialLinkText);
+		elementObject.add(locatorObject);
+		this.name = name;
+		return this;
+	}
+
+	public EnhancedBy byPartialLinkText(String element) {
+		return byClass(element, name);
+	}
 
 	public EnhancedBy byAccessibility(String element, String name) {
 		Helper.assertTrue("element cannot be empty", !element.isEmpty());

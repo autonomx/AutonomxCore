@@ -87,7 +87,17 @@ public class DriverLegacy  {
 				element = Element.byId(value, value);
 				break;
 			case "class":
+			case "className":
 				element = Element.byClass(value, value);
+				break;
+			case "tagName":
+				element = Element.byTagName(value, value);
+				break;
+			case "linkText":
+				element = Element.byLinkText(value, value);
+				break;
+			case "partialLinkText":
+				element = Element.byPartialLinkText(value, value);
 				break;
 		}
 		return element;

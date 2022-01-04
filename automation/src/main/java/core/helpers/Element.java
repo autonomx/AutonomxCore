@@ -14,7 +14,7 @@ import core.uiCore.webElement.ImpEnhancedWebElement;
 public class Element {
 
 	public enum LocatorType {
-		css, xpath, id, classType, accessibiliy, mobileClass, name
+		css, xpath, id, classType, accessibiliy, mobileClass, name, tagName, linkText, partialLinkText
 	}
 
 	/**
@@ -120,6 +120,39 @@ public class Element {
 	 */
 	public static EnhancedBy byClass(String element, String name) {
 		return new EnhancedBy().byClass(element, name);
+	}
+	
+	/**
+	 * gets element by tag name
+	 * 
+	 * @param element
+	 * @param name
+	 * @return
+	 */
+	public static EnhancedBy byTagName(String element, String name) {
+		return new EnhancedBy().byTagName(element, name);
+	}
+	
+	/**
+	 * gets element by link text
+	 * 
+	 * @param element
+	 * @param name
+	 * @return
+	 */
+	public static EnhancedBy byLinkText(String element, String name) {
+		return new EnhancedBy().byLinkText(element, name);
+	}
+	
+	/**
+	 * gets element by partial link text
+	 * 
+	 * @param element
+	 * @param name
+	 * @return
+	 */
+	public static EnhancedBy byPartialLinkText(String element, String name) {
+		return new EnhancedBy().byPartialLinkText(element, name);
 	}
 
 	/**
