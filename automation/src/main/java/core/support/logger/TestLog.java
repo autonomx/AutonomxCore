@@ -462,9 +462,10 @@ public class TestLog {
 	 * as webdriver
 	 */
 	// TODO: temporarily disabled the handler as it conflicts with another log4j
+	// disabling until issue requiring this occurs again
 	public static void removeLogUtilHandler() {
-		SLF4JBridgeHandler.removeHandlersForRootLogger();
-		SLF4JBridgeHandler.install();
+//		SLF4JBridgeHandler.removeHandlersForRootLogger();
+//		SLF4JBridgeHandler.install();
 	}
 
 	/**
