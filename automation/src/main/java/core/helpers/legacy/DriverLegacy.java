@@ -35,19 +35,42 @@ public class DriverLegacy  {
             Object locator = FieldUtils.readField(proxyOrigin, "locator", true);
             Object findBy = FieldUtils.readField(locator, "by", true);
             if (findBy != null) {
-                path = findBy.toString().split(":");
+                path = findBy.toString().split(":", 2);
                 if(path.length !=2)
                 	 Helper.assertFalse("element could not be parsed: " + findBy);
                 path[0] = path[0].split("By.")[1];
                 return path;
             }
         } catch (Exception ignored) {
-        	ignored.getMessage();
+        	return getLocatorThroughParsing(element);
         }
         
         Helper.assertFalse("element could not be parsed: " + element.toString());
         return null;
     }
+	
+	/**
+	 * attempt to get the locator from WebElement through parsing the toString()
+	 * @param element
+	 * @return
+	 */
+	protected static String[] getLocatorThroughParsing(WebElement element) {
+			String[] locator = new String[2];
+
+		    String path = element.toString();
+		    String[] pathVariables = (path.split("->")[1].replaceFirst("(?s)(.*)\\]", "$1" + "")).split(":");
+		   
+		    if(pathVariables.length!=2) 
+		    	 throw new IllegalStateException("webElement : " + path + " not containg valid by:locator format!");
+	  
+		    String selector = pathVariables[0].trim();
+		    String value = pathVariables[1].trim();
+			
+		    locator[0] = selector;
+		    locator[1] = value;
+
+			return locator;
+	}
 	
 	/**
 	 * set the webDriver from webDriver or mobileDriver without relying on global flag
