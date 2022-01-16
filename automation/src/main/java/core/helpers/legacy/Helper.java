@@ -132,7 +132,7 @@ public class Helper extends core.helpers.Helper {
 		 DriverLegacy.setDriver(driver);
 	}
 	
-	public static void setDriver(WebDriver driver, boolean isPropertyDisabled, int timeoutSec, int implicitSec) {
+	public static void setLegacyDriver(WebDriver driver, boolean isPropertyDisabled, int timeoutSec, int implicitSec) {
 		DriverLegacy.setDriver(driver, isPropertyDisabled, timeoutSec, implicitSec);
 	}
 
