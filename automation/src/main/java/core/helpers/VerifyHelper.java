@@ -33,8 +33,6 @@ public class VerifyHelper {
 		EnhancedWebElement expectedElement = Element.findElements(element);
 		expectedElement.scrollToView();
 		boolean isPresent = expectedElement.isExist();
-		if (!isPresent)
-			TestLog.ConsoleLog("isPresent:  " + element.name + " :" + isPresent);
 		return isPresent;
 	}
 

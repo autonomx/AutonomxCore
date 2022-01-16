@@ -129,6 +129,7 @@ public class LocalizationHelper {
 	 * @throws Exception
 	 * 
 	 */
+	@SuppressWarnings("deprecation")
 	public static void loadCsvFileContent() {
 
 		if (TestObject.getTestInfo().languageMap.isEmpty()) {

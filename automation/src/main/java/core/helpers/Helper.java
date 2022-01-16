@@ -48,7 +48,8 @@ public class Helper {
 	public static VerifyHelper verify = new VerifyHelper();
 	public static ClickHelperJs clickJs = new ClickHelperJs();
 	public static ClickHelperAction clickAction = new ClickHelperAction();
-
+	public static core.helpers.legacy.Helper webdriver = new core.helpers.legacy.Helper();
+	
 	// ExcelHelper
 	/**
 	 * gets the excel file And the work sheet
@@ -972,7 +973,7 @@ public class Helper {
 	 * @return
 	 */
 	public boolean isElementEditable(EnhancedBy element) {
-		return isElementEditable(element);
+		return form.isElementEditable(element);
 	}
 	
 	/**
@@ -982,7 +983,7 @@ public class Helper {
 	 * @return
 	 */
 	public boolean isElementEditable(EnhancedBy element, int index) {
-		return isElementEditable(element, index);
+		return form.isElementEditable(element, index);
 	}
 
 	// ListHelper
@@ -1075,8 +1076,8 @@ public class Helper {
 	 * @param rows
 	 * @return
 	 */
-	public List<String> getRowValuesFromList(EnhancedBy list, int index, EnhancedBy rows) {
-		return getRowValuesFromList(list, index, rows);
+	public List<String> getRowValuesFromList(EnhancedBy srclist, int index, EnhancedBy rows) {
+		return list.getRowValuesFromList(srclist, index, rows);
 	}
 
 	/**
@@ -1087,7 +1088,7 @@ public class Helper {
 	 * @return
 	 */
 	public HashMap<String, List<String>> getTableMap(EnhancedBy columns, EnhancedBy dataRows, EnhancedBy dataCells) {
-		return getTableMap(columns, dataRows, dataCells);
+		return list.getTableMap(columns, dataRows, dataCells);
 	}
 
 	/**
@@ -1101,7 +1102,7 @@ public class Helper {
 	 */
 	public HashMap<String, List<String>> getTableMap(EnhancedBy columns, EnhancedBy dataRows, EnhancedBy dataCells,
 			int maxRows) {
-		return getTableMap(columns, dataRows, dataCells, maxRows);
+		return list.getTableMap(columns, dataRows, dataCells, maxRows);
 	}
 
 	/**
@@ -1117,19 +1118,7 @@ public class Helper {
 	 */
 	public HashMap<String, List<String>> getTableMap(EnhancedBy columns, int columnInitialIndex, EnhancedBy dataRows,
 			int rowInitialIndex, EnhancedBy dataCells, int maxRows) {
-		return getTableMap(columns, columnInitialIndex, dataRows, rowInitialIndex, dataCells, maxRows);
-	}
-
-	/**
-	 * gets hashmap of table rows map will return row index and row values as
-	 * arraylist
-	 * 
-	 * @param dataRows
-	 * @param dataCells
-	 * @return
-	 */
-	public HashMap<Integer, List<String>> getTableMap(EnhancedBy dataRows, EnhancedBy dataCells) {
-		return getTableMap(dataRows, dataCells);
+		return list.getTableMap(columns, columnInitialIndex, dataRows, rowInitialIndex, dataCells, maxRows);
 	}
 	
 	/**
@@ -1695,6 +1684,10 @@ public class Helper {
 	 * @param driver
 	 */
 	public static void switchDriver(WebDriver driver) {
+		page.switchDriver(driver);
+	}
+	
+	public static void setDriver(WebDriver driver) {
 		page.switchDriver(driver);
 	}
 

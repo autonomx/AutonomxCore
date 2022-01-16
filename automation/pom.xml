@@ -118,7 +118,7 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>jul-to-slf4j</artifactId>
-			<version>1.7.32</version>
+			<version>1.7.33</version>
 		</dependency>
 		
 		<dependency>
@@ -151,7 +151,7 @@
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
-			<version>5.1.0</version>
+			<version>5.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>xml-apis</groupId>
@@ -168,7 +168,7 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-csv</artifactId>
-			<version>1.8</version>
+			<version>1.9.0</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/io.rest-assured/rest-assured -->
@@ -240,7 +240,7 @@
 		<dependency>
 			<groupId>com.beust</groupId>
 			<artifactId>jcommander</artifactId>
-			<version>1.81</version>
+			<version>1.82</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.codehaus.groovy/groovy -->
@@ -427,7 +427,7 @@
 		<dependency>
 			<groupId>com.rabbitmq</groupId>
 			<artifactId>amqp-client</artifactId>
-			<version>5.14.0</version>
+			<version>5.14.1</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients -->
@@ -487,7 +487,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-handler</artifactId>
-            <version>4.1.72.Final</version>
+            <version>4.1.73.Final</version>
         </dependency>
         
                <dependency>
@@ -499,7 +499,7 @@
 		<dependency>
 		  <groupId>com.epam.reportportal</groupId>
 		  <artifactId>logger-java-log4j</artifactId>
-		  <version>5.1.3</version>
+		  <version>5.1.4</version>
 		</dependency>
 
 	</dependencies>

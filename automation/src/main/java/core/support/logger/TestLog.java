@@ -20,7 +20,6 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.slf4j.LoggerFactory;
-import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.testng.util.Strings;
 
 import com.aventstack.extentreports.ExtentTest;
