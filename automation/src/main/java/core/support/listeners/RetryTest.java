@@ -64,7 +64,7 @@ public class RetryTest implements IRetryAnalyzer {
 
 	@Override
 	public boolean retry(ITestResult iTestResult) {
-		
+				
 		TestObject.getTestInfo().isTestFail = true;
 		
 		// if record on fail enabled, and retry is disabled, increase retry count to record failure

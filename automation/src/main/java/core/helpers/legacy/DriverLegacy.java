@@ -42,7 +42,7 @@ public class DriverLegacy  {
                 return path;
             }
         } catch (Exception ignored) {
-        	return getLocatorThroughParsing(element);
+        	return getLocatorThroughParsing(element.toString());
         }
         
         Helper.assertFalse("element could not be parsed: " + element.toString());
@@ -54,14 +54,21 @@ public class DriverLegacy  {
 	 * @param element
 	 * @return
 	 */
-	protected static String[] getLocatorThroughParsing(WebElement element) {
+	public static String[] getLocatorThroughParsing(String element) {
+		try {
 			String[] locator = new String[2];
 
-		    String path = element.toString();
-		    String[] pathVariables = (path.split("->")[1].replaceFirst("(?s)(.*)\\]", "$1" + "")).split(":");
+		    String path = element;
+		    String[] pathVariables = null;
+		    if(path.contains("->"))
+		    	pathVariables = (path.split("->", 2)[1].replaceFirst("(?s)(.*)\\]", "$1" + "")).trim().split(":",2);
+		    else {
+		    	pathVariables = path.split("'", 2)[1].replaceAll("'$","").trim().split(":", 2);
+		    	pathVariables[0] = pathVariables[0].split("By.")[1];
+		    }
 		   
 		    if(pathVariables.length!=2) 
-		    	 throw new IllegalStateException("webElement : " + path + " not containg valid by:locator format!");
+		    	 throw new IllegalStateException("webElement :( " + path + " )not containg valid by:locator format!");
 	  
 		    String selector = pathVariables[0].trim();
 		    String value = pathVariables[1].trim();
@@ -70,6 +77,9 @@ public class DriverLegacy  {
 		    locator[1] = value;
 
 			return locator;
+		}catch(Exception e) {
+	    	 throw new IllegalStateException("webElement :( " + element.toString() + " )not containg valid by:locator format!");
+		}
 	}
 	
 	/**
@@ -110,18 +120,25 @@ public class DriverLegacy  {
 				element = Element.byId(value, value);
 				break;
 			case "class":
+			case "class name":
 			case "className":
 				element = Element.byClass(value, value);
 				break;
+			case "tag name":	
 			case "tagName":
 				element = Element.byTagName(value, value);
 				break;
+			case "link text":	
 			case "linkText":
 				element = Element.byLinkText(value, value);
 				break;
+			case "partial link text":
 			case "partialLinkText":
 				element = Element.byPartialLinkText(value, value);
 				break;
+			 default:
+	                Helper.assertFalse("selector: " +  selector + " not part of selector types");
+	                break;
 		}
 		return element;
 	}
