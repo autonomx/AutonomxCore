@@ -5,9 +5,12 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.support.ui.Select;
 
 import core.apiCore.helpers.DataHelper;
 import core.support.logger.TestLog;
+import core.uiCore.drivers.AbstractDriver;
 import core.uiCore.webElement.EnhancedBy;
 import core.uiCore.webElement.EnhancedWebElement;
 
@@ -318,6 +321,81 @@ public class FormHelper {
 		Helper.click.clickAndWait(field, index, 0.1);
 		Helper.click.clickAndExpect(field, index, list, true);
 		Helper.list.selectListItemEqualsByName(list, option);
+	}
+	
+	/**
+	 * selects drop down
+	 * 
+	 * @param option : list option we want to select
+	 * @param field  : the drop down field
+	 */
+	public void selectDropDown(EnhancedBy field, String... options) {
+		if(DataHelper.removeEmptyElements(options).length == 0)
+			return;
+		
+		
+		TestLog.logPass("I select drop down option(s) '" + Arrays.toString(options) + "'");
+
+
+		boolean isOptionFound = false;
+		int targetWaitTimeInSeconds = 2;
+		int retry = AbstractDriver.TIMEOUT_SECONDS / targetWaitTimeInSeconds;
+		
+		do {
+			retry--;
+			for(String option : options) {
+				try {
+					EnhancedWebElement targetElement = Element.findElements(field);
+					Select dropdown = targetElement.getSelect(0);
+					dropdown.selectByVisibleText(option);
+					isOptionFound = true;
+				}catch(NoSuchElementException e) {
+					e.getMessage();
+					Helper.waitForSeconds(targetWaitTimeInSeconds);
+				}catch(Exception ex) {
+					ex.getMessage();
+					Helper.waitForSeconds(targetWaitTimeInSeconds);
+				}
+			}
+		} while (!isOptionFound && retry > 0);
+
+		Helper.assertTrue("drop down option not found: " + options, isOptionFound);
+	}
+	
+	/**
+	 * selects drop down
+	 * 
+	 * @param index : index number for the option
+	 * @param field  : the drop down field
+	 */
+	public void selectDropDown(EnhancedBy field, int index) {
+		if (index == -1) 
+			return;
+		
+		TestLog.logPass("I select drop down option at index '" + index + "'");
+
+		boolean isOptionFound = false;
+		int targetWaitTimeInSeconds = 2;
+		int retry = AbstractDriver.TIMEOUT_SECONDS / targetWaitTimeInSeconds;
+		
+		do {
+			retry--;
+				try {
+					EnhancedWebElement targetElement = Element.findElements(field);
+					Select dropdown = targetElement.getSelect(0);
+					dropdown.selectByIndex(index);
+					isOptionFound = true;
+				}catch(NoSuchElementException e) {
+					e.getMessage();
+					Helper.waitForSeconds(targetWaitTimeInSeconds);
+				}catch(Exception ex) {
+					ex.getMessage();
+					Helper.waitForSeconds(targetWaitTimeInSeconds);
+				}
+		
+		} while (!isOptionFound && retry > 0);
+
+		Helper.assertTrue("drop down option not found at index: " + index, isOptionFound);
 	}
 
 	

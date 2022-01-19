@@ -780,6 +780,16 @@ public class Helper {
 	 * 
 	 * @param option : list option we want to select
 	 * @param field  : the drop down field
+	 */
+	public static void selectDropDown(EnhancedBy field, String... options) {
+		form.selectDropDown(field, options);
+	}
+	
+	/**
+	 * selects drop down
+	 * 
+	 * @param option : list option we want to select
+	 * @param field  : the drop down field
 	 * @param list   : the list items in the drop down list
 	 */
 	public static void selectDropDown(EnhancedBy field, EnhancedBy list, String... options) {

@@ -16,6 +16,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.Select;
 
 import core.helpers.Element;
 import core.helpers.Helper;
@@ -527,6 +528,27 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	@Override
 	public String getElementName() {
 		return elementName;
+	}
+	
+	@Override
+	public Select getSelect(int index) {
+		scrollToView_Web(index);
+		int retry = 1;
+		Select selectElement = null;
+		boolean isSuccess = false;
+		do {
+			retry--;
+			try {
+				WebElement element = getElement(index);
+				selectElement = new Select(element);
+			} catch (Exception e) {
+				e.getMessage();
+				selectElement = null;
+			}
+		} while (!isSuccess && retry > 0);
+	
+		return selectElement;
+
 	}
 
 	/**

@@ -5,6 +5,7 @@ import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.Select;
 
 public interface EnhancedWebElement extends WebElement {
 
@@ -79,5 +80,7 @@ public interface EnhancedWebElement extends WebElement {
 	void sendKeyByJs(int index, CharSequence[] keysToSend);
 
 	EnhancedWebElement findElement(EnhancedBy parentElement, int parentIndex, EnhancedBy enhanceBy);
+
+	Select getSelect(int index);
 
 }

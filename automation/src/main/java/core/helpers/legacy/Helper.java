@@ -718,6 +718,27 @@ public class Helper extends core.helpers.Helper {
 		form.selectDropDownWithDoubleClick(option, fieldBy, index, listValueBy);
 	}
 	
+	/**
+	 * selects drop down
+	 * 
+	 * @param option : list option we want to select
+	 * @param field  : the drop down field
+	 */
+	public static void selectDropDown(WebElement field,  String... options) {
+		EnhancedBy fieldBy = DriverLegacy.getEnhancedElement(field);
+		form.selectDropDown(fieldBy, options);
+	}
+	
+	/**
+	 * selects drop down
+	 * 
+	 * @param option : list option we want to select
+	 * @param field  : the drop down field
+	 */
+	public static void selectDropDown(WebElement field, int index) {
+		EnhancedBy fieldBy = DriverLegacy.getEnhancedElement(field);
+		form.selectDropDown(fieldBy, index);
+	}
 	
 	/**
 	 * selects drop down
