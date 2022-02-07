@@ -206,11 +206,10 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 
 	@Override
 	public void scrollToView(int index) {
-		if (isExist(index)) {
 			scrollToView_Web(index);
 			// TODO: currently disable, since scroll is only from center
 			// mobileScroll(index);
-		}
+		
 	}
 
 	/**
