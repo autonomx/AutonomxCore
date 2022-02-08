@@ -12,6 +12,7 @@ public class ReportPortalHelper {
 	final String uuid = ParamOverrideTestNgService.UUID;
 	final String launch = ParamOverrideTestNgService.LAUNCH;
 	final String project = ParamOverrideTestNgService.PROJECT;
+	final String reportEnabled = ParamOverrideTestNgService.REPORT_PORTAL_ENABLE;
 
 
 	/**
@@ -20,6 +21,8 @@ public class ReportPortalHelper {
 	 * @param target
 	 */
 	public void updateLaunchAttributes(String attributeString) {
+		if(!Config.getBooleanValue(reportEnabled))
+			return;
 		
 		String[] attributes = attributeString.split(";");
 		for(String attribute : attributes) {
@@ -27,7 +30,7 @@ public class ReportPortalHelper {
 		}	
 	}
 	
-	public void updateLaunchAttribute(String attributeString) {
+	private void updateLaunchAttribute(String attributeString) {
 		String latestLaunchId = getLatestLaunchId();
 		
 		String[] attribute = attributeString.split(":");
@@ -78,6 +81,9 @@ public class ReportPortalHelper {
 	 * @param attributeString
 	 */
 	public void updateTestAttributes(String testname, String attributeString) {
+		
+		if(!Config.getBooleanValue(reportEnabled))
+			return;
 
 		String[] attributes = attributeString.split(";");
 		for(String attribute : attributes) {
@@ -90,7 +96,7 @@ public class ReportPortalHelper {
 	 * @param testname
 	 * @param attributeString
 	 */
-	public void updateTestAttribute(String testname, String attributeString) {
+	private void updateTestAttribute(String testname, String attributeString) {
 		String latestLaunchId = getLatestLaunchId();
 		String testId = getTestId(testname, latestLaunchId);
 		
@@ -137,6 +143,9 @@ public class ReportPortalHelper {
 	}
 	
 	public void updateTestIssue(String testname, String issueName, String comment) {
+		if(!Config.getBooleanValue(reportEnabled))
+			return;
+		
 		String latestLaunchId = getLatestLaunchId();
 		String testId = getTestId(testname, latestLaunchId);
 		String issueLocator = getIssueId(issueName);
@@ -172,7 +181,7 @@ public class ReportPortalHelper {
 	 * get the latest launch id which represents the current run
 	 * @return
 	 */
-	public String getLatestLaunchId() {
+	private String getLatestLaunchId() {
 		String endpoint = Config.getValue(uri) + "/api/v1/" + Config.getValue(project) + "/launch/latest?filter.eq.name=" + Config.getValue(launch)+ "&access_token=" + Config.getValue(uuid);
 		ServiceObject service = new ServiceObject()
 				.withUriPath(endpoint)
@@ -191,7 +200,7 @@ public class ReportPortalHelper {
 	 * get test id based on testname
 	 * @return
 	 */
-	public String getTestId(String testname, String launchId) {
+	private String getTestId(String testname, String launchId) {
 		String endpoint = Config.getValue(uri) + "/api/v1/" + Config.getValue(project) + "/item?filter.eq.launchId=" + launchId + "&access_token=" + Config.getValue(uuid);
 		ServiceObject service = new ServiceObject()
 				.withUriPath(endpoint)
@@ -210,7 +219,7 @@ public class ReportPortalHelper {
 	 * get issue id based on issue name
 	 * @return
 	 */
-	public String getIssueId(String issueName) {
+	private String getIssueId(String issueName) {
 		if(issueName.trim() == "")
 			return "";
 		
