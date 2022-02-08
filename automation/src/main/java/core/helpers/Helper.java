@@ -48,6 +48,8 @@ public class Helper {
 	public static VerifyHelper verify = new VerifyHelper();
 	public static ClickHelperJs clickJs = new ClickHelperJs();
 	public static ClickHelperAction clickAction = new ClickHelperAction();
+	public static ReportPortalHelper reportPortal = new ReportPortalHelper();
+
 	public static core.helpers.legacy.Helper webdriver = new core.helpers.legacy.Helper();
 	
 	// ExcelHelper
