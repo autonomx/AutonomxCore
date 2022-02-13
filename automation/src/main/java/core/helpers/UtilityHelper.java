@@ -858,6 +858,9 @@ public class UtilityHelper {
 	
 	public static void captureReportScreenshot() {
 		Date now = new Date();
+		
+		if(AbstractDriverTestNG.getWebDriver() == null)
+			return;
 
 		String format1 = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss", Locale.ENGLISH).format(now);
 		String extentReportImageFullPath = ExtentManager.getScreenshotsFolderFullPath()

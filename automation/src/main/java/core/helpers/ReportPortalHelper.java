@@ -4,6 +4,7 @@ package core.helpers;
 import core.apiCore.interfaces.RestApiInterface;
 import core.support.configReader.Config;
 import core.support.listeners.ParamOverrideTestNgService;
+import core.support.logger.TestLog;
 import core.support.objects.ServiceObject;
 
 public class ReportPortalHelper {
@@ -13,6 +14,7 @@ public class ReportPortalHelper {
 	final String launch = ParamOverrideTestNgService.LAUNCH;
 	final String project = ParamOverrideTestNgService.PROJECT;
 	final String reportEnabled = ParamOverrideTestNgService.REPORT_PORTAL_ENABLE;
+	final String launchUUID = ParamOverrideTestNgService.LAUNCH_UUID;
 
 
 	/**
@@ -24,6 +26,9 @@ public class ReportPortalHelper {
 		if(!Config.getBooleanValue(reportEnabled))
 			return;
 		
+		if(attributeString.isEmpty())
+			return;
+		
 		String[] attributes = attributeString.split(";");
 		for(String attribute : attributes) {
 			updateLaunchAttribute(attribute);
@@ -31,7 +36,10 @@ public class ReportPortalHelper {
 	}
 	
 	private void updateLaunchAttribute(String attributeString) {
-		String latestLaunchId = getLatestLaunchId();
+		String launchId = getCurrentLaunchId();
+		
+		if(launchId.isEmpty())
+			return;
 		
 		String[] attribute = attributeString.split(":");
 		if(attribute.length != 2)
@@ -60,7 +68,7 @@ public class ReportPortalHelper {
 				+ "    \"comment\": \"string\"\r\n"
 				+ "  },\r\n"
 				+ "  \"ids\": [\r\n"
-				+ "    "+latestLaunchId+"\r\n"
+				+ "    "+launchId+"\r\n"
 				+ "  ]\r\n"
 				+ "}";
 	
@@ -84,6 +92,9 @@ public class ReportPortalHelper {
 		
 		if(!Config.getBooleanValue(reportEnabled))
 			return;
+		
+		if(testname.isEmpty() || attributeString.isEmpty())
+			return;
 
 		String[] attributes = attributeString.split(";");
 		for(String attribute : attributes) {
@@ -97,8 +108,17 @@ public class ReportPortalHelper {
 	 * @param attributeString
 	 */
 	private void updateTestAttribute(String testname, String attributeString) {
-		String latestLaunchId = getLatestLaunchId();
-		String testId = getTestId(testname, latestLaunchId);
+		String launchId = getCurrentLaunchId();
+		
+		if(launchId.isEmpty())
+			return;
+		
+		String testId = getTestId(testname, launchId);
+		
+		if(testId.isEmpty()) {
+			TestLog.ConsoleLogWarn("test not found in recent launcher(s). test name: " +  testname);
+			return;
+		}
 		
 		String[] attribute = attributeString.split(":");
 		if(attribute.length != 2)
@@ -146,8 +166,15 @@ public class ReportPortalHelper {
 		if(!Config.getBooleanValue(reportEnabled))
 			return;
 		
-		String latestLaunchId = getLatestLaunchId();
-		String testId = getTestId(testname, latestLaunchId);
+		if(testname.isEmpty() || issueName.isEmpty())
+			return;
+		
+		String launchId = getCurrentLaunchId();
+		
+		if(launchId.isEmpty())
+			return;
+		
+		String testId = getTestId(testname, launchId);
 		String issueLocator = getIssueId(issueName);
 		
 		String body = "{\r\n"
@@ -181,8 +208,14 @@ public class ReportPortalHelper {
 	 * get the latest launch id which represents the current run
 	 * @return
 	 */
-	private String getLatestLaunchId() {
-		String endpoint = Config.getValue(uri) + "/api/v1/" + Config.getValue(project) + "/launch/latest?filter.eq.name=" + Config.getValue(launch)+ "&access_token=" + Config.getValue(uuid);
+	private String getCurrentLaunchId() {
+		String launchUuid = Config.getGlobalValue(launchUUID);
+		if(launchUuid.isEmpty()) {
+			TestLog.ConsoleLogWarn("report portal launch uuid is empty");
+			return "";
+		}
+		String endpoint = Config.getValue(uri) + "/api/v1/"+ Config.getValue(project) +"/launch?filter.eq.uuid=" + launchUuid + "&access_token=" + Config.getValue(uuid);
+
 		ServiceObject service = new ServiceObject()
 				.withUriPath(endpoint)
 				.withContentType("application/json")
@@ -195,6 +228,7 @@ public class ReportPortalHelper {
 	
 		return launchId;
 	}
+	
 	
 	/**
 	 * get test id based on testname
@@ -214,6 +248,7 @@ public class ReportPortalHelper {
 	
 		return testId;
 	}
+	
 	
 	/**
 	 * get issue id based on issue name

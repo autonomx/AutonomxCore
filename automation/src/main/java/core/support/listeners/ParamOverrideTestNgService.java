@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.testng.util.Strings;
 
 import com.epam.reportportal.listeners.ListenerParameters;
@@ -28,6 +29,7 @@ import core.support.configReader.Config;
 		public static String CONVERT_IMAGE = "rp.convertimage";
 		public static String BATCH_SIZE = "rp.batch.size.logs";
 		public static String ATTRIBUTES = "rp.attributes";
+		public static String LAUNCH_UUID = "rp.launcherUUID";
 
 		public ParamOverrideTestNgService() {
 			super(getLaunchOverriddenProperties());
@@ -51,7 +53,15 @@ import core.support.configReader.Config;
 			return new Supplier<Launch>() {
 				@Override
 				public Launch get() {
-					return reportPortal.newLaunch(rq);
+					Launch launch = reportPortal.newLaunch(rq);
+					try {
+						Object proxyOrigin = FieldUtils.readField(launch, "uuid", true);
+						String uuid = proxyOrigin.toString();
+						Config.setGlobalValue(LAUNCH_UUID,uuid);
+					} catch (IllegalAccessException e) {
+						e.printStackTrace();
+					}
+					return launch;
 				}
 			};
 		}
