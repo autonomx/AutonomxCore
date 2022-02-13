@@ -30,6 +30,7 @@ import core.support.configReader.Config;
 		public static String BATCH_SIZE = "rp.batch.size.logs";
 		public static String ATTRIBUTES = "rp.attributes";
 		public static String LAUNCH_UUID = "rp.launcherUUID";
+		public static String LAUNCH_ID = "rp.launcherId";
 
 		public ParamOverrideTestNgService() {
 			super(getLaunchOverriddenProperties());
@@ -38,14 +39,14 @@ import core.support.configReader.Config;
 		private static Supplier<Launch> getLaunchOverriddenProperties() {
 			ListenerParameters parameters = new ListenerParameters(PropertiesLoader.load());
 			
-			parameters.setBaseUrl(Config.getValue(ENDPOINT));
-			parameters.setApiKey(Config.getValue(UUID));
-			parameters.setLaunchName(Config.getValue(LAUNCH));
-			parameters.setProjectName(Config.getValue(PROJECT));
-			parameters.setEnable(Config.getBooleanValue(REPORT_PORTAL_ENABLE));
-			parameters.setDescription(Config.getValue(DESCRIPTION));
-			parameters.setConvertImage(Config.getBooleanValue(CONVERT_IMAGE));
-			parameters.setBatchLogsSize(Config.getIntValue(BATCH_SIZE));		
+			parameters.setBaseUrl(Config.getGlobalValue(ENDPOINT));
+			parameters.setApiKey(Config.getGlobalValue(UUID));
+			parameters.setLaunchName(Config.getGlobalValue(LAUNCH));
+			parameters.setProjectName(Config.getGlobalValue(PROJECT));
+			parameters.setEnable(Config.getGlobalBooleanValue(REPORT_PORTAL_ENABLE));
+			parameters.setDescription(Config.getGlobalValue(DESCRIPTION));
+			parameters.setConvertImage(Config.getGlobalBooleanValue(CONVERT_IMAGE));
+			parameters.setBatchLogsSize(Config.getGlobalIntValue(BATCH_SIZE));		
 			parameters = setAttributes(parameters);
 			
 			ReportPortal reportPortal = ReportPortal.builder().withParameters(parameters).build();

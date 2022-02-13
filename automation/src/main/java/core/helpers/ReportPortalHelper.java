@@ -15,6 +15,7 @@ public class ReportPortalHelper {
 	final String project = ParamOverrideTestNgService.PROJECT;
 	final String reportEnabled = ParamOverrideTestNgService.REPORT_PORTAL_ENABLE;
 	final String launchUUID = ParamOverrideTestNgService.LAUNCH_UUID;
+	final String launchId = ParamOverrideTestNgService.LAUNCH_ID;
 
 
 	/**
@@ -72,7 +73,7 @@ public class ReportPortalHelper {
 				+ "  ]\r\n"
 				+ "}";
 	
-		String endpoint = Config.getValue(uri) + "/api/v1/"+ Config.getValue(project) +"/launch/info?access_token=" + Config.getValue(uuid);
+		String endpoint = Config.getGlobalValue(uri) + "/api/v1/"+ Config.getGlobalValue(project) +"/launch/info?access_token=" + Config.getGlobalValue(uuid);
 		ServiceObject service = new ServiceObject()
 				.withUriPath(endpoint)
 				.withContentType("application/json")
@@ -151,7 +152,7 @@ public class ReportPortalHelper {
 				+ "  ]\r\n"
 				+ "}";
 	
-		String endpoint = Config.getValue(uri) + "/api/v1/"+ Config.getValue(project) +"/item/info?access_token=" + Config.getValue(uuid);
+		String endpoint = Config.getGlobalValue(uri) + "/api/v1/"+ Config.getGlobalValue(project) +"/item/info?access_token=" + Config.getGlobalValue(uuid);
 		ServiceObject service = new ServiceObject()
 				.withUriPath(endpoint)
 				.withContentType("application/json")
@@ -191,8 +192,8 @@ public class ReportPortalHelper {
 				+ "  ]\r\n"
 				+ "}";
 	
-		String endpoint = Config.getValue(uri) + "/api/v1/" + Config.getValue(project) + "/launch/latest?filter.eq.name=" + Config.getValue(launch) + "&access_token=" + Config.getValue(uuid);
-		endpoint = Config.getValue(uri) + "/api/v1/"+ Config.getValue(project) +"/item?access_token=" + Config.getValue(uuid);
+		String endpoint = Config.getGlobalValue(uri) + "/api/v1/" + Config.getGlobalValue(project) + "/launch/latest?filter.eq.name=" + Config.getGlobalValue(launch) + "&access_token=" + Config.getGlobalValue(uuid);
+		endpoint = Config.getGlobalValue(uri) + "/api/v1/"+ Config.getGlobalValue(project) +"/item?access_token=" + Config.getGlobalValue(uuid);
 		ServiceObject service = new ServiceObject()
 				.withUriPath(endpoint)
 				.withContentType("application/json")
@@ -214,7 +215,11 @@ public class ReportPortalHelper {
 			TestLog.ConsoleLogWarn("report portal launch uuid is empty");
 			return "";
 		}
-		String endpoint = Config.getValue(uri) + "/api/v1/"+ Config.getValue(project) +"/launch?filter.eq.uuid=" + launchUuid + "&access_token=" + Config.getValue(uuid);
+		
+		if(!Config.getGlobalValue(launchId).isEmpty())
+			return Config.getGlobalValue(launchId);
+		
+		String endpoint = Config.getGlobalValue(uri) + "/api/v1/"+ Config.getGlobalValue(project) +"/launch?filter.eq.uuid=" + launchUuid + "&access_token=" + Config.getGlobalValue(uuid);
 
 		ServiceObject service = new ServiceObject()
 				.withUriPath(endpoint)
@@ -224,9 +229,11 @@ public class ReportPortalHelper {
 				.withOutputParams(".id:<$launchId>;");
 				
 		RestApiInterface.RestfullApiInterface(service);
-		String launchId = Config.getValue("launchId");
+		String launchIdValue = Config.getValue("launchId");
+		
+		Config.setGlobalValue(launchId,launchIdValue);
 	
-		return launchId;
+		return launchIdValue;
 	}
 	
 	
@@ -235,7 +242,7 @@ public class ReportPortalHelper {
 	 * @return
 	 */
 	private String getTestId(String testname, String launchId) {
-		String endpoint = Config.getValue(uri) + "/api/v1/" + Config.getValue(project) + "/item?filter.eq.launchId=" + launchId + "&access_token=" + Config.getValue(uuid);
+		String endpoint = Config.getGlobalValue(uri) + "/api/v1/" + Config.getGlobalValue(project) + "/item?filter.eq.launchId=" + launchId + "&access_token=" + Config.getGlobalValue(uuid);
 		ServiceObject service = new ServiceObject()
 				.withUriPath(endpoint)
 				.withContentType("application/json")
@@ -258,7 +265,7 @@ public class ReportPortalHelper {
 		if(issueName.trim() == "")
 			return "";
 		
-		String endpoint = Config.getValue(uri) + "/api/v1/project/" + Config.getValue(project) + "?access_token=" +  Config.getValue(uuid);
+		String endpoint = Config.getGlobalValue(uri) + "/api/v1/project/" + Config.getGlobalValue(project) + "?access_token=" +  Config.getGlobalValue(uuid);
 		ServiceObject service = new ServiceObject()
 				.withUriPath(endpoint)
 				.withContentType("application/json")
