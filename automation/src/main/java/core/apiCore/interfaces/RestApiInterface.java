@@ -831,7 +831,7 @@ public class RestApiInterface {
 		try {
 			baseUrl = new URL(baseUrlValue);
 		} catch (MalformedURLException e) {
-			e.printStackTrace();
+			Helper.logStackTrace(e);
 		}
 		return baseUrl;
 	}
