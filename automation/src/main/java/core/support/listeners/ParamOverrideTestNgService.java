@@ -55,12 +55,14 @@ import core.support.configReader.Config;
 				@Override
 				public Launch get() {
 					Launch launch = reportPortal.newLaunch(rq);
-					try {
-						Object proxyOrigin = FieldUtils.readField(launch, "uuid", true);
-						String uuid = proxyOrigin.toString();
-						Config.setGlobalValue(LAUNCH_UUID,uuid);
-					} catch (IllegalAccessException e) {
-						e.printStackTrace();
+					if(Config.getGlobalBooleanValue(REPORT_PORTAL_ENABLE)) {
+						try {
+							Object proxyOrigin = FieldUtils.readField(launch, "uuid", true);
+							String uuid = proxyOrigin.toString();
+							Config.setGlobalValue(LAUNCH_UUID,uuid);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
 					}
 					return launch;
 				}

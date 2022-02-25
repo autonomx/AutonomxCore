@@ -494,7 +494,7 @@ public class PageHelper {
 		    	    	      "    return true;                         " +
 		    	    	      "}                                        " +
 		    	    	      "return false;                            "
-		    	    	      , targetElement.get(index));
+		    	    	      , targetElement.get(index, false));
 		  }catch(StaleElementReferenceException st) {
 			  st.getMessage();
 		  }catch(Exception e) {

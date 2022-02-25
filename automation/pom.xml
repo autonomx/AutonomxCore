@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.autonomx</groupId>
 	<artifactId>autonomxCore</artifactId>
-	<version>1.1.14</version>
+	<version>1.1.15</version>
 	<packaging>jar</packaging>
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
@@ -318,12 +318,6 @@
 			<version>5.2</version>
 		</dependency>
 
-		<!-- voice-dfki-prudence-hsmm https://mvnrepository.com/artifact/com.ibm.watson.developer_cloud/text-to-speech -->
-		<dependency>
-			<groupId>com.ibm.watson.developer_cloud</groupId>
-			<artifactId>java-sdk</artifactId>
-			<version>6.14.2</version>
-		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
 		<dependency>
@@ -374,12 +368,6 @@
 			<groupId>com.microsoft.azure</groupId>
 			<artifactId>azure-servicebus</artifactId>
 			<version>3.6.6</version>
-			<exclusions>
-				<exclusion>
-					<groupId>net.minidev</groupId>
-					<artifactId>json-smart</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -490,16 +478,22 @@
             <version>4.1.73.Final</version>
         </dependency>
         
-               <dependency>
+        <dependency>
 		  <groupId>com.epam.reportportal</groupId>
 		  <artifactId>agent-java-testng</artifactId>
-		  <version>5.1.0</version>
-		</dependency>
+		  <version>5.1.1</version>
+        </dependency>
 		
 		<dependency>
 		  <groupId>com.epam.reportportal</groupId>
 		  <artifactId>logger-java-log4j</artifactId>
 		  <version>5.1.4</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>com.squareup.retrofit2</groupId>
+		    <artifactId>adapter-rxjava2</artifactId>
+		    <version>2.9.0</version>
 		</dependency>
 
 	</dependencies>

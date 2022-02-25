@@ -83,4 +83,6 @@ public interface EnhancedWebElement extends WebElement {
 
 	Select getSelect(int index);
 
+	WebElement get(int index, boolean isFail);
+
 }

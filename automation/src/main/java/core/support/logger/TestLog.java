@@ -1,8 +1,6 @@
 package core.support.logger;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -12,7 +10,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang.StringUtils;
@@ -32,9 +29,6 @@ import com.aventstack.extentreports.gherkin.model.When;
 import com.aventstack.extentreports.markuputils.ExtentColor;
 import com.aventstack.extentreports.markuputils.Markup;
 import com.aventstack.extentreports.markuputils.MarkupHelper;
-import com.ibm.watson.developer_cloud.text_to_speech.v1.TextToSpeech;
-import com.ibm.watson.developer_cloud.text_to_speech.v1.model.SynthesizeOptions;
-import com.ibm.watson.developer_cloud.text_to_speech.v1.util.WaveUtils;
 
 import core.apiCore.interfaces.RestApiInterface;
 import core.helpers.Helper;
@@ -490,7 +484,7 @@ public class TestLog {
 		String type = CrossPlatformProperties.getAudioCommentaryType();
 		if (isAudioCommentaryEnabled) {
 			if (type.equals(WATSON)) {
-				playWatsonAudio(value);
+			//	playWatsonAudio(value);
 			} else if (type.equals(MARY)) {
 				playMaryAudio(value);
 
@@ -524,9 +518,10 @@ public class TestLog {
 
 	/**
 	 * watson audio
-	 * 
+	 *  Note: disabled watson as the library has not been updated since 2019
 	 * @param value text value to play back
 	 */
+	/* 
 	public synchronized static void playWatsonAudio(String value) {
 		TextToSpeech textToSpeech = new TextToSpeech();
 		// set username and password from IBM account
@@ -551,6 +546,7 @@ public class TestLog {
 			e.printStackTrace();
 		}
 	}
+	*/
 
 	/**
 	 * logs to console if batch logging is enabled, Then logs are stored And printed

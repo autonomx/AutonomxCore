@@ -458,14 +458,20 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		WebElement element = getElement(index);
 		Helper.executeJs("arguments[0].setAttribute('" + attribute + "', '" + value + "')", element);
 	}
-
+	
 	@Override
 	public WebElement get(int index) {
+		return get(index, true);
+	}
+
+	@Override
+	public WebElement get(int index, boolean isFail) {
 		WebElement element = null;
 		try {
 			element = getElement(index);
 		}catch(Exception e) {
-			Helper.assertFalse("element: " + getElementName() + " at index: " + index + " was not found");
+			if(isFail)
+				Helper.assertFalse("element: " + getElementName() + " at index: " + index + " was not found");
 		}
 		return element;
 	}
