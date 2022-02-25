@@ -44,7 +44,6 @@ import marytts.LocalMaryInterface;
 import marytts.MaryInterface;
 
 
-@SuppressWarnings("deprecation")
 public class TestLog {
 
 	public static final String ENABLE_EXTENT_SUBSTEPS = "report.enableDetailedReport";
