@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchSessionException;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.Point;
@@ -206,6 +207,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 
 	@Override
 	public void scrollToView(int index) {
+		if(isElementFound(index))
 			scrollToView_Web(index);
 			// TODO: currently disable, since scroll is only from center
 			// mobileScroll(index);
@@ -251,13 +253,54 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		if (Helper.isVisibleInViewport(element, index))
 			return;
 
+		scrollToView_Web_Action(index);
+		
+		// if visible in view, return
+		if (Helper.isVisibleInViewport(element, index))
+			return;
+		
+		scrollToView_Web_JS(index);
+	}
+	
+	/**
+	 * scroll to web element using action
+	 * @param index
+	 */
+	public void scrollToView_Web_Action(int index) {
+		if (!Helper.mobile.isWebDriver())
+			return;
+
+		// if visible in view, return
+		if (Helper.isVisibleInViewport(element, index))
+			return;
+
 		setTimeout(1, TimeUnit.MILLISECONDS);
 
 		WebElement element = getElement(index);
 		Actions action = new Actions(AbstractDriver.getWebDriver());
 		action.moveToElement(element);
 
-		setTimeout(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
+		setTimeout(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);	
+	}
+	
+	/**
+	 * scroll to web element using javascript
+	 * @param index
+	 */
+	public void scrollToView_Web_JS(int index) {
+		if (!Helper.mobile.isWebDriver())
+			return;
+
+		// if visible in view, return
+		if (Helper.isVisibleInViewport(element, index))
+			return;
+		
+		setTimeout(1, TimeUnit.MILLISECONDS);
+
+		WebElement element = getElement(index);
+		((JavascriptExecutor)AbstractDriver.getWebDriver()).executeScript("arguments[0].scrollIntoView();", element);
+
+		setTimeout(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);		
 	}
 
 	/**
@@ -324,6 +367,27 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 			isElementExists = false;
 		}
 		return isElementExists;
+	}
+	
+	/**
+	 * return if element is found in dom
+	 * @param index
+	 * @return
+	 */
+	public boolean isElementFound(int index) {
+		setTimeout(1, TimeUnit.MILLISECONDS);
+		boolean isFound = false;
+		try
+		{
+			WebElement element = getElement(index);
+			if(element != null)
+				isFound = true;
+		} catch (Exception e) {
+			isFound = false;
+		}
+		setTimeout(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
+		isFound = false;
+		return isFound;
 	}
 
 	@Override

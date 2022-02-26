@@ -528,6 +528,7 @@ public class PageHelper {
 		
 		Actions action = new Actions(AbstractDriver.getWebDriver());
 		action.sendKeys(Keys.END).build().perform();
+		Helper.waitForSeconds(0.5);
 	}
 	
 	
@@ -595,6 +596,7 @@ public class PageHelper {
 		
 		EnhancedWebElement targetElement = Element.findElements(element);
 		targetElement.scrollToView(0);
+		Helper.waitForSeconds(0.5);
 	}
 	
 	/**
@@ -608,6 +610,7 @@ public class PageHelper {
 		
 		EnhancedWebElement targetElement = Element.findElements(element);
 		targetElement.scrollToView(index);
+		Helper.waitForSeconds(0.5);
 	}
 	
 	public boolean isFirefox() {
