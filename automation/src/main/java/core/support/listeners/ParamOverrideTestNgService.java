@@ -26,6 +26,7 @@ import core.support.configReader.Config;
 		public static String PROJECT = "rp.project";
 		public static String REPORT_PORTAL_ENABLE = "rp.enable";
 		public static String DESCRIPTION = "rp.description";
+		public static String HTTP_PROXY = "rp.proxy";
 		public static String CONVERT_IMAGE = "rp.convertimage";
 		public static String BATCH_SIZE = "rp.batch.size.logs";
 		public static String ATTRIBUTES = "rp.attributes";
@@ -44,9 +45,12 @@ import core.support.configReader.Config;
 			parameters.setLaunchName(Config.getGlobalValue(LAUNCH));
 			parameters.setProjectName(Config.getGlobalValue(PROJECT));
 			parameters.setEnable(Config.getGlobalBooleanValue(REPORT_PORTAL_ENABLE));
-			parameters.setDescription(Config.getGlobalValue(DESCRIPTION));
+			if(!Config.getGlobalValue(DESCRIPTION).isEmpty())
+				parameters.setDescription(Config.getGlobalValue(DESCRIPTION));
 			parameters.setConvertImage(Config.getGlobalBooleanValue(CONVERT_IMAGE));
-			parameters.setBatchLogsSize(Config.getGlobalIntValue(BATCH_SIZE));		
+			parameters.setBatchLogsSize(Config.getGlobalIntValue(BATCH_SIZE));	
+			if(!Config.getGlobalValue(HTTP_PROXY).isEmpty())
+				parameters.setProxyUrl(Config.getGlobalValue(HTTP_PROXY));
 			parameters = setAttributes(parameters);
 			
 			ReportPortal reportPortal = ReportPortal.builder().withParameters(parameters).build();

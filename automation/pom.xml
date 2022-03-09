@@ -478,6 +478,7 @@
             <version>4.1.74.Final</version>
         </dependency>
         
+        <!-- 5.1.1 is giving duplicate error on azure -->
         <dependency>
 		  <groupId>com.epam.reportportal</groupId>
 		  <artifactId>agent-java-testng</artifactId>
