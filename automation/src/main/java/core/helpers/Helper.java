@@ -2861,7 +2861,27 @@ public class Helper {
 	public static ArrayList<String> executeCommandFromFile(String filePath) {
 		return UtilityHelper.excuteCommandFromFile(filePath);
 	}
+	
+	
+	/**
+	 * run shell command
+	 * @param command
+	 * @param timeoutSeconds
+	 * @return
+	 */
+	public static String runShellCommand(String command, String timeoutSeconds) {
+		return UtilityHelper.runShellCommand(command, timeoutSeconds);
+	}
 
+	/**
+	 * script path relative to root path where pom.xml is located
+	 * @param scriptPath 
+	 * @param timeoutSeconds
+	 * @return
+	 */
+	public static String runShellScriptFromFile(String scriptPath, String timeoutSeconds) {
+		return UtilityHelper.runShellScriptFromFile(scriptPath, timeoutSeconds);
+	}
 	/**
 	 * Copies directory And all content from dirFrom to dirTo overwrites the content
 	 * 

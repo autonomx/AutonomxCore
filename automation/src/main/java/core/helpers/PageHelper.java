@@ -593,10 +593,13 @@ public class PageHelper {
 	public void scrollToWebElement(EnhancedBy element) {
 		// only for web browser
 		if(!Helper.isWebDriver()) return;
-		
-		EnhancedWebElement targetElement = Element.findElements(element);
-		targetElement.scrollToView(0);
-		Helper.waitForSeconds(0.5);
+		int retry = 5;
+		do {
+			retry--;
+			EnhancedWebElement targetElement = Element.findElements(element);
+			targetElement.scrollToView(0);
+			Helper.waitForSeconds(0.5);
+		}while(!Helper.isDisplayed(element) && retry > 0);
 	}
 	
 	/**
