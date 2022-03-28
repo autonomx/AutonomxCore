@@ -465,10 +465,8 @@ public class WaitHelper {
 	public boolean waitForCondition(ExpectedCondition<Boolean> condition, EnhancedBy target, int time) {
 		if(AbstractDriver.getWebDriver() == null) return false;
 		
-		@SuppressWarnings("deprecation")
-		Wait<WebDriver> wait = new WebDriverWait(AbstractDriver.getWebDriver(), time).pollingEvery(Duration.ofMillis(5))
+		Wait<WebDriver> wait = new WebDriverWait(AbstractDriver.getWebDriver(), Duration.ofSeconds(time)).pollingEvery(Duration.ofMillis(5))
 				.withTimeout(Duration.ofSeconds(time)).ignoring(Exception.class);
-
 		try {
 			wait.until(condition);
 		} catch (Exception e) {
