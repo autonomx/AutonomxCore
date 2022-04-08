@@ -490,12 +490,7 @@
 		  <artifactId>logger-java-log4j</artifactId>
 		  <version>5.1.4</version>
 		</dependency>
-		
-		<dependency>
-		    <groupId>com.squareup.retrofit2</groupId>
-		    <artifactId>adapter-rxjava2</artifactId>
-		    <version>2.9.0</version>
-		</dependency>
+	
 		
 		 <dependency>
 		    <groupId>com.profesorfalken</groupId>
