@@ -94,7 +94,7 @@
 		<dependency>
 			<groupId>io.github.bonigarcia</groupId>
 			<artifactId>webdrivermanager</artifactId>
-			<version>5.1.0</version>
+			<version>5.1.1</version>
 		</dependency>
 
 		<dependency>
@@ -102,15 +102,11 @@
 			<artifactId>selenium-java</artifactId>
 			<version>4.1.1</version>
 		</dependency>
-	<dependency>
-			<groupId>org.seleniumhq.selenium</groupId>
-			<artifactId>selenium-java</artifactId>
-			<version>4.1.1</version>
-		</dependency>
+
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
-			<version>2.17.1</version>
+			<version>2.17.2</version>
 		</dependency>
 
 	
@@ -151,7 +147,7 @@
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
-			<version>5.2.0</version>
+			<version>5.2.2</version>
 		</dependency>
 		<dependency>
 			<groupId>xml-apis</groupId>
@@ -175,7 +171,7 @@
 		<dependency>
 			<groupId>io.rest-assured</groupId>
 			<artifactId>rest-assured</artifactId>
-			<version>4.5.1</version>
+			<version>5.0.1</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.codehaus.groovy</groupId>
@@ -247,12 +243,12 @@
 		<dependency>
 			<groupId>org.codehaus.groovy</groupId>
 			<artifactId>groovy</artifactId>
-			<version>3.0.9</version>
+			<version>3.0.10</version>
 		</dependency>
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
-			<version>20211205</version>
+			<version>20220320</version>
 		</dependency>
 
 		<dependency>
@@ -330,7 +326,7 @@
 		<dependency>
 			<groupId>org.zeroturnaround</groupId>
 			<artifactId>zt-zip</artifactId>
-			<version>1.14</version>
+			<version>1.15</version>
 			<type>jar</type>
 		</dependency>
 
@@ -351,7 +347,7 @@
 		<dependency>
 			<groupId>net.sourceforge.tess4j</groupId>
 			<artifactId>tess4j</artifactId>
-			<version>5.1.1</version>
+			<version>5.2.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>
@@ -400,7 +396,7 @@
 		<dependency>
 			<groupId>com.pojosontheweb</groupId>
 			<artifactId>monte-repack</artifactId>
-			<version>1.0.1</version>
+			<version>1.1</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.maven.shared/maven-invoker -->
@@ -414,7 +410,7 @@
 		<dependency>
 			<groupId>net.lingala.zip4j</groupId>
 			<artifactId>zip4j</artifactId>
-			<version>2.9.1</version>
+			<version>2.10.0</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/com.rabbitmq/amqp-client -->
@@ -447,7 +443,7 @@
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-model</artifactId>
-			<version>3.8.4</version>
+			<version>3.8.5</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.ant/ant -->
@@ -481,7 +477,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-handler</artifactId>
-            <version>4.1.74.Final</version>
+            <version>4.1.75.Final</version>
         </dependency>
         
         <!-- 5.1.1 is giving duplicate error on azure -->

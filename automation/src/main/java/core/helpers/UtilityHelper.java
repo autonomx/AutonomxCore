@@ -1562,4 +1562,39 @@ public class UtilityHelper {
 					+ values.size() + ". values: " + Arrays.toString(values.toArray()));
 		return values.get(position - 1);
 	}
+	
+	/**
+	 * checks if server is online
+	 * @param url
+	 * @param proxyUrl
+	 * @return
+	 */
+	public static boolean isServerOnline(String url){
+		return isServerOnline(url, null);
+	}
+	
+	/**
+	 * checks if server is online
+	 * @param url
+	 * @param proxyUrl
+	 * @return
+	 */
+	public static boolean isServerOnline(String url, String proxyUrl){
+	
+
+			HttpURLConnection connection =  null;
+		    try {
+		    	if(proxyUrl != null && !proxyUrl.isEmpty()) {
+		    		 URL proxyUrlLink = new URL(proxyUrl);
+		    		 Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyUrlLink.getHost(), proxyUrlLink.getPort()));
+				     connection = (HttpURLConnection)new URL(url).openConnection(proxy);
+		    	}else
+				     connection = (HttpURLConnection)new URL(url).openConnection();
+		        connection.setConnectTimeout(1000);
+		        connection.connect();
+		        return true;
+		    } catch (Exception e) {
+		        return false;
+		    }
+		}
 }

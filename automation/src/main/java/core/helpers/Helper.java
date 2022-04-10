@@ -2677,6 +2677,25 @@ public class Helper {
 	}
 	
 	/**
+	 * checks if server is online
+	 * @param url
+	 * @param proxyUrl
+	 * @return
+	 */
+	public static boolean isServerOnline(String url, String proxyUrl){
+		return UtilityHelper.isServerOnline(url, proxyUrl);
+	}
+	
+	/**
+	 * checks if server is online
+	 * @param url
+	 * @param proxyUrl
+	 * @return
+	 */
+	public static boolean isServerOnline(String url){
+		return UtilityHelper.isServerOnline(url);
+	}
+	/**
 	 * does file contain the given text value
 	 * @param value
 	 * @param file

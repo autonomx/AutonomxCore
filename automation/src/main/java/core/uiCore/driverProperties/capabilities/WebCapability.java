@@ -65,7 +65,6 @@ public class WebCapability {
 	
 	public void disableLogs() {
 		if(isFirefox()) {
-			System.setProperty(FirefoxDriver.SystemProperty.DRIVER_USE_MARIONETTE,"true");
 			System.setProperty(FirefoxDriver.SystemProperty.BROWSER_LOGFILE,"/dev/null");
 		}
 	}

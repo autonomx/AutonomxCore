@@ -266,7 +266,7 @@ public class WaitHelper {
 	 */
 	public void waitForPageToLoad() {
 		if(AbstractDriver.getWebDriver() == null) return;
-
+		
 		// only applies to web pages
 		if (!Helper.isWebDriver())
 			return;

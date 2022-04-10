@@ -34,6 +34,7 @@ import io.appium.java_client.service.local.AppiumDriverLocalService;
 import io.appium.java_client.windows.WindowsDriver;
 import io.github.bonigarcia.wdm.WebDriverManager;
 
+@SuppressWarnings("deprecation")
 public class WebDriverSetup {
 
 	public static String SERVER_URL = "web.remote.server.url";
@@ -269,7 +270,6 @@ public class WebDriverSetup {
 
 		Capabilities caps = ((RemoteWebDriver) driver).getCapabilities();
 		String browserName = caps.getBrowserName();
-		@SuppressWarnings("deprecation")
 		String browserVersion = caps.getVersion();
 		TestLog.ConsoleLog("browser name: '" + browserName + "' browser version: " + browserVersion);
 	}
