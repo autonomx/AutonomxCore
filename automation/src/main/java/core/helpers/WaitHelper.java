@@ -5,12 +5,14 @@ import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import com.google.common.util.concurrent.Uninterruptibles;
 
+import core.support.configReader.Config;
 import core.uiCore.drivers.AbstractDriver;
 import core.uiCore.webElement.EnhancedBy;
 import core.uiCore.webElement.EnhancedWebElement;
@@ -465,6 +467,8 @@ public class WaitHelper {
 	public boolean waitForCondition(ExpectedCondition<Boolean> condition, EnhancedBy target, int time) {
 		if(AbstractDriver.getWebDriver() == null) return false;
 		
+		waitAllJSRequests(time); // if is web and flag is enabled
+		
 		Wait<WebDriver> wait = new WebDriverWait(AbstractDriver.getWebDriver(), Duration.ofSeconds(time)).pollingEvery(Duration.ofMillis(5))
 				.withTimeout(Duration.ofSeconds(time)).ignoring(Exception.class);
 		try {
@@ -479,5 +483,126 @@ public class WaitHelper {
 		}
 		return true;
 	}
+	
+	public void ajaxComplete() {
+		JavascriptExecutor jsExec = (JavascriptExecutor) AbstractDriver.getWebDriver();
 
+		jsExec.executeScript("var callback = arguments[arguments.length - 1];" + "var xhr = new XMLHttpRequest();"
+				+ "xhr.open('GET', '/Ajax_call', true);" + "xhr.onreadystatechange = function() {"
+				+ "  if (xhr.readyState == 4) {" + "    callback(xhr.responseText);" + "  }" + "};" + "xhr.send();");
+	}
+
+	public void waitForJQueryLoad(int time) {
+		WebDriverWait jsWait = new WebDriverWait(AbstractDriver.getWebDriver(), Duration.ofSeconds(time));
+		JavascriptExecutor jsExec = (JavascriptExecutor) AbstractDriver.getWebDriver();
+
+		try {
+			ExpectedCondition<Boolean> jQueryLoad = driver -> ((Long) ((JavascriptExecutor) AbstractDriver
+					.getWebDriver()).executeScript("return jQuery.active") == 0);
+			boolean jqueryReady = (Boolean) jsExec.executeScript("return jQuery.active==0");
+			if (!jqueryReady) {
+				jsWait.until(jQueryLoad);
+			}
+		} catch (WebDriverException ignored) {
+		}
+	}
+
+	public void waitForAngularLoad(int time) {
+		String angularReadyScript = "return angular.element(document).injector().get('$http').pendingRequests.length === 0";
+		angularLoads(angularReadyScript, time);
+	}
+
+	public void waitUntilJSReady(int time) {
+		WebDriverWait jsWait = new WebDriverWait(AbstractDriver.getWebDriver(), Duration.ofSeconds(time));
+		JavascriptExecutor jsExec = (JavascriptExecutor) AbstractDriver.getWebDriver();
+
+		try {
+			ExpectedCondition<Boolean> jsLoad = driver -> ((JavascriptExecutor) AbstractDriver.getWebDriver())
+					.executeScript("return document.readyState").toString().equals("complete");
+			boolean jsReady = jsExec.executeScript("return document.readyState").toString().equals("complete");
+			if (!jsReady) {
+				jsWait.until(jsLoad);
+			}
+		} catch (WebDriverException ignored) {
+		}
+	}
+
+	public void waitUntilJQueryReady(int time) {
+
+		JavascriptExecutor jsExec = (JavascriptExecutor) AbstractDriver.getWebDriver();
+		Boolean jQueryDefined = (Boolean) jsExec.executeScript("return typeof jQuery != 'undefined'");
+		if (jQueryDefined) {
+			Helper.waitForSeconds(0.02);
+			waitForJQueryLoad(time);
+			Helper.waitForSeconds(0.2);
+		}
+	}
+
+	public void waitUntilAngularReady(int time) {
+		JavascriptExecutor jsExec = (JavascriptExecutor) AbstractDriver.getWebDriver();
+
+		try {
+			Boolean angularUnDefined = (Boolean) jsExec.executeScript("return window.angular === undefined");
+			if (!angularUnDefined) {
+				Boolean angularInjectorUnDefined = (Boolean) jsExec
+						.executeScript("return angular.element(document).injector() === undefined");
+				if (!angularInjectorUnDefined) {
+					Helper.waitForSeconds(0.02);
+					waitForAngularLoad(time);
+					Helper.waitForSeconds(0.02);
+				}
+			}
+		} catch (WebDriverException ignored) {
+		}
+	}
+
+	public void waitUntilAngular5Ready(int time) {
+		JavascriptExecutor jsExec = (JavascriptExecutor) AbstractDriver.getWebDriver();
+
+		try {
+			Object angular5Check = jsExec
+					.executeScript("return getAllAngularRootElements()[0].attributes['ng-version']");
+			if (angular5Check != null) {
+				Boolean angularPageLoaded = (Boolean) jsExec
+						.executeScript("return window.getAllAngularTestabilities().findIndex(x=>!x.isStable()) === -1");
+				if (!angularPageLoaded) {
+					Helper.waitForSeconds(0.02);
+					waitForAngular5Load(time);
+					Helper.waitForSeconds(0.02);
+				}
+			}
+		} catch (WebDriverException ignored) {
+		}
+	}
+
+	public void waitForAngular5Load(int time) {
+		String angularReadyScript = "return window.getAllAngularTestabilities().findIndex(x=>!x.isStable()) === -1";
+		angularLoads(angularReadyScript, time);
+	}
+
+	public void angularLoads(String angularReadyScript, int time) {
+		WebDriverWait jsWait = new WebDriverWait(AbstractDriver.getWebDriver(), Duration.ofSeconds(time));
+		JavascriptExecutor jsExec = (JavascriptExecutor) AbstractDriver.getWebDriver();
+
+		try {
+			ExpectedCondition<Boolean> angularLoad = driver -> Boolean
+					.valueOf(((JavascriptExecutor) driver).executeScript(angularReadyScript).toString());
+			boolean angularReady = Boolean.valueOf(jsExec.executeScript(angularReadyScript).toString());
+			if (!angularReady) {
+				jsWait.until(angularLoad);
+			}
+		} catch (WebDriverException ignored) {
+		}
+	}
+
+	public void waitAllJSRequests(int time) {
+		if(Helper.mobile.isWebDriver() && Config.getBooleanValue("global.web.JsWait.enabled")) {
+			
+			waitUntilJSReady(time);
+			ajaxComplete();
+			waitUntilJQueryReady(time);
+			waitUntilAngularReady(time);
+			waitUntilAngular5Ready(time);
+		}
+	}
 }
