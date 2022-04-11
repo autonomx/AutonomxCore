@@ -16,7 +16,9 @@ import com.epam.reportportal.utils.properties.PropertiesLoader;
 import com.epam.ta.reportportal.ws.model.attribute.ItemAttributesRQ;
 import com.epam.ta.reportportal.ws.model.launch.StartLaunchRQ;
 
+import core.helpers.Helper;
 import core.support.configReader.Config;
+import core.support.logger.TestLog;
 
 	public class ParamOverrideTestNgService extends TestNGService {
 		
@@ -52,6 +54,13 @@ import core.support.configReader.Config;
 			if(!Config.getGlobalValue(HTTP_PROXY).isEmpty())
 				parameters.setProxyUrl(Config.getGlobalValue(HTTP_PROXY));
 			parameters = setAttributes(parameters);
+			
+			// disable report portal if server is down
+			if(Config.getBooleanValue(REPORT_PORTAL_ENABLE) && !Helper.isServerOnline(parameters.getBaseUrl(), parameters.getProxyUrl())) {
+				parameters.setEnable(false);
+				TestLog.ConsoleLog("report portal server not reachable at url: " + parameters.getBaseUrl() + " with proxy: " + parameters.getProxyUrl());
+				Config.putValue(REPORT_PORTAL_ENABLE, "false");
+			}
 			
 			ReportPortal reportPortal = ReportPortal.builder().withParameters(parameters).build();
 			StartLaunchRQ rq = buildStartLaunch(reportPortal.getParameters());
