@@ -2,6 +2,7 @@ package core.helpers;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.Keys;
@@ -338,7 +339,7 @@ public class FormHelper {
 
 
 		boolean isOptionFound = false;
-		int targetWaitTimeInSeconds = 2;
+		int targetWaitTimeInSeconds = 1;
 		int retry = AbstractDriver.TIMEOUT_SECONDS / targetWaitTimeInSeconds;
 		
 		do {
@@ -375,7 +376,7 @@ public class FormHelper {
 		TestLog.logPass("I select drop down option at index '" + index + "'");
 
 		boolean isOptionFound = false;
-		int targetWaitTimeInSeconds = 2;
+		int targetWaitTimeInSeconds = 1;
 		int retry = AbstractDriver.TIMEOUT_SECONDS / targetWaitTimeInSeconds;
 		
 		do {
@@ -412,8 +413,21 @@ public class FormHelper {
 
 		TestLog.logPass("I select drop down option(s) '" + Arrays.toString(options) + "'");
 
-		Helper.click.clickAndExpect(field, list);
+		StopWatchHelper watch = StopWatchHelper.start();
+		long passedTimeInSeconds = 0;
+		int index = 0;
+		do {
+			passedTimeInSeconds = watch.time(TimeUnit.SECONDS);
+
+			Helper.click.clickAndExpect(field, list);
+			for(String option : options)
+				index = Helper.list.getElementIndexEqualsByTextWithoutRetry(list, option);
+
+		} while (index < 0 && passedTimeInSeconds < AbstractDriver.TIMEOUT_SECONDS);
 		
+		if(index == -1)
+			Helper.assertFalse("option: " + Arrays.toString(options) + " not found in list: " + Helper.getTextList(list));
+
 		for(String option : options)
 			Helper.list.selectListItemEqualsByName(list, option);
 	}
@@ -443,9 +457,21 @@ public class FormHelper {
 
 		if (StringUtils.isBlank(option))
 			return;
+		
+		StopWatchHelper watch = StopWatchHelper.start();
+		long passedTimeInSeconds = 0;
+		int index = 0;
+		do {
+			passedTimeInSeconds = watch.time(TimeUnit.SECONDS);
 
-		Helper.list.selectListItemContainsByName(field, field_Identifier);
-		Helper.list.selectListItemEqualsByName(list, option);
+			Helper.list.selectListItemContainsByName(field, field_Identifier);
+			index = Helper.list.getElementIndexEqualsByTextWithoutRetry(list, option);
+
+		} while (index < 0 && passedTimeInSeconds < AbstractDriver.TIMEOUT_SECONDS);
+		
+		if(index == -1)
+			Helper.assertFalse("option: " + option + " not found in list: " + Helper.getTextList(list));
+			Helper.list.selectListItemEqualsByName(list, option);
 
 	}
 
@@ -486,10 +512,23 @@ public class FormHelper {
 	 * @param list
 	 * @param text
 	 */
-	public void selectDropDown(EnhancedBy field, int index, EnhancedBy list, String text) {
+	public void selectDropDown(EnhancedBy field, int index, EnhancedBy list, String option) {
 		if (index != -1) {
-			Helper.click.clickAndExpect(field, index, list);
-			Helper.list.selectListItemEqualsByName(list, text);
+			
+			StopWatchHelper watch = StopWatchHelper.start();
+			long passedTimeInSeconds = 0;
+			int optionIndex = 0;
+			do {
+				passedTimeInSeconds = watch.time(TimeUnit.SECONDS);
+
+				Helper.click.clickAndExpect(field, index, list);
+				optionIndex = Helper.list.getElementIndexEqualsByTextWithoutRetry(list, option);
+
+			} while (index < 0 && passedTimeInSeconds < AbstractDriver.TIMEOUT_SECONDS);
+			
+			if(optionIndex == -1)
+				Helper.assertFalse("option: " + option + " not found in list: " + Helper.getTextList(list));
+				Helper.list.selectListItemEqualsByName(list, option);
 		}
 	}
 

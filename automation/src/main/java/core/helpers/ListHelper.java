@@ -323,6 +323,24 @@ public class ListHelper {
 		EnhancedWebElement listElements = Element.findElements(list);
 		return listElements.count();
 	}
+	
+	public int getElementIndexEqualsByTextWithoutRetry(EnhancedBy list, String option) {
+
+		int index = -1;
+		List<String> stringList = new ArrayList<String>();
+
+		EnhancedWebElement listElements = Element.findElements(list);
+		stringList = listElements.getTextList();
+
+		index = getStringIndexEqualsByText(list, stringList, option);
+
+		Helper.page.scrollDownBrowser();
+
+		if (index == -1)
+			TestLog.logWarning("option: " + option + " not found in list: " + Arrays.toString(stringList.toArray()));
+
+		return index;
+	}
 
 	/**
 	 * returns the index of text value in a list normalizes the list option When
