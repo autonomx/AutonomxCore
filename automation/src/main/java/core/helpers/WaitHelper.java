@@ -486,10 +486,13 @@ public class WaitHelper {
 	
 	public void ajaxComplete() {
 		JavascriptExecutor jsExec = (JavascriptExecutor) AbstractDriver.getWebDriver();
-
-		jsExec.executeScript("var callback = arguments[arguments.length - 1];" + "var xhr = new XMLHttpRequest();"
+		try {
+			jsExec.executeScript("var callback = arguments[arguments.length - 1];" + "var xhr = new XMLHttpRequest();"
 				+ "xhr.open('GET', '/Ajax_call', true);" + "xhr.onreadystatechange = function() {"
 				+ "  if (xhr.readyState == 4) {" + "    callback(xhr.responseText);" + "  }" + "};" + "xhr.send();");
+		}catch(Exception e) {
+			e.getMessage();
+		}
 	}
 
 	public void waitForJQueryLoad(int time) {
@@ -599,7 +602,6 @@ public class WaitHelper {
 		if(Helper.mobile.isWebDriver() && Config.getBooleanValue("global.web.JsWait.enabled")) {
 			
 			waitUntilJSReady(time);
-			ajaxComplete();
 			waitUntilJQueryReady(time);
 			waitUntilAngularReady(time);
 			waitUntilAngular5Ready(time);
