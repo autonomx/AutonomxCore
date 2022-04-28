@@ -522,7 +522,9 @@ public class WaitHelper {
 		try {
 			ExpectedCondition<Boolean> jsLoad = driver -> ((JavascriptExecutor) AbstractDriver.getWebDriver())
 					.executeScript("return document.readyState").toString().equals("complete");
-			boolean jsReady = jsExec.executeScript("return document.readyState").toString().equals("complete");
+			Boolean jsReady = jsExec.executeScript("return document.readyState").toString().equals("complete");
+			if(jsReady == null ) return;
+
 			if (!jsReady) {
 				jsWait.until(jsLoad);
 			}
@@ -534,6 +536,8 @@ public class WaitHelper {
 
 		JavascriptExecutor jsExec = (JavascriptExecutor) AbstractDriver.getWebDriver();
 		Boolean jQueryDefined = (Boolean) jsExec.executeScript("return typeof jQuery != 'undefined'");
+		if(jQueryDefined == null ) return;
+
 		if (jQueryDefined) {
 			Helper.waitForSeconds(0.02);
 			waitForJQueryLoad(time);
@@ -546,9 +550,12 @@ public class WaitHelper {
 
 		try {
 			Boolean angularUnDefined = (Boolean) jsExec.executeScript("return window.angular === undefined");
+			if(angularUnDefined == null ) return;
 			if (!angularUnDefined) {
 				Boolean angularInjectorUnDefined = (Boolean) jsExec
 						.executeScript("return angular.element(document).injector() === undefined");
+				if(angularInjectorUnDefined == null ) return;
+
 				if (!angularInjectorUnDefined) {
 					Helper.waitForSeconds(0.02);
 					waitForAngularLoad(time);
@@ -568,6 +575,8 @@ public class WaitHelper {
 			if (angular5Check != null) {
 				Boolean angularPageLoaded = (Boolean) jsExec
 						.executeScript("return window.getAllAngularTestabilities().findIndex(x=>!x.isStable()) === -1");
+				if(angularPageLoaded == null ) return;
+
 				if (!angularPageLoaded) {
 					Helper.waitForSeconds(0.02);
 					waitForAngular5Load(time);
@@ -590,7 +599,8 @@ public class WaitHelper {
 		try {
 			ExpectedCondition<Boolean> angularLoad = driver -> Boolean
 					.valueOf(((JavascriptExecutor) driver).executeScript(angularReadyScript).toString());
-			boolean angularReady = Boolean.valueOf(jsExec.executeScript(angularReadyScript).toString());
+			Boolean angularReady = Boolean.valueOf(jsExec.executeScript(angularReadyScript).toString());
+			if(angularReady == null ) return;
 			if (!angularReady) {
 				jsWait.until(angularLoad);
 			}
