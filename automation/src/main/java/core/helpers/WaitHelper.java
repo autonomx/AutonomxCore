@@ -534,14 +534,18 @@ public class WaitHelper {
 
 	public void waitUntilJQueryReady(int time) {
 
-		JavascriptExecutor jsExec = (JavascriptExecutor) AbstractDriver.getWebDriver();
-		Boolean jQueryDefined = (Boolean) jsExec.executeScript("return typeof jQuery != 'undefined'");
-		if(jQueryDefined == null ) return;
-
-		if (jQueryDefined) {
-			Helper.waitForSeconds(0.02);
-			waitForJQueryLoad(time);
-			Helper.waitForSeconds(0.2);
+		try {
+			JavascriptExecutor jsExec = (JavascriptExecutor) AbstractDriver.getWebDriver();
+			Boolean jQueryDefined = (Boolean) jsExec.executeScript("return typeof jQuery != 'undefined'");
+			if(jQueryDefined == null ) return;
+	
+			if (jQueryDefined) {
+				Helper.waitForSeconds(0.02);
+				waitForJQueryLoad(time);
+				Helper.waitForSeconds(0.2);
+			}
+		}catch(Exception e) {
+			e.getMessage();
 		}
 	}
 
