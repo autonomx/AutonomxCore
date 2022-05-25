@@ -119,15 +119,29 @@ public class WaitHelper {
 
 		if(AbstractDriver.getWebDriver() == null) return false;
 		
-		ExpectedCondition<Boolean> condition = new ExpectedCondition<Boolean>() {
-			@Override
-			public Boolean apply(WebDriver driver) {
-				boolean isElement1Found = Element.findElements(element1).count() >= 1;
-				boolean isElement2Found = Element.findElements(element2).count() >= 1;
-				return (isElement1Found || isElement2Found);
-			}
-		};
-		return waitForCondition(condition, element1, time);
+		boolean isFound = false;
+		StopWatchHelper watch = StopWatchHelper.start();
+		long passedTimeInSeconds = 0;
+		do {
+			if(Helper.isDisplayed(element1) || Helper.isDisplayed(element2))
+				isFound = true;
+			else
+				Helper.waitForSeconds(0.1);
+			
+			passedTimeInSeconds = watch.time(TimeUnit.SECONDS);	
+		}while (!isFound && passedTimeInSeconds < time);
+		
+		return isFound;
+//		
+//		ExpectedCondition<Boolean> condition = new ExpectedCondition<Boolean>() {
+//			@Override
+//			public Boolean apply(WebDriver driver) {
+//				boolean isElement1Found = Element.findElements(element1).count() >= 1;
+//				boolean isElement2Found = Element.findElements(element2).count() >= 1;
+//				return (isElement1Found || isElement2Found);
+//			}
+//		};
+//		return waitForCondition(condition, element1, time);
 	}
 
 	/**
@@ -156,16 +170,30 @@ public class WaitHelper {
 
 		if(AbstractDriver.getWebDriver() == null) return false;
 		
-		ExpectedCondition<Boolean> condition = new ExpectedCondition<Boolean>() {
-			@Override
-			public Boolean apply(WebDriver driver) {
-				boolean isElement1Found = Element.findElements(element1).count() >= 1;
-				boolean isElement2Found = Element.findElements(element2).count() >= 1;
-				boolean isElement3Found = Element.findElements(element3).count() >= 1;
-				return (isElement1Found || isElement2Found || isElement3Found);
-			}
-		};
-		return waitForCondition(condition, element1, time);
+		boolean isFound = false;
+		StopWatchHelper watch = StopWatchHelper.start();
+		long passedTimeInSeconds = 0;
+		do {
+			if(Helper.isDisplayed(element1) || Helper.isDisplayed(element2) || Helper.isDisplayed(element3))
+				isFound = true;
+			else
+				Helper.waitForSeconds(0.1);
+			
+			passedTimeInSeconds = watch.time(TimeUnit.SECONDS);	
+		}while (!isFound && passedTimeInSeconds < time);
+		
+		return isFound;
+		
+//		ExpectedCondition<Boolean> condition = new ExpectedCondition<Boolean>() {
+//			@Override
+//			public Boolean apply(WebDriver driver) {
+//				boolean isElement1Found = Element.findElements(element1).count() >= 1;
+//				boolean isElement2Found = Element.findElements(element2).count() >= 1;
+//				boolean isElement3Found = Element.findElements(element3).count() >= 1;
+//				return (isElement1Found || isElement2Found || isElement3Found);
+//			}
+//		};
+//		return waitForCondition(condition, element1, time);
 	}
 
 	/**
@@ -217,7 +245,7 @@ public class WaitHelper {
 	 * @param target
 	 */
 	public boolean waitForElementToBeRemoved(final EnhancedBy target, int time, int waitForTargetToLoadInSeconds) {
-		waitForElementToLoad(target, waitForTargetToLoadInSeconds);
+		waitForElementToLoad(target, 3);
 		return waitForElementToBeRemoved(target, AbstractDriver.TIMEOUT_SECONDS);
 	}
 
@@ -523,7 +551,6 @@ public class WaitHelper {
 			ExpectedCondition<Boolean> jsLoad = driver -> ((JavascriptExecutor) AbstractDriver.getWebDriver())
 					.executeScript("return document.readyState").toString().equals("complete");
 			Boolean jsReady = jsExec.executeScript("return document.readyState").toString().equals("complete");
-			if(jsReady == null ) return;
 
 			if (!jsReady) {
 				jsWait.until(jsLoad);
