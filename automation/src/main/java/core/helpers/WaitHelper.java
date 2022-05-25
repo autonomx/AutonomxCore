@@ -257,24 +257,38 @@ public class WaitHelper {
 	 */
 	public boolean waitForElementToBeRemoved(final EnhancedBy target, int time) {
 		if(AbstractDriver.getWebDriver() == null) return false;
+		
+		boolean isRemoved = false;
+		StopWatchHelper watch = StopWatchHelper.start();
+		long passedTimeInSeconds = 0;
+		do {
+			if(!Helper.isDisplayed(target))
+			isRemoved = true;
+			else
+				Helper.waitForSeconds(0.1);
+			
+			passedTimeInSeconds = watch.time(TimeUnit.SECONDS);	
+		}while (!isRemoved && passedTimeInSeconds < time);
+		
+		return isRemoved;
 
-		ExpectedCondition<Boolean> condition = new ExpectedCondition<Boolean>() {
-			@Override
-			public Boolean apply(WebDriver driver) {
-				EnhancedWebElement elements = Element.findElements(target);
-				try {
-					for (int x = 0; x < elements.count(); x++) {
-						if (elements.isExist(x)) {
-							return false;
-						}
-					}
-				} catch (Exception e) {
-					e.getMessage();
-				}
-				return true;
-			}
-		};
-		return waitForCondition(condition, target, time);
+//		ExpectedCondition<Boolean> condition = new ExpectedCondition<Boolean>() {
+//			@Override
+//			public Boolean apply(WebDriver driver) {
+//				EnhancedWebElement elements = Element.findElements(target);
+//				try {
+//					for (int x = 0; x < elements.count(); x++) {
+//						if (elements.isExist(x)) {
+//							return false;
+//						}
+//					}
+//				} catch (Exception e) {
+//					e.getMessage();
+//				}
+//				return true;
+//			}
+//		};
+//		return waitForCondition(condition, target, time);
 	}
 
 	/**
