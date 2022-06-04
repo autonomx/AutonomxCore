@@ -359,6 +359,16 @@ public class Helper {
 	public static void clickAndNotExpect(EnhancedBy target, EnhancedBy expected) {
 		click.clickAndNotExpect(target, expected);
 	}
+	
+	
+	/**
+	 * click without waiting
+	 * @param target
+	 * @param index
+	 */
+	public void click(EnhancedBy target, int index) {
+		click.click(target,index);
+	}
 
 	/**
 	 * clicks target And waits for seconds

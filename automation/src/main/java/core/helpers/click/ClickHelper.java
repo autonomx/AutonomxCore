@@ -300,6 +300,17 @@ public class ClickHelper extends Element {
 		targetElement.click(index);
 		Helper.wait.waitForSeconds(timeInSeconds);
 	}
+	
+	/**
+	 * click without waiting
+	 * @param target
+	 * @param index
+	 */
+	public void click(EnhancedBy target, int index) {
+		TestLog.logPass("I click " + target.name);
+		EnhancedWebElement targetElement = Element.findElements(target);
+		targetElement.click(index);
+	}
 
 	/**
 	 * Click on an element's specific x,y location
