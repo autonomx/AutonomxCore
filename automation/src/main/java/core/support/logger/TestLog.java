@@ -26,6 +26,9 @@ import com.aventstack.extentreports.gherkin.model.But;
 import com.aventstack.extentreports.gherkin.model.Given;
 import com.aventstack.extentreports.gherkin.model.Then;
 import com.aventstack.extentreports.gherkin.model.When;
+import com.aventstack.extentreports.markuputils.ExtentColor;
+import com.aventstack.extentreports.markuputils.Markup;
+import com.aventstack.extentreports.markuputils.MarkupHelper;
 
 import core.apiCore.interfaces.RestApiInterface;
 import core.helpers.Helper;
@@ -249,7 +252,9 @@ public class TestLog {
 			return;
 
 		TestObject.getTestInfo().testSubSteps.add(subStep);
-		
+		/*
+		 * 
+		 * extent report 4 layout:
 		String label = "<head>\r\n" + 
 				"    <meta charset=\"UTF-8\">\r\n" + 
 				"    <title>Textarea autoresize</title>\r\n" + 
@@ -275,8 +280,13 @@ public class TestLog {
 				"    </script>\r\n" + 
 				"</head> <body>\r\n" + 
 				"    <textarea> "+subStep+"</textarea>\r\n";
-		//Markup m = MarkupHelper.createLabel(label, ExtentColor.TRANSPARENT);
-		getTestStep().pass(subStep);
+			Markup m = MarkupHelper.createLabel(label, ExtentColor.TRANSPARENT);
+			getTestStep().pass(subStep);
+		 * *
+		 */
+	
+		Markup m = MarkupHelper.createUnorderedList(subStep);
+		getTestStep().pass(m);
 	}
 
 	/**
