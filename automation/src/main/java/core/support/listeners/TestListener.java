@@ -416,6 +416,9 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		// run service before suite if test method is serviceRunner
 		if (isServiceSuite(suite))
 			ServiceManager.runServiceBeforeSuite();
+		
+		// disable logging  for freemaker
+		System.setProperty("org.freemarker.loggerLibrary", "none");
 	}
 
 	/**

@@ -132,6 +132,7 @@
 			<version>5.0.9</version>
 		</dependency>
 
+
 	<!-- https://mvnrepository.com/artifact/javax.mail/mail -->
 		<dependency>
 			<groupId>javax.mail</groupId>
