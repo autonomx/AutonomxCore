@@ -199,7 +199,7 @@ public class RetryTest implements TestRule {
 			getStep().warning(value);
 			break;
 		case debug:
-			getStep().debug(t);
+			getStep().info(t);
 			break;
 		case fail:
 			getStep().fail(value);

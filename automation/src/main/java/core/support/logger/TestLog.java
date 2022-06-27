@@ -26,9 +26,6 @@ import com.aventstack.extentreports.gherkin.model.But;
 import com.aventstack.extentreports.gherkin.model.Given;
 import com.aventstack.extentreports.gherkin.model.Then;
 import com.aventstack.extentreports.gherkin.model.When;
-import com.aventstack.extentreports.markuputils.ExtentColor;
-import com.aventstack.extentreports.markuputils.Markup;
-import com.aventstack.extentreports.markuputils.MarkupHelper;
 
 import core.apiCore.interfaces.RestApiInterface;
 import core.helpers.Helper;
@@ -206,22 +203,23 @@ public class TestLog {
 		testState state = TestObject.getTestState(TestObject.getTestInfo().testId);
 		if (!state.equals(testState.testMethod))
 			return;
+		value =  "<b>" + value + "</b>";
 
 		switch (gherkinState) {
 		case Given:
-			testStep = getTestScenario().createNode(Given.class, "Given " + formatMessage(value, args)).pass("");
+			testStep = getTestScenario().createNode(Given.class, "<b>Given</b> "  + formatMessage(value, args)).pass("");
 			break;
 		case When:
-			testStep = getTestScenario().createNode(When.class, "When " + formatMessage(value, args)).pass("");
+			testStep = getTestScenario().createNode(When.class, "<b>When</b> " + formatMessage(value, args)).pass("");
 			break;
 		case Then:
-			testStep = getTestScenario().createNode(Then.class, "Then " + formatMessage(value, args)).pass("");
+			testStep = getTestScenario().createNode(Then.class, "<b>Then</b> " + formatMessage(value, args)).pass("");
 			break;
 		case And:
-			testStep = getTestScenario().createNode(And.class, "And " + formatMessage(value, args)).pass("");
+			testStep = getTestScenario().createNode(And.class, "<b>And</b> "+ formatMessage(value, args)).pass("");
 			break;
 		case But:
-			testStep = getTestScenario().createNode(But.class, "But " + formatMessage(value, args)).pass("");
+			testStep = getTestScenario().createNode(But.class, "<b>But</b> " + formatMessage(value, args)).pass("");
 			break;
 		case Background:
 			testStep = getTestScenario().createNode(Background.class, formatMessage(value, args)).pass("");
@@ -257,6 +255,7 @@ public class TestLog {
 				"    <title>Textarea autoresize</title>\r\n" + 
 				"    <style>\r\n" + 
 				"    textarea {\r\n" + 
+				"        width:100%;\r\n" + 	
 				"        border-style: none;\r\n" + 
 				"        border-color: Transparent;\r\n" + 
 				"        background-color: #f0f3f5;\r\n" + 
@@ -276,8 +275,8 @@ public class TestLog {
 				"    </script>\r\n" + 
 				"</head> <body>\r\n" + 
 				"    <textarea> "+subStep+"</textarea>\r\n";
-		Markup m = MarkupHelper.createLabel(label, ExtentColor.WHITE);
-		getTestStep().pass(m);
+		//Markup m = MarkupHelper.createLabel(label, ExtentColor.TRANSPARENT);
+		getTestStep().pass(subStep);
 	}
 
 	/**

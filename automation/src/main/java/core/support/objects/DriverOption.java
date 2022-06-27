@@ -7,6 +7,7 @@ import org.openqa.selenium.ie.InternetExplorerOptions;
 import org.openqa.selenium.opera.OperaOptions;
 import org.openqa.selenium.safari.SafariOptions;
 
+@SuppressWarnings("deprecation")
 public class DriverOption {
 
 	/**

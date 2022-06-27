@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,8 +19,7 @@ import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.gherkin.model.Feature;
 import com.aventstack.extentreports.gherkin.model.Scenario;
-import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
-import com.aventstack.extentreports.reporter.ExtentKlovReporter;
+import com.aventstack.extentreports.reporter.ExtentSparkReporter;
 import com.aventstack.extentreports.reporter.configuration.Protocol;
 import com.aventstack.extentreports.reporter.configuration.Theme;
 
@@ -38,7 +35,6 @@ import core.support.objects.TestObject.testState;
 
 //OB: ExtentReports extent instance created here. That instance can be reachable by getReporter() method.
 
-@SuppressWarnings("deprecation")
 public class ExtentManager {
 
 	public static final String LAUNCH_AFTER_REPORT = "report.launchReportAfterTest";
@@ -60,7 +56,7 @@ public class ExtentManager {
 	private static ExtentReports extent;
 
 	public static String REPORT_DEFAULT_NAME = "extent";
-	public static ExtentKlovReporter klovReporter;
+	//public static ExtentKlovReporter klovReporter;
 
 	public static String TEST_OUTPUT_PATH = File.separator + "test-output" + File.separator;
 	public static String TEST_OUTPUT_FULL_PATH = Helper.getFullPath(TEST_OUTPUT_PATH);
@@ -118,17 +114,18 @@ public class ExtentManager {
 		extent = new ExtentReports();
 
 		// setup html reporter
-		ExtentHtmlReporter htmlReporter = new ExtentHtmlReporter(fileName);
-		htmlReporter.config().setTheme(Theme.STANDARD);
-		htmlReporter.config().setDocumentTitle(fileName);
-		htmlReporter.config().setEncoding("utf-8");
-		htmlReporter.config().setProtocol(Protocol.HTTPS);
-		htmlReporter.config().setReportName(fileName);
-		htmlReporter.config().enableTimeline(true);
+		ExtentReports htmlReporter = new ExtentReports();
+		ExtentSparkReporter spark = new ExtentSparkReporter(fileName);
+
+		spark.config().setTheme(Theme.STANDARD);
+		spark.config().setDocumentTitle(fileName);
+		spark.config().setEncoding("utf-8");
+		spark.config().setProtocol(Protocol.HTTPS);
+		spark.config().setReportName(fileName);
 		htmlReporter.setAnalysisStrategy(AnalysisStrategy.BDD);
 
 		if (Config.getValue(REPORT_TYPE).equals(HTML_REPORT_TYPE))
-			extent.attachReporter(htmlReporter);
+			extent.attachReporter(spark);
 
 		// setup klov reporter
 		setKlovReportReporter();
@@ -197,12 +194,14 @@ public class ExtentManager {
 	/**
 	 * if test are run through suite, set project name as suite if test are run
 	 * outside of suite, use the module/app name
+	 * 
+	 * TODO: support for klov not available in extent 5.0
 	 */
 	public static void setKlovReportReporter() {
-
+/*
 		if (!Config.getValue(REPORT_TYPE).equals(KLOV_REPORT_TYPE))
 			return;
-		
+
 		// set project name. if suite name is set (from suite file) Then use, else get
 		// test project name
 		if (TestObject.SUITE_NAME.contains("Default"))
@@ -227,6 +226,7 @@ public class ExtentManager {
 
 		if (Config.getValue(REPORT_TYPE).equals(KLOV_REPORT_TYPE))
 			extent.attachReporter(klovReporter);
+			*/
 	}
 
 	/**

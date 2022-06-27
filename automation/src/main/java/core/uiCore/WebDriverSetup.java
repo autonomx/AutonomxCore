@@ -149,7 +149,9 @@ public class WebDriverSetup {
 			break;
 		case CHROME:
 			setDriverManager(driverObject, WebDriverManager.chromedriver());
-			driver = new ChromeDriver(driverObject.getOptions().getChromeOptions());
+			//driver = new ChromeDriver(driverObject.getOptions().getChromeOptions());
+			driver = new ChromeDriver();
+
 			
 //			WebDriverManager.chromedriver().setup();
 //			driver = new ChromeDriver();
@@ -270,7 +272,7 @@ public class WebDriverSetup {
 
 		Capabilities caps = ((RemoteWebDriver) driver).getCapabilities();
 		String browserName = caps.getBrowserName();
-		String browserVersion = caps.getVersion();
+		String browserVersion = caps.getBrowserVersion();
 		TestLog.ConsoleLog("browser name: '" + browserName + "' browser version: " + browserVersion);
 	}
 }

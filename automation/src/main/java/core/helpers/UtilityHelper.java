@@ -57,6 +57,7 @@ import org.openqa.selenium.Point;
 import org.openqa.selenium.TakesScreenshot;
 import org.zeroturnaround.zip.ZipUtil;
 
+import com.aventstack.extentreports.MediaEntityBuilder;
 import com.epam.reportportal.message.ReportPortalMessage;
 import com.profesorfalken.jpowershell.PowerShell;
 import com.profesorfalken.jpowershell.PowerShellResponse;
@@ -923,10 +924,13 @@ public class UtilityHelper {
 			if (Config.getValue(ExtentManager.REPORT_TYPE).equals(ExtentManager.HTML_REPORT_TYPE)) {
 
 				AbstractDriver.getStep().get().info("").addScreenCaptureFromPath(imageRelativePath);
+				AbstractDriver.getStep().get().info(MediaEntityBuilder.createScreenCaptureFromPath(imageRelativePath).build());
+
 			}else {
 	
 				AbstractDriver.getStep().get().info("").addScreenCaptureFromPath(extentReportImageFullPath);
-			}
+				AbstractDriver.getStep().get().info(MediaEntityBuilder.createScreenCaptureFromPath(extentReportImageFullPath).build());
+			}			
 			
 			// log screenshot for report portal 
 			File screenshot = new File(extentReportImageFullPath);
