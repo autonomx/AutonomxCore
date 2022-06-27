@@ -454,7 +454,7 @@
 			<version>1.10.12</version>
 		</dependency>
 
-       <!-- java script engine used in data logic validation -->
+       <!-- java script engine used in data logic validation. 22.0.0.2 is java 8. do not upgrade  -->
 		<dependency>
 			<groupId>org.graalvm.js</groupId>
 			<artifactId>js</artifactId>
