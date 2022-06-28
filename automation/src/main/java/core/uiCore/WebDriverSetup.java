@@ -149,12 +149,7 @@ public class WebDriverSetup {
 			break;
 		case CHROME:
 			setDriverManager(driverObject, WebDriverManager.chromedriver());
-			//driver = new ChromeDriver(driverObject.getOptions().getChromeOptions());
-			driver = new ChromeDriver();
-
-			
-//			WebDriverManager.chromedriver().setup();
-//			driver = new ChromeDriver();
+			driver = new ChromeDriver(driverObject.getOptions().getChromeOptions());
 			break;
 		case CHROME_HEADLESS:
 			setDriverManager(driverObject, WebDriverManager.chromedriver());
