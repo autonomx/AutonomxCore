@@ -69,6 +69,8 @@ public class WebDriverSetup {
 			if (Config.getBooleanValue("appium.useExternalAppiumServer")) {
 				int port = Config.getIntValue("appium.externalPort");
 				TestLog.ConsoleLog("Connecting to external appium server at port " + port);
+				TestLog.ConsoleLog("driver capabilities " + driverObject.capabilities);
+
 				driver = new IOSDriver(new URL("http://localhost:" + port + "/wd/hub"), driverObject.capabilities);
 			} else {
 				TestLog.ConsoleLog("Connecting to internal appium server");
