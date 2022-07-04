@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
 import core.apiCore.ServiceManager;
@@ -28,6 +29,7 @@ import core.support.objects.KeyValue;
 import core.support.objects.ServiceObject;
 import core.support.objects.TestObject;
 import io.restassured.RestAssured;
+import io.restassured.builder.MultiPartSpecBuilder;
 import io.restassured.config.HttpClientConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
@@ -619,6 +621,8 @@ public class RestApiInterface {
 		return request;
 	}
 
+	// multi part
+	//eg. FILE:json_request_part:report.json
 	public static RequestSpecification evaluateRequestBody(ServiceObject serviceObject, RequestSpecification request) {
 		if (serviceObject.getRequestBody().isEmpty())
 			return request;
@@ -629,16 +633,23 @@ public class RestApiInterface {
 		// set form data
 		if (serviceObject.getContentType().contains("form")) {
 			request = request.config(RestAssured.config().encoderConfig(io.restassured.config.EncoderConfig
-					.encoderConfig().encodeContentTypeAs("multipart/form-data", ContentType.TEXT)));
+					.encoderConfig().encodeContentTypeAs("multipart/form-data", ContentType.MULTIPART)));
 
 			String[] formData = serviceObject.getRequestBody().split(",");
 			for (String data : formData) {
-				String[] keyValue = data.split(":", 2);
+				String[] keyValue = data.split(":");
 				if (keyValue.length == 3) {
-					switch (keyValue[1]) { // data type
+					switch (keyValue[0].trim()) { // data type
 					case "FILE":
 						File file = DataHelper.getFile(keyValue[2]);
-						request.multiPart(file);
+						String fileType = FilenameUtils.getExtension(file.getName()); // returns "json"
+						String controlName = keyValue[1].trim().toString();
+						if (fileType.equals("json"))
+							request = request.multiPart(new MultiPartSpecBuilder(file).fileName(file.getName())
+									.controlName(controlName).mimeType("application/json").build());
+						else
+							request = request.multiPart(new MultiPartSpecBuilder(file).fileName(file.getName())
+									.controlName(controlName).build());
 						break;
 					default:
 						break;
