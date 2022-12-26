@@ -16,6 +16,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.maven.artifact.versioning.ComparableVersion;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.util.Strings;
 
@@ -471,14 +472,15 @@ public class TestLog {
 	/**
 	 * sets up log4j loggin
 	 */
+	//TODO: update set log level to error
 	public static void setupLog4j() {
 		File f = new File(TestLog.LOG4JPATH);
 		URI fc = f.toURI();  
 		LoggerContext.getContext().setConfigLocation(fc);
 		
 		// set logging for slf4j logger. applicable to third party loggers
-		ch.qos.logback.classic.Logger rootLogger = (ch.qos.logback.classic.Logger)LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
-		rootLogger.setLevel(ch.qos.logback.classic.Level.ERROR);
+		//Logger rootLogger = LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+		//rootLogger.setLevel(Level.ERROR);
 	}
 
 	/**

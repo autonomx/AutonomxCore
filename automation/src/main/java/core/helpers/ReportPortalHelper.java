@@ -1,6 +1,11 @@
 package core.helpers;
 
 
+import java.io.File;
+import java.io.FileOutputStream;
+
+import org.apache.commons.io.FileUtils;
+
 import core.apiCore.interfaces.RestApiInterface;
 import core.support.configReader.Config;
 import core.support.listeners.ParamOverrideTestNgService;
@@ -277,6 +282,124 @@ public class ReportPortalHelper {
 		String issueLocator = Config.getValue("issueLocator");
 	
 		return issueLocator;
+	}
+	
+	public void reportPortalLog(String testname, String message) {
+		if(!Config.getBooleanValue(reportEnabled))
+			return;
+		
+		String launchId = getCurrentLaunchId();		
+		if(launchId.isEmpty())
+			return;
+		
+		String launchUuid = Config.getGlobalValue(launchUUID);
+		if(launchUuid.isEmpty()) {
+			System.out.println("report portal launch uuid is empty");
+			return;
+		}
+		
+		String testUuid = getTestId(testname, launchId);		
+		if(testUuid.isEmpty()) {
+			System.out.println("test not found in recent launcher. test name: " +  testname);
+			return;
+		}
+		
+		String date = Helper.date.getCurrentTime("yyyy-MM-dd'T'HH:mm:s");
+		
+		// send message
+		String filename = "";
+		String endpoint = uri + "/api/v1/" + project + "/log?access_token=" +  uuid;
+		String body = "{\r\n"
+				+ "  \"file\": {\r\n"
+				+ "    \"name\": \"" + filename+ "\",\r\n"
+				+ "	\"content-type\": \"image/png\"\r\n"
+				+ "  },\r\n"
+				+ "  \"itemUuid\": \""+testUuid+"\",\r\n"
+				+ "  \"launchUuid\": \""+launchUuid+"\",\r\n"
+				+ "  \"level\": \"error\",\r\n"
+				+ "  \"message\": \""+message+"\",\r\n"
+				+ "  \"time\": \""+date+"\"\r\n"
+				+ "  }";
+	
+		ServiceObject service = new ServiceObject()
+				.withUriPath(endpoint)
+				.withContentType("application/json")
+				.withMethod("POST")
+				.withRequestBody(body);
+				
+		RestApiInterface.RestfullApiInterface(service);
+		
+	}
+	
+	public void reportPortalLogWithAttachment(String testname, String message, String status, String filePath) {
+		if(!Config.getBooleanValue(reportEnabled))
+			return;
+		
+		String launchId = getCurrentLaunchId();	
+		if(launchId.isEmpty())
+			return;
+		
+		String launchUuid = Config.getGlobalValue(launchUUID);
+		if(launchUuid.isEmpty()) {
+			System.out.println("report portal launch uuid is empty");
+			return;
+		}
+		
+		String testUuid = getTestId(testname, launchId);		
+		if(testUuid.isEmpty()) {
+			System.out.println("test not found in recent launcher. test name: " +  testname);
+			return;
+		}
+		
+		String endpoint = uri + "/api/v1/" + project + "/log?access_token=" +  uuid;
+		File tempFile = null;
+		File attachment = null;
+		
+		// create json_request_part
+		try {
+			
+			// copy screenshot/file to template location
+		    attachment = new File(filePath);
+			FileUtils.copyFile(attachment, new File(File.separator + "test-output" + File.separator + File.separator + attachment.getName()));
+			
+			String date = Helper.date.getCurrentTime("yyyy-MM-dd'T'HH:mm:s");
+			
+			// send message
+			String body = "[{\r\n"
+					+ "  \"file\": {\r\n"
+					+ "    \"name\": \"" + attachment.getName() + "\",\r\n"
+					+ "	\"content-type\": \"image/png\"\r\n"
+					+ "  },\r\n"
+					+ "  \"itemUuid\": \""+testUuid+"\",\r\n"
+					+ "  \"launchUuid\": \""+launchUuid+"\",\r\n"
+					+ "  \"level\": \""+status+"\",\r\n"
+					+ "  \"message\": \""+message+"\",\r\n"
+					+ "  \"time\": \""+date+"\"\r\n"
+					+ "  }]";
+			
+				tempFile = new File(File.separator + "test-output" + File.separator +  "reportPortal.json");
+				FileOutputStream fos = new FileOutputStream(tempFile);
+				 byte[] bytesArray = body.getBytes();
+				 fos.write(bytesArray);
+				 fos.flush();
+				 fos.close();
+				 
+//			String content = Files.toString(tempFile, Charsets.UTF_8);
+//			System.out.println(content.toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+
+		String body = "FILE:json_request_part:reportPortal.json,FILE:file:" + attachment.getName();
+	
+		ServiceObject service = new ServiceObject()
+				.withUriPath(endpoint)
+				.withContentType("multipart/form-data")
+				.withMethod("POST")
+				.withRequestBody(body);
+				
+		RestApiInterface.RestfullApiInterface(service);	
 	}
 
 	
