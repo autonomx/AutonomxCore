@@ -4,7 +4,6 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.ie.InternetExplorerOptions;
-import org.openqa.selenium.opera.OperaOptions;
 import org.openqa.selenium.safari.SafariOptions;
 
 @SuppressWarnings("deprecation")
@@ -17,7 +16,6 @@ public class DriverOption {
 	FirefoxOptions firefoxOptions = new FirefoxOptions();
 	EdgeOptions edgeOptions = new EdgeOptions();
 	SafariOptions safariOptions = new SafariOptions();
-	OperaOptions operaOptions = new OperaOptions();
 	InternetExplorerOptions ieOptions = new InternetExplorerOptions();
 	
 	public DriverOption withChromeOptions(ChromeOptions chromeOptions) {
@@ -40,10 +38,6 @@ public class DriverOption {
 		return this;
 	}
 	
-	public DriverOption withOperaOptions(OperaOptions operaOptions) {
-		this.operaOptions = operaOptions;
-		return this;
-	}
 	
 	public DriverOption withInternetExplorerOptions(InternetExplorerOptions ieOptions) {
 		this.ieOptions = ieOptions;
@@ -65,11 +59,7 @@ public class DriverOption {
 	public SafariOptions getSafariOptions() {
 		return this.safariOptions;
 	}
-	
-	public OperaOptions getOperaOptions() {
-		return this.operaOptions;
-	}
-	
+
 	public InternetExplorerOptions getInternetExplorerOptions() {
 		return this.ieOptions;
 	}

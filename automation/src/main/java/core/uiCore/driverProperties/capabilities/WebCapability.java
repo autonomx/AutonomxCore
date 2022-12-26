@@ -99,7 +99,6 @@ public class WebCapability {
 				options.getFirefoxOptions().setCapability(key, value);
 				options.getEdgeOptions().setCapability(key, value);
 				options.getSafariOptions().setCapability(key, value);
-				options.getOperaOptions().setCapability(key, value);
 				options.getInternetExplorerOptions().setCapability(key, value);
 			}
 		}
@@ -285,6 +284,9 @@ public class WebCapability {
 	 * @return
 	 */
 	public static boolean printWebDriverVersionHelp(Exception e) {
+		if(e == null || e.getMessage() == null)
+			return false;
+		
 		if(e.getMessage().contains("This version of")
 				&& e.getMessage().contains("only supports")
 				&& e.getMessage().contains("version")) {

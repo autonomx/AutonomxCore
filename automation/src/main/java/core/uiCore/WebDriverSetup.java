@@ -11,7 +11,6 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
-import org.openqa.selenium.opera.OperaDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariDriver;
 
@@ -150,17 +149,13 @@ public class WebDriverSetup {
 			driver = new EdgeDriver(driverObject.getOptions().getEdgeOptions());
 			break;
 		case CHROME:
-			setDriverManager(driverObject, WebDriverManager.chromedriver());
-			driver = new ChromeDriver(driverObject.getOptions().getChromeOptions());
+			setDriverManager(driverObject, WebDriverManager.chromedriver());	
+			driver = new ChromeDriver(driverObject.getOptions().getChromeOptions());		
 			break;
 		case CHROME_HEADLESS:
 			setDriverManager(driverObject, WebDriverManager.chromedriver());
 			driverObject.getOptions().getChromeOptions().setHeadless(true);
 			driver = new ChromeDriver(driverObject.getOptions().getChromeOptions());
-			break;
-		case OPERA:
-			setDriverManager(driverObject, WebDriverManager.operadriver());
-			driver = new OperaDriver(driverObject.getOptions().getOperaOptions());
 			break;
 		case SAFARI:
 			driver = new SafariDriver(driverObject.getOptions().getSafariOptions());
