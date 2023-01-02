@@ -59,11 +59,10 @@
 	</build>
 
 	<distributionManagement>
-
 		<repository>
-			<id>central</id>
-			<name>vultr.guest-releases</name>
-			<url>http://artifact.autonomx.io/artifactory/libs-release-local</url>
+			<id>autonomxJfrog</id>
+       		<name>a0fxjdsiawb5x-artifactory-primary-0-releases</name>
+       		<url>https://autonomx.jfrog.io/artifactory/autonomx-release-local</url>
 		</repository>
 	</distributionManagement>
 
