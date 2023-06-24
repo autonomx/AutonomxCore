@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.remote.DesiredCapabilities;
@@ -81,10 +81,7 @@ public class WebCapability {
 
 		// get all keys from config
 		Map<String, Object> propertiesMap = TestObject.getTestInfo().config;
-		propertiesMap.put("web.capabilities.recordVideo", "true");
-		propertiesMap.put("web.capabilities.takesScreenshot", "true");
 		propertiesMap.put("web.capabilities.browserName", getBrowserName());
-		propertiesMap.put("web.capabilities.name", TestObject.getTestInfo().testName);
 		
 		// load config/properties values from entries with "android.capabilties." prefix
 		for (Entry<String, Object> entry : propertiesMap.entrySet()) {

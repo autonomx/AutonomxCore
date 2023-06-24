@@ -7,17 +7,13 @@ import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
-import javax.sound.sampled.AudioInputStream;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.maven.artifact.versioning.ComparableVersion;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.util.Strings;
 
 import com.aventstack.extentreports.ExtentTest;
@@ -40,8 +36,8 @@ import core.support.objects.TestObject.testState;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import core.uiCore.drivers.AbstractDriver;
 import io.restassured.response.Response;
-import marytts.LocalMaryInterface;
-import marytts.MaryInterface;
+//import marytts.LocalMaryInterface;
+//import marytts.MaryInterface;
 
 
 public class TestLog {
@@ -61,7 +57,7 @@ public class TestLog {
 		Given, When, Then, And, But, Background
 	}
 
-	static marytts.util.data.audio.AudioPlayer player;
+	//static marytts.util.data.audio.AudioPlayer player;
 	public static final String LOG4JPATH = Config.RESOURCE_PATH + "/log4j2.xml";
 
 	
@@ -495,7 +491,7 @@ public class TestLog {
 			if (type.equals(WATSON)) {
 			//	playWatsonAudio(value);
 			} else if (type.equals(MARY)) {
-				playMaryAudio(value);
+				//playMaryAudio(value);
 
 			}
 		}
@@ -506,24 +502,24 @@ public class TestLog {
 	 * 
 	 * @param value text value to play back
 	 */
-	public static void playMaryAudio(String value) {
-
-		try {
-			MaryInterface marytts = new LocalMaryInterface();
-			Set<String> voices = marytts.getAvailableVoices();
-			String[] voiceList = voices.toArray(new String[voices.size()]);
-
-			marytts.setVoice(voiceList[0]);
-
-			// '!' results in playback being a bit faster, more natural
-			AudioInputStream audio = marytts.generateAudio(value + "!");
-			player = new marytts.util.data.audio.AudioPlayer(audio);
-			player.start();
-			player.join();
-		} catch (Exception e) {
-			e.getMessage();
-		}
-	}
+//	public static void playMaryAudio(String value) {
+//
+//		try {
+//			MaryInterface marytts = new LocalMaryInterface();
+//			Set<String> voices = marytts.getAvailableVoices();
+//			String[] voiceList = voices.toArray(new String[voices.size()]);
+//
+//			marytts.setVoice(voiceList[0]);
+//
+//			// '!' results in playback being a bit faster, more natural
+//			AudioInputStream audio = marytts.generateAudio(value + "!");
+//			player = new marytts.util.data.audio.AudioPlayer(audio);
+//			player.start();
+//			player.join();
+//		} catch (Exception e) {
+//			e.getMessage();
+//		}
+//	}
 
 	/**
 	 * watson audio
@@ -770,4 +766,56 @@ public class TestLog {
 		
 		return false;
 	}	
+	
+	/**
+	 * for mary tts text to speech, add these dependencies and uncomment the relevant code in this class
+	<repositories>
+
+			<!-- Mary TTS -->
+			<repository>
+				<id>MaryTTS</id>
+				<url>https://jcenter.bintray.com</url>
+			</repository>
+
+		</repositories>
+
+		<!-- Remote MaryTTS -->
+			<dependency>
+				<groupId>de.dfki.mary</groupId>
+				<artifactId>marytts-common</artifactId>
+				<version>5.2.1</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.codehaus.groovy</groupId>
+						<artifactId>groovy-all</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+
+			<dependency>
+				<groupId>de.dfki.mary</groupId>
+				<artifactId>marytts-runtime</artifactId>
+				<version>5.2.1</version>
+				<exclusions>
+					<exclusion>
+						<groupId>com.ibm.icu</groupId>
+						<artifactId>icu4j</artifactId>
+					</exclusion>
+
+					<exclusion>
+						<groupId>org.slf4j</groupId>
+						<artifactId>slf4j-log4j12</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+
+
+			<dependency>
+				<groupId>de.dfki.mary</groupId>
+				<artifactId>voice-cmu-slt-hsmm</artifactId>
+				<version>5.2.1</version>
+			</dependency>
+	 */
+	
 }
+

@@ -33,7 +33,6 @@ import io.appium.java_client.service.local.AppiumDriverLocalService;
 import io.appium.java_client.windows.WindowsDriver;
 import io.github.bonigarcia.wdm.WebDriverManager;
 
-@SuppressWarnings("deprecation")
 public class WebDriverSetup {
 
 	public static String SERVER_URL = "web.remote.server.url";
@@ -150,6 +149,8 @@ public class WebDriverSetup {
 			break;
 		case CHROME:
 			setDriverManager(driverObject, WebDriverManager.chromedriver());	
+	      //  driver = new ChromeDriver();
+
 			driver = new ChromeDriver(driverObject.getOptions().getChromeOptions());		
 			break;
 		case CHROME_HEADLESS:

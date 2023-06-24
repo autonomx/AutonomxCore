@@ -1,6 +1,6 @@
 package core.support.annotation.helper.annotationMap;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class AnnotationObject {
 	
