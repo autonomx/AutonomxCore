@@ -2,8 +2,11 @@ package core.uiCore.drivers;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
@@ -292,8 +295,10 @@ public class AbstractDriverTestNG implements ITest {
 		
 		if(url.isEmpty()) return;
 		
+		String urlOne = getUri(Helper.getCurrentUrl());
+		String urlTwo = getUri(url);
 		// if refresh option is disabled, skip get url
-		if(CrossPlatformProperties.isSingleSignIn() && !isRefresh && Helper.getCurrentUrl().equals(url))
+		if(CrossPlatformProperties.isSingleSignIn() && !isRefresh && urlOne.equals(urlTwo))
 			return;
 		
 		TestLog.logPass("I am the site '" + url + "'");
@@ -302,6 +307,11 @@ public class AbstractDriverTestNG implements ITest {
 
 	public static WebDriver getWebDriver() {
 		return webDriver.get();
+	}
+	
+	public static String getUri(String uri) {
+		 uri = StringUtils.removeEnd(uri, "/");
+	     return uri;
 	}
 
 	@AfterMethod

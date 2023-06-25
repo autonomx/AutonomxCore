@@ -476,7 +476,7 @@ public class TestLog {
 		URI fc = f.toURI();  
 		LoggerContext.getContext().setConfigLocation(fc);
 		ch.qos.logback.classic.Logger root  = null;
-		String[] packageList = {"org.apache.http","com.jayway","io.restassured"};
+		String[] packageList = {"org.apache.http","com.jayway","io.restassured","org.asynchttpclient","io.netty","io.github"};
 		
 		for(String pack : packageList) {
 			root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(pack);
