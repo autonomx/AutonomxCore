@@ -107,20 +107,13 @@
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
 			<version>2.20.0</version>
-		</dependency>
-
-	
+		</dependency>	
 
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>jul-to-slf4j</artifactId>
 			<version>2.0.7</version>
-		</dependency>
-		
-		<!-- do not update, will require java version about 8 -->
-	
-				
-		
+		</dependency>	
 
 		<dependency>
 			<groupId>com.aventstack</groupId>

@@ -3,10 +3,13 @@ package core.helpers;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -49,6 +52,15 @@ public class WaitHelper {
 	 * @param count:  minimum count of elements to wait for in list
 	 * @return
 	 */
+	public boolean waitForElementToBeVisible(final EnhancedBy target, int time, int count) {
+		if(AbstractDriver.getWebDriver() == null) return false;
+		EnhancedWebElement elements = Element.findElements(target);
+
+		ExpectedCondition<WebElement> condition = ExpectedConditions.visibilityOf(elements);
+
+		return waitForCondition2(condition, target, time);
+	}
+	
 	public boolean waitForElementToLoad(final EnhancedBy target, int time, int count) {
 		if(AbstractDriver.getWebDriver() == null) return false;
 		
@@ -61,6 +73,7 @@ public class WaitHelper {
 
 		return waitForCondition(condition, target, time);
 	}
+
 
 	/**
 	 * waits for element to load And refreshes the app each time to renew the dom
@@ -515,6 +528,26 @@ public class WaitHelper {
 				.withTimeout(Duration.ofSeconds(time)).ignoring(Exception.class);
 		try {
 			wait.until(condition);
+		} catch (Exception e) {
+			if (time == AbstractDriver.TIMEOUT_SECONDS && target != null) {
+				AssertHelper.assertTrue(
+						"element: " + target.name + " did not meet condition in allowed time (s) " + time, false);
+				e.printStackTrace();
+			}
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean waitForCondition2(ExpectedCondition<WebElement> condition2, EnhancedBy target, int time) {
+		if(AbstractDriver.getWebDriver() == null) return false;
+		
+		waitAllJSRequests(time); // if is web and flag is enabled
+		
+		Wait<WebDriver> wait = new WebDriverWait(AbstractDriver.getWebDriver(), Duration.ofSeconds(time)).pollingEvery(Duration.ofMillis(5))
+				.withTimeout(Duration.ofSeconds(time)).ignoring(Exception.class);
+		try {
+			wait.until(condition2);
 		} catch (Exception e) {
 			if (time == AbstractDriver.TIMEOUT_SECONDS && target != null) {
 				AssertHelper.assertTrue(

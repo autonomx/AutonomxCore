@@ -2184,6 +2184,12 @@ public class Helper {
 	public static boolean waitForElementToLoad(final EnhancedBy target, int time, int count) {
 		return wait.waitForElementToLoad(target, time, count);
 	}
+	
+	public static boolean waitForElementToBeVisible(final EnhancedBy target, int time, int count) {
+		return wait.waitForElementToBeVisible(target, time, count);
+	}
+	
+	
 
 	/**
 	 * waits for element count to increase from the originalCount Usefull When
