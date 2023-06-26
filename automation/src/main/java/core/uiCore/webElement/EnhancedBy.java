@@ -15,6 +15,7 @@ import io.appium.java_client.MobileBy;
  * @author CAEHMAT
  *
  */
+@SuppressWarnings("deprecation")
 public class EnhancedBy {
 	public List<ElementObject> elementObject;
 	public String name = "";

@@ -3154,12 +3154,10 @@ public class Helper extends core.helpers.Helper {
 
 		// MobileHelper
 
-		@SuppressWarnings("rawtypes")
 		public static AndroidDriver getAndroidDriver() {
 			return mobile.getAndroidDriver();
 		}
 
-		@SuppressWarnings("rawtypes")
 		public static IOSDriver getiOSDriver() {
 			return mobile.getiOSDriver();
 		}

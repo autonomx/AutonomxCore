@@ -23,10 +23,10 @@ import core.helpers.Element;
 import core.helpers.Helper;
 import core.support.logger.TestLog;
 import core.uiCore.drivers.AbstractDriver;
-import io.appium.java_client.MobileElement;
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.touch.offset.PointOption;
 
+@SuppressWarnings("deprecation")
 public class ImpEnhancedWebElement implements EnhancedWebElement {
 
 	private final String elementName;
@@ -408,13 +408,6 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	public String getCssSelectorValue() {
 		String byValue = by.toString();
 		return byValue.substring(byValue.indexOf(":") + 1);
-	}
-
-	@Override
-	public void setValue(int index, CharSequence... keysToSend) {
-		MobileElement element = (MobileElement) getElement(index);
-		String value = keysToSend[0].toString();
-		element.setValue(value);
 	}
 
 	@Override
@@ -834,7 +827,6 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		return cause;
 	}
 	
-	@SuppressWarnings("deprecation")
 	private void setTimeout(long time, TimeUnit unit) {
 		if(webDriver == null ) return;
 		try {
@@ -842,5 +834,11 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		}catch(NoSuchSessionException e) {
 			Helper.page.printStackTrace(e);
 		}
+	}
+
+	@Override
+	public void setValue(int index, CharSequence... value) {
+		// TODO Auto-generated method stub
+		
 	}
 }

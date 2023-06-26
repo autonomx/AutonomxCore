@@ -17,7 +17,6 @@ import org.openqa.selenium.WebDriver;
 
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
-import com.microsoft.appcenter.appium.EnhancedAndroidDriver;
 import com.microsoft.appcenter.appium.Factory;
 
 import core.helpers.Helper;
@@ -31,7 +30,6 @@ import core.uiCore.WebDriverSetup;
 import core.uiCore.driverProperties.driverType.DriverType;
 import core.uiCore.driverProperties.capabilities.AndroidCapability;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
-import io.appium.java_client.MobileElement;
 import junit.framework.Assert;
 
 @SuppressWarnings("deprecation")
@@ -283,14 +281,6 @@ public class AbstractDriverJunit {
 		letRetryKnowAboutReports();
 	}
 
-	@SuppressWarnings("unchecked")
-	public void takeAppcenterScreenshot(String label) {
-		try {
-			((EnhancedAndroidDriver<MobileElement>) getWebDriver()).label(label);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 
 	private void letRetryKnowAboutReports() {
 		retry.setExtendReport(TestObject.getTestInfo().testScenerio, step.get(), extent);

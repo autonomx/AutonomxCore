@@ -26,7 +26,6 @@ import core.support.objects.DriverObject;
 import core.support.objects.TestObject;
 import core.uiCore.driverProperties.browserType.BrowserType;
 import core.uiCore.driverProperties.driverType.DriverType;
-import io.appium.java_client.MobileElement;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.ios.IOSDriver;
 import io.appium.java_client.service.local.AppiumDriverLocalService;
@@ -89,7 +88,7 @@ public class WebDriverSetup {
 			}
 			// if microsoft app center
 			else if (PropertiesReader.isUsingCloud()) {
-				EnhancedAndroidDriver<MobileElement> appcenterDriver = Factory
+				EnhancedAndroidDriver appcenterDriver = Factory
 						.createAndroidDriver(new URL("http://localhost:8001/wd/hub"), driverObject.capabilities);
 				return appcenterDriver;
 				// if internal server is used

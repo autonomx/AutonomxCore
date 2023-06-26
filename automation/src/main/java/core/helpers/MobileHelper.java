@@ -23,19 +23,25 @@ import core.uiCore.drivers.AbstractDriver;
 import core.uiCore.webElement.EnhancedBy;
 import core.uiCore.webElement.EnhancedWebElement;
 import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.HidesKeyboard;
+import io.appium.java_client.InteractsWithApps;
 import io.appium.java_client.MultiTouchAction;
+import io.appium.java_client.PerformsTouchActions;
+import io.appium.java_client.SupportsLegacyAppManagement;
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.nativekey.AndroidKey;
 import io.appium.java_client.android.nativekey.KeyEvent;
 import io.appium.java_client.imagecomparison.OccurrenceMatchingResult;
 import io.appium.java_client.ios.IOSDriver;
+import io.appium.java_client.remote.SupportsContextSwitching;
+import io.appium.java_client.remote.SupportsLocation;
 import io.appium.java_client.touch.LongPressOptions;
 import io.appium.java_client.touch.WaitOptions;
 import io.appium.java_client.touch.offset.PointOption;
 import io.appium.java_client.windows.WindowsDriver;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings({ "rawtypes",  "deprecation" })
 public class MobileHelper {
 
 	public enum DIRECTION {
@@ -99,7 +105,7 @@ public class MobileHelper {
 	 * resets the app
 	 */
 	public void resetApp() {
-		getAppiumDriver().resetApp();
+		((SupportsLegacyAppManagement) getAppiumDriver()).resetApp();
 
 		TestLog.logPass("I reset the app");
 	}
@@ -109,7 +115,7 @@ public class MobileHelper {
 	 */
 	public void refreshMobileApp() {
 		if (isMobile()) {
-			getAppiumDriver().runAppInBackground(Duration.ofSeconds(1));
+			((InteractsWithApps) getAppiumDriver()).runAppInBackground(Duration.ofSeconds(1));
 		}
 	}
 
@@ -197,7 +203,7 @@ public class MobileHelper {
 	 * @param location
 	 */
 	public void setLocation(Location location) {
-		getAppiumDriver().setLocation(location);
+		((SupportsLocation) getAppiumDriver()).setLocation(location);
 	}
 
 	/**
@@ -371,10 +377,10 @@ public class MobileHelper {
 	 */
 	public void setAppiumContexts(String context) {
 		TestLog.logPass("I set context to '" + context + "'");
-		Set<String> contextNames = getAppiumDriver().getContextHandles();
+		Set<String> contextNames = ((SupportsContextSwitching) getAppiumDriver()).getContextHandles();
 		for (String contextName : contextNames) {
 			if (contextName.contains(context)) {
-				getAppiumDriver().context(contextName);
+				((SupportsContextSwitching) getAppiumDriver()).context(contextName);
 				break;
 			}
 		}
@@ -386,7 +392,7 @@ public class MobileHelper {
 	 * @return
 	 */
 	public Set<String> mobile_getContextList() {
-		Set<String> contextNames = getAppiumDriver().getContextHandles();
+		Set<String> contextNames = ((SupportsContextSwitching) getAppiumDriver()).getContextHandles();
 		return contextNames;
 	}
 
@@ -455,7 +461,7 @@ public class MobileHelper {
 	public void longPress(EnhancedBy target, long miliSeconds) {
 		try {
 			EnhancedWebElement targetElement = Element.findElements(target);
-			TouchAction action = new TouchAction(getAppiumDriver());
+			TouchAction action = new TouchAction((PerformsTouchActions) getAppiumDriver());
 			action.longPress(LongPressOptions.longPressOptions()
 					.withElement(io.appium.java_client.touch.offset.ElementOption.element(targetElement.get(0)))
 					.withDuration(Duration.ofMillis(miliSeconds))).release().perform();
@@ -464,11 +470,10 @@ public class MobileHelper {
 			e.getMessage();
 		}
 	}
-	
 	public void longPress(int x, int y, long miliSeconds) {
 		try {
 			PointOption point = new PointOption().withCoordinates(x, y);
-			TouchAction action = new TouchAction(getAppiumDriver());
+			TouchAction action = new TouchAction((PerformsTouchActions) getAppiumDriver());
 			action.longPress(LongPressOptions.longPressOptions().withPosition(point).withDuration(Duration.ofMillis(miliSeconds))).release().perform();
 			Thread.sleep(5000);
 		} catch (Exception e) {
@@ -533,9 +538,9 @@ public class MobileHelper {
 		int screenHeight = getAppiumDriver().manage().window().getSize().getHeight();
 		int screenWidth = getAppiumDriver().manage().window().getSize().getWidth();
 
-		MultiTouchAction multiTouchAction = new MultiTouchAction(getAppiumDriver());
-		TouchAction touchAction0 = new TouchAction(getAppiumDriver());
-		TouchAction touchAction1 = new TouchAction(getAppiumDriver());
+		MultiTouchAction multiTouchAction = new MultiTouchAction((PerformsTouchActions) getAppiumDriver());
+		TouchAction touchAction0 = new TouchAction((PerformsTouchActions) getAppiumDriver());
+		TouchAction touchAction1 = new TouchAction((PerformsTouchActions) getAppiumDriver());
 
 		switch (inOut) {
 		case "out":
@@ -582,7 +587,7 @@ public class MobileHelper {
 	 * press the And toY where you release it
 	 */
 	public void scroll(int fromX, int fromY, int toX, int toY) {
-		TouchAction touchAction = new TouchAction((AppiumDriver) AbstractDriver.getWebDriver());
+		TouchAction touchAction = new TouchAction((PerformsTouchActions) AbstractDriver.getWebDriver());
 		touchAction.longPress(LongPressOptions.longPressOptions().withPosition(PointOption.point(fromX, fromY)))
 				.moveTo(PointOption.point(toX, toY)).release().perform();
 
@@ -631,20 +636,18 @@ public class MobileHelper {
 	public void mobile_backButton() {
 		getAndroidDriver().pressKey(new KeyEvent(AndroidKey.BACK));
 	}
-
 	public void tapAtCenterLeft() {
 		int leftX = AbstractDriver.getWebDriver().manage().window().getSize().width / 8;
 		int centerY = AbstractDriver.getWebDriver().manage().window().getSize().height * 1 / 2;
 
-		TouchAction touchAction = new TouchAction((AppiumDriver) AbstractDriver.getWebDriver());
+		TouchAction touchAction = new TouchAction((PerformsTouchActions) AbstractDriver.getWebDriver());
 		touchAction.tap(PointOption.point(leftX, centerY)).perform();
 	}
-
 	public void tapAtCenterRight() {
 		int leftX = (int) (AbstractDriver.getWebDriver().manage().window().getSize().width * 0.95);
 		int centerY = AbstractDriver.getWebDriver().manage().window().getSize().height * 1 / 2;
 
-		TouchAction touchAction = new TouchAction((AppiumDriver) AbstractDriver.getWebDriver());
+		TouchAction touchAction = new TouchAction((PerformsTouchActions) AbstractDriver.getWebDriver());
 		touchAction.tap(PointOption.point(leftX, centerY)).perform();
 	}
 
@@ -698,7 +701,7 @@ public class MobileHelper {
 			endX = (int) (size.width * 0.05);
 			Map<String, Integer> startPoint = setStarterPositionForSwipe(element, index, startX, startY);
 
-			new TouchAction(getAppiumDriver()).press(PointOption.point(startPoint.get("x"), startPoint.get("y")))
+			new TouchAction((PerformsTouchActions) getAppiumDriver()).press(PointOption.point(startPoint.get("x"), startPoint.get("y")))
 					.waitAction(WaitOptions.waitOptions(Duration.ofSeconds((long) durationSec)))
 					.moveTo(PointOption.point(endX, startPoint.get("y"))).release().perform();
 			break;
@@ -709,7 +712,7 @@ public class MobileHelper {
 			endX = (int) (size.width * 0.90);
 			startPoint = setStarterPositionForSwipe(element, index, startX, startY);
 
-			new TouchAction(getAppiumDriver()).press(PointOption.point(startPoint.get("x"), startPoint.get("y")))
+			new TouchAction((PerformsTouchActions) getAppiumDriver()).press(PointOption.point(startPoint.get("x"), startPoint.get("y")))
 					.waitAction(WaitOptions.waitOptions(Duration.ofSeconds((long) durationSec)))
 					.moveTo(PointOption.point(endX, startPoint.get("y"))).release().perform();
 
@@ -721,7 +724,7 @@ public class MobileHelper {
 			startX = (size.width / 2);
 			startPoint = setStarterPositionForSwipe(element, index, startX, startY);
 
-			new TouchAction(getAppiumDriver()).press(PointOption.point(startPoint.get("x"), startPoint.get("y")))
+			new TouchAction((PerformsTouchActions) getAppiumDriver()).press(PointOption.point(startPoint.get("x"), startPoint.get("y")))
 					.waitAction(WaitOptions.waitOptions(Duration.ofSeconds((long) durationSec)))
 					.moveTo(PointOption.point(endX, startPoint.get("y"))).release().perform();
 			break;
@@ -732,7 +735,7 @@ public class MobileHelper {
 			startX = (size.width / 2);
 			startPoint = setStarterPositionForSwipe(element, index, startX, startY);
 
-			new TouchAction(getAppiumDriver()).press(PointOption.point(startPoint.get("x"), startPoint.get("y")))
+			new TouchAction((PerformsTouchActions) getAppiumDriver()).press(PointOption.point(startPoint.get("x"), startPoint.get("y")))
 					.waitAction(WaitOptions.waitOptions(Duration.ofSeconds((long) durationSec)))
 					.moveTo(PointOption.point(startX, endY)).release().perform();
 
@@ -767,7 +770,7 @@ public class MobileHelper {
 				int topY = p.getY() - 10;
 
 				// Strategy1: implementation
-				TouchAction touchAction = new TouchAction((AppiumDriver) AbstractDriver.getWebDriver());
+				TouchAction touchAction = new TouchAction((PerformsTouchActions) AbstractDriver.getWebDriver());
 				touchAction.tap(PointOption.point(xPosition, topY)).perform();
 				break;
 
@@ -787,14 +790,14 @@ public class MobileHelper {
 				break;
 
 			default:
-				getAppiumDriver().hideKeyboard();
+				((HidesKeyboard) getAppiumDriver()).hideKeyboard();
 			}
 
 			if (!Element.findElements(KEYBOARD_IOS).isExist())
 				return;
 
 			// Strategy3: if keyboard still exists, use appium.hideKeyboard()
-			getAppiumDriver().hideKeyboard();
+			((HidesKeyboard) getAppiumDriver()).hideKeyboard();
 		}
 	}
 }
