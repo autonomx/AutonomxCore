@@ -12,10 +12,8 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.maven.artifact.versioning.ComparableVersion;
-import org.slf4j.LoggerFactory;
 import org.testng.util.Strings;
 
 import com.aventstack.extentreports.ExtentTest;
@@ -475,13 +473,15 @@ public class TestLog {
 		File f = new File(TestLog.LOG4JPATH);
 		URI fc = f.toURI();  
 		LoggerContext.getContext().setConfigLocation(fc);
-		ch.qos.logback.classic.Logger root  = null;
-		String[] packageList = {"org.apache.http","com.jayway","io.restassured","org.asynchttpclient","io.netty","io.github"};
 		
-		for(String pack : packageList) {
-			root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(pack);
-			root.setLevel(ch.qos.logback.classic.Level.INFO);
-		}
+		// Code for latest version of logback  
+//		ch.qos.logback.classic.Logger root  = null;
+//		String[] packageList = {"org.apache.http","com.jayway","io.restassured","org.asynchttpclient","io.netty","io.github"};
+//		
+//		for(String pack : packageList) {
+//			root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(pack);
+//			root.setLevel(ch.qos.logback.classic.Level.INFO);
+//		}
 	}
 
 	/**

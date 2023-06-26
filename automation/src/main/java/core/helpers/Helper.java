@@ -2898,9 +2898,9 @@ public class Helper {
 	 * @param timeoutSeconds
 	 * @return
 	 */
-	public static String runShellCommand(String command, String timeoutSeconds) {
-		return UtilityHelper.runShellCommand(command, timeoutSeconds);
-	}
+//	public static String runShellCommand(String command, String timeoutSeconds) {
+//		return UtilityHelper.runShellCommand(command, timeoutSeconds);
+//	}
 
 	/**
 	 * script path relative to root path where pom.xml is located
@@ -2908,9 +2908,9 @@ public class Helper {
 	 * @param timeoutSeconds
 	 * @return
 	 */
-	public static String runShellScriptFromFile(String scriptPath, String timeoutSeconds) {
-		return UtilityHelper.runShellScriptFromFile(scriptPath, timeoutSeconds);
-	}
+//	public static String runShellScriptFromFile(String scriptPath, String timeoutSeconds) {
+//		return UtilityHelper.runShellScriptFromFile(scriptPath, timeoutSeconds);
+//	}
 	/**
 	 * Copies directory And all content from dirFrom to dirTo overwrites the content
 	 * 

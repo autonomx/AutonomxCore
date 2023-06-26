@@ -29,10 +29,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -59,8 +57,6 @@ import org.zeroturnaround.zip.ZipUtil;
 
 import com.aventstack.extentreports.MediaEntityBuilder;
 import com.epam.reportportal.message.ReportPortalMessage;
-import com.profesorfalken.jpowershell.PowerShell;
-import com.profesorfalken.jpowershell.PowerShellResponse;
 
 import core.support.annotation.processor.MainGenerator;
 import core.support.configReader.Config;
@@ -304,46 +300,61 @@ public class UtilityHelper {
 	}
 	
 	/**
+	 * Outdated library
+	 * 	
+		 <dependency>
+		    <groupId>com.profesorfalken</groupId>
+		    <artifactId>jPowerShell</artifactId>
+		    <version>3.1.1</version>
+		  </dependency>
+		  
 	 * run shell command
 	 * @param command
 	 * @param timeoutSeconds
 	 * @return
 	 */
-	public static String runShellCommand(String command, String timeoutSeconds) {
-		PowerShellResponse response = null;
-
-		try (PowerShell powerShell = PowerShell.openSession()) {
-			Map<String, String> myConfig = new HashMap<>();
-			myConfig.put("maxWait", timeoutSeconds);
-			response = powerShell.configuration(myConfig).executeCommand(command);
-			TestLog.ConsoleLogDebug("Shell command: " + response.getCommandOutput());
-			TestLog.ConsoleLogDebug("Shell command response: " + response.getCommandOutput());
-		} catch (Exception ex) {
-			Helper.logStackTrace(ex);
-		}
-		return response.getCommandOutput();
-	}
+//	public static String runShellCommand(String command, String timeoutSeconds) {
+//		PowerShellResponse response = null;
+//
+//		try (PowerShell powerShell = PowerShell.openSession()) {
+//			Map<String, String> myConfig = new HashMap<>();
+//			myConfig.put("maxWait", timeoutSeconds);
+//			response = powerShell.configuration(myConfig).executeCommand(command);
+//			TestLog.ConsoleLogDebug("Shell command: " + response.getCommandOutput());
+//			TestLog.ConsoleLogDebug("Shell command response: " + response.getCommandOutput());
+//		} catch (Exception ex) {
+//			Helper.logStackTrace(ex);
+//		}
+//		return response.getCommandOutput();
+//	}
 	
 	/**
+	 * Outdated library
+	 * 	
+		 <dependency>
+		    <groupId>com.profesorfalken</groupId>
+		    <artifactId>jPowerShell</artifactId>
+		    <version>3.1.1</version>
+		  </dependency>
 	 * script path relative to root path where pom.xml is located
 	 * @param scriptPath 
 	 * @param timeoutSeconds
 	 * @return
 	 */
-	public static String runShellScriptFromFile(String scriptPath, String timeoutSeconds) {
-		PowerShellResponse response = null;
-
-		try (PowerShell powerShell = PowerShell.openSession()) {
-			Map<String, String> myConfig = new HashMap<>();
-			myConfig.put("maxWait", timeoutSeconds);
-		    response = powerShell.configuration(myConfig).executeScript(scriptPath);
-			TestLog.ConsoleLogDebug("Shell command: " + response.getCommandOutput());
-			TestLog.ConsoleLogDebug("Shell command response: " + response.getCommandOutput());
-		} catch (Exception ex) {
-			Helper.logStackTrace(ex);
-		}
-		return response.getCommandOutput();
-	}
+//	public static String runShellScriptFromFile(String scriptPath, String timeoutSeconds) {
+//		PowerShellResponse response = null;
+//
+//		try (PowerShell powerShell = PowerShell.openSession()) {
+//			Map<String, String> myConfig = new HashMap<>();
+//			myConfig.put("maxWait", timeoutSeconds);
+//		    response = powerShell.configuration(myConfig).executeScript(scriptPath);
+//			TestLog.ConsoleLogDebug("Shell command: " + response.getCommandOutput());
+//			TestLog.ConsoleLogDebug("Shell command response: " + response.getCommandOutput());
+//		} catch (Exception ex) {
+//			Helper.logStackTrace(ex);
+//		}
+//		return response.getCommandOutput();
+//	}
 
 	/**
 	 * Copies directory And all content from dirFrom to dirTo overwrites the content
