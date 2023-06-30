@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.autonomx</groupId>
 	<artifactId>autonomxCore</artifactId>
-	<version>1.1.17</version>
+	<version>1.1.20</version>
 	<packaging>jar</packaging>
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
@@ -59,11 +59,11 @@
 	</build>
 
 	<distributionManagement>
-		<repository>
-			<id>autonomxJfrog</id>
-       		<name>a0fxjdsiawb5x-artifactory-primary-0-releases</name>
-       		<url>https://autonomx.jfrog.io/artifactory/autonomx-release-local</url>
-		</repository>
+	  <repository>
+	    <id>fury-push</id>
+	    <name>Fury</name>
+	    <url>https://maven.fury.io/autonomx/</url>
+	  </repository>
 	</distributionManagement>
 
 	<repositories>
