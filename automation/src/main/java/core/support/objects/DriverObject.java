@@ -87,8 +87,10 @@ public class DriverObject {
 			TestObject.getTestInfo().withIsForcedRestart(true);
 			try {
 				boolean hasQuit = driver.toString().contains("(null)");
-				if (!hasQuit)
+				if (!hasQuit) {
+					driver.close();
 					driver.quit();
+				}
 				driverList.remove(driver);
 				AbstractDriver.setWebDriver(null); // set driver to null so starts fresh with next run
 			} catch (Exception e) {

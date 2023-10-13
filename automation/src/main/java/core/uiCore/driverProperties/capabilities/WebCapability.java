@@ -63,10 +63,9 @@ public class WebCapability {
 		return this;
 	}
 	
-	@SuppressWarnings("deprecation")
 	public void disableLogs() {
 		if(isFirefox()) {
-			System.setProperty(FirefoxDriver.SystemProperty.BROWSER_LOGFILE,"/dev/null");
+		//	System.setProperty(FirefoxDriver.SystemProperty.BROWSER_LOGFILE,"/dev/null");
 		}
 	}
 

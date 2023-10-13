@@ -136,7 +136,7 @@ public class WebDriverSetup {
 			break;
 		case FIREFOX_HEADLESS:
 			setDriverManager(driverObject, WebDriverManager.firefoxdriver());
-			driverObject.getOptions().getFirefoxOptions().setHeadless(true);
+			driverObject.getOptions().getFirefoxOptions().addArguments("--headless=new");
 			driver = new FirefoxDriver(driverObject.getOptions().getFirefoxOptions());
 			break;
 		case INTERNET_EXPLORER:
@@ -149,11 +149,12 @@ public class WebDriverSetup {
 			break;
 		case CHROME:
 			setDriverManager(driverObject, WebDriverManager.chromedriver());	
+			driverObject.getOptions().getChromeOptions().addArguments("--remote-allow-origins=*");
 			driver = new ChromeDriver(driverObject.getOptions().getChromeOptions());		
 			break;
 		case CHROME_HEADLESS:
 			setDriverManager(driverObject, WebDriverManager.chromedriver());
-			driverObject.getOptions().getChromeOptions().setHeadless(true);
+			driverObject.getOptions().getChromeOptions().addArguments("--headless=new");
 			driver = new ChromeDriver(driverObject.getOptions().getChromeOptions());
 			break;
 		case SAFARI:
