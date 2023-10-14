@@ -7,7 +7,7 @@ import org.openqa.selenium.By;
 
 import core.helpers.Element.LocatorType;
 import core.helpers.Helper;
-import io.appium.java_client.MobileBy;
+import io.appium.java_client.AppiumBy;
 
 /**
  * Elements are stored in list
@@ -15,7 +15,6 @@ import io.appium.java_client.MobileBy;
  * @author CAEHMAT
  *
  */
-@SuppressWarnings("deprecation")
 public class EnhancedBy {
 	public List<ElementObject> elementObject;
 	public String name = "";
@@ -131,7 +130,7 @@ public class EnhancedBy {
 	public EnhancedBy byAccessibility(String element, String name) {
 		Helper.assertTrue("element cannot be empty", !element.isEmpty());
 
-		ElementObject locatorObject = new ElementObject(MobileBy.AccessibilityId(element), name, element,
+		ElementObject locatorObject = new ElementObject(AppiumBy.accessibilityId(element), name, element,
 				LocatorType.accessibiliy);
 		elementObject.add(locatorObject);
 		this.name = name;
