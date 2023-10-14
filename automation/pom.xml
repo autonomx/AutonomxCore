@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.autonomx</groupId>
 	<artifactId>autonomxCore</artifactId>
-	<version>1.1.22</version>
+	<version>1.1.23</version>
 	<packaging>jar</packaging>
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
@@ -118,7 +118,7 @@
 		<dependency>
 			<groupId>com.aventstack</groupId>
 			<artifactId>extentreports</artifactId>
-			<version>5.0.9</version>
+			<version>5.1.1</version>
 		</dependency>
 
 
