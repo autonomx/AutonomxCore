@@ -53,8 +53,39 @@ jobs:
           print(f'Applied {g}:{a}:{v}')
           PY
 
-      - name: Save exact POM intended for commit
-        run: cp automation/pom.xml /tmp/pom-to-commit.xml
+      - name: Apply dependency-specific source compatibility patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          IFS='|' read -r GROUP ARTIFACT VERSION < .github/dependency-update.txt
+          GROUP="$(echo "$GROUP" | xargs)"
+          ARTIFACT="$(echo "$ARTIFACT" | xargs)"
+          VERSION="$(echo "$VERSION" | xargs)"
+
+          if [[ "$GROUP:$ARTIFACT:$VERSION" == "io.github.bonigarcia:webdrivermanager:6.3.4" ]]; then
+            python3 - <<'PY'
+          from pathlib import Path
+          p = Path('automation/src/main/java/core/uiCore/WebDriverSetup.java')
+          s = p.read_text(encoding='utf-8')
+          old = 'manager = manager.useLocalVersionsPropertiesFirst();'
+          new = 'manager = manager.avoidExternalConnections();'
+          if old in s:
+              s = s.replace(old, new, 1)
+              p.write_text(s, encoding='utf-8')
+              print('Migrated WebDriverManager force-cache API to avoidExternalConnections()')
+          elif new in s:
+              print('WebDriverManager compatibility patch already present')
+          else:
+              raise SystemExit('Expected WebDriverManager force-cache call was not found')
+          PY
+          fi
+
+      - name: Save exact files intended for commit
+        shell: bash
+        run: |
+          cp automation/pom.xml /tmp/pom-to-commit.xml
+          mkdir -p /tmp/source-to-commit
+          cp automation/src/main/java/core/uiCore/WebDriverSetup.java /tmp/source-to-commit/WebDriverSetup.java
 
       - name: Apply CI-only monte-repack repository workaround
         shell: bash
@@ -77,13 +108,14 @@ jobs:
         shell: bash
         run: |
           cp /tmp/pom-to-commit.xml automation/pom.xml
+          cp /tmp/source-to-commit/WebDriverSetup.java automation/src/main/java/core/uiCore/WebDriverSetup.java
           IFS='|' read -r GROUP ARTIFACT VERSION < .github/dependency-update.txt
           GROUP="$(echo "$GROUP" | xargs)"
           ARTIFACT="$(echo "$ARTIFACT" | xargs)"
           VERSION="$(echo "$VERSION" | xargs)"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add automation/pom.xml
+          git add automation/pom.xml automation/src/main/java/core/uiCore/WebDriverSetup.java
           if git diff --cached --quiet; then
             echo "Dependency already at requested version; nothing to commit."
           else
