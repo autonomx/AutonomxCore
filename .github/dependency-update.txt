@@ -1,1 +1,1 @@
-org.json|json|20260522
+org.testng|testng|7.12.0
