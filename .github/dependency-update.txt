@@ -1,1 +1,1 @@
-org.postgresql|postgresql|42.7.13
+org.zeroturnaround|zt-zip|1.17
