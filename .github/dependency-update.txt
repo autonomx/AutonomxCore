@@ -1,1 +1,1 @@
-com.epam.reportportal|agent-java-testng|5.6.8
+com.epam.reportportal|logger-java-log4j|5.4.0
