@@ -1,1 +1,1 @@
-org.apache.kafka|kafka-clients|4.3.1
+com.thoughtworks.paranamer|paranamer|2.8.3
