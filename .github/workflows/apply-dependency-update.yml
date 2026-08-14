@@ -221,6 +221,24 @@ jobs:
           PY
           fi
 
+          if [[ "$GROUP:$ARTIFACT:$VERSION" == "org.apache.maven.plugins:maven-compiler-plugin:3.14.1" ]]; then
+            python3 - <<'PY'
+          from pathlib import Path
+          p = Path('automation/pom.xml')
+          s = p.read_text(encoding='utf-8')
+          direct = '''\t\t<dependency>\n\t\t\t<groupId>org.apache.maven</groupId>\n\t\t\t<artifactId>maven-artifact</artifactId>\n\t\t\t<version>3.9.16</version>\n\t\t</dependency>'''
+          if '<artifactId>maven-artifact</artifactId>' in s:
+              print('Explicit maven-artifact dependency already present')
+          else:
+              marker = '''\t\t<dependency>\n\t\t\t<groupId>org.apache.maven.plugins</groupId>\n\t\t\t<artifactId>maven-compiler-plugin</artifactId>\n\t\t\t<version>3.14.1</version>\n\t\t</dependency>'''
+              if marker not in s:
+                  raise SystemExit('Updated maven-compiler-plugin dependency block was not found')
+              s = s.replace(marker, marker + '\n\n' + direct, 1)
+              p.write_text(s, encoding='utf-8')
+              print('Declared maven-artifact explicitly for ComparableVersion usage')
+          PY
+          fi
+
       - name: Save exact files intended for commit
         shell: bash
         run: |
