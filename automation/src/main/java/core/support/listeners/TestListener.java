@@ -73,14 +73,10 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 		// shuts down webdriver processes
 		cleanupProcessess();
-
-		// add retry listeners to all tests
+		// Retry analyzers are assigned by AnnotationTransformer.
 		iTestContext.setAttribute("platform", "");
-		for (ITestNGMethod method : iTestContext.getAllTestMethods()) {
-			method.setRetryAnalyzer(new RetryTest());
-		}
 
-		// sets parallel run for default user. overwritten by suite xml settings
+// sets parallel run for default user. overwritten by suite xml settings
 		setParallelRun(iTestContext);
 		
 		// overwrite existing report

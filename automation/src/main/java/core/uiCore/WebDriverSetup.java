@@ -191,7 +191,7 @@ public class WebDriverSetup {
 		
 		// force cache, not checking online
 		if (isForceCache)
-			manager = manager.useLocalVersionsPropertiesFirst();
+			manager = manager.avoidExternalConnections();
 		
 		// detect if proxy is required or not
 		boolean isProxyEnabled = UtilityHelper.isProxyRequired(driverObject.getInitURL());
