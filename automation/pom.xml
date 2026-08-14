@@ -416,7 +416,7 @@
 		<dependency>
 			<groupId>org.graalvm.js</groupId>
 			<artifactId>js</artifactId>
-			<version>22.0.0.2</version>
+			<version>22.3.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.graalvm.js</groupId>
