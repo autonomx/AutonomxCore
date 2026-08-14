@@ -1,1 +1,1 @@
-org.zeroturnaround|zt-zip|1.17
+net.sourceforge.tess4j|tess4j|5.19.0
