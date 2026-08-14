@@ -1,4 +1,4 @@
-name: Dependency Upgrade Final Audit
+name: Dependency Upgrade Consumer Validation
 
 on:
   push:
@@ -7,26 +7,72 @@ on:
   workflow_dispatch:
 
 jobs:
-  audit:
+  validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout upgraded AutonomxCore
+        uses: actions/checkout@v5
         with:
           ref: agent/update-maven-dependencies
-      - uses: actions/setup-java@v5
+          path: core
+
+      - name: Checkout Autonomx consumer
+        uses: actions/checkout@v5
+        with:
+          repository: autonomx/Autonomx
+          ref: master
+          path: consumer
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
           cache: maven
 
-      - name: Build and test AutonomxCore
-        working-directory: automation
-        run: mvn -B -U clean test
+      - name: Build and install upgraded Core
+        working-directory: core/automation
+        run: mvn -B -U clean install
 
-      - name: Display remaining dependency updates
-        working-directory: automation
-        run: mvn -B -U org.codehaus.mojo:versions-maven-plugin:2.18.0:display-dependency-updates -DallowSnapshots=false
+      - name: Point consumer at local upgraded Core
+        shell: python
+        run: |
+          from pathlib import Path
+          path = Path('consumer/automation/pom.xml')
+          text = path.read_text(encoding='utf-8')
+          old = '''<artifactId>autonomx-core</artifactId>
+		  <version>1.1.22</version>'''
+          new = '''<artifactId>autonomxCore</artifactId>
+		  <version>1.1.23</version>'''
+          if old not in text:
+              raise SystemExit('Could not locate AutonomxCore dependency in consumer POM')
+          path.write_text(text.replace(old, new, 1), encoding='utf-8')
 
-      - name: Display remaining plugin updates
-        working-directory: automation
-        run: mvn -B -U org.codehaus.mojo:versions-maven-plugin:2.18.0:display-plugin-updates -DallowSnapshots=false
+      - name: Start local framework test webapp
+        run: |
+          chmod +x consumer/test-webapp/start.sh
+          (cd consumer/test-webapp && ./start.sh > "$RUNNER_TEMP/autonomx-test-webapp.log" 2>&1) &
+          for i in {1..60}; do
+            if curl --fail --silent http://127.0.0.1:18080/health >/dev/null; then
+              echo "Local test webapp is healthy"
+              exit 0
+            fi
+            sleep 1
+          done
+          cat "$RUNNER_TEMP/autonomx-test-webapp.log" || true
+          exit 1
+
+      - name: Run Autonomx framework functional tests against upgraded Core
+        working-directory: consumer/automation
+        run: mvn -B -U clean compile test -DsuiteXmlFile=suites/frameworkFunctionalTests.xml
+
+      - name: Upload consumer test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: upgraded-core-functional-test-results
+          if-no-files-found: ignore
+          path: |
+            consumer/automation/target/surefire-reports/**
+            consumer/automation/reports/**
+            consumer/automation/test-output/**
