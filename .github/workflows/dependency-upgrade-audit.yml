@@ -82,7 +82,6 @@ jobs:
               if count != 1:
                   raise SystemExit(f'Expected exactly one dependency {group}:{artifact}, found {count}')
 
-          # Build plugins are separate from dependencies.
           def replace_plugin(artifact, version):
               global text
               pattern = re.compile(
@@ -96,7 +95,6 @@ jobs:
           replace_plugin('maven-compiler-plugin', '3.15.0')
           replace_plugin('maven-source-plugin', '3.4.0')
 
-          # maven-antrun-plugin previously had no explicit version.
           antrun = re.compile(r'(<artifactId>maven-antrun-plugin</artifactId>)(?!\s*<version>)')
           text, count = antrun.subn(r'\1\n\t\t\t\t<version>3.2.0</version>', text, count=1)
           if count != 1 and '<artifactId>maven-antrun-plugin</artifactId>\n\t\t\t\t<version>3.2.0</version>' not in text:
@@ -104,6 +102,29 @@ jobs:
 
           text = text.replace('<source>1.8</source>', '<source>21</source>')
           text = text.replace('<target>1.8</target>', '<target>21</target>')
+
+          # monte-repack 1.1 declares JAI/JMF transitives from a dead SpringSource
+          # repository. AutonomxCore uses only the Monte screen-recorder classes,
+          # which are contained in monte-repack itself.
+          if '<groupId>javax.media.jai</groupId>' not in text:
+              monte_pattern = re.compile(
+                  r'(<dependency>\s*<groupId>com\.pojosontheweb</groupId>\s*'
+                  r'<artifactId>monte-repack</artifactId>\s*<version>1\.1</version>)(\s*</dependency>)',
+                  re.MULTILINE)
+              exclusions = '''
+              <exclusions>
+                  <exclusion>
+                      <groupId>javax.media.jai</groupId>
+                      <artifactId>com.springsource.javax.media.jai.core</artifactId>
+                  </exclusion>
+                  <exclusion>
+                      <groupId>javax.media</groupId>
+                      <artifactId>jmf</artifactId>
+                  </exclusion>
+              </exclusions>'''
+              text, count = monte_pattern.subn(r'\1' + exclusions + r'\2', text, count=1)
+              if count != 1:
+                  raise SystemExit('Could not add monte-repack exclusions')
 
           pom_path.write_text(text, encoding='utf-8')
 
