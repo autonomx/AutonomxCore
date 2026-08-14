@@ -100,11 +100,28 @@ jobs:
               else:
                   raise SystemExit(f'Expected Appium compatibility source was not found in {path}: {old}')
 
+          def replace_all(path, old, new, label):
+              p = Path(path)
+              data = p.read_bytes()
+              old_bytes = old.encode('utf-8')
+              new_bytes = new.encode('utf-8')
+              count = data.count(old_bytes)
+              if count:
+                  p.write_bytes(data.replace(old_bytes, new_bytes))
+                  print(f'{label} ({count} occurrence(s))')
+              elif new_bytes in data:
+                  print(f'{label} (already present)')
+              else:
+                  raise SystemExit(f'Expected Appium compatibility source was not found in {path}: {old}')
+
           helper = 'automation/src/main/java/core/helpers/Helper.java'
           mobile = 'automation/src/main/java/core/helpers/MobileHelper.java'
           legacy = 'automation/src/main/java/core/helpers/legacy/Helper.java'
           android = 'automation/src/main/java/core/uiCore/driverProperties/capabilities/AndroidCapability.java'
           ios = 'automation/src/main/java/core/uiCore/driverProperties/capabilities/IosCapability.java'
+          junit_driver = 'automation/src/main/java/core/uiCore/drivers/AbstractDriverJunit.java'
+          testng_driver = 'automation/src/main/java/core/uiCore/drivers/AbstractDriverTestNG.java'
+          enhanced_element = 'automation/src/main/java/core/uiCore/webElement/ImpEnhancedWebElement.java'
 
           for path in (helper, mobile, legacy):
               replace_once(
@@ -150,18 +167,57 @@ jobs:
                        'Removed AndroidMobileCapabilityType import')
           replace_once(android, 'import io.appium.java_client.remote.MobileCapabilityType;', '',
                        'Removed MobileCapabilityType import from Android capabilities')
-          replace_once(android, 'MobileCapabilityType.APP', '"appium:app"', 'Migrated Android app capability')
-          replace_once(android, 'MobileCapabilityType.NO_RESET', '"appium:noReset"', 'Migrated Android noReset capability')
-          replace_once(android, 'AndroidMobileCapabilityType.SYSTEM_PORT', '"appium:systemPort"',
-                       'Migrated Android systemPort capability')
+          replace_all(android, 'MobileCapabilityType.APP', '"appium:app"', 'Migrated Android app capability')
+          replace_all(android, 'MobileCapabilityType.NO_RESET', '"appium:noReset"', 'Migrated Android noReset capability')
+          replace_all(android, 'AndroidMobileCapabilityType.SYSTEM_PORT', '"appium:systemPort"',
+                      'Migrated Android systemPort capability')
 
           replace_once(ios, 'import io.appium.java_client.remote.MobileCapabilityType;', '',
                        'Removed MobileCapabilityType import from iOS capabilities')
-          replace_once(ios, 'MobileCapabilityType.APP', '"appium:app"', 'Migrated iOS app capability')
-          replace_once(ios, 'MobileCapabilityType.NO_RESET', '"appium:noReset"', 'Migrated iOS noReset capability')
-          replace_once(ios, 'MobileCapabilityType.DEVICE_NAME', '"appium:deviceName"',
-                       'Migrated iOS deviceName capability')
-          replace_once(ios, 'MobileCapabilityType.UDID', '"appium:udid"', 'Migrated iOS udid capability')
+          replace_all(ios, 'MobileCapabilityType.APP', '"appium:app"', 'Migrated iOS app capability')
+          replace_all(ios, 'MobileCapabilityType.NO_RESET', '"appium:noReset"', 'Migrated iOS noReset capability')
+          replace_all(ios, 'MobileCapabilityType.DEVICE_NAME', '"appium:deviceName"',
+                      'Migrated iOS deviceName capability')
+          replace_all(ios, 'MobileCapabilityType.UDID', '"appium:udid"', 'Migrated iOS udid capability')
+
+          for path in (junit_driver, testng_driver, enhanced_element):
+              replace_once(
+                  path,
+                  'import java.util.concurrent.TimeUnit;',
+                  'import java.time.Duration;\nimport java.util.concurrent.TimeUnit;',
+                  f'Added Duration import in {path}',
+              )
+
+          replace_once(
+              junit_driver,
+              'driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);',
+              'driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));',
+              'Migrated JUnit implicit wait to Duration',
+          )
+          replace_once(
+              junit_driver,
+              'driver.manage().timeouts().pageLoadTimeout(AbstractDriver.TIMEOUT_SECONDS, TimeUnit.SECONDS);',
+              'driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(AbstractDriver.TIMEOUT_SECONDS));',
+              'Migrated JUnit page load timeout to Duration',
+          )
+          replace_once(
+              testng_driver,
+              'driver.manage().timeouts().implicitlyWait(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);',
+              'driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS));',
+              'Migrated TestNG implicit wait to Duration',
+          )
+          replace_once(
+              testng_driver,
+              'driver.manage().timeouts().pageLoadTimeout(AbstractDriver.TIMEOUT_SECONDS, TimeUnit.SECONDS);',
+              'driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(AbstractDriver.TIMEOUT_SECONDS));',
+              'Migrated TestNG page load timeout to Duration',
+          )
+          replace_once(
+              enhanced_element,
+              'webDriver.manage().timeouts().implicitlyWait(time, unit);',
+              'webDriver.manage().timeouts().implicitlyWait(Duration.ofNanos(unit.toNanos(time)));',
+              'Migrated element implicit wait to Duration',
+          )
           PY
           fi
 
@@ -171,12 +227,17 @@ jobs:
           cp automation/pom.xml /tmp/pom-to-commit.xml
           mkdir -p /tmp/source-to-commit/helpers/legacy
           mkdir -p /tmp/source-to-commit/uiCore/driverProperties/capabilities
+          mkdir -p /tmp/source-to-commit/uiCore/drivers
+          mkdir -p /tmp/source-to-commit/uiCore/webElement
           cp automation/src/main/java/core/uiCore/WebDriverSetup.java /tmp/source-to-commit/uiCore/WebDriverSetup.java
           cp automation/src/main/java/core/helpers/Helper.java /tmp/source-to-commit/helpers/Helper.java
           cp automation/src/main/java/core/helpers/MobileHelper.java /tmp/source-to-commit/helpers/MobileHelper.java
           cp automation/src/main/java/core/helpers/legacy/Helper.java /tmp/source-to-commit/helpers/legacy/Helper.java
           cp automation/src/main/java/core/uiCore/driverProperties/capabilities/AndroidCapability.java /tmp/source-to-commit/uiCore/driverProperties/capabilities/AndroidCapability.java
           cp automation/src/main/java/core/uiCore/driverProperties/capabilities/IosCapability.java /tmp/source-to-commit/uiCore/driverProperties/capabilities/IosCapability.java
+          cp automation/src/main/java/core/uiCore/drivers/AbstractDriverJunit.java /tmp/source-to-commit/uiCore/drivers/AbstractDriverJunit.java
+          cp automation/src/main/java/core/uiCore/drivers/AbstractDriverTestNG.java /tmp/source-to-commit/uiCore/drivers/AbstractDriverTestNG.java
+          cp automation/src/main/java/core/uiCore/webElement/ImpEnhancedWebElement.java /tmp/source-to-commit/uiCore/webElement/ImpEnhancedWebElement.java
 
       - name: Apply CI-only monte-repack repository workaround
         shell: bash
@@ -205,6 +266,9 @@ jobs:
           cp /tmp/source-to-commit/helpers/legacy/Helper.java automation/src/main/java/core/helpers/legacy/Helper.java
           cp /tmp/source-to-commit/uiCore/driverProperties/capabilities/AndroidCapability.java automation/src/main/java/core/uiCore/driverProperties/capabilities/AndroidCapability.java
           cp /tmp/source-to-commit/uiCore/driverProperties/capabilities/IosCapability.java automation/src/main/java/core/uiCore/driverProperties/capabilities/IosCapability.java
+          cp /tmp/source-to-commit/uiCore/drivers/AbstractDriverJunit.java automation/src/main/java/core/uiCore/drivers/AbstractDriverJunit.java
+          cp /tmp/source-to-commit/uiCore/drivers/AbstractDriverTestNG.java automation/src/main/java/core/uiCore/drivers/AbstractDriverTestNG.java
+          cp /tmp/source-to-commit/uiCore/webElement/ImpEnhancedWebElement.java automation/src/main/java/core/uiCore/webElement/ImpEnhancedWebElement.java
           IFS='|' read -r GROUP ARTIFACT VERSION < .github/dependency-update.txt
           GROUP="$(echo "$GROUP" | xargs)"
           ARTIFACT="$(echo "$ARTIFACT" | xargs)"
@@ -217,7 +281,10 @@ jobs:
             automation/src/main/java/core/helpers/MobileHelper.java \
             automation/src/main/java/core/helpers/legacy/Helper.java \
             automation/src/main/java/core/uiCore/driverProperties/capabilities/AndroidCapability.java \
-            automation/src/main/java/core/uiCore/driverProperties/capabilities/IosCapability.java
+            automation/src/main/java/core/uiCore/driverProperties/capabilities/IosCapability.java \
+            automation/src/main/java/core/uiCore/drivers/AbstractDriverJunit.java \
+            automation/src/main/java/core/uiCore/drivers/AbstractDriverTestNG.java \
+            automation/src/main/java/core/uiCore/webElement/ImpEnhancedWebElement.java
           if git diff --cached --quiet; then
             echo "Dependency already at requested version; nothing to commit."
           else
