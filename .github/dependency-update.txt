@@ -1,1 +1,2 @@
 io.github.bonigarcia|webdrivermanager|6.3.4
+# retry with WebDriverManager 6.3.4 API compatibility patch
