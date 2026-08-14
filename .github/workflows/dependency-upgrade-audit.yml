@@ -1,4 +1,4 @@
-name: Dependency Upgrade Audit
+name: Dependency Upgrade Validation
 
 on:
   push:
@@ -7,22 +7,127 @@ on:
   workflow_dispatch:
 
 jobs:
-  audit:
+  upgrade-and-build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v5
+        with:
+          ref: agent/update-maven-dependencies
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
           cache: maven
+
+      - name: Apply latest stable Maven versions
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          pom_path = Path('automation/pom.xml')
+          text = pom_path.read_text(encoding='utf-8')
+
+          versions = {
+              ('org.apache.commons', 'commons-lang3'): '3.20.0',
+              ('com.google.guava', 'guava'): '33.6.0-jre',
+              ('io.github.bonigarcia', 'webdrivermanager'): '6.3.4',
+              ('org.seleniumhq.selenium', 'selenium-java'): '4.47.0',
+              ('org.apache.logging.log4j', 'log4j-core'): '2.25.4',
+              ('org.slf4j', 'jul-to-slf4j'): '2.0.18',
+              ('com.aventstack', 'extentreports'): '5.1.2',
+              ('io.appium', 'java-client'): '10.1.1',
+              ('org.apache.poi', 'poi-ooxml'): '5.5.1',
+              ('com.opencsv', 'opencsv'): '5.12.0',
+              ('org.apache.commons', 'commons-csv'): '1.14.1',
+              ('io.rest-assured', 'rest-assured'): '6.0.1',
+              ('org.skyscreamer', 'jsonassert'): '1.5.3',
+              ('com.jayway.jsonpath', 'json-path'): '3.0.0',
+              ('com.fasterxml.jackson.core', 'jackson-core'): '2.22.1',
+              ('org.apache.pdfbox', 'pdfbox'): '3.0.8',
+              ('com.google.code.gson', 'gson'): '2.14.0',
+              ('org.codehaus.groovy', 'groovy'): '3.0.25',
+              ('org.json', 'json'): '20260719',
+              ('org.testng', 'testng'): '7.12.0',
+              ('org.postgresql', 'postgresql'): '42.7.13',
+              ('org.zeroturnaround', 'zt-zip'): '1.18.2',
+              ('net.sourceforge.tess4j', 'tess4j'): '5.20.0',
+              ('org.xmlunit', 'xmlunit-matchers'): '2.13.0',
+              ('org.apache.maven.shared', 'maven-invoker'): '3.3.0',
+              ('net.lingala.zip4j', 'zip4j'): '2.11.6',
+              ('com.rabbitmq', 'amqp-client'): '5.34.0',
+              ('org.apache.kafka', 'kafka-clients'): '4.3.1',
+              ('com.thoughtworks.paranamer', 'paranamer'): '2.8.3',
+              ('org.apache.maven.plugins', 'maven-compiler-plugin'): '3.15.0',
+              ('org.apache.maven', 'maven-model'): '3.9.16',
+              ('org.apache.ant', 'ant'): '1.10.17',
+              ('org.graalvm.js', 'js'): '25.2.4',
+              ('org.graalvm.js', 'js-scriptengine'): '25.2.4',
+              ('com.google.googlejavaformat', 'google-java-format'): '1.36.1',
+              ('io.netty', 'netty-handler'): '4.2.15.Final',
+              ('com.epam.reportportal', 'agent-java-testng'): '5.6.8',
+              ('com.epam.reportportal', 'logger-java-log4j'): '5.4.0',
+              ('com.squareup.retrofit2', 'adapter-rxjava2'): '3.0.0',
+          }
+
+          for (group, artifact), version in versions.items():
+              pattern = re.compile(
+                  r'(<dependency>\s*<groupId>' + re.escape(group) +
+                  r'</groupId>\s*<artifactId>' + re.escape(artifact) +
+                  r'</artifactId>\s*<version>)([^<]+)(</version>)',
+                  re.MULTILINE)
+              text, count = pattern.subn(r'\g<1>' + version + r'\g<3>', text)
+              if count != 1:
+                  raise SystemExit(f'Expected exactly one dependency {group}:{artifact}, found {count}')
+
+          # Build plugins are separate from dependencies.
+          def replace_plugin(artifact, version):
+              global text
+              pattern = re.compile(
+                  r'(<plugin>\s*(?:<groupId>[^<]+</groupId>\s*)?<artifactId>' +
+                  re.escape(artifact) + r'</artifactId>\s*<version>)([^<]+)(</version>)',
+                  re.MULTILINE)
+              text, count = pattern.subn(r'\g<1>' + version + r'\g<3>', text, count=1)
+              if count != 1:
+                  raise SystemExit(f'Expected exactly one versioned plugin {artifact}, found {count}')
+
+          replace_plugin('maven-compiler-plugin', '3.15.0')
+          replace_plugin('maven-source-plugin', '3.4.0')
+
+          # maven-antrun-plugin previously had no explicit version.
+          antrun = re.compile(r'(<artifactId>maven-antrun-plugin</artifactId>)(?!\s*<version>)')
+          text, count = antrun.subn(r'\1\n\t\t\t\t<version>3.2.0</version>', text, count=1)
+          if count != 1 and '<artifactId>maven-antrun-plugin</artifactId>\n\t\t\t\t<version>3.2.0</version>' not in text:
+              raise SystemExit('Could not version maven-antrun-plugin')
+
+          text = text.replace('<source>1.8</source>', '<source>21</source>')
+          text = text.replace('<target>1.8</target>', '<target>21</target>')
+
+          pom_path.write_text(text, encoding='utf-8')
+
+      - name: Commit dependency upgrade when needed
+        run: |
+          if git diff --quiet -- automation/pom.xml; then
+            echo "POM already upgraded"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add automation/pom.xml
+            git commit -m "build: update Maven dependencies to latest stable releases"
+            git push origin HEAD:agent/update-maven-dependencies
+          fi
+
       - name: Show Java and Maven versions
         run: |
           java -version
           mvn -version
-      - name: Display dependency updates
+
+      - name: Resolve dependencies
         working-directory: automation
-        run: mvn -B -U org.codehaus.mojo:versions-maven-plugin:2.18.0:display-dependency-updates -DallowSnapshots=false
-      - name: Display plugin updates
+        run: mvn -B -U dependency:resolve
+
+      - name: Compile AutonomxCore
         working-directory: automation
-        run: mvn -B -U org.codehaus.mojo:versions-maven-plugin:2.18.0:display-plugin-updates -DallowSnapshots=false
+        run: mvn -B -U clean test
