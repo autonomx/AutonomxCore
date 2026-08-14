@@ -436,7 +436,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-handler</artifactId>
-            <version>4.1.100.Final</version>
+            <version>4.1.132.Final</version>
         </dependency>
         
         <!-- 5.1.1 is giving duplicate error on azure -->
