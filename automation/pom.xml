@@ -352,6 +352,16 @@
 			<groupId>com.pojosontheweb</groupId>
 			<artifactId>monte-repack</artifactId>
 			<version>1.1</version>
+    <exclusions>
+        <exclusion>
+            <groupId>javax.media.jai</groupId>
+            <artifactId>com.springsource.javax.media.jai.core</artifactId>
+        </exclusion>
+        <exclusion>
+            <groupId>javax.media</groupId>
+            <artifactId>jmf</artifactId>
+        </exclusion>
+    </exclusions>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.maven.shared/maven-invoker -->
