@@ -33,8 +33,6 @@ jobs:
           def write(path, text):
               Path(path).write_bytes(text.encode('utf-8'))
 
-          # Maven's ComparableVersion is used directly by TestLog, so make the
-          # owning artifact explicit instead of relying on a transitive dependency.
           pom_path = 'automation/pom.xml'
           pom = read(pom_path)
           if '<artifactId>maven-artifact</artifactId>' not in pom:
@@ -42,20 +40,18 @@ jobs:
                   r'(<dependency>\s*<groupId>org\.apache\.maven</groupId>\s*'
                   r'<artifactId>maven-model</artifactId>\s*<version>3\.9\.16</version>\s*</dependency>)'
               )
-              artifact = '''
-
-		<dependency>
-			<groupId>org.apache.maven</groupId>
-			<artifactId>maven-artifact</artifactId>
-			<version>3.9.16</version>
-		</dependency>'''
-              pom, count = model.subn(r'\1' + artifact, pom, count=1)
+              artifact = (
+                  '\n\n\t\t<dependency>\n'
+                  '\t\t\t<groupId>org.apache.maven</groupId>\n'
+                  '\t\t\t<artifactId>maven-artifact</artifactId>\n'
+                  '\t\t\t<version>3.9.16</version>\n'
+                  '\t\t</dependency>'
+              )
+              pom, count = model.subn(lambda m: m.group(1) + artifact, pom, count=1)
               if count != 1:
                   raise SystemExit('Could not add org.apache.maven:maven-artifact')
               write(pom_path, pom)
 
-          # Selenium removed its HTML5 Location class. Appium now owns the
-          # mobile location value type used by SupportsLocation.
           location_files = [
               'automation/src/main/java/core/helpers/Helper.java',
               'automation/src/main/java/core/helpers/MobileHelper.java',
@@ -69,9 +65,6 @@ jobs:
               )
               write(path, text)
 
-          # Appium 9+ removed SupportsLegacyAppManagement/resetApp. Preserve
-          # the framework method by restarting the configured application with
-          # the supported terminateApp/activateApp extension methods.
           mobile_path = 'automation/src/main/java/core/helpers/MobileHelper.java'
           mobile = read(mobile_path)
           mobile = mobile.replace('import io.appium.java_client.SupportsLegacyAppManagement;\r\n', '')
@@ -110,9 +103,6 @@ jobs:
                   raise SystemExit('Could not migrate MobileHelper.resetApp')
           write(mobile_path, mobile)
 
-          # Appium removed MobileCapabilityType and AndroidMobileCapabilityType.
-          # Keep the existing DesiredCapabilities-based architecture while using
-          # W3C-compliant Appium extension capability names.
           android_path = 'automation/src/main/java/core/uiCore/driverProperties/capabilities/AndroidCapability.java'
           android = read(android_path)
           for imp in [
