@@ -1,1 +1,1 @@
-org.apache.maven|maven-model|3.9.16
+org.apache.ant|ant|1.10.17
