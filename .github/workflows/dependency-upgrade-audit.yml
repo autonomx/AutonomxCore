@@ -6,6 +6,10 @@ on:
       - agent/update-maven-dependencies
   workflow_dispatch:
 
+concurrency:
+  group: dependency-upgrade-consumer-validation
+  cancel-in-progress: true
+
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -141,6 +145,7 @@ jobs:
           exit 1
 
       - name: Run Autonomx framework functional tests against upgraded Core
+        timeout-minutes: 5
         working-directory: consumer/automation
         run: mvn -B -U clean compile test -DsuiteXmlFile=suites/frameworkFunctionalTests.xml
 
