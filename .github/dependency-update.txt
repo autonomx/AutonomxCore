@@ -1,1 +1,1 @@
-org.apache.maven.shared|maven-invoker|3.3.0
+net.lingala.zip4j|zip4j|2.11.6
