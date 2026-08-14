@@ -3,6 +3,7 @@ package core.uiCore.webElement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
@@ -830,7 +831,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	private void setTimeout(long time, TimeUnit unit) {
 		if(webDriver == null ) return;
 		try {
-			webDriver.manage().timeouts().implicitlyWait(time, unit);
+			webDriver.manage().timeouts().implicitlyWait(Duration.ofNanos(unit.toNanos(time)));
 		}catch(NoSuchSessionException e) {
 			Helper.page.printStackTrace(e);
 		}

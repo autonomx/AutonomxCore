@@ -13,7 +13,7 @@ import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.html5.Location;
+import io.appium.java_client.Location;
 import org.openqa.selenium.remote.RemoteWebElement;
 
 import core.support.configReader.Config;
@@ -27,7 +27,7 @@ import io.appium.java_client.HidesKeyboard;
 import io.appium.java_client.InteractsWithApps;
 import io.appium.java_client.MultiTouchAction;
 import io.appium.java_client.PerformsTouchActions;
-import io.appium.java_client.SupportsLegacyAppManagement;
+
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.nativekey.AndroidKey;
@@ -105,7 +105,23 @@ public class MobileHelper {
 	 * resets the app
 	 */
 	public void resetApp() {
-		((SupportsLegacyAppManagement) getAppiumDriver()).resetApp();
+		AppiumDriver driver = getAppiumDriver();
+		Object appIdValue = null;
+		if (isAndroid()) {
+			appIdValue = driver.getCapabilities().getCapability("appium:appPackage");
+			if (appIdValue == null)
+				appIdValue = driver.getCapabilities().getCapability("appPackage");
+		} else if (isIOS()) {
+			appIdValue = driver.getCapabilities().getCapability("appium:bundleId");
+			if (appIdValue == null)
+				appIdValue = driver.getCapabilities().getCapability("bundleId");
+		}
+		if (appIdValue == null)
+			throw new IllegalStateException("Unable to restart app: appPackage/bundleId capability is not available");
+		String appId = appIdValue.toString();
+		InteractsWithApps appManagement = (InteractsWithApps) driver;
+		appManagement.terminateApp(appId);
+		appManagement.activateApp(appId);
 
 		TestLog.logPass("I reset the app");
 	}

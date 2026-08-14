@@ -2,6 +2,7 @@ package core.uiCore.drivers;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
@@ -260,10 +261,10 @@ public class AbstractDriverTestNG implements ITest {
 				driver = new WebDriverSetup().getWebDriverByType(driverObject);
 
 				// set implicit Wait wait to be the minimum of our explicit wait
-				driver.manage().timeouts().implicitlyWait(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
+				driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS));
 				
 				if(Helper.mobile.isWebDriver())
-					driver.manage().timeouts().pageLoadTimeout(AbstractDriver.TIMEOUT_SECONDS, TimeUnit.SECONDS);
+					driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(AbstractDriver.TIMEOUT_SECONDS));
 
 			} catch (Exception e) {
 				if (retry > 0)

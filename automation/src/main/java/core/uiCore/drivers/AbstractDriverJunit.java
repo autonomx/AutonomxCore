@@ -2,6 +2,7 @@ package core.uiCore.drivers;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.LogManager;
@@ -240,8 +241,8 @@ public class AbstractDriverJunit {
 				driver = new WebDriverSetup().getWebDriverByType(driverObject);
 
 				// set implicit Wait wait to be the minimum of our explicit wait
-				driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
-				driver.manage().timeouts().pageLoadTimeout(AbstractDriver.TIMEOUT_SECONDS, TimeUnit.SECONDS);
+				driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+				driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(AbstractDriver.TIMEOUT_SECONDS));
 
 			} catch (Exception e) {
 				if (retry == 0) {

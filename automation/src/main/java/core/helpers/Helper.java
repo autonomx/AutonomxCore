@@ -16,7 +16,7 @@ import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.html5.Location;
+import io.appium.java_client.Location;
 import org.testng.asserts.SoftAssert;
 
 import core.helpers.click.ClickHelper;

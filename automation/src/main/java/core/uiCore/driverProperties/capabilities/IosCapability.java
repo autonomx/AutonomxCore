@@ -18,7 +18,7 @@ import core.support.objects.DeviceObject.DeviceType;
 import core.support.objects.TestObject;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import core.uiCore.drivers.AbstractDriver;
-import io.appium.java_client.remote.MobileCapabilityType;
+
 import io.github.bonigarcia.wdm.WebDriverManager;
 
 /**
@@ -88,7 +88,7 @@ public class IosCapability {
 		// sets capabilties from properties files
 		capabilities = setiOSCapabilties();
 
-		capabilities.setCapability(MobileCapabilityType.APP, getAppPath());
+		capabilities.setCapability("appium:app", getAppPath());
 
 		// download chrome driver if hybrid
 		setChromeDriver();
@@ -139,9 +139,9 @@ public class IosCapability {
 	public void setSingleSignIn() {
 		if (CrossPlatformProperties.isSingleSignIn()) {
 			if (AbstractDriver.isFirstRun()) {
-				capabilities.setCapability(MobileCapabilityType.NO_RESET, false);
+				capabilities.setCapability("appium:noReset", false);
 			} else {
-				capabilities.setCapability(MobileCapabilityType.NO_RESET, true);
+				capabilities.setCapability("appium:noReset", true);
 			}
 		}
 	}
@@ -200,7 +200,7 @@ public class IosCapability {
 
 		// adds all devices
 		DeviceManager.loadDevices(devices, DeviceType.iOS);
-		capabilities.setCapability(MobileCapabilityType.DEVICE_NAME,
+		capabilities.setCapability("appium:deviceName",
 				DeviceManager.getFirstAvailableDevice(DeviceType.iOS));
 	}
 
@@ -221,10 +221,10 @@ public class IosCapability {
 
 		// adds all devices
 		DeviceManager.loadDevices(devices, DeviceType.iOS);
-		capabilities.setCapability(MobileCapabilityType.UDID, DeviceManager.getFirstAvailableDevice(DeviceType.iOS));
+		capabilities.setCapability("appium:udid", DeviceManager.getFirstAvailableDevice(DeviceType.iOS));
 
 		// TODO: needs to be correct device. adding first device to device name
-		capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, deviceNames.get(0));
+		capabilities.setCapability("appium:deviceName", deviceNames.get(0));
 	}
 
 	/**
