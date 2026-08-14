@@ -9,12 +9,45 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout upgraded AutonomxCore
         uses: actions/checkout@v5
         with:
           ref: agent/update-maven-dependencies
           path: core
+          fetch-depth: 1
+
+      - name: Restore listener and apply minimal TestNG null guard
+        working-directory: core
+        shell: bash
+        run: |
+          git fetch --no-tags --depth=1 origin 26abaf0af909c52edfec8cfc49b99d687b868977
+          git show FETCH_HEAD:automation/src/main/java/core/support/listeners/TestListener.java > /tmp/TestListener.java
+          python - <<'PY'
+          from pathlib import Path
+          source = Path('/tmp/TestListener.java').read_bytes()
+          newline = b'\r\n' if b'\r\n' in source else b'\n'
+          old = b'\t\tiTestContext.setAttribute("WebDriver", AbstractDriverTestNG.getWebDriver());'
+          new = newline.join([
+              b'\t\tObject webDriver = AbstractDriverTestNG.getWebDriver();',
+              b'\t\tif (webDriver != null)',
+              b'\t\t\tiTestContext.setAttribute("WebDriver", webDriver);',
+          ])
+          if source.count(old) != 1:
+              raise SystemExit('Expected exactly one WebDriver context assignment')
+          Path('automation/src/main/java/core/support/listeners/TestListener.java').write_bytes(source.replace(old, new, 1))
+          PY
+          if git diff --quiet -- automation/src/main/java/core/support/listeners/TestListener.java; then
+            echo "Listener already contains the minimal migration"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add automation/src/main/java/core/support/listeners/TestListener.java
+            git commit -m "fix: avoid null TestNG context attributes"
+            git push origin HEAD:agent/update-maven-dependencies
+          fi
 
       - name: Checkout Autonomx consumer
         uses: actions/checkout@v5
@@ -79,8 +112,8 @@ jobs:
               if count != 1:
                   raise SystemExit(f'Could not remove duplicate consumer dependency {group}:{artifact}')
 
-          # Autonomx still uses Surefire 2.22.1, which cannot reliably fork
-          # this Java 21 / TestNG 7.12 dependency graph. This is validation-only.
+          # Validation-only: the consumer's Surefire 2.22.1 cannot run the
+          # Java 21 / current TestNG dependency graph.
           text = text.replace('<version>2.22.1</version>', '<version>3.5.4</version>')
           path.write_text(text, encoding='utf-8')
 
