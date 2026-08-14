@@ -1,4 +1,4 @@
-name: Dependency Upgrade Validation
+name: Dependency Upgrade Final Audit
 
 on:
   push:
@@ -7,10 +7,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  upgrade-and-build:
+  audit:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v5
         with:
@@ -21,99 +19,14 @@ jobs:
           java-version: '21'
           cache: maven
 
-      - name: Apply next source compatibility migrations
-        shell: python
-        run: |
-          from pathlib import Path
-          import re
-
-          def read(path):
-              return Path(path).read_bytes().decode('utf-8')
-
-          def write(path, text):
-              Path(path).write_bytes(text.encode('utf-8'))
-
-          # TestNG now exposes the retry analyzer as a class on annotations.
-          path = 'automation/src/main/java/core/support/listeners/AnnotationTransformer.java'
-          text = read(path)
-          text = text.replace(
-              'IRetryAnalyzer retry = annotation.getRetryAnalyzer();',
-              'Class<? extends IRetryAnalyzer> retry = annotation.getRetryAnalyzerClass();'
-          )
-          write(path, text)
-
-          # Retry analyzers are configured through IAnnotationTransformer now;
-          # ITestNGMethod no longer exposes setRetryAnalyzer(instance).
-          path = 'automation/src/main/java/core/support/listeners/TestListener.java'
-          text = read(path)
-          retry_loop = re.compile(
-              r'\s*// add retry listeners to all tests\s*'
-              r'iTestContext\.setAttribute\("platform", ""\);\s*'
-              r'for \(ITestNGMethod method : iTestContext\.getAllTestMethods\(\)\) \{\s*'
-              r'method\.setRetryAnalyzer\(new RetryTest\(\)\);\s*\}\s*'
-          )
-          if 'method.setRetryAnalyzer(new RetryTest())' in text:
-              nl = '\r\n' if '\r\n' in text else '\n'
-              replacement = nl + '\t\t// Retry analyzers are assigned by AnnotationTransformer.' + nl + '\t\tiTestContext.setAttribute("platform", "");' + nl + nl
-              text, count = retry_loop.subn(replacement, text, count=1)
-              if count != 1:
-                  raise SystemExit('Could not migrate TestListener retry configuration')
-          write(path, text)
-
-          # WebDriverManager 6 replaces the removed local-versions preference
-          # with an explicit no-external-connections mode for cache-only use.
-          path = 'automation/src/main/java/core/uiCore/WebDriverSetup.java'
-          text = read(path)
-          text = text.replace('manager.useLocalVersionsPropertiesFirst()', 'manager.avoidExternalConnections()')
-          write(path, text)
-
-          # Selenium timeout APIs now take java.time.Duration.
-          timeout_files = [
-              'automation/src/main/java/core/uiCore/drivers/AbstractDriverJunit.java',
-              'automation/src/main/java/core/uiCore/drivers/AbstractDriverTestNG.java',
-          ]
-          for path in timeout_files:
-              text = read(path)
-              if 'import java.time.Duration;' not in text:
-                  text = text.replace('package core.uiCore.drivers;', 'package core.uiCore.drivers;\n\nimport java.time.Duration;', 1)
-              text = text.replace('implicitlyWait(5, TimeUnit.SECONDS)', 'implicitlyWait(Duration.ofSeconds(5))')
-              text = text.replace(
-                  'pageLoadTimeout(AbstractDriver.TIMEOUT_SECONDS, TimeUnit.SECONDS)',
-                  'pageLoadTimeout(Duration.ofSeconds(AbstractDriver.TIMEOUT_SECONDS))'
-              )
-              text = text.replace(
-                  'implicitlyWait(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS)',
-                  'implicitlyWait(Duration.ofSeconds(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS))'
-              )
-              write(path, text)
-
-          path = 'automation/src/main/java/core/uiCore/webElement/ImpEnhancedWebElement.java'
-          text = read(path)
-          if 'import java.time.Duration;' not in text:
-              text = text.replace('package core.uiCore.webElement;', 'package core.uiCore.webElement;\n\nimport java.time.Duration;', 1)
-          text = text.replace(
-              'webDriver.manage().timeouts().implicitlyWait(time, unit);',
-              'webDriver.manage().timeouts().implicitlyWait(Duration.ofNanos(unit.toNanos(time)));'
-          )
-          write(path, text)
-
-      - name: Commit compatibility changes when needed
-        run: |
-          if git diff --quiet; then
-            echo "Source already migrated"
-          else
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add automation/src/main/java
-            git commit -m "refactor: update TestNG Selenium and driver manager APIs"
-            git push origin HEAD:agent/update-maven-dependencies
-          fi
-
-      - name: Show Java and Maven versions
-        run: |
-          java -version
-          mvn -version
-
       - name: Build and test AutonomxCore
         working-directory: automation
         run: mvn -B -U clean test
+
+      - name: Display remaining dependency updates
+        working-directory: automation
+        run: mvn -B -U org.codehaus.mojo:versions-maven-plugin:2.18.0:display-dependency-updates -DallowSnapshots=false
+
+      - name: Display remaining plugin updates
+        working-directory: automation
+        run: mvn -B -U org.codehaus.mojo:versions-maven-plugin:2.18.0:display-plugin-updates -DallowSnapshots=false
