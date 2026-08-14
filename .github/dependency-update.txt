@@ -1,1 +1,1 @@
-io.appium|java-client|10.1.1 
+org.apache.poi|poi-ooxml|5.5.1
