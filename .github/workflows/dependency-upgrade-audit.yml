@@ -34,40 +34,50 @@ jobs:
         working-directory: core/automation
         run: mvn -B -U clean install
 
-      - name: Point consumer at local upgraded Core and matching driver dependencies
+      - name: Point consumer at local upgraded Core dependency graph
         shell: python
         run: |
           from pathlib import Path
           import re
+
           path = Path('consumer/automation/pom.xml')
           text = path.read_text(encoding='utf-8')
 
           core_pattern = re.compile(
-              r'(<groupId>io\.autonomx</groupId>\s*)'
+              r'<dependency>\s*'
+              r'<groupId>io\.autonomx</groupId>\s*'
               r'<artifactId>autonomx-core</artifactId>\s*'
-              r'<version>1\.1\.22</version>'
+              r'<version>1\.1\.22</version>\s*'
+              r'<exclusions>.*?</exclusions>\s*'
+              r'</dependency>',
+              re.DOTALL,
           )
-          text, core_count = core_pattern.subn(
-              r'\1<artifactId>autonomxCore</artifactId>\n          <version>1.1.23</version>',
-              text,
-              count=1,
+          core_dependency = (
+              '<dependency>\n'
+              '          <groupId>io.autonomx</groupId>\n'
+              '          <artifactId>autonomxCore</artifactId>\n'
+              '          <version>1.1.23</version>\n'
+              '        </dependency>'
           )
+          text, core_count = core_pattern.subn(core_dependency, text, count=1)
           if core_count != 1:
-              raise SystemExit('Could not locate AutonomxCore dependency in consumer POM')
+              raise SystemExit('Could not replace AutonomxCore consumer dependency')
 
-          pins = {
-              ('io.github.bonigarcia', 'webdrivermanager'): '6.3.4',
-              ('io.appium', 'java-client'): '10.1.1',
-          }
-          for (group, artifact), version in pins.items():
-              pattern = re.compile(
-                  r'(<dependency>\s*<groupId>' + re.escape(group) +
-                  r'</groupId>\s*<artifactId>' + re.escape(artifact) +
-                  r'</artifactId>\s*<version>)([^<]+)(</version>)'
+          for group, artifact in [
+              ('io.github.bonigarcia', 'webdrivermanager'),
+              ('io.appium', 'java-client'),
+          ]:
+              direct_pattern = re.compile(
+                  r'<dependency>\s*'
+                  r'<groupId>' + re.escape(group) + r'</groupId>\s*'
+                  r'<artifactId>' + re.escape(artifact) + r'</artifactId>\s*'
+                  r'<version>[^<]+</version>\s*'
+                  r'</dependency>',
+                  re.DOTALL,
               )
-              text, count = pattern.subn(r'\g<1>' + version + r'\g<3>', text, count=1)
+              text, count = direct_pattern.subn('', text, count=1)
               if count != 1:
-                  raise SystemExit(f'Could not pin {group}:{artifact}')
+                  raise SystemExit(f'Could not remove duplicate consumer dependency {group}:{artifact}')
 
           path.write_text(text, encoding='utf-8')
 
