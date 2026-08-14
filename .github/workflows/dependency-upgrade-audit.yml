@@ -21,7 +21,7 @@ jobs:
           java-version: '21'
           cache: maven
 
-      - name: Apply source compatibility migrations
+      - name: Apply next source compatibility migrations
         shell: python
         run: |
           from pathlib import Path
@@ -33,102 +33,69 @@ jobs:
           def write(path, text):
               Path(path).write_bytes(text.encode('utf-8'))
 
-          pom_path = 'automation/pom.xml'
-          pom = read(pom_path)
-          if '<artifactId>maven-artifact</artifactId>' not in pom:
-              model = re.compile(
-                  r'(<dependency>\s*<groupId>org\.apache\.maven</groupId>\s*'
-                  r'<artifactId>maven-model</artifactId>\s*<version>3\.9\.16</version>\s*</dependency>)'
-              )
-              artifact = (
-                  '\n\n\t\t<dependency>\n'
-                  '\t\t\t<groupId>org.apache.maven</groupId>\n'
-                  '\t\t\t<artifactId>maven-artifact</artifactId>\n'
-                  '\t\t\t<version>3.9.16</version>\n'
-                  '\t\t</dependency>'
-              )
-              pom, count = model.subn(lambda m: m.group(1) + artifact, pom, count=1)
-              if count != 1:
-                  raise SystemExit('Could not add org.apache.maven:maven-artifact')
-              write(pom_path, pom)
+          # TestNG now exposes the retry analyzer as a class on annotations.
+          path = 'automation/src/main/java/core/support/listeners/AnnotationTransformer.java'
+          text = read(path)
+          text = text.replace(
+              'IRetryAnalyzer retry = annotation.getRetryAnalyzer();',
+              'Class<? extends IRetryAnalyzer> retry = annotation.getRetryAnalyzerClass();'
+          )
+          write(path, text)
 
-          location_files = [
-              'automation/src/main/java/core/helpers/Helper.java',
-              'automation/src/main/java/core/helpers/MobileHelper.java',
-              'automation/src/main/java/core/helpers/legacy/Helper.java',
+          # Retry analyzers are configured through IAnnotationTransformer now;
+          # ITestNGMethod no longer exposes setRetryAnalyzer(instance).
+          path = 'automation/src/main/java/core/support/listeners/TestListener.java'
+          text = read(path)
+          retry_loop = re.compile(
+              r'\s*// add retry listeners to all tests\s*'
+              r'iTestContext\.setAttribute\("platform", ""\);\s*'
+              r'for \(ITestNGMethod method : iTestContext\.getAllTestMethods\(\)\) \{\s*'
+              r'method\.setRetryAnalyzer\(new RetryTest\(\)\);\s*\}\s*'
+          )
+          if 'method.setRetryAnalyzer(new RetryTest())' in text:
+              nl = '\r\n' if '\r\n' in text else '\n'
+              replacement = nl + '\t\t// Retry analyzers are assigned by AnnotationTransformer.' + nl + '\t\tiTestContext.setAttribute("platform", "");' + nl + nl
+              text, count = retry_loop.subn(replacement, text, count=1)
+              if count != 1:
+                  raise SystemExit('Could not migrate TestListener retry configuration')
+          write(path, text)
+
+          # WebDriverManager 6 replaces the removed local-versions preference
+          # with an explicit no-external-connections mode for cache-only use.
+          path = 'automation/src/main/java/core/uiCore/WebDriverSetup.java'
+          text = read(path)
+          text = text.replace('manager.useLocalVersionsPropertiesFirst()', 'manager.avoidExternalConnections()')
+          write(path, text)
+
+          # Selenium timeout APIs now take java.time.Duration.
+          timeout_files = [
+              'automation/src/main/java/core/uiCore/drivers/AbstractDriverJunit.java',
+              'automation/src/main/java/core/uiCore/drivers/AbstractDriverTestNG.java',
           ]
-          for path in location_files:
+          for path in timeout_files:
               text = read(path)
+              if 'import java.time.Duration;' not in text:
+                  text = text.replace('package core.uiCore.drivers;', 'package core.uiCore.drivers;\n\nimport java.time.Duration;', 1)
+              text = text.replace('implicitlyWait(5, TimeUnit.SECONDS)', 'implicitlyWait(Duration.ofSeconds(5))')
               text = text.replace(
-                  'import org.openqa.selenium.html5.Location;',
-                  'import io.appium.java_client.Location;'
+                  'pageLoadTimeout(AbstractDriver.TIMEOUT_SECONDS, TimeUnit.SECONDS)',
+                  'pageLoadTimeout(Duration.ofSeconds(AbstractDriver.TIMEOUT_SECONDS))'
+              )
+              text = text.replace(
+                  'implicitlyWait(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS)',
+                  'implicitlyWait(Duration.ofSeconds(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS))'
               )
               write(path, text)
 
-          mobile_path = 'automation/src/main/java/core/helpers/MobileHelper.java'
-          mobile = read(mobile_path)
-          mobile = mobile.replace('import io.appium.java_client.SupportsLegacyAppManagement;\r\n', '')
-          mobile = mobile.replace('import io.appium.java_client.SupportsLegacyAppManagement;\n', '')
-          reset_pattern = re.compile(
-              r'\tpublic void resetApp\(\) \{\s*'
-              r'\(\(SupportsLegacyAppManagement\) getAppiumDriver\(\)\)\.resetApp\(\);\s*'
-              r'TestLog\.logPass\("I reset the app"\);\s*\}'
+          path = 'automation/src/main/java/core/uiCore/webElement/ImpEnhancedWebElement.java'
+          text = read(path)
+          if 'import java.time.Duration;' not in text:
+              text = text.replace('package core.uiCore.webElement;', 'package core.uiCore.webElement;\n\nimport java.time.Duration;', 1)
+          text = text.replace(
+              'webDriver.manage().timeouts().implicitlyWait(time, unit);',
+              'webDriver.manage().timeouts().implicitlyWait(Duration.ofNanos(unit.toNanos(time)));'
           )
-          if 'SupportsLegacyAppManagement' in mobile:
-              nl = '\r\n' if '\r\n' in mobile else '\n'
-              replacement = nl.join([
-                  '\tpublic void resetApp() {',
-                  '\t\tAppiumDriver driver = getAppiumDriver();',
-                  '\t\tString capabilityName = isAndroid() ? "appium:appPackage" : "appium:bundleId";',
-                  '\t\tObject appId = driver.getCapabilities().getCapability(capabilityName);',
-                  '',
-                  '\t\t// Accept legacy unprefixed capabilities for existing configurations.',
-                  '\t\tif (appId == null) {',
-                  '\t\t\tcapabilityName = isAndroid() ? "appPackage" : "bundleId";',
-                  '\t\t\tappId = driver.getCapabilities().getCapability(capabilityName);',
-                  '\t\t}',
-                  '',
-                  '\t\tif (appId == null)',
-                  '\t\t\tthrow new IllegalStateException("Unable to restart app: missing appPackage/bundleId capability");',
-                  '',
-                  '\t\tInteractsWithApps appManagement = (InteractsWithApps) driver;',
-                  '\t\tappManagement.terminateApp(appId.toString());',
-                  '\t\tappManagement.activateApp(appId.toString());',
-                  '',
-                  '\t\tTestLog.logPass("I reset the app");',
-                  '\t}',
-              ])
-              mobile, count = reset_pattern.subn(lambda _: replacement, mobile, count=1)
-              if count != 1:
-                  raise SystemExit('Could not migrate MobileHelper.resetApp')
-          write(mobile_path, mobile)
-
-          android_path = 'automation/src/main/java/core/uiCore/driverProperties/capabilities/AndroidCapability.java'
-          android = read(android_path)
-          for imp in [
-              'import io.appium.java_client.remote.AndroidMobileCapabilityType;',
-              'import io.appium.java_client.remote.MobileCapabilityType;',
-          ]:
-              android = android.replace(imp + '\r\n', '').replace(imp + '\n', '')
-          android = android.replace('MobileCapabilityType.APP', '"appium:app"')
-          android = android.replace('MobileCapabilityType.NO_RESET', '"appium:noReset"')
-          android = android.replace('AndroidMobileCapabilityType.SYSTEM_PORT', '"appium:systemPort"')
-          android = android.replace('setCapability("chromedriverExecutable",', 'setCapability("appium:chromedriverExecutable",')
-          android = android.replace('setCapability("avd",', 'setCapability("appium:avd",')
-          android = android.replace('setCapability("udid",', 'setCapability("appium:udid",')
-          write(android_path, android)
-
-          ios_path = 'automation/src/main/java/core/uiCore/driverProperties/capabilities/IosCapability.java'
-          ios = read(ios_path)
-          imp = 'import io.appium.java_client.remote.MobileCapabilityType;'
-          ios = ios.replace(imp + '\r\n', '').replace(imp + '\n', '')
-          ios = ios.replace('MobileCapabilityType.APP', '"appium:app"')
-          ios = ios.replace('MobileCapabilityType.NO_RESET', '"appium:noReset"')
-          ios = ios.replace('MobileCapabilityType.DEVICE_NAME', '"appium:deviceName"')
-          ios = ios.replace('MobileCapabilityType.UDID', '"appium:udid"')
-          ios = ios.replace('setCapability("wdaLocalPort",', 'setCapability("appium:wdaLocalPort",')
-          ios = ios.replace('setCapability("chromedriverExecutable",', 'setCapability("appium:chromedriverExecutable",')
-          write(ios_path, ios)
+          write(path, text)
 
       - name: Commit compatibility changes when needed
         run: |
@@ -137,8 +104,8 @@ jobs:
           else
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add automation/pom.xml automation/src/main/java
-            git commit -m "refactor: migrate to current dependency APIs"
+            git add automation/src/main/java
+            git commit -m "refactor: update TestNG Selenium and driver manager APIs"
             git push origin HEAD:agent/update-maven-dependencies
           fi
 
