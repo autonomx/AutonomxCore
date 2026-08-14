@@ -9,53 +9,12 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - name: Checkout upgraded AutonomxCore
         uses: actions/checkout@v5
         with:
           ref: agent/update-maven-dependencies
           path: core
-
-      - name: Exclude ExtentReports compile-time Lombok from consumers
-        shell: python
-        run: |
-          from pathlib import Path
-          import re
-
-          path = Path('core/automation/pom.xml')
-          text = path.read_text(encoding='utf-8')
-          if '<artifactId>extentreports</artifactId>' in text and '<artifactId>lombok</artifactId>' not in text:
-              pattern = re.compile(
-                  r'(<dependency>\s*<groupId>com\.aventstack</groupId>\s*'
-                  r'<artifactId>extentreports</artifactId>\s*<version>5\.1\.2</version>)(\s*</dependency>)'
-              )
-              exclusions = (
-                  '\n\t\t\t<exclusions>\n'
-                  '\t\t\t\t<exclusion>\n'
-                  '\t\t\t\t\t<groupId>org.projectlombok</groupId>\n'
-                  '\t\t\t\t\t<artifactId>lombok</artifactId>\n'
-                  '\t\t\t\t</exclusion>\n'
-                  '\t\t\t</exclusions>'
-              )
-              text, count = pattern.subn(lambda m: m.group(1) + exclusions + m.group(2), text, count=1)
-              if count != 1:
-                  raise SystemExit('Could not add ExtentReports Lombok exclusion')
-              path.write_text(text, encoding='utf-8')
-
-      - name: Commit Core dependency graph fix when needed
-        working-directory: core
-        run: |
-          if git diff --quiet -- automation/pom.xml; then
-            echo "ExtentReports Lombok exclusion already present"
-          else
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add automation/pom.xml
-            git commit -m "build: exclude obsolete ExtentReports Lombok processor"
-            git push origin HEAD:agent/update-maven-dependencies
-          fi
 
       - name: Checkout Autonomx consumer
         uses: actions/checkout@v5
@@ -75,7 +34,7 @@ jobs:
         working-directory: core/automation
         run: mvn -B -U clean install
 
-      - name: Point consumer at local upgraded Core dependency graph
+      - name: Point consumer at upgraded Core and modern Surefire
         shell: python
         run: |
           from pathlib import Path
@@ -120,6 +79,9 @@ jobs:
               if count != 1:
                   raise SystemExit(f'Could not remove duplicate consumer dependency {group}:{artifact}')
 
+          # Autonomx still uses Surefire 2.22.1, which cannot reliably fork
+          # this Java 21 / TestNG 7.12 dependency graph. This is validation-only.
+          text = text.replace('<version>2.22.1</version>', '<version>3.5.4</version>')
           path.write_text(text, encoding='utf-8')
 
       - name: Verify Lombok is not exported by upgraded Core
