@@ -1,1 +1,1 @@
-org.xmlunit|xmlunit-matchers|2.13.0
+org.apache.maven.shared|maven-invoker|3.3.0
