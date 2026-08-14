@@ -38,15 +38,19 @@ jobs:
         shell: python
         run: |
           from pathlib import Path
+          import re
           path = Path('consumer/automation/pom.xml')
           text = path.read_text(encoding='utf-8')
-          old = '''<artifactId>autonomx-core</artifactId>
-		  <version>1.1.22</version>'''
-          new = '''<artifactId>autonomxCore</artifactId>
-		  <version>1.1.23</version>'''
-          if old not in text:
+          pattern = re.compile(
+              r'(<groupId>io\.autonomx</groupId>\s*)'
+              r'<artifactId>autonomx-core</artifactId>\s*'
+              r'<version>1\.1\.22</version>'
+          )
+          replacement = r'\1<artifactId>autonomxCore</artifactId>\n          <version>1.1.23</version>'
+          text, count = pattern.subn(replacement, text, count=1)
+          if count != 1:
               raise SystemExit('Could not locate AutonomxCore dependency in consumer POM')
-          path.write_text(text.replace(old, new, 1), encoding='utf-8')
+          path.write_text(text, encoding='utf-8')
 
       - name: Start local framework test webapp
         run: |
