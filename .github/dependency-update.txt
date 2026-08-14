@@ -1,1 +1,1 @@
-org.apache.pdfbox|pdfbox|3.0.7
+com.google.code.gson|gson|2.14.0
