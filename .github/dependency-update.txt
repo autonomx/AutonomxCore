@@ -1,1 +1,1 @@
-com.aventstack|extentreports|5.1.2
+io.appium|java-client|10.1.1
