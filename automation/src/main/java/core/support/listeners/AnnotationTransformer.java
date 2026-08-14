@@ -36,7 +36,7 @@ public class AnnotationTransformer implements IAnnotationTransformer {
 		if (TestObject.getTestInfo().isTestComplete) 
 			TestObject.setupDefaultDriver();
 		
-		IRetryAnalyzer retry = annotation.getRetryAnalyzer();
+		Class<? extends IRetryAnalyzer> retry = annotation.getRetryAnalyzerClass();
 		if (retry == null) {
 			annotation.setRetryAnalyzer(RetryTest.class);
 		}
