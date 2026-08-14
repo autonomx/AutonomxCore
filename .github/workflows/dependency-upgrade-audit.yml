@@ -21,140 +21,134 @@ jobs:
           java-version: '21'
           cache: maven
 
-      - name: Apply latest stable Maven versions
+      - name: Apply source compatibility migrations
         shell: python
         run: |
           from pathlib import Path
           import re
 
-          pom_path = Path('automation/pom.xml')
-          text = pom_path.read_text(encoding='utf-8')
+          def read(path):
+              return Path(path).read_bytes().decode('utf-8')
 
-          versions = {
-              ('org.apache.commons', 'commons-lang3'): '3.20.0',
-              ('com.google.guava', 'guava'): '33.6.0-jre',
-              ('io.github.bonigarcia', 'webdrivermanager'): '6.3.4',
-              ('org.seleniumhq.selenium', 'selenium-java'): '4.47.0',
-              ('org.apache.logging.log4j', 'log4j-core'): '2.25.4',
-              ('org.slf4j', 'jul-to-slf4j'): '2.0.18',
-              ('com.aventstack', 'extentreports'): '5.1.2',
-              ('io.appium', 'java-client'): '10.1.1',
-              ('org.apache.poi', 'poi-ooxml'): '5.5.1',
-              ('com.opencsv', 'opencsv'): '5.12.0',
-              ('org.apache.commons', 'commons-csv'): '1.14.1',
-              ('io.rest-assured', 'rest-assured'): '6.0.1',
-              ('org.skyscreamer', 'jsonassert'): '1.5.3',
-              ('com.jayway.jsonpath', 'json-path'): '3.0.0',
-              ('com.fasterxml.jackson.core', 'jackson-core'): '2.22.1',
-              ('org.apache.pdfbox', 'pdfbox'): '3.0.8',
-              ('com.google.code.gson', 'gson'): '2.14.0',
-              ('org.codehaus.groovy', 'groovy'): '3.0.25',
-              ('org.json', 'json'): '20260719',
-              ('org.testng', 'testng'): '7.12.0',
-              ('org.postgresql', 'postgresql'): '42.7.13',
-              ('org.zeroturnaround', 'zt-zip'): '1.18.2',
-              ('net.sourceforge.tess4j', 'tess4j'): '5.20.0',
-              ('org.xmlunit', 'xmlunit-matchers'): '2.13.0',
-              ('org.apache.maven.shared', 'maven-invoker'): '3.3.0',
-              ('net.lingala.zip4j', 'zip4j'): '2.11.6',
-              ('com.rabbitmq', 'amqp-client'): '5.34.0',
-              ('org.apache.kafka', 'kafka-clients'): '4.3.1',
-              ('com.thoughtworks.paranamer', 'paranamer'): '2.8.3',
-              ('org.apache.maven.plugins', 'maven-compiler-plugin'): '3.15.0',
-              ('org.apache.maven', 'maven-model'): '3.9.16',
-              ('org.apache.ant', 'ant'): '1.10.17',
-              ('org.graalvm.js', 'js-scriptengine'): '25.2.4',
-              ('com.google.googlejavaformat', 'google-java-format'): '1.36.1',
-              ('io.netty', 'netty-handler'): '4.2.15.Final',
-              ('com.epam.reportportal', 'agent-java-testng'): '5.6.8',
-              ('com.epam.reportportal', 'logger-java-log4j'): '5.4.0',
-              ('com.squareup.retrofit2', 'adapter-rxjava2'): '3.0.0',
-          }
+          def write(path, text):
+              Path(path).write_bytes(text.encode('utf-8'))
 
-          for (group, artifact), version in versions.items():
-              pattern = re.compile(
-                  r'(<dependency>\s*<groupId>' + re.escape(group) +
-                  r'</groupId>\s*<artifactId>' + re.escape(artifact) +
-                  r'</artifactId>\s*<version>)([^<]+)(</version>)',
-                  re.MULTILINE)
-              text, count = pattern.subn(r'\g<1>' + version + r'\g<3>', text)
+          # Maven's ComparableVersion is used directly by TestLog, so make the
+          # owning artifact explicit instead of relying on a transitive dependency.
+          pom_path = 'automation/pom.xml'
+          pom = read(pom_path)
+          if '<artifactId>maven-artifact</artifactId>' not in pom:
+              model = re.compile(
+                  r'(<dependency>\s*<groupId>org\.apache\.maven</groupId>\s*'
+                  r'<artifactId>maven-model</artifactId>\s*<version>3\.9\.16</version>\s*</dependency>)'
+              )
+              artifact = '''
+
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-artifact</artifactId>
+			<version>3.9.16</version>
+		</dependency>'''
+              pom, count = model.subn(r'\1' + artifact, pom, count=1)
               if count != 1:
-                  raise SystemExit(f'Expected exactly one dependency {group}:{artifact}, found {count}')
+                  raise SystemExit('Could not add org.apache.maven:maven-artifact')
+              write(pom_path, pom)
 
-          # GraalJS changed Maven coordinates. Keep the JSR-223 bridge, but use
-          # the current Community Edition Polyglot runtime POM.
-          old_graal = re.compile(
-              r'<dependency>\s*<groupId>org\.graalvm\.js</groupId>\s*'
-              r'<artifactId>js</artifactId>\s*<version>[^<]+</version>\s*</dependency>',
-              re.MULTILINE)
-          new_graal = '''<dependency>
-              <groupId>org.graalvm.polyglot</groupId>
-              <artifactId>js-community</artifactId>
-              <version>25.2.4</version>
-              <type>pom</type>
-          </dependency>'''
-          text, migrated = old_graal.subn(new_graal, text, count=1)
-          if migrated == 0:
-              current_graal = re.compile(
-                  r'(<dependency>\s*<groupId>org\.graalvm\.polyglot</groupId>\s*'
-                  r'<artifactId>js-community</artifactId>\s*<version>)([^<]+)(</version>\s*'
-                  r'<type>pom</type>\s*</dependency>)', re.MULTILINE)
-              text, count = current_graal.subn(r'\g<1>25.2.4\g<3>', text, count=1)
+          # Selenium removed its HTML5 Location class. Appium now owns the
+          # mobile location value type used by SupportsLocation.
+          location_files = [
+              'automation/src/main/java/core/helpers/Helper.java',
+              'automation/src/main/java/core/helpers/MobileHelper.java',
+              'automation/src/main/java/core/helpers/legacy/Helper.java',
+          ]
+          for path in location_files:
+              text = read(path)
+              text = text.replace(
+                  'import org.openqa.selenium.html5.Location;',
+                  'import io.appium.java_client.Location;'
+              )
+              write(path, text)
+
+          # Appium 9+ removed SupportsLegacyAppManagement/resetApp. Preserve
+          # the framework method by restarting the configured application with
+          # the supported terminateApp/activateApp extension methods.
+          mobile_path = 'automation/src/main/java/core/helpers/MobileHelper.java'
+          mobile = read(mobile_path)
+          mobile = mobile.replace('import io.appium.java_client.SupportsLegacyAppManagement;\r\n', '')
+          mobile = mobile.replace('import io.appium.java_client.SupportsLegacyAppManagement;\n', '')
+          reset_pattern = re.compile(
+              r'\tpublic void resetApp\(\) \{\s*'
+              r'\(\(SupportsLegacyAppManagement\) getAppiumDriver\(\)\)\.resetApp\(\);\s*'
+              r'TestLog\.logPass\("I reset the app"\);\s*\}'
+          )
+          if 'SupportsLegacyAppManagement' in mobile:
+              nl = '\r\n' if '\r\n' in mobile else '\n'
+              replacement = nl.join([
+                  '\tpublic void resetApp() {',
+                  '\t\tAppiumDriver driver = getAppiumDriver();',
+                  '\t\tString capabilityName = isAndroid() ? "appium:appPackage" : "appium:bundleId";',
+                  '\t\tObject appId = driver.getCapabilities().getCapability(capabilityName);',
+                  '',
+                  '\t\t// Accept legacy unprefixed capabilities for existing configurations.',
+                  '\t\tif (appId == null) {',
+                  '\t\t\tcapabilityName = isAndroid() ? "appPackage" : "bundleId";',
+                  '\t\t\tappId = driver.getCapabilities().getCapability(capabilityName);',
+                  '\t\t}',
+                  '',
+                  '\t\tif (appId == null)',
+                  '\t\t\tthrow new IllegalStateException("Unable to restart app: missing appPackage/bundleId capability");',
+                  '',
+                  '\t\tInteractsWithApps appManagement = (InteractsWithApps) driver;',
+                  '\t\tappManagement.terminateApp(appId.toString());',
+                  '\t\tappManagement.activateApp(appId.toString());',
+                  '',
+                  '\t\tTestLog.logPass("I reset the app");',
+                  '\t}',
+              ])
+              mobile, count = reset_pattern.subn(lambda _: replacement, mobile, count=1)
               if count != 1:
-                  raise SystemExit('Could not migrate or find current GraalJS runtime dependency')
+                  raise SystemExit('Could not migrate MobileHelper.resetApp')
+          write(mobile_path, mobile)
 
-          def replace_plugin(artifact, version):
-              global text
-              pattern = re.compile(
-                  r'(<plugin>\s*(?:<groupId>[^<]+</groupId>\s*)?<artifactId>' +
-                  re.escape(artifact) + r'</artifactId>\s*<version>)([^<]+)(</version>)',
-                  re.MULTILINE)
-              text, count = pattern.subn(r'\g<1>' + version + r'\g<3>', text, count=1)
-              if count != 1:
-                  raise SystemExit(f'Expected exactly one versioned plugin {artifact}, found {count}')
+          # Appium removed MobileCapabilityType and AndroidMobileCapabilityType.
+          # Keep the existing DesiredCapabilities-based architecture while using
+          # W3C-compliant Appium extension capability names.
+          android_path = 'automation/src/main/java/core/uiCore/driverProperties/capabilities/AndroidCapability.java'
+          android = read(android_path)
+          for imp in [
+              'import io.appium.java_client.remote.AndroidMobileCapabilityType;',
+              'import io.appium.java_client.remote.MobileCapabilityType;',
+          ]:
+              android = android.replace(imp + '\r\n', '').replace(imp + '\n', '')
+          android = android.replace('MobileCapabilityType.APP', '"appium:app"')
+          android = android.replace('MobileCapabilityType.NO_RESET', '"appium:noReset"')
+          android = android.replace('AndroidMobileCapabilityType.SYSTEM_PORT', '"appium:systemPort"')
+          android = android.replace('setCapability("chromedriverExecutable",', 'setCapability("appium:chromedriverExecutable",')
+          android = android.replace('setCapability("avd",', 'setCapability("appium:avd",')
+          android = android.replace('setCapability("udid",', 'setCapability("appium:udid",')
+          write(android_path, android)
 
-          replace_plugin('maven-compiler-plugin', '3.15.0')
-          replace_plugin('maven-source-plugin', '3.4.0')
+          ios_path = 'automation/src/main/java/core/uiCore/driverProperties/capabilities/IosCapability.java'
+          ios = read(ios_path)
+          imp = 'import io.appium.java_client.remote.MobileCapabilityType;'
+          ios = ios.replace(imp + '\r\n', '').replace(imp + '\n', '')
+          ios = ios.replace('MobileCapabilityType.APP', '"appium:app"')
+          ios = ios.replace('MobileCapabilityType.NO_RESET', '"appium:noReset"')
+          ios = ios.replace('MobileCapabilityType.DEVICE_NAME', '"appium:deviceName"')
+          ios = ios.replace('MobileCapabilityType.UDID', '"appium:udid"')
+          ios = ios.replace('setCapability("wdaLocalPort",', 'setCapability("appium:wdaLocalPort",')
+          ios = ios.replace('setCapability("chromedriverExecutable",', 'setCapability("appium:chromedriverExecutable",')
+          write(ios_path, ios)
 
-          antrun = re.compile(r'(<artifactId>maven-antrun-plugin</artifactId>)(?!\s*<version>)')
-          text, count = antrun.subn(r'\1\n\t\t\t\t<version>3.2.0</version>', text, count=1)
-          if count != 1 and '<artifactId>maven-antrun-plugin</artifactId>\n\t\t\t\t<version>3.2.0</version>' not in text:
-              raise SystemExit('Could not version maven-antrun-plugin')
-
-          text = text.replace('<source>1.8</source>', '<source>21</source>')
-          text = text.replace('<target>1.8</target>', '<target>21</target>')
-
-          if '<groupId>javax.media.jai</groupId>' not in text:
-              monte_pattern = re.compile(
-                  r'(<dependency>\s*<groupId>com\.pojosontheweb</groupId>\s*'
-                  r'<artifactId>monte-repack</artifactId>\s*<version>1\.1</version>)(\s*</dependency>)',
-                  re.MULTILINE)
-              exclusions = '''
-              <exclusions>
-                  <exclusion>
-                      <groupId>javax.media.jai</groupId>
-                      <artifactId>com.springsource.javax.media.jai.core</artifactId>
-                  </exclusion>
-                  <exclusion>
-                      <groupId>javax.media</groupId>
-                      <artifactId>jmf</artifactId>
-                  </exclusion>
-              </exclusions>'''
-              text, count = monte_pattern.subn(r'\1' + exclusions + r'\2', text, count=1)
-              if count != 1:
-                  raise SystemExit('Could not add monte-repack exclusions')
-
-          pom_path.write_text(text, encoding='utf-8')
-
-      - name: Commit dependency upgrade when needed
+      - name: Commit compatibility changes when needed
         run: |
-          if git diff --quiet -- automation/pom.xml; then
-            echo "POM already upgraded"
+          if git diff --quiet; then
+            echo "Source already migrated"
           else
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add automation/pom.xml
-            git commit -m "build: modernize Maven dependency coordinates"
+            git add automation/pom.xml automation/src/main/java
+            git commit -m "refactor: migrate to current dependency APIs"
             git push origin HEAD:agent/update-maven-dependencies
           fi
 
