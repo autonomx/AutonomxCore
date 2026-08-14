@@ -1,1 +1,1 @@
-com.epam.reportportal|logger-java-log4j|5.4.0
+com.squareup.retrofit2|adapter-rxjava2|3.0.0
