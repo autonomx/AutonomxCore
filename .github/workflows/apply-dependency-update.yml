@@ -120,26 +120,29 @@ jobs:
               '',
               'Removed SupportsLegacyAppManagement import',
           )
+          reset_replacement = '\n'.join([
+              'AppiumDriver driver = getAppiumDriver();',
+              '\t\tObject appIdValue = null;',
+              '\t\tif (isAndroid()) {',
+              '\t\t\tappIdValue = driver.getCapabilities().getCapability("appium:appPackage");',
+              '\t\t\tif (appIdValue == null)',
+              '\t\t\t\tappIdValue = driver.getCapabilities().getCapability("appPackage");',
+              '\t\t} else if (isIOS()) {',
+              '\t\t\tappIdValue = driver.getCapabilities().getCapability("appium:bundleId");',
+              '\t\t\tif (appIdValue == null)',
+              '\t\t\t\tappIdValue = driver.getCapabilities().getCapability("bundleId");',
+              '\t\t}',
+              '\t\tif (appIdValue == null)',
+              '\t\t\tthrow new IllegalStateException("Unable to restart app: appPackage/bundleId capability is not available");',
+              '\t\tString appId = appIdValue.toString();',
+              '\t\tInteractsWithApps appManagement = (InteractsWithApps) driver;',
+              '\t\tappManagement.terminateApp(appId);',
+              '\t\tappManagement.activateApp(appId);',
+          ])
           replace_once(
               mobile,
               '((SupportsLegacyAppManagement) getAppiumDriver()).resetApp();',
-              '''AppiumDriver driver = getAppiumDriver();
-		Object appIdValue = null;
-		if (isAndroid()) {
-			appIdValue = driver.getCapabilities().getCapability("appium:appPackage");
-			if (appIdValue == null)
-				appIdValue = driver.getCapabilities().getCapability("appPackage");
-		} else if (isIOS()) {
-			appIdValue = driver.getCapabilities().getCapability("appium:bundleId");
-			if (appIdValue == null)
-				appIdValue = driver.getCapabilities().getCapability("bundleId");
-		}
-		if (appIdValue == null)
-			throw new IllegalStateException("Unable to restart app: appPackage/bundleId capability is not available");
-		String appId = appIdValue.toString();
-		InteractsWithApps appManagement = (InteractsWithApps) driver;
-		appManagement.terminateApp(appId);
-		appManagement.activateApp(appId);''',
+              reset_replacement,
               'Migrated resetApp() to terminateApp()/activateApp()',
           )
 
