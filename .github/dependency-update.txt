@@ -1,1 +1,1 @@
-org.apache.commons|commons-csv|1.14.1
+io.rest-assured|rest-assured|5.5.7
