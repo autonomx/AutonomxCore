@@ -421,7 +421,7 @@
 		<dependency>
 			<groupId>org.graalvm.js</groupId>
 			<artifactId>js-scriptengine</artifactId>
-			<version>22.0.0.2</version>
+			<version>22.3.5</version>
 		</dependency>
 		
 		<!-- https://mvnrepository.com/artifact/com.google.googlejavaformat/google-java-format -->
