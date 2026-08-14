@@ -63,7 +63,6 @@ jobs:
               ('org.apache.maven.plugins', 'maven-compiler-plugin'): '3.15.0',
               ('org.apache.maven', 'maven-model'): '3.9.16',
               ('org.apache.ant', 'ant'): '1.10.17',
-              ('org.graalvm.js', 'js'): '25.2.4',
               ('org.graalvm.js', 'js-scriptengine'): '25.2.4',
               ('com.google.googlejavaformat', 'google-java-format'): '1.36.1',
               ('io.netty', 'netty-handler'): '4.2.15.Final',
@@ -81,6 +80,28 @@ jobs:
               text, count = pattern.subn(r'\g<1>' + version + r'\g<3>', text)
               if count != 1:
                   raise SystemExit(f'Expected exactly one dependency {group}:{artifact}, found {count}')
+
+          # GraalJS changed Maven coordinates. Keep the JSR-223 bridge, but use
+          # the current Community Edition Polyglot runtime POM.
+          old_graal = re.compile(
+              r'<dependency>\s*<groupId>org\.graalvm\.js</groupId>\s*'
+              r'<artifactId>js</artifactId>\s*<version>[^<]+</version>\s*</dependency>',
+              re.MULTILINE)
+          new_graal = '''<dependency>
+              <groupId>org.graalvm.polyglot</groupId>
+              <artifactId>js-community</artifactId>
+              <version>25.2.4</version>
+              <type>pom</type>
+          </dependency>'''
+          text, migrated = old_graal.subn(new_graal, text, count=1)
+          if migrated == 0:
+              current_graal = re.compile(
+                  r'(<dependency>\s*<groupId>org\.graalvm\.polyglot</groupId>\s*'
+                  r'<artifactId>js-community</artifactId>\s*<version>)([^<]+)(</version>\s*'
+                  r'<type>pom</type>\s*</dependency>)', re.MULTILINE)
+              text, count = current_graal.subn(r'\g<1>25.2.4\g<3>', text, count=1)
+              if count != 1:
+                  raise SystemExit('Could not migrate or find current GraalJS runtime dependency')
 
           def replace_plugin(artifact, version):
               global text
@@ -103,9 +124,6 @@ jobs:
           text = text.replace('<source>1.8</source>', '<source>21</source>')
           text = text.replace('<target>1.8</target>', '<target>21</target>')
 
-          # monte-repack 1.1 declares JAI/JMF transitives from a dead SpringSource
-          # repository. AutonomxCore uses only the Monte screen-recorder classes,
-          # which are contained in monte-repack itself.
           if '<groupId>javax.media.jai</groupId>' not in text:
               monte_pattern = re.compile(
                   r'(<dependency>\s*<groupId>com\.pojosontheweb</groupId>\s*'
@@ -136,7 +154,7 @@ jobs:
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add automation/pom.xml
-            git commit -m "build: update Maven dependencies to latest stable releases"
+            git commit -m "build: modernize Maven dependency coordinates"
             git push origin HEAD:agent/update-maven-dependencies
           fi
 
@@ -145,10 +163,6 @@ jobs:
           java -version
           mvn -version
 
-      - name: Resolve dependencies
-        working-directory: automation
-        run: mvn -B -U dependency:resolve
-
-      - name: Compile AutonomxCore
+      - name: Build and test AutonomxCore
         working-directory: automation
         run: mvn -B -U clean test
