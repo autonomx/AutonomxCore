@@ -13,7 +13,7 @@ import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.html5.Location;
+import io.appium.java_client.Location;
 import org.openqa.selenium.remote.RemoteWebElement;
 
 import core.support.configReader.Config;
@@ -27,7 +27,6 @@ import io.appium.java_client.HidesKeyboard;
 import io.appium.java_client.InteractsWithApps;
 import io.appium.java_client.MultiTouchAction;
 import io.appium.java_client.PerformsTouchActions;
-import io.appium.java_client.SupportsLegacyAppManagement;
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.nativekey.AndroidKey;
@@ -105,7 +104,22 @@ public class MobileHelper {
 	 * resets the app
 	 */
 	public void resetApp() {
-		((SupportsLegacyAppManagement) getAppiumDriver()).resetApp();
+		AppiumDriver driver = getAppiumDriver();
+		String capabilityName = isAndroid() ? "appium:appPackage" : "appium:bundleId";
+		Object appId = driver.getCapabilities().getCapability(capabilityName);
+
+		// Accept legacy unprefixed capabilities for existing configurations.
+		if (appId == null) {
+			capabilityName = isAndroid() ? "appPackage" : "bundleId";
+			appId = driver.getCapabilities().getCapability(capabilityName);
+		}
+
+		if (appId == null)
+			throw new IllegalStateException("Unable to restart app: missing appPackage/bundleId capability");
+
+		InteractsWithApps appManagement = (InteractsWithApps) driver;
+		appManagement.terminateApp(appId.toString());
+		appManagement.activateApp(appId.toString());
 
 		TestLog.logPass("I reset the app");
 	}

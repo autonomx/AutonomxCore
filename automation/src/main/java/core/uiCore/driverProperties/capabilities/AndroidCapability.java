@@ -20,8 +20,6 @@ import core.support.objects.TestObject;
 import core.uiCore.AppiumServer;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import core.uiCore.drivers.AbstractDriver;
-import io.appium.java_client.remote.AndroidMobileCapabilityType;
-import io.appium.java_client.remote.MobileCapabilityType;
 import io.github.bonigarcia.wdm.WebDriverManager;
 
 /**
@@ -96,7 +94,7 @@ public class AndroidCapability {
 		capabilities = setAndroidCapabilties();
 
 		// set app path
-		capabilities.setCapability(MobileCapabilityType.APP, getAppPath());
+		capabilities.setCapability("appium:app", getAppPath());
 
 		// download chrome driver if hybrid
 		setChromeDriver();
@@ -161,7 +159,7 @@ public class AndroidCapability {
 				else {
 					WebDriverManager.chromedriver().driverVersion(chromeVersion).setup();
 					String chromePath = WebDriverManager.chromedriver().getDownloadedDriverPath();
-					capabilities.setCapability("chromedriverExecutable", chromePath);
+					capabilities.setCapability("appium:chromedriverExecutable", chromePath);
 				}
 			} catch (java.lang.NoSuchMethodError er) {
 				er.getMessage();
@@ -180,9 +178,9 @@ public class AndroidCapability {
 	public void setSingleSignIn() {
 		if (CrossPlatformProperties.isSingleSignIn()) {
 			if (AbstractDriver.isFirstRun()) {
-				capabilities.setCapability(MobileCapabilityType.NO_RESET, false);
+				capabilities.setCapability("appium:noReset", false);
 			} else {
-				capabilities.setCapability(MobileCapabilityType.NO_RESET, true);
+				capabilities.setCapability("appium:noReset", true);
 			}
 		}
 	}
@@ -270,7 +268,7 @@ public class AndroidCapability {
 
 		// adds all devices
 		DeviceManager.loadDevices(devices, DeviceType.Android);
-		capabilities.setCapability("avd", DeviceManager.getFirstAvailableDevice(DeviceType.Android));
+		capabilities.setCapability("appium:avd", DeviceManager.getFirstAvailableDevice(DeviceType.Android));
 	}
 
 	/**
@@ -282,11 +280,11 @@ public class AndroidCapability {
 
 		// if device port is already set
 		if (DeviceManager.devices.get(deviceName) != null && (DeviceManager.devices.get(deviceName).devicePort != -1))
-			capabilities.setCapability(AndroidMobileCapabilityType.SYSTEM_PORT,
+			capabilities.setCapability("appium:systemPort",
 					DeviceManager.devices.get(deviceName).devicePort);
 		else {
 			int systemPort = ++SYSTEM_PORT;
-			capabilities.setCapability(AndroidMobileCapabilityType.SYSTEM_PORT, systemPort);
+			capabilities.setCapability("appium:systemPort", systemPort);
 			DeviceManager.devices.get(deviceName).withDevicePort(systemPort);
 		}
 
@@ -332,7 +330,7 @@ public class AndroidCapability {
 
 		// adds all devices
 		DeviceManager.loadDevices(devices, DeviceType.Android);
-		capabilities.setCapability("udid", DeviceManager.getFirstAvailableDevice(DeviceType.Android));
+		capabilities.setCapability("appium:udid", DeviceManager.getFirstAvailableDevice(DeviceType.Android));
 	}
 
 	/**
