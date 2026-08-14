@@ -1,0 +1,92 @@
+name: Apply One Dependency Update
+
+on:
+  push:
+    branches:
+      - agent/update-pom-dependencies
+    paths:
+      - .github/dependency-update.txt
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/update-pom-dependencies
+          fetch-depth: 0
+
+      - name: Set up Java 8
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '8'
+          cache: maven
+
+      - name: Apply requested dependency version
+        shell: bash
+        run: |
+          set -euo pipefail
+          IFS='|' read -r GROUP ARTIFACT VERSION < .github/dependency-update.txt
+          export GROUP ARTIFACT VERSION
+          python3 - <<'PY'
+          from pathlib import Path
+          import os, re
+
+          g = os.environ['GROUP'].strip()
+          a = os.environ['ARTIFACT'].strip()
+          v = os.environ['VERSION'].strip()
+          p = Path('automation/pom.xml')
+          s = p.read_text(encoding='utf-8')
+          pattern = re.compile(
+              r'(<dependency>\s*<groupId>' + re.escape(g) +
+              r'</groupId>\s*<artifactId>' + re.escape(a) +
+              r'</artifactId>\s*<version>)([^<]+)(</version>)', re.S)
+          updated, count = pattern.subn(r'\g<1>' + v + r'\g<3>', s, count=1)
+          if count != 1:
+              raise SystemExit(f'Expected exactly one dependency {g}:{a}; found {count}')
+          p.write_text(updated, encoding='utf-8')
+          print(f'Applied {g}:{a}:{v}')
+          PY
+
+      - name: Save exact POM intended for commit
+        run: cp automation/pom.xml /tmp/pom-to-commit.xml
+
+      - name: Apply CI-only monte-repack repository workaround
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('automation/pom.xml')
+          s = p.read_text(encoding='utf-8')
+          marker = '''\t\t<dependency>\n\t\t\t<groupId>com.pojosontheweb</groupId>\n\t\t\t<artifactId>monte-repack</artifactId>\n\t\t\t<version>1.1</version>\n\t\t</dependency>'''
+          replacement = '''\t\t<dependency>\n\t\t\t<groupId>com.pojosontheweb</groupId>\n\t\t\t<artifactId>monte-repack</artifactId>\n\t\t\t<version>1.1</version>\n\t\t\t<exclusions>\n\t\t\t\t<exclusion><groupId>javax.media.jai</groupId><artifactId>com.springsource.javax.media.jai.core</artifactId></exclusion>\n\t\t\t\t<exclusion><groupId>javax.media</groupId><artifactId>jmf</artifactId></exclusion>\n\t\t\t</exclusions>\n\t\t</dependency>'''
+          if marker in s:
+              s = s.replace(marker, replacement)
+          p.write_text(s, encoding='utf-8')
+          PY
+
+      - name: Build with only this dependency upgrade
+        run: mvn -B -f automation/pom.xml clean test
+
+      - name: Commit passing dependency upgrade
+        shell: bash
+        run: |
+          cp /tmp/pom-to-commit.xml automation/pom.xml
+          IFS='|' read -r GROUP ARTIFACT VERSION < .github/dependency-update.txt
+          GROUP="$(echo "$GROUP" | xargs)"
+          ARTIFACT="$(echo "$ARTIFACT" | xargs)"
+          VERSION="$(echo "$VERSION" | xargs)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add automation/pom.xml
+          if git diff --cached --quiet; then
+            echo "Dependency already at requested version; nothing to commit."
+          else
+            git commit -m "deps: update ${ARTIFACT} to ${VERSION}"
+            git push origin HEAD:agent/update-pom-dependencies
+          fi
