@@ -1,1 +1,1 @@
-com.thoughtworks.paranamer|paranamer|2.8.3
+org.apache.maven.plugins|maven-compiler-plugin|3.14.1
