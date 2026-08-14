@@ -80,12 +80,100 @@ jobs:
           PY
           fi
 
+          if [[ "$GROUP:$ARTIFACT:$VERSION" == "io.appium:java-client:10.1.1" ]]; then
+            python3 - <<'PY'
+          from pathlib import Path
+
+          def replace_once(path, old, new, label):
+              p = Path(path)
+              data = p.read_bytes()
+              newline = '\r\n' if b'\r\n' in data else '\n'
+              old_bytes = old.replace('\n', newline).encode('utf-8')
+              new_bytes = new.replace('\n', newline).encode('utf-8')
+              if old_bytes in data:
+                  p.write_bytes(data.replace(old_bytes, new_bytes, 1))
+                  print(label)
+              elif new and new_bytes in data:
+                  print(f'{label} (already present)')
+              elif not new:
+                  print(f'{label} (already removed)')
+              else:
+                  raise SystemExit(f'Expected Appium compatibility source was not found in {path}: {old}')
+
+          helper = 'automation/src/main/java/core/helpers/Helper.java'
+          mobile = 'automation/src/main/java/core/helpers/MobileHelper.java'
+          legacy = 'automation/src/main/java/core/helpers/legacy/Helper.java'
+          android = 'automation/src/main/java/core/uiCore/driverProperties/capabilities/AndroidCapability.java'
+          ios = 'automation/src/main/java/core/uiCore/driverProperties/capabilities/IosCapability.java'
+
+          for path in (helper, mobile, legacy):
+              replace_once(
+                  path,
+                  'import org.openqa.selenium.html5.Location;',
+                  'import io.appium.java_client.Location;',
+                  f'Migrated Location import in {path}',
+              )
+
+          replace_once(
+              mobile,
+              'import io.appium.java_client.SupportsLegacyAppManagement;',
+              '',
+              'Removed SupportsLegacyAppManagement import',
+          )
+          replace_once(
+              mobile,
+              '((SupportsLegacyAppManagement) getAppiumDriver()).resetApp();',
+              '''AppiumDriver driver = getAppiumDriver();
+		Object appIdValue = null;
+		if (isAndroid()) {
+			appIdValue = driver.getCapabilities().getCapability("appium:appPackage");
+			if (appIdValue == null)
+				appIdValue = driver.getCapabilities().getCapability("appPackage");
+		} else if (isIOS()) {
+			appIdValue = driver.getCapabilities().getCapability("appium:bundleId");
+			if (appIdValue == null)
+				appIdValue = driver.getCapabilities().getCapability("bundleId");
+		}
+		if (appIdValue == null)
+			throw new IllegalStateException("Unable to restart app: appPackage/bundleId capability is not available");
+		String appId = appIdValue.toString();
+		InteractsWithApps appManagement = (InteractsWithApps) driver;
+		appManagement.terminateApp(appId);
+		appManagement.activateApp(appId);''',
+              'Migrated resetApp() to terminateApp()/activateApp()',
+          )
+
+          replace_once(android, 'import io.appium.java_client.remote.AndroidMobileCapabilityType;', '',
+                       'Removed AndroidMobileCapabilityType import')
+          replace_once(android, 'import io.appium.java_client.remote.MobileCapabilityType;', '',
+                       'Removed MobileCapabilityType import from Android capabilities')
+          replace_once(android, 'MobileCapabilityType.APP', '"appium:app"', 'Migrated Android app capability')
+          replace_once(android, 'MobileCapabilityType.NO_RESET', '"appium:noReset"', 'Migrated Android noReset capability')
+          replace_once(android, 'AndroidMobileCapabilityType.SYSTEM_PORT', '"appium:systemPort"',
+                       'Migrated Android systemPort capability')
+
+          replace_once(ios, 'import io.appium.java_client.remote.MobileCapabilityType;', '',
+                       'Removed MobileCapabilityType import from iOS capabilities')
+          replace_once(ios, 'MobileCapabilityType.APP', '"appium:app"', 'Migrated iOS app capability')
+          replace_once(ios, 'MobileCapabilityType.NO_RESET', '"appium:noReset"', 'Migrated iOS noReset capability')
+          replace_once(ios, 'MobileCapabilityType.DEVICE_NAME', '"appium:deviceName"',
+                       'Migrated iOS deviceName capability')
+          replace_once(ios, 'MobileCapabilityType.UDID', '"appium:udid"', 'Migrated iOS udid capability')
+          PY
+          fi
+
       - name: Save exact files intended for commit
         shell: bash
         run: |
           cp automation/pom.xml /tmp/pom-to-commit.xml
-          mkdir -p /tmp/source-to-commit
-          cp automation/src/main/java/core/uiCore/WebDriverSetup.java /tmp/source-to-commit/WebDriverSetup.java
+          mkdir -p /tmp/source-to-commit/helpers/legacy
+          mkdir -p /tmp/source-to-commit/uiCore/driverProperties/capabilities
+          cp automation/src/main/java/core/uiCore/WebDriverSetup.java /tmp/source-to-commit/uiCore/WebDriverSetup.java
+          cp automation/src/main/java/core/helpers/Helper.java /tmp/source-to-commit/helpers/Helper.java
+          cp automation/src/main/java/core/helpers/MobileHelper.java /tmp/source-to-commit/helpers/MobileHelper.java
+          cp automation/src/main/java/core/helpers/legacy/Helper.java /tmp/source-to-commit/helpers/legacy/Helper.java
+          cp automation/src/main/java/core/uiCore/driverProperties/capabilities/AndroidCapability.java /tmp/source-to-commit/uiCore/driverProperties/capabilities/AndroidCapability.java
+          cp automation/src/main/java/core/uiCore/driverProperties/capabilities/IosCapability.java /tmp/source-to-commit/uiCore/driverProperties/capabilities/IosCapability.java
 
       - name: Apply CI-only monte-repack repository workaround
         shell: bash
@@ -108,14 +196,25 @@ jobs:
         shell: bash
         run: |
           cp /tmp/pom-to-commit.xml automation/pom.xml
-          cp /tmp/source-to-commit/WebDriverSetup.java automation/src/main/java/core/uiCore/WebDriverSetup.java
+          cp /tmp/source-to-commit/uiCore/WebDriverSetup.java automation/src/main/java/core/uiCore/WebDriverSetup.java
+          cp /tmp/source-to-commit/helpers/Helper.java automation/src/main/java/core/helpers/Helper.java
+          cp /tmp/source-to-commit/helpers/MobileHelper.java automation/src/main/java/core/helpers/MobileHelper.java
+          cp /tmp/source-to-commit/helpers/legacy/Helper.java automation/src/main/java/core/helpers/legacy/Helper.java
+          cp /tmp/source-to-commit/uiCore/driverProperties/capabilities/AndroidCapability.java automation/src/main/java/core/uiCore/driverProperties/capabilities/AndroidCapability.java
+          cp /tmp/source-to-commit/uiCore/driverProperties/capabilities/IosCapability.java automation/src/main/java/core/uiCore/driverProperties/capabilities/IosCapability.java
           IFS='|' read -r GROUP ARTIFACT VERSION < .github/dependency-update.txt
           GROUP="$(echo "$GROUP" | xargs)"
           ARTIFACT="$(echo "$ARTIFACT" | xargs)"
           VERSION="$(echo "$VERSION" | xargs)"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add automation/pom.xml automation/src/main/java/core/uiCore/WebDriverSetup.java
+          git add automation/pom.xml \
+            automation/src/main/java/core/uiCore/WebDriverSetup.java \
+            automation/src/main/java/core/helpers/Helper.java \
+            automation/src/main/java/core/helpers/MobileHelper.java \
+            automation/src/main/java/core/helpers/legacy/Helper.java \
+            automation/src/main/java/core/uiCore/driverProperties/capabilities/AndroidCapability.java \
+            automation/src/main/java/core/uiCore/driverProperties/capabilities/IosCapability.java
           if git diff --cached --quiet; then
             echo "Dependency already at requested version; nothing to commit."
           else
