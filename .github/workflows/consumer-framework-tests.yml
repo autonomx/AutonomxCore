@@ -14,9 +14,9 @@ permissions:
 
 jobs:
   consumer-framework-tests:
-    name: Autonomx framework suite (REST Assured 5.3 diagnostic control)
+    name: Autonomx framework suite (exact Core artifact)
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
 
     steps:
       - name: Checkout exact Core revision
@@ -163,7 +163,7 @@ jobs:
           ref: master
           path: consumer
 
-      - name: Point Autonomx at exact Core artifact and pin REST Assured 5.3 control
+      - name: Point Autonomx at exact Core artifact
         shell: bash
         env:
           CORE_CI_VERSION: ${{ steps.core.outputs.ci_version }}
@@ -218,15 +218,6 @@ jobs:
                   ET.SubElement(exclusion, tag("groupId")).text = group_id
                   ET.SubElement(exclusion, tag("artifactId")).text = artifact_id
 
-          dependencies = root.find(tag("dependencies"))
-          if dependencies is None:
-              raise SystemExit("Consumer POM has no dependencies section")
-
-          control = ET.SubElement(dependencies, tag("dependency"))
-          ET.SubElement(control, tag("groupId")).text = "io.rest-assured"
-          ET.SubElement(control, tag("artifactId")).text = "rest-assured"
-          ET.SubElement(control, tag("version")).text = "5.3.2"
-
           tree.write(pom, encoding="UTF-8", xml_declaration=True)
           PY
 
@@ -253,9 +244,8 @@ jobs:
 
           echo "Autonomx consumer SHA: $(git -C consumer rev-parse HEAD)"
           echo "Pinned Core version: $CORE_CI_VERSION"
-          echo "Diagnostic REST Assured override: 5.3.2"
 
-      - name: Verify exact Core and REST Assured control dependency resolution
+      - name: Verify exact Core dependency resolution from a fresh repository
         shell: bash
         env:
           CORE_CI_VERSION: ${{ steps.core.outputs.ci_version }}
@@ -266,12 +256,75 @@ jobs:
             -s "$RUNNER_TEMP/consumer-settings.xml" \
             -Dmaven.repo.local="$CONSUMER_M2" \
             -f consumer/automation/pom.xml \
-            dependency:tree -Dincludes=io.autonomx:autonomx-core,io.rest-assured:rest-assured,org.testng:testng \
+            dependency:tree -Dincludes=io.autonomx:autonomx-core \
             2>&1 | tee "$RUNNER_TEMP/core-dependency-tree.log"
 
-          grep -F "io.autonomx:autonomx-core:jar:${CORE_CI_VERSION}" "$RUNNER_TEMP/core-dependency-tree.log"
-          grep -F "io.rest-assured:rest-assured:jar:5.3.2" "$RUNNER_TEMP/core-dependency-tree.log"
-          grep -F "org.testng:testng:jar:7.12.0" "$RUNNER_TEMP/core-dependency-tree.log"
+          if ! grep -F "io.autonomx:autonomx-core:jar:${CORE_CI_VERSION}" "$RUNNER_TEMP/core-dependency-tree.log"; then
+            echo "Autonomx did not resolve the SHA-derived Core artifact version."
+            exit 1
+          fi
+
+      - name: Install TestNG invocation progress tracer
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p consumer/automation/src/test/java/ci/diagnostics
+          cat > consumer/automation/src/test/java/ci/diagnostics/InvocationProgressListener.java <<'EOF'
+          package ci.diagnostics;
+
+          import java.io.IOException;
+          import java.nio.charset.StandardCharsets;
+          import java.nio.file.Files;
+          import java.nio.file.Path;
+          import java.nio.file.StandardOpenOption;
+          import java.time.Instant;
+          import org.testng.IInvokedMethod;
+          import org.testng.IInvokedMethodListener;
+          import org.testng.ITestResult;
+
+          public final class InvocationProgressListener implements IInvokedMethodListener {
+              private static final Path TRACE = Path.of(System.getProperty("java.io.tmpdir"), "autonomx-test-progress.log");
+
+              private static synchronized void log(String phase, IInvokedMethod invokedMethod, ITestResult result) {
+                  String method = result.getTestClass().getName() + "#" + result.getMethod().getMethodName();
+                  String kind = invokedMethod.isTestMethod() ? "TEST" : "CONFIG";
+                  String line = Instant.now() + " " + phase + " " + kind + " " + method + System.lineSeparator();
+                  System.out.print("[AUTONOMX-CI-PROGRESS] " + line);
+                  try {
+                      Files.writeString(TRACE, line, StandardCharsets.UTF_8,
+                              StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+                  } catch (IOException e) {
+                      System.err.println("Unable to write progress trace: " + e);
+                  }
+              }
+
+              @Override
+              public void beforeInvocation(IInvokedMethod method, ITestResult testResult) {
+                  log("START", method, testResult);
+              }
+
+              @Override
+              public void afterInvocation(IInvokedMethod method, ITestResult testResult) {
+                  log("END", method, testResult);
+              }
+          }
+          EOF
+
+          python3 - <<'PY'
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          suite = Path("consumer/automation/suites/frameworkFunctionalTests.xml")
+          tree = ET.parse(suite)
+          root = tree.getroot()
+          listeners = root.find("listeners")
+          if listeners is None:
+              listeners = ET.Element("listeners")
+              root.insert(0, listeners)
+          listener = ET.SubElement(listeners, "listener")
+          listener.set("class-name", "ci.diagnostics.InvocationProgressListener")
+          tree.write(suite, encoding="UTF-8", xml_declaration=True)
+          PY
 
       - name: Write build provenance
         shell: bash
@@ -290,8 +343,7 @@ jobs:
             echo "consumer_sha=$(git -C consumer rev-parse HEAD)"
             echo "consumer_maven_repo=$RUNNER_TEMP/consumer-m2"
             echo "consumer_jitpack_enabled=true"
-            echo "diagnostic_rest_assured_override=5.3.2"
-            echo "diagnostic_testng_version=7.12.0"
+            echo "progress_tracer=ci.diagnostics.InvocationProgressListener"
           } | tee "$RUNNER_TEMP/core-consumer-provenance.txt"
 
       - name: Start local framework test webapp
@@ -317,15 +369,41 @@ jobs:
           cat "$RUNNER_TEMP/framework-test-webapp.log" || true
           exit 1
 
-      - name: Run framework suite with REST Assured 5.3 diagnostic control
-        timeout-minutes: 6
+      - name: Run Autonomx framework functional tests against exact Core artifact
+        timeout-minutes: 8
         working-directory: consumer/automation
         shell: bash
         env:
           CORE_CI_VERSION: ${{ steps.core.outputs.ci_version }}
         run: |
           set -euo pipefail
-          echo "A/B control: exact Core ${CORE_CI_VERSION}, TestNG 7.12.0, forcing REST Assured 5.3.2"
+          TRACE_FILE="$RUNNER_TEMP/autonomx-test-progress.log"
+          THREAD_DUMP_FILE="$RUNNER_TEMP/autonomx-thread-dumps.log"
+          rm -f "$TRACE_FILE" "$THREAD_DUMP_FILE"
+
+          (
+            sleep 240
+            {
+              echo "===== JVM thread dump watchdog $(date -u +%FT%TZ) ====="
+              jcmd -l || true
+              while read -r pid rest; do
+                case "$rest" in
+                  *surefire*|*ForkedBooter*|*org.codehaus.plexus.classworlds.launcher.Launcher*)
+                    echo "===== PID $pid :: $rest ====="
+                    jcmd "$pid" Thread.print -l || true
+                    ;;
+                esac
+              done < <(jcmd -l 2>/dev/null || true)
+            } > "$THREAD_DUMP_FILE" 2>&1
+          ) &
+          WATCHDOG_PID=$!
+
+          cleanup() {
+            kill "$WATCHDOG_PID" 2>/dev/null || true
+          }
+          trap cleanup EXIT
+
+          echo "Testing io.autonomx:autonomx-core:${CORE_CI_VERSION} from Core SHA ${{ steps.core.outputs.core_sha }}"
           mvn -B --no-transfer-progress \
             -s "$RUNNER_TEMP/consumer-settings.xml" \
             -Dmaven.repo.local="$RUNNER_TEMP/consumer-m2" \
@@ -333,11 +411,25 @@ jobs:
             -DsuiteXmlFile=suites/frameworkFunctionalTests.xml \
             2>&1 | tee ../../consumer-framework-tests-maven.log
 
-      - name: Upload consumer diagnostic reports and provenance
+      - name: Summarize last observed consumer invocation
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          TRACE_FILE="$RUNNER_TEMP/autonomx-test-progress.log"
+          if [ -f "$TRACE_FILE" ]; then
+            echo "Last 30 TestNG invocation events:"
+            tail -n 30 "$TRACE_FILE"
+            echo "last_progress_event=$(tail -n 1 "$TRACE_FILE")" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No TestNG invocation progress trace was produced."
+          fi
+
+      - name: Upload consumer functional-test reports and provenance
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: exact-core-rest-assured-5.3-diagnostic-control
+          name: exact-core-consumer-framework-test-reports
           if-no-files-found: warn
           retention-days: 14
           path: |
@@ -349,3 +441,5 @@ jobs:
             ${{ runner.temp }}/core-dependency-tree.log
             ${{ runner.temp }}/core-consumer-provenance.txt
             ${{ runner.temp }}/framework-test-webapp.log
+            ${{ runner.temp }}/autonomx-test-progress.log
+            ${{ runner.temp }}/autonomx-thread-dumps.log
