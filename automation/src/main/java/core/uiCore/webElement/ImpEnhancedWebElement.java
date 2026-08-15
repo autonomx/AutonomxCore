@@ -63,8 +63,8 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 
 	@Override
 	public void clear(int index) {
-		int retry = 1;
-
+		int retry = 3;
+		Exception lastException = null;
 		boolean success = false;
 		do {
 			retry--;
@@ -77,11 +77,13 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 					success = true;
 				}
 			} catch (Exception e) {
+				lastException = e;
 				resetElement();
-				e.getMessage();
 			}
 		} while (!success && retry > 0);
 
+		if (!success)
+			throw new WebDriverException("clear failed for element: " + elementName + " after 3 attempts", lastException);
 	}
 
 	@Override
@@ -179,7 +181,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	@Override
 	public void click(int index) {
 		int retry = 3;
-
+		Exception lastException = null;
 		boolean success = false;
 		do {
 			retry--;
@@ -192,6 +194,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				success = true;
 			
 			} catch (Exception e) {
+				lastException = e;
 				resetElement();
 				String cause = getCause(e);
 				if(!cause.isEmpty())
@@ -199,6 +202,9 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				Helper.page.printStackTrace(e);
 			}
 		} while (!success && retry > 0);
+
+		if (!success)
+			throw new WebDriverException("click failed for element: " + elementName + " after 3 attempts", lastException);
 	}
 
 	@Override
@@ -377,18 +383,13 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	 */
 	public boolean isElementFound(int index) {
 		setTimeout(1, TimeUnit.MILLISECONDS);
-		boolean isFound = false;
-		try
-		{
-			WebElement element = getElement(index);
-			if(element != null)
-				isFound = true;
+		try {
+			return getElement(index) != null;
 		} catch (Exception e) {
-			isFound = false;
+			return false;
+		} finally {
+			setTimeout(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
 		}
-		setTimeout(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
-		isFound = false;
-		return isFound;
 	}
 
 	@Override
@@ -420,6 +421,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	public void sendKeys(int index, CharSequence... keysToSend) {
 		int retry = 3;
 		List<String> exception = new ArrayList<String>();
+		Exception lastException = null;
 		boolean success = false;
 		do {
 			retry--;
@@ -431,6 +433,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				element.sendKeys(keysToSend);
 				success = true;
 			} catch (Exception e) {
+				lastException = e;
 				resetElement();
 				String cause = getCause(e);
 				exception.add(cause);
@@ -439,6 +442,9 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				
 			}
 		} while (!success && retry > 0);
+
+		if (!success)
+			throw new WebDriverException("send keys failed for element: " + elementName + " after 3 attempts", lastException);
 	}
 
 	@Override
