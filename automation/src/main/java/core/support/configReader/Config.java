@@ -314,7 +314,7 @@ public class Config {
 	 * @return returns the integer value of key from properties
 	 */
 	public static int getGlobalIntValue(String key) {
-		String value = getValue(key, false);
+		String value = getGlobalValue(key, false);
 		if (value.isEmpty()) {
 			return -1;
 		}
@@ -328,9 +328,9 @@ public class Config {
 	 * @return returns the object value of key from properties
 	 */
 	public static Object getGlobalObjectValue(String key) {
-		if (TestObject.getGlobalTestInfo().config.get(key.trim()) == null)
+		Object value = TestObject.getGlobalTestInfo().config.get(key.trim());
+		if (value == null)
 			return StringUtils.EMPTY;
-		Object value = TestObject.getTestInfo().config.get(key);
 		return value;
 	}
 

@@ -11,9 +11,8 @@ import io.appium.java_client.AppiumBy;
 
 /**
  * Elements are stored in list
- * 
- * @author CAEHMAT
  *
+ * @author CAEHMAT
  */
 public class EnhancedBy {
 	public List<ElementObject> elementObject;
@@ -87,7 +86,7 @@ public class EnhancedBy {
 	public EnhancedBy byClass(String element) {
 		return byClass(element, name);
 	}
-	
+
 	public EnhancedBy byTagName(String element, String name) {
 		Helper.assertTrue("element cannot be empty", !element.isEmpty());
 
@@ -97,10 +96,17 @@ public class EnhancedBy {
 		return this;
 	}
 
-	public EnhancedBy byTagname(String element) {
-		return byClass(element, name);
+	public EnhancedBy byTagName(String element) {
+		return byTagName(element, name);
 	}
-	
+
+	/**
+	 * Backwards-compatible alias for the historic method spelling.
+	 */
+	public EnhancedBy byTagname(String element) {
+		return byTagName(element, name);
+	}
+
 	public EnhancedBy byLinkText(String element, String name) {
 		Helper.assertTrue("element cannot be empty", !element.isEmpty());
 
@@ -111,20 +117,21 @@ public class EnhancedBy {
 	}
 
 	public EnhancedBy byLinkText(String element) {
-		return byClass(element, name);
+		return byLinkText(element, name);
 	}
-	
+
 	public EnhancedBy byPartialLinkText(String element, String name) {
 		Helper.assertTrue("element cannot be empty", !element.isEmpty());
 
-		ElementObject locatorObject = new ElementObject(By.partialLinkText(element), name, element, LocatorType.partialLinkText);
+		ElementObject locatorObject = new ElementObject(By.partialLinkText(element), name, element,
+				LocatorType.partialLinkText);
 		elementObject.add(locatorObject);
 		this.name = name;
 		return this;
 	}
 
 	public EnhancedBy byPartialLinkText(String element) {
-		return byClass(element, name);
+		return byPartialLinkText(element, name);
 	}
 
 	public EnhancedBy byAccessibility(String element, String name) {

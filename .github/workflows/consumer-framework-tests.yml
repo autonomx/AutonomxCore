@@ -1,0 +1,445 @@
+name: Consumer Framework Tests
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  consumer-framework-tests:
+    name: Autonomx framework suite (exact Core artifact)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout exact Core revision
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          path: core
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+          cache-dependency-path: core/automation/pom.xml
+
+      - name: Record Core artifact coordinates and pristine POM
+        id: core
+        shell: bash
+        run: |
+          set -euo pipefail
+          CORE_SHA="$(git -C core rev-parse HEAD)"
+          EXPECTED_SHA="${{ github.event.pull_request.head.sha || github.sha }}"
+          if [ "$CORE_SHA" != "$EXPECTED_SHA" ]; then
+            echo "Expected Core revision $EXPECTED_SHA but checked out $CORE_SHA"
+            exit 1
+          fi
+
+          cp core/automation/pom.xml "$RUNNER_TEMP/core-pristine.pom"
+
+          mapfile -t CORE_COORDS < <(python3 - <<'PY'
+          import os
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          pom = Path(os.environ["RUNNER_TEMP"]) / "core-pristine.pom"
+          ns = "http://maven.apache.org/POM/4.0.0"
+          tag = lambda name: f"{{{ns}}}{name}"
+          root = ET.parse(pom).getroot()
+
+          group_id = root.findtext(tag("groupId"))
+          artifact_id = root.findtext(tag("artifactId"))
+          base_version = root.findtext(tag("version"))
+          if not all((group_id, artifact_id, base_version)):
+              raise SystemExit("Unable to read Core Maven coordinates from automation/pom.xml")
+
+          print(group_id)
+          print(artifact_id)
+          print(base_version)
+          PY
+          )
+
+          GROUP_ID="${CORE_COORDS[0]}"
+          SOURCE_ARTIFACT_ID="${CORE_COORDS[1]}"
+          BASE_VERSION="${CORE_COORDS[2]}"
+          SHORT_SHA="${CORE_SHA:0:12}"
+          CI_VERSION="${BASE_VERSION}-ci-${SHORT_SHA}"
+
+          {
+            echo "group_id=$GROUP_ID"
+            echo "source_artifact_id=$SOURCE_ARTIFACT_ID"
+            echo "base_version=$BASE_VERSION"
+            echo "core_sha=$CORE_SHA"
+            echo "ci_version=$CI_VERSION"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "Core SHA: $CORE_SHA"
+          echo "Consumer Maven coordinate: io.autonomx:autonomx-core:$CI_VERSION"
+
+      - name: Apply Core CI-only monte-repack repository workaround
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path('core/automation/pom.xml')
+          s = p.read_text(encoding='utf-8')
+          marker = '''\t\t<dependency>\n\t\t\t<groupId>com.pojosontheweb</groupId>\n\t\t\t<artifactId>monte-repack</artifactId>\n\t\t\t<version>1.1</version>\n\t\t</dependency>'''
+          replacement = '''\t\t<dependency>\n\t\t\t<groupId>com.pojosontheweb</groupId>\n\t\t\t<artifactId>monte-repack</artifactId>\n\t\t\t<version>1.1</version>\n\t\t\t<exclusions>\n\t\t\t\t<exclusion><groupId>javax.media.jai</groupId><artifactId>com.springsource.javax.media.jai.core</artifactId></exclusion>\n\t\t\t\t<exclusion><groupId>javax.media</groupId><artifactId>jmf</artifactId></exclusion>\n\t\t\t</exclusions>\n\t\t</dependency>'''
+          if marker in s:
+              s = s.replace(marker, replacement)
+          p.write_text(s, encoding='utf-8')
+          PY
+
+      - name: Build exact Core artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          mvn -B --no-transfer-progress -f core/automation/pom.xml clean package -DskipTests
+
+          CORE_JAR="core/automation/target/${{ steps.core.outputs.source_artifact_id }}-${{ steps.core.outputs.base_version }}.jar"
+          if [ ! -f "$CORE_JAR" ]; then
+            echo "Expected Core artifact was not produced: $CORE_JAR"
+            find core/automation/target -maxdepth 1 -type f -print || true
+            exit 1
+          fi
+
+          echo "Built Core artifact: $CORE_JAR"
+          sha256sum "$CORE_JAR"
+
+      - name: Install exact Core artifact into isolated consumer repository
+        shell: bash
+        env:
+          CORE_CI_VERSION: ${{ steps.core.outputs.ci_version }}
+        run: |
+          set -euo pipefail
+          CONSUMER_M2="$RUNNER_TEMP/consumer-m2"
+          mkdir -p "$CONSUMER_M2"
+
+          python3 - <<'PY'
+          import os
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          source = Path(os.environ["RUNNER_TEMP"]) / "core-pristine.pom"
+          target = Path(os.environ["RUNNER_TEMP"]) / "core-consumer.pom"
+          ns = "http://maven.apache.org/POM/4.0.0"
+          tag = lambda name: f"{{{ns}}}{name}"
+          ET.register_namespace("", ns)
+
+          tree = ET.parse(source)
+          root = tree.getroot()
+          artifact_id = root.find(tag("artifactId"))
+          version = root.find(tag("version"))
+          if artifact_id is None or version is None:
+              raise SystemExit("Core POM is missing direct artifactId/version elements")
+
+          artifact_id.text = "autonomx-core"
+          version.text = os.environ["CORE_CI_VERSION"]
+          tree.write(target, encoding="UTF-8", xml_declaration=True)
+          PY
+
+          CORE_JAR="core/automation/target/${{ steps.core.outputs.source_artifact_id }}-${{ steps.core.outputs.base_version }}.jar"
+          mvn -B --no-transfer-progress \
+            -Dmaven.repo.local="$CONSUMER_M2" \
+            org.apache.maven.plugins:maven-install-plugin:3.1.4:install-file \
+            -Dfile="$CORE_JAR" \
+            -DpomFile="$RUNNER_TEMP/core-consumer.pom"
+
+      - name: Checkout Autonomx consumer master
+        uses: actions/checkout@v4
+        with:
+          repository: autonomx/Autonomx
+          ref: master
+          path: consumer
+
+      - name: Point Autonomx at exact Core artifact
+        shell: bash
+        env:
+          CORE_CI_VERSION: ${{ steps.core.outputs.ci_version }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os
+          import xml.etree.ElementTree as ET
+
+          pom = "consumer/automation/pom.xml"
+          ns = "http://maven.apache.org/POM/4.0.0"
+          tag = lambda name: f"{{{ns}}}{name}"
+          ET.register_namespace("", ns)
+
+          tree = ET.parse(pom)
+          root = tree.getroot()
+          target = None
+
+          for dependency in root.findall(".//" + tag("dependency")):
+              group_id = dependency.find(tag("groupId"))
+              artifact_id = dependency.find(tag("artifactId"))
+              if (group_id is not None and artifact_id is not None and
+                      group_id.text == "io.autonomx" and artifact_id.text == "autonomx-core"):
+                  target = dependency
+                  break
+
+          if target is None:
+              raise SystemExit("Could not find io.autonomx:autonomx-core in consumer automation/pom.xml")
+
+          version = target.find(tag("version"))
+          if version is None:
+              version = ET.SubElement(target, tag("version"))
+          version.text = os.environ["CORE_CI_VERSION"]
+
+          exclusions = target.find(tag("exclusions"))
+          if exclusions is None:
+              exclusions = ET.SubElement(target, tag("exclusions"))
+
+          existing = set()
+          for exclusion in exclusions.findall(tag("exclusion")):
+              group_id = exclusion.find(tag("groupId"))
+              artifact_id = exclusion.find(tag("artifactId"))
+              if group_id is not None and artifact_id is not None:
+                  existing.add((group_id.text, artifact_id.text))
+
+          for group_id, artifact_id in [
+              ("javax.media.jai", "com.springsource.javax.media.jai.core"),
+              ("javax.media", "jmf"),
+          ]:
+              if (group_id, artifact_id) not in existing:
+                  exclusion = ET.SubElement(exclusions, tag("exclusion"))
+                  ET.SubElement(exclusion, tag("groupId")).text = group_id
+                  ET.SubElement(exclusion, tag("artifactId")).text = artifact_id
+
+          tree.write(pom, encoding="UTF-8", xml_declaration=True)
+          PY
+
+          cat > "$RUNNER_TEMP/consumer-settings.xml" <<'EOF'
+          <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
+            <profiles>
+              <profile>
+                <id>autonomx-consumer-ci-repositories</id>
+                <repositories>
+                  <repository>
+                    <id>jitpack.io</id>
+                    <url>https://jitpack.io</url>
+                  </repository>
+                </repositories>
+              </profile>
+            </profiles>
+            <activeProfiles>
+              <activeProfile>autonomx-consumer-ci-repositories</activeProfile>
+            </activeProfiles>
+          </settings>
+          EOF
+
+          echo "Autonomx consumer SHA: $(git -C consumer rev-parse HEAD)"
+          echo "Pinned Core version: $CORE_CI_VERSION"
+
+      - name: Verify exact Core dependency resolution from a fresh repository
+        shell: bash
+        env:
+          CORE_CI_VERSION: ${{ steps.core.outputs.ci_version }}
+        run: |
+          set -euo pipefail
+          CONSUMER_M2="$RUNNER_TEMP/consumer-m2"
+          mvn -B --no-transfer-progress \
+            -s "$RUNNER_TEMP/consumer-settings.xml" \
+            -Dmaven.repo.local="$CONSUMER_M2" \
+            -f consumer/automation/pom.xml \
+            dependency:tree -Dincludes=io.autonomx:autonomx-core \
+            2>&1 | tee "$RUNNER_TEMP/core-dependency-tree.log"
+
+          if ! grep -F "io.autonomx:autonomx-core:jar:${CORE_CI_VERSION}" "$RUNNER_TEMP/core-dependency-tree.log"; then
+            echo "Autonomx did not resolve the SHA-derived Core artifact version."
+            exit 1
+          fi
+
+      - name: Install TestNG invocation progress tracer
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p consumer/automation/src/test/java/ci/diagnostics
+          cat > consumer/automation/src/test/java/ci/diagnostics/InvocationProgressListener.java <<'EOF'
+          package ci.diagnostics;
+
+          import java.io.IOException;
+          import java.nio.charset.StandardCharsets;
+          import java.nio.file.Files;
+          import java.nio.file.Path;
+          import java.nio.file.StandardOpenOption;
+          import java.time.Instant;
+          import org.testng.IInvokedMethod;
+          import org.testng.IInvokedMethodListener;
+          import org.testng.ITestResult;
+
+          public final class InvocationProgressListener implements IInvokedMethodListener {
+              private static final Path TRACE = Path.of(System.getProperty("java.io.tmpdir"), "autonomx-test-progress.log");
+
+              private static synchronized void log(String phase, IInvokedMethod invokedMethod, ITestResult result) {
+                  String method = result.getTestClass().getName() + "#" + result.getMethod().getMethodName();
+                  String kind = invokedMethod.isTestMethod() ? "TEST" : "CONFIG";
+                  String line = Instant.now() + " " + phase + " " + kind + " " + method + System.lineSeparator();
+                  System.out.print("[AUTONOMX-CI-PROGRESS] " + line);
+                  try {
+                      Files.writeString(TRACE, line, StandardCharsets.UTF_8,
+                              StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+                  } catch (IOException e) {
+                      System.err.println("Unable to write progress trace: " + e);
+                  }
+              }
+
+              @Override
+              public void beforeInvocation(IInvokedMethod method, ITestResult testResult) {
+                  log("START", method, testResult);
+              }
+
+              @Override
+              public void afterInvocation(IInvokedMethod method, ITestResult testResult) {
+                  log("END", method, testResult);
+              }
+          }
+          EOF
+
+          python3 - <<'PY'
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          suite = Path("consumer/automation/suites/frameworkFunctionalTests.xml")
+          tree = ET.parse(suite)
+          root = tree.getroot()
+          listeners = root.find("listeners")
+          if listeners is None:
+              listeners = ET.Element("listeners")
+              root.insert(0, listeners)
+          listener = ET.SubElement(listeners, "listener")
+          listener.set("class-name", "ci.diagnostics.InvocationProgressListener")
+          tree.write(suite, encoding="UTF-8", xml_declaration=True)
+          PY
+
+      - name: Write build provenance
+        shell: bash
+        env:
+          CORE_CI_VERSION: ${{ steps.core.outputs.ci_version }}
+        run: |
+          set -euo pipefail
+          CORE_JAR="core/automation/target/${{ steps.core.outputs.source_artifact_id }}-${{ steps.core.outputs.base_version }}.jar"
+          {
+            echo "core_repository=autonomx/AutonomxCore"
+            echo "core_sha=${{ steps.core.outputs.core_sha }}"
+            echo "core_consumer_coordinate=io.autonomx:autonomx-core:${CORE_CI_VERSION}"
+            echo "core_jar_sha256=$(sha256sum "$CORE_JAR" | awk '{print $1}')"
+            echo "consumer_repository=autonomx/Autonomx"
+            echo "consumer_ref=master"
+            echo "consumer_sha=$(git -C consumer rev-parse HEAD)"
+            echo "consumer_maven_repo=$RUNNER_TEMP/consumer-m2"
+            echo "consumer_jitpack_enabled=true"
+            echo "progress_tracer=ci.diagnostics.InvocationProgressListener"
+          } | tee "$RUNNER_TEMP/core-consumer-provenance.txt"
+
+      - name: Start local framework test webapp
+        shell: bash
+        run: |
+          set -euo pipefail
+          BUILD_DIR="$RUNNER_TEMP/autonomx-framework-test-webapp"
+          mkdir -p "$BUILD_DIR"
+          javac -encoding UTF-8 -d "$BUILD_DIR" consumer/test-webapp/FrameworkTestWebApp.java
+          nohup java -cp "$BUILD_DIR" FrameworkTestWebApp 18080 > "$RUNNER_TEMP/framework-test-webapp.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/framework-test-webapp.pid"
+
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent --show-error http://127.0.0.1:18080/health; then
+              echo
+              echo "Framework test webapp is ready."
+              exit 0
+            fi
+            sleep 1
+          done
+
+          echo "Framework test webapp did not become ready."
+          cat "$RUNNER_TEMP/framework-test-webapp.log" || true
+          exit 1
+
+      - name: Run Autonomx framework functional tests against exact Core artifact
+        timeout-minutes: 8
+        working-directory: consumer/automation
+        shell: bash
+        env:
+          CORE_CI_VERSION: ${{ steps.core.outputs.ci_version }}
+        run: |
+          set -euo pipefail
+          TRACE_FILE="$RUNNER_TEMP/autonomx-test-progress.log"
+          THREAD_DUMP_FILE="$RUNNER_TEMP/autonomx-thread-dumps.log"
+          rm -f "$TRACE_FILE" "$THREAD_DUMP_FILE"
+
+          (
+            sleep 240
+            {
+              echo "===== JVM thread dump watchdog $(date -u +%FT%TZ) ====="
+              jcmd -l || true
+              while read -r pid rest; do
+                case "$rest" in
+                  *surefire*|*ForkedBooter*|*org.codehaus.plexus.classworlds.launcher.Launcher*)
+                    echo "===== PID $pid :: $rest ====="
+                    jcmd "$pid" Thread.print -l || true
+                    ;;
+                esac
+              done < <(jcmd -l 2>/dev/null || true)
+            } > "$THREAD_DUMP_FILE" 2>&1
+          ) &
+          WATCHDOG_PID=$!
+
+          cleanup() {
+            kill "$WATCHDOG_PID" 2>/dev/null || true
+          }
+          trap cleanup EXIT
+
+          echo "Testing io.autonomx:autonomx-core:${CORE_CI_VERSION} from Core SHA ${{ steps.core.outputs.core_sha }}"
+          mvn -B --no-transfer-progress \
+            -s "$RUNNER_TEMP/consumer-settings.xml" \
+            -Dmaven.repo.local="$RUNNER_TEMP/consumer-m2" \
+            clean compile test \
+            -DsuiteXmlFile=suites/frameworkFunctionalTests.xml \
+            2>&1 | tee ../../consumer-framework-tests-maven.log
+
+      - name: Summarize last observed consumer invocation
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          TRACE_FILE="$RUNNER_TEMP/autonomx-test-progress.log"
+          if [ -f "$TRACE_FILE" ]; then
+            echo "Last 30 TestNG invocation events:"
+            tail -n 30 "$TRACE_FILE"
+            echo "last_progress_event=$(tail -n 1 "$TRACE_FILE")" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No TestNG invocation progress trace was produced."
+          fi
+
+      - name: Upload consumer functional-test reports and provenance
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exact-core-consumer-framework-test-reports
+          if-no-files-found: warn
+          retention-days: 14
+          path: |
+            consumer-framework-tests-maven.log
+            consumer/automation/target/surefire-reports/**
+            consumer/automation/test-output/**
+            consumer/automation/extentReport/**
+            consumer/automation/logs/**
+            ${{ runner.temp }}/core-dependency-tree.log
+            ${{ runner.temp }}/core-consumer-provenance.txt
+            ${{ runner.temp }}/framework-test-webapp.log
+            ${{ runner.temp }}/autonomx-test-progress.log
+            ${{ runner.temp }}/autonomx-thread-dumps.log

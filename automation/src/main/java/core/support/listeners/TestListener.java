@@ -8,6 +8,8 @@ import java.util.Map;
 
 import org.testng.IClassListener;
 import org.testng.IConfigurationListener;
+import org.testng.IInvokedMethod;
+import org.testng.IInvokedMethodListener;
 import org.testng.ISuite;
 import org.testng.ISuiteListener;
 import org.testng.ITestClass;
@@ -44,7 +46,7 @@ import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import core.uiCore.drivers.AbstractDriverTestNG;
 
 
-public class TestListener implements ITestListener, IClassListener, ISuiteListener, IConfigurationListener {
+public class TestListener implements ITestListener, IClassListener, ISuiteListener, IConfigurationListener, IInvokedMethodListener {
 
 	public static boolean isTestNG = false;
 	public static final String PARALLEL_TEST_TYPE = "global.parallel.type";
@@ -177,15 +179,31 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		}
 	}
 
+	@Override
 	public void onTestStart(ITestResult iTestResult) {
-	
-		// skip tests set on global.skipTests property. UI tests only
-		ArrayList<String> skipTestName = Config.getValueList(GLOBAL_SKIP_TESTS);
-		if(skipTestName.contains(TestObject.getTestInfo().testId))
-			throw new SkipException(GLOBAL_SKIP_TESTS_MESSAGE);
-		
 		setTestClassName(iTestResult);
-		ScreenRecorderHelper.startRecording();
+
+		// TestNG 7.12 can stall a parallel suite when an ITestListener callback throws.
+		// Intentional skips are applied in beforeInvocation instead, after all @BeforeMethod
+		// configuration has had a chance to populate global.skipTests.
+		if (!isCurrentTestSkipped())
+			ScreenRecorderHelper.startRecording();
+	}
+
+	@Override
+	public void beforeInvocation(IInvokedMethod invokedMethod, ITestResult iTestResult) {
+		if (!invokedMethod.isTestMethod() || !isCurrentTestSkipped())
+			return;
+
+		// Mark the result as skipped without throwing from the listener. TestNG checks
+		// this status after BEFORE_INVOCATION listeners and does not invoke the test body.
+		iTestResult.setThrowable(new SkipException(GLOBAL_SKIP_TESTS_MESSAGE));
+		iTestResult.setStatus(ITestResult.SKIP);
+	}
+
+	private boolean isCurrentTestSkipped() {
+		ArrayList<String> skipTestName = Config.getValueList(GLOBAL_SKIP_TESTS);
+		return skipTestName.contains(TestObject.getTestInfo().testId);
 	}
 
 	@Override

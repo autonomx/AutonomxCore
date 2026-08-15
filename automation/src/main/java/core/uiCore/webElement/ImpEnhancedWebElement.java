@@ -63,8 +63,9 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 
 	@Override
 	public void clear(int index) {
+		// Keep native clear tolerant and single-attempt. FormHelper.clearField owns the
+		// higher-level fallback (re-read the value and use BACK_SPACE when needed).
 		int retry = 1;
-
 		boolean success = false;
 		do {
 			retry--;
@@ -81,7 +82,6 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				e.getMessage();
 			}
 		} while (!success && retry > 0);
-
 	}
 
 	@Override
@@ -175,11 +175,9 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	public void click() {
 		click(0);
 	}
-
 	@Override
 	public void click(int index) {
 		int retry = 3;
-
 		boolean success = false;
 		do {
 			retry--;
@@ -199,6 +197,8 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				Helper.page.printStackTrace(e);
 			}
 		} while (!success && retry > 0);
+		// Deliberately do not throw after exhaustion. Helpers such as clickAndExpect
+		// own the logical retry/outcome check and may still observe the expected state.
 	}
 
 	@Override
@@ -351,7 +351,6 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		}
 		return false;
 	}
-
 	/**
 	 * returns true if element is displayed sets timeout to minimum to get the value
 	 * quickly
@@ -377,18 +376,13 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	 */
 	public boolean isElementFound(int index) {
 		setTimeout(1, TimeUnit.MILLISECONDS);
-		boolean isFound = false;
-		try
-		{
-			WebElement element = getElement(index);
-			if(element != null)
-				isFound = true;
+		try {
+			return getElement(index) != null;
 		} catch (Exception e) {
-			isFound = false;
+			return false;
+		} finally {
+			setTimeout(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
 		}
-		setTimeout(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
-		isFound = false;
-		return isFound;
 	}
 
 	@Override
@@ -439,6 +433,8 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 				
 			}
 		} while (!success && retry > 0);
+		// Deliberately tolerant like click(): callers may own the logical outcome
+		// validation or choose the strict sendKeysByAction path.
 	}
 
 	@Override
@@ -711,7 +707,6 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 
 		// get parent elements if applicable
 		getParentElement();
-
 		// if multiple element objects, we need to iterate through them quickly
 		if (this.element.elementObject.size() > 1) {
 			setTimeout(1, TimeUnit.MILLISECONDS);

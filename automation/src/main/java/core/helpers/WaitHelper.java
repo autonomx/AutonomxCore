@@ -48,16 +48,31 @@ public class WaitHelper {
 	 * 
 	 * @param target: element to wait for
 	 * @param time:   max time to wait
-	 * @param count:  minimum count of elements to wait for in list
+	 * @param count:  minimum count of visible elements to wait for in list
 	 * @return
 	 */
 	public boolean waitForElementToBeVisible(final EnhancedBy target, int time, int count) {
 		if(AbstractDriver.getWebDriver() == null) return false;
-		EnhancedWebElement elements = Element.findElements(target);
 
-		ExpectedCondition<WebElement> condition = ExpectedConditions.visibilityOf(elements);
+		ExpectedCondition<Boolean> condition = new ExpectedCondition<Boolean>() {
+			@Override
+			public Boolean apply(WebDriver driver) {
+				EnhancedWebElement elements = Element.findElements(target);
+				int visibleCount = 0;
+				int elementCount = elements.count();
+				for (int index = 0; index < elementCount; index++) {
+					try {
+						if (elements.isDisplayed(index))
+							visibleCount++;
+					} catch (Exception e) {
+						// Stale/temporarily unavailable elements are not visible on this poll.
+					}
+				}
+				return visibleCount >= count;
+			}
+		};
 
-		return waitForCondition2(condition, target, time);
+		return waitForCondition(condition, target, time);
 	}
 	
 	public boolean waitForElementToLoad(final EnhancedBy target, int time, int count) {
@@ -226,6 +241,7 @@ public class WaitHelper {
 	 * 
 	 * @param target
 	 * @param originalCount
+	 * @param time
 	 * @return
 	 */
 	public boolean waitForAdditionalElementsToLoad(final EnhancedBy target, final int originalCount, int time) {
@@ -257,8 +273,8 @@ public class WaitHelper {
 	 * @param target
 	 */
 	public boolean waitForElementToBeRemoved(final EnhancedBy target, int time, int waitForTargetToLoadInSeconds) {
-		waitForElementToLoad(target, 3);
-		return waitForElementToBeRemoved(target, AbstractDriver.TIMEOUT_SECONDS);
+		waitForElementToLoad(target, waitForTargetToLoadInSeconds);
+		return waitForElementToBeRemoved(target, time);
 	}
 
 	/**
@@ -293,7 +309,6 @@ public class WaitHelper {
 //						if (elements.isExist(x)) {
 //							return false;
 //						}
-//					}
 //				} catch (Exception e) {
 //					e.getMessage();
 //				}
