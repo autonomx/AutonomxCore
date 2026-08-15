@@ -24,6 +24,7 @@ import core.helpers.Element;
 import core.helpers.Helper;
 import core.support.logger.TestLog;
 import core.uiCore.drivers.AbstractDriver;
+import core.uiCore.drivers.DriverTimeoutManager;
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.touch.offset.PointOption;
 
@@ -70,8 +71,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		do {
 			retry--;
 			try {
-				isDisplayed(index);
-				if (isExist()) {
+				if (isDisplayed(index)) {
 					scrollToView_Web(index);
 					WebElement element = getElement(index);
 					element.clear();
@@ -208,6 +208,10 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 
 	@Override
 	public void scrollToView(int index) {
+		// Native Appium scrolling is currently disabled below, so do not perform a
+		// DOM lookup solely for a web viewport check that will immediately no-op.
+		if (!Helper.mobile.isWebDriver())
+			return;
 		if(isElementFound(index))
 			scrollToView_Web(index);
 			// TODO: currently disable, since scroll is only from center
@@ -232,14 +236,17 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	@SuppressWarnings("rawtypes")
 	public void scrollTo_mobile(int index) {
 		if (Helper.mobile.isAndroid()) {
-			setTimeout(1, TimeUnit.MILLISECONDS);
-			WebElement element = getElement(index);
-			int x = element.getLocation().getX();
-			int y = element.getLocation().getY();
+			Duration previousTimeout = setTemporaryTimeout(1, TimeUnit.MILLISECONDS);
+			try {
+				WebElement element = getElement(index);
+				int x = element.getLocation().getX();
+				int y = element.getLocation().getY();
 
-			TouchAction action = new TouchAction(Helper.mobile.getAndroidDriver());
-			action.press(PointOption.point(x, y)).moveTo(PointOption.point(x + 90, y)).release().perform();
-			setTimeout(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
+				TouchAction action = new TouchAction(Helper.mobile.getAndroidDriver());
+				action.press(PointOption.point(x, y)).moveTo(PointOption.point(x + 90, y)).release().perform();
+			} finally {
+				restoreTimeout(previousTimeout);
+			}
 		}
 	}
 
@@ -275,13 +282,14 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		if (Helper.isVisibleInViewport(element, index))
 			return;
 
-		setTimeout(1, TimeUnit.MILLISECONDS);
-
-		WebElement element = getElement(index);
-		Actions action = new Actions(AbstractDriver.getWebDriver());
-		action.moveToElement(element);
-
-		setTimeout(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);	
+		Duration previousTimeout = setTemporaryTimeout(1, TimeUnit.MILLISECONDS);
+		try {
+			WebElement element = getElement(index);
+			Actions action = new Actions(AbstractDriver.getWebDriver());
+			action.moveToElement(element);
+		} finally {
+			restoreTimeout(previousTimeout);
+		}
 	}
 	
 	/**
@@ -296,12 +304,13 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		if (Helper.isVisibleInViewport(element, index))
 			return;
 		
-		setTimeout(1, TimeUnit.MILLISECONDS);
-
-		WebElement element = getElement(index);
-		((JavascriptExecutor)AbstractDriver.getWebDriver()).executeScript("arguments[0].scrollIntoView();", element);
-
-		setTimeout(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);		
+		Duration previousTimeout = setTemporaryTimeout(1, TimeUnit.MILLISECONDS);
+		try {
+			WebElement element = getElement(index);
+			((JavascriptExecutor)AbstractDriver.getWebDriver()).executeScript("arguments[0].scrollIntoView();", element);
+		} finally {
+			restoreTimeout(previousTimeout);
+		}
 	}
 
 	/**
@@ -310,25 +319,23 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	@Override
 	public boolean isExist(int... index) {
 		if(webDriver == null) return false;
+		Duration previousTimeout = setTemporaryTimeout(1, TimeUnit.MILLISECONDS);
 		boolean isExist = false;
 		try {
-			setTimeout(1, TimeUnit.MILLISECONDS);
-	
-	
 			if (index.length > 0) {
 				isExist = isElementExist(index[0]);
 			} else {
 				isExist = isListExist();
 			}
-			// reset element if no element found.
 			if (!isExist)
 				resetElement();
-	
-			setTimeout(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
+			return isExist;
 		}catch(Exception e) {
+			resetElement();
 			return false;
+		} finally {
+			restoreTimeout(previousTimeout);
 		}
-		return isExist;
 	}
 
 	/**
@@ -341,10 +348,14 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 			if (elements == null || elements.isEmpty())
 				return false;
 	
-			int size = elements.size();
-			for (int i = 0; i < size; i++) {
-				if (isExist(i))
-					return true;
+			for (WebElement element : elements) {
+				try {
+					if (element.isDisplayed())
+						return true;
+				} catch (Exception e) {
+					// Continue checking the remaining resolved elements. The outer isExist()
+					// owns cache invalidation and timeout restoration.
+				}
 			}
 		}catch(Exception e) {
 			return false;
@@ -375,13 +386,13 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	 * @return
 	 */
 	public boolean isElementFound(int index) {
-		setTimeout(1, TimeUnit.MILLISECONDS);
+		Duration previousTimeout = setTemporaryTimeout(1, TimeUnit.MILLISECONDS);
 		try {
 			return getElement(index) != null;
 		} catch (Exception e) {
 			return false;
 		} finally {
-			setTimeout(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
+			restoreTimeout(previousTimeout);
 		}
 	}
 
@@ -446,8 +457,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 			retry--;
 			try {
 				scrollToView(index);
-				isDisplayed(index);
-				if (isExist()) {
+				if (isDisplayed(index)) {
 					sendKeyByAction(index, keysToSend);
 					success = true;
 				}
@@ -638,21 +648,29 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		if (parent == null || !this.parentElements.isEmpty())
 			return;
 
-		for (ElementObject elementObject : this.parent.elementObject) {
-			this.by = elementObject.by;
-			this.locatorType = elementObject.locatorType;
+		Duration previousTimeout = null;
+		if (this.parent.elementObject.size() > 1)
+			previousTimeout = setTemporaryTimeout(1, TimeUnit.MILLISECONDS);
+		try {
+			for (ElementObject elementObject : this.parent.elementObject) {
+				this.by = elementObject.by;
+				this.locatorType = elementObject.locatorType;
 
-			try {
-				this.current = new ArrayList<WebElement>();
-				this.parentElements = webDriver.findElements(by);
+				try {
+					this.current = new ArrayList<WebElement>();
+					this.parentElements = webDriver.findElements(by);
 
-				// if no element found, go to next locator
-				if (this.parentElements.isEmpty())
-					continue;
-
-			} catch (Exception e) {
-				e.getMessage();
+					// if no element found, go to next locator
+					if (this.parentElements.isEmpty())
+						continue;
+					break;
+				} catch (Exception e) {
+					e.getMessage();
+				}
 			}
+		} finally {
+			if (previousTimeout != null)
+				restoreTimeout(previousTimeout);
 		}
 	}
 
@@ -670,35 +688,38 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		// get parent elements if applicable
 		getParentElement();
 
-		// if multiple element objects, we need to iterate through them quickly
-		if (this.element.elementObject.size() > 1) {
-			setTimeout(1, TimeUnit.MILLISECONDS);
-		}
+		Duration previousTimeout = null;
+		if (this.element.elementObject.size() > 1)
+			previousTimeout = setTemporaryTimeout(1, TimeUnit.MILLISECONDS);
+		try {
+			for (ElementObject elementObject : this.element.elementObject) {
+				this.by = elementObject.by;
+				this.locatorType = elementObject.locatorType;
 
-		for (ElementObject elementObject : this.element.elementObject) {
-			this.by = elementObject.by;
-			this.locatorType = elementObject.locatorType;
-
-			try {
-				if (!this.parentElements.isEmpty()) {
-					this.current = new ArrayList<WebElement>();
-					elements = parentElements.get(parentIndex).findElements(by);
-				} else if (current == null || current.isEmpty()) {
-					this.current = new ArrayList<WebElement>();
-					elements = webDriver.findElements(by);
+				try {
+					if (!this.parentElements.isEmpty()) {
+						this.current = new ArrayList<WebElement>();
+						elements = parentElements.get(parentIndex).findElements(by);
+					} else if (current == null || current.isEmpty()) {
+						this.current = new ArrayList<WebElement>();
+						elements = webDriver.findElements(by);
+					}
+					// if no element found, go to next locator
+					if (elements.isEmpty())
+						continue;
+					// get first visible element
+					WebElement element = getFirstVisibleElement(elements);
+					if (element != null)
+						this.current.add(element);
+				} catch (Exception e) {
+					e.getMessage();
 				}
-				// if no element found, go to next locator
-				if (elements.isEmpty())
-					continue;
-				// get first visible element
-				WebElement element = getFirstVisibleElement(elements);
-				this.current.add(element);
-			} catch (Exception e) {
-				e.getMessage();
 			}
+			return this.current;
+		} finally {
+			if (previousTimeout != null)
+				restoreTimeout(previousTimeout);
 		}
-		setTimeout(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
-		return this.current;
 	}
 
 	public List<WebElement> getElements() {
@@ -707,30 +728,32 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 
 		// get parent elements if applicable
 		getParentElement();
-		// if multiple element objects, we need to iterate through them quickly
-		if (this.element.elementObject.size() > 1) {
-			setTimeout(1, TimeUnit.MILLISECONDS);
-		}
+		Duration previousTimeout = null;
+		if (this.element.elementObject.size() > 1)
+			previousTimeout = setTemporaryTimeout(1, TimeUnit.MILLISECONDS);
+		try {
+			for (ElementObject elementObject : this.element.elementObject) {
+				try {
+					this.by = elementObject.by;
+					this.locatorType = elementObject.locatorType;
 
-		for (ElementObject elementObject : this.element.elementObject) {
-			try {
-				this.by = elementObject.by;
-				this.locatorType = elementObject.locatorType;
-
-				if (!this.parentElements.isEmpty()) {
-					this.current = parentElements.get(parentIndex).findElements(by);
-				} else if (current == null || current.isEmpty()) {
-					this.current = webDriver.findElements(by);
+					if (!this.parentElements.isEmpty()) {
+						this.current = parentElements.get(parentIndex).findElements(by);
+					} else if (current == null || current.isEmpty()) {
+						this.current = webDriver.findElements(by);
+					}
+					// if element is found, exit loop
+					if (!this.current.isEmpty())
+						break;
+				} catch (Exception e) {
+					e.getMessage();
 				}
-				// if element is found, exit loop
-				if (!this.current.isEmpty())
-					break;
-			} catch (Exception e) {
-				e.getMessage();
 			}
+			return this.current;
+		} finally {
+			if (previousTimeout != null)
+				restoreTimeout(previousTimeout);
 		}
-		setTimeout(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
-		return this.current;
 	}
 
 	/**
@@ -740,7 +763,6 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	 * @return
 	 */
 	public WebElement getFirstVisibleElement(List<WebElement> elements) {
-		setTimeout(1, TimeUnit.MILLISECONDS);
 		WebElement element = null;
 		int count = elements.size();
 		if (count > 1) {
@@ -749,12 +771,10 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 					element = elements.get(i);
 					break;
 				}
-			}
 		} else {
 			element = elements.get(0);
 		}
 
-		setTimeout(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS, TimeUnit.SECONDS);
 		return element;
 	}
 
@@ -822,11 +842,28 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		}
 		return cause;
 	}
+
+	private Duration setTemporaryTimeout(long time, TimeUnit unit) {
+		Duration previousTimeout = DriverTimeoutManager.getImplicitWait(webDriver,
+				Duration.ofSeconds(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS));
+		setTimeout(time, unit);
+		return previousTimeout;
+	}
+
+	private void restoreTimeout(Duration timeout) {
+		if (webDriver == null || timeout == null)
+			return;
+		try {
+			DriverTimeoutManager.setImplicitWait(webDriver, timeout);
+		}catch(NoSuchSessionException e) {
+			Helper.page.printStackTrace(e);
+		}
+	}
 	
 	private void setTimeout(long time, TimeUnit unit) {
 		if(webDriver == null ) return;
 		try {
-			webDriver.manage().timeouts().implicitlyWait(Duration.ofNanos(unit.toNanos(time)));
+			DriverTimeoutManager.setImplicitWait(webDriver, Duration.ofNanos(unit.toNanos(time)));
 		}catch(NoSuchSessionException e) {
 			Helper.page.printStackTrace(e);
 		}
