@@ -14,6 +14,7 @@ import java.util.Deque;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.logging.log4j.LogManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
@@ -38,6 +39,7 @@ public class ImpEnhancedWebElementReliabilityTest {
 		TestObject.currentTestId.set(TEST_ID);
 		TestObject.testInfo.put(TEST_ID, new TestObject().withTestId(TEST_ID));
 		TestObject.testInfo.put(TestObject.DEFAULT_TEST, new TestObject().withTestId(TestObject.DEFAULT_TEST));
+		TestObject.getTestInfo().log = LogManager.getLogger(TEST_ID);
 		Config.putValue("global.timeoutSeconds", "1", false);
 		Config.putValue("global.timeout.implicit.Seconds", "1", false);
 		AbstractDriverJunit.setWebDriver(null);
