@@ -92,6 +92,13 @@
 				<version>2.15.0</version>
 			</dependency>
 
+			<!-- SikuliX 2.0.5 brings the vulnerable Jython 2.7.2 dependency. -->
+			<dependency>
+				<groupId>org.python</groupId>
+				<artifactId>jython-slim</artifactId>
+				<version>2.7.4</version>
+			</dependency>
+
 			<!-- Tess4J/PDFBox currently resolve Bouncy Castle 1.83. -->
 			<dependency>
 				<groupId>org.bouncycastle</groupId>
