@@ -46,11 +46,13 @@ jobs:
           PY
 
       - name: Run Core unit tests with coverage
-        run: >-
-          mvn -B -f automation/pom.xml clean
-          org.jacoco:jacoco-maven-plugin:0.8.12:prepare-agent
-          test
-          org.jacoco:jacoco-maven-plugin:0.8.12:report
+        shell: bash
+        run: |
+          mvn -B -f automation/pom.xml clean \
+            org.jacoco:jacoco-maven-plugin:0.8.12:prepare-agent \
+            test \
+            org.jacoco:jacoco-maven-plugin:0.8.12:report \
+            2>&1 | tee core-unit-tests-maven.log
 
       - name: Verify Core unit tests were discovered
         shell: bash
@@ -69,7 +71,7 @@ jobs:
             exit 1
           fi
 
-      - name: Upload Core unit-test reports
+      - name: Upload Core unit-test reports and diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -77,6 +79,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
           path: |
+            core-unit-tests-maven.log
             automation/target/surefire-reports/**
             automation/target/site/jacoco/**
             automation/target/jacoco.exec
