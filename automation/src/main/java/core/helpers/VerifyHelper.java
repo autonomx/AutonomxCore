@@ -31,9 +31,11 @@ public class VerifyHelper {
 	 */
 	public boolean isPresent(EnhancedBy element) {
 		EnhancedWebElement expectedElement = Element.findElements(element);
-		expectedElement.scrollToView();
-		boolean isPresent = expectedElement.isExist();
-		return isPresent;
+		// Native Appium has no web viewport to scroll. Avoid the extra DOM/timeout
+		// precheck and go directly to the fast existence check.
+		if (!Helper.mobile.isMobile())
+			expectedElement.scrollToView();
+		return expectedElement.isExist();
 	}
 
 	/**
