@@ -18,7 +18,6 @@ import org.apache.logging.log4j.LogManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -70,41 +69,42 @@ public class ImpEnhancedWebElementReliabilityTest {
 	}
 
 	@Test
-	public void clickThrowsAfterRetryBudgetIsExhausted() {
+	public void clickReturnsNormallyAfterRetryBudgetIsExhausted() {
 		ElementBehavior alwaysStale = new ElementBehavior(true, 10, 0, 0);
 		DriverHarness driver = new DriverHarness(List.of(List.of(alwaysStale.element)));
 		ImpEnhancedWebElement subject = subject(driver.driver, target());
 
-		WebDriverException failure = expectWebDriverException(subject::click);
+		subject.click();
 
 		assertEquals(alwaysStale.clicks.get(), 3, "click should use its complete three-attempt retry budget");
-		assertTrue(failure.getMessage().contains("click failed"));
+		assertEquals(driver.findCalls.get(), 3,
+				"each failed click attempt should invalidate the cached element before the next logical helper retry");
 	}
 
 	@Test
-	public void clearRequeriesDomAfterStaleElementAndSucceeds() {
-		ElementBehavior stale = new ElementBehavior(true, 0, 0, 1, 0);
-		ElementBehavior fresh = new ElementBehavior(true, 0, 0, 0, 0);
-		DriverHarness driver = new DriverHarness(List.of(List.of(stale.element), List.of(fresh.element)));
+	public void clearUsesOneNativeAttemptWhenItSucceeds() {
+		ElementBehavior clearable = new ElementBehavior(true, 0, 0, 0, 0);
+		DriverHarness driver = new DriverHarness(List.of(List.of(clearable.element)));
 		ImpEnhancedWebElement subject = subject(driver.driver, target());
 
 		subject.clear();
 
-		assertEquals(stale.clears.get(), 1);
-		assertEquals(fresh.clears.get(), 1);
-		assertEquals(driver.findCalls.get(), 2, "stale clear should invalidate the cached element and re-query the DOM");
+		assertEquals(clearable.clears.get(), 1, "native clear should remain a single attempt");
 	}
 
 	@Test
-	public void clearThrowsAfterRetryBudgetIsExhausted() {
-		ElementBehavior alwaysStale = new ElementBehavior(true, 0, 0, 10, 0);
-		DriverHarness driver = new DriverHarness(List.of(List.of(alwaysStale.element)));
+	public void clearReturnsNormallyAfterSingleNativeFailure() {
+		ElementBehavior stale = new ElementBehavior(true, 0, 0, 10, 0);
+		ElementBehavior replacement = new ElementBehavior(true, 0, 0, 0, 0);
+		DriverHarness driver = new DriverHarness(List.of(List.of(stale.element), List.of(replacement.element)));
 		ImpEnhancedWebElement subject = subject(driver.driver, target());
 
-		WebDriverException failure = expectWebDriverException(subject::clear);
+		subject.clear();
 
-		assertEquals(alwaysStale.clears.get(), 3, "clear should use the same three-attempt stale-element retry budget");
-		assertTrue(failure.getMessage().contains("clear failed"));
+		assertEquals(stale.clears.get(), 1,
+				"clear should make one tolerant native attempt so FormHelper.clearField can proceed to its fallback");
+		assertEquals(replacement.clears.get(), 0, "the primitive clear operation should not add its own retry cycle");
+		assertEquals(driver.findCalls.get(), 1);
 	}
 
 	@Test
@@ -122,15 +122,16 @@ public class ImpEnhancedWebElementReliabilityTest {
 	}
 
 	@Test
-	public void sendKeysThrowsAfterRetryBudgetIsExhausted() {
+	public void sendKeysReturnsNormallyAfterRetryBudgetIsExhausted() {
 		ElementBehavior alwaysStale = new ElementBehavior(true, 0, 10, 0);
 		DriverHarness driver = new DriverHarness(List.of(List.of(alwaysStale.element)));
 		ImpEnhancedWebElement subject = subject(driver.driver, target());
 
-		WebDriverException failure = expectWebDriverException(() -> subject.sendKeys("hello"));
+		subject.sendKeys("hello");
 
 		assertEquals(alwaysStale.sendKeys.get(), 3, "sendKeys should use its complete three-attempt retry budget");
-		assertTrue(failure.getMessage().contains("send keys failed"));
+		assertEquals(driver.findCalls.get(), 3,
+				"failed sendKeys attempts should re-query without turning the tolerant primitive into a hard failure");
 	}
 
 	@Test
@@ -269,15 +270,6 @@ public class ImpEnhancedWebElementReliabilityTest {
 
 	private static ImpEnhancedWebElement subject(WebDriver driver, EnhancedBy target) {
 		return new ImpEnhancedWebElement(null, 0, driver, target);
-	}
-
-	private static WebDriverException expectWebDriverException(Runnable action) {
-		try {
-			action.run();
-		} catch (WebDriverException expected) {
-			return expected;
-		}
-		throw new AssertionError("Expected WebDriverException after retry exhaustion");
 	}
 
 	private static final class TestWaitHelper extends WaitHelper {
