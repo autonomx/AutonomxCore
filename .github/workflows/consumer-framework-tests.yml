@@ -31,8 +31,7 @@ jobs:
           distribution: temurin
           java-version: '17'
           cache: maven
-          cache-dependency-path: |
-            core/automation/pom.xml
+          cache-dependency-path: core/automation/pom.xml
 
       - name: Record Core artifact coordinates and pristine POM
         id: core
@@ -48,7 +47,7 @@ jobs:
 
           cp core/automation/pom.xml "$RUNNER_TEMP/core-pristine.pom"
 
-          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          mapfile -t CORE_COORDS < <(python3 - <<'PY'
           import os
           import xml.etree.ElementTree as ET
           from pathlib import Path
@@ -64,15 +63,25 @@ jobs:
           if not all((group_id, artifact_id, base_version)):
               raise SystemExit("Unable to read Core Maven coordinates from automation/pom.xml")
 
-          print(f"group_id={group_id}")
-          print(f"source_artifact_id={artifact_id}")
-          print(f"base_version={base_version}")
+          print(group_id)
+          print(artifact_id)
+          print(base_version)
           PY
+          )
 
+          GROUP_ID="${CORE_COORDS[0]}"
+          SOURCE_ARTIFACT_ID="${CORE_COORDS[1]}"
+          BASE_VERSION="${CORE_COORDS[2]}"
           SHORT_SHA="${CORE_SHA:0:12}"
-          CI_VERSION="${{ steps.core.outputs.base_version }}-ci-${SHORT_SHA}"
-          echo "core_sha=$CORE_SHA" >> "$GITHUB_OUTPUT"
-          echo "ci_version=$CI_VERSION" >> "$GITHUB_OUTPUT"
+          CI_VERSION="${BASE_VERSION}-ci-${SHORT_SHA}"
+
+          {
+            echo "group_id=$GROUP_ID"
+            echo "source_artifact_id=$SOURCE_ARTIFACT_ID"
+            echo "base_version=$BASE_VERSION"
+            echo "core_sha=$CORE_SHA"
+            echo "ci_version=$CI_VERSION"
+          } >> "$GITHUB_OUTPUT"
 
           echo "Core SHA: $CORE_SHA"
           echo "Consumer Maven coordinate: io.autonomx:autonomx-core:$CI_VERSION"
@@ -209,8 +218,7 @@ jobs:
           tree.write(pom, encoding="UTF-8", xml_declaration=True)
           PY
 
-          CONSUMER_SHA="$(git -C consumer rev-parse HEAD)"
-          echo "Autonomx consumer SHA: $CONSUMER_SHA"
+          echo "Autonomx consumer SHA: $(git -C consumer rev-parse HEAD)"
           echo "Pinned Core version: $CORE_CI_VERSION"
 
       - name: Verify exact Core dependency resolution
