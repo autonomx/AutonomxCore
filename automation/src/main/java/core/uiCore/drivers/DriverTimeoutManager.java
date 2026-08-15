@@ -16,6 +16,12 @@ public final class DriverTimeoutManager {
 
 	private static final Map<WebDriver, Duration> IMPLICIT_WAITS = Collections.synchronizedMap(new WeakHashMap<>());
 
+	// restores recorded by deferRestore, applied lazily by flushPendingRestore
+	private static final Map<WebDriver, Duration> PENDING_RESTORES = Collections.synchronizedMap(new WeakHashMap<>());
+
+	// nesting depth of temporary-timeout blocks per driver
+	private static final Map<WebDriver, Integer> TEMPORARY_DEPTH = Collections.synchronizedMap(new WeakHashMap<>());
+
 	private DriverTimeoutManager() {
 	}
 
@@ -61,7 +67,64 @@ public final class DriverTimeoutManager {
 			IMPLICIT_WAITS.put(driver, timeout);
 	}
 
+	/**
+	 * The implicit wait the driver should return to once temporary overrides are
+	 * restored: the deferred restore when one is pending, otherwise the tracked
+	 * value.
+	 */
+	public static Duration getDesiredImplicitWait(WebDriver driver, Duration fallback) {
+		if (driver == null)
+			return fallback;
+		Duration pending = PENDING_RESTORES.get(driver);
+		if (pending != null)
+			return pending;
+		return getImplicitWait(driver, fallback);
+	}
+
+	/**
+	 * Enters a temporary-timeout block: clears any pending restore (the temporary
+	 * value is now the desired driver state) and applies the override. Each call
+	 * must be balanced by deferRestore.
+	 */
+	public static void enterTemporaryTimeout(WebDriver driver, Duration timeout) {
+		if (driver == null || timeout == null)
+			return;
+		PENDING_RESTORES.remove(driver);
+		TEMPORARY_DEPTH.merge(driver, 1, Integer::sum);
+		setImplicitWait(driver, timeout);
+	}
+
+	/**
+	 * Records the restore without sending a WebDriver command. It is applied by
+	 * flushPendingRestore before the next find that relies on the ambient
+	 * implicit wait, so back-to-back temporary overrides cost no remote commands.
+	 */
+	public static void deferRestore(WebDriver driver, Duration timeout) {
+		if (driver == null)
+			return;
+		TEMPORARY_DEPTH.merge(driver, -1, (a, b) -> Math.max(0, a + b));
+		if (timeout != null)
+			PENDING_RESTORES.put(driver, timeout);
+	}
+
+	/**
+	 * Applies a deferred restore, unless a temporary-timeout block is still open.
+	 * Call before operations that depend on the ambient implicit wait.
+	 */
+	public static void flushPendingRestore(WebDriver driver) {
+		if (driver == null)
+			return;
+		Integer depth = TEMPORARY_DEPTH.get(driver);
+		if (depth != null && depth > 0)
+			return;
+		Duration pending = PENDING_RESTORES.remove(driver);
+		if (pending != null)
+			setImplicitWait(driver, pending);
+	}
+
 	static void clearTrackedTimeoutsForTests() {
 		IMPLICIT_WAITS.clear();
+		PENDING_RESTORES.clear();
+		TEMPORARY_DEPTH.clear();
 	}
 }

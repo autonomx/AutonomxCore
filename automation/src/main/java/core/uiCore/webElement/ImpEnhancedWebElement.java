@@ -552,6 +552,8 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		Duration previousTimeout = null;
 		if (this.parent.elementObject.size() > 1)
 			previousTimeout = setTemporaryTimeout(1, TimeUnit.MILLISECONDS);
+		else
+			DriverTimeoutManager.flushPendingRestore(webDriver);
 		try {
 			for (ElementObject elementObject : this.parent.elementObject) {
 				this.by = elementObject.by;
@@ -580,6 +582,8 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		Duration previousTimeout = null;
 		if (this.element.elementObject.size() > 1)
 			previousTimeout = setTemporaryTimeout(1, TimeUnit.MILLISECONDS);
+		else
+			DriverTimeoutManager.flushPendingRestore(webDriver);
 		try {
 			for (ElementObject elementObject : this.element.elementObject) {
 				this.by = elementObject.by;
@@ -615,6 +619,8 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		Duration previousTimeout = null;
 		if (this.element.elementObject.size() > 1)
 			previousTimeout = setTemporaryTimeout(1, TimeUnit.MILLISECONDS);
+		else
+			DriverTimeoutManager.flushPendingRestore(webDriver);
 		try {
 			for (ElementObject elementObject : this.element.elementObject) {
 				try {
@@ -691,29 +697,24 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	}
 
 	private Duration setTemporaryTimeout(long time, TimeUnit unit) {
-		Duration previousTimeout = DriverTimeoutManager.getImplicitWait(webDriver,
+		Duration previousTimeout = DriverTimeoutManager.getDesiredImplicitWait(webDriver,
 				Duration.ofSeconds(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS));
-		setTimeout(time, unit);
+		if (webDriver == null)
+			return previousTimeout;
+		try {
+			DriverTimeoutManager.enterTemporaryTimeout(webDriver, Duration.ofNanos(unit.toNanos(time)));
+		} catch (NoSuchSessionException e) {
+			Helper.page.printStackTrace(e);
+		}
 		return previousTimeout;
 	}
 
 	private void restoreTimeout(Duration timeout) {
 		if (webDriver == null || timeout == null)
 			return;
-		try {
-			DriverTimeoutManager.setImplicitWait(webDriver, timeout);
-		}catch(NoSuchSessionException e) {
-			Helper.page.printStackTrace(e);
-		}
-	}
-
-	private void setTimeout(long time, TimeUnit unit) {
-		if(webDriver == null ) return;
-		try {
-			DriverTimeoutManager.setImplicitWait(webDriver, Duration.ofNanos(unit.toNanos(time)));
-		}catch(NoSuchSessionException e) {
-			Helper.page.printStackTrace(e);
-		}
+		// deferred: applied before the next find that relies on the ambient
+		// implicit wait, so back-to-back temporary overrides send no commands
+		DriverTimeoutManager.deferRestore(webDriver, timeout);
 	}
 
 	@Override
