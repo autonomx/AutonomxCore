@@ -1,8 +1,11 @@
 package core.uiCore.driverProperties.capabilities;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -73,7 +76,14 @@ public class AndroidCapability {
 
 	public String getAppPath() {
 		String appRootPath = Helper.getFullPath(Config.getValue(APP_DIR_PATH));
+		String appName = Config.getValue(APP_NAME);
 		File appPath = new File(appRootPath, Config.getValue(APP_NAME));
+		String app = Config.getValue("android.capabilties.app");
+
+		// no local app configured: use the app capability directly (eg. a cloud
+		// device farm app id such as lt://APP...)
+		if (appName.isEmpty() && !app.isEmpty())
+			return app;
 
 		if (!appPath.exists())
 			TestLog.ConsoleLogWarn("app not found at: " + appPath.getAbsolutePath());
@@ -129,6 +139,9 @@ public class AndroidCapability {
 		// get all keys from config
 		Map<String, Object> propertiesMap = TestObject.getTestInfo().config;
 
+		boolean isCloud = Config.getBooleanValue("appium.isCloud");
+		Map<String, Object> cloudOptions = new HashMap<String, Object>();
+
 		// load config/properties values from entries with "android.capabilties." prefix
 		for (Entry<String, Object> entry : propertiesMap.entrySet()) {
 			boolean isAndroidCapability = entry.getKey().toString().startsWith(CAPABILITIES_PREFIX);
@@ -137,10 +150,116 @@ public class AndroidCapability {
 				String key = fullKey.substring(fullKey.lastIndexOf(".") + 1).trim();
 				String value = entry.getValue().toString().trim();
 
-				capabilities.setCapability(key, value);
+				// on cloud device farms, non-standard capabilities (deviceName, video,
+				// isRealMobile ...) go into the vendor options bucket, which the farm
+				// interprets the same way as the pre-w3c flat capabilities
+				if (isCloud && !isW3cStandardCapability(key) && !key.contains(":")) {
+					if (key.equals("deviceName"))
+						putCloudDeviceCapability(cloudOptions, value);
+					else
+						cloudOptions.put(key, value);
+				} else
+					capabilities.setCapability(toW3cCapabilityName(key), value);
 			}
 		}
+
+		if (isCloud && !cloudOptions.isEmpty()) {
+			setCloudJobNames(cloudOptions);
+			capabilities.setCapability(CLOUD_OPTIONS_CAPABILITY, cloudOptions);
+		}
+
 		return capabilities;
+	}
+
+	// vendor options capability for cloud device farm runs (lambdatest)
+	public static final String CLOUD_OPTIONS_CAPABILITY = "lt:options";
+
+	// one build name per run, so the farm groups all of the run's sessions
+	private static String cloudBuildName = "";
+
+	/**
+	 * names the device farm job: the session is named after the running test and
+	 * grouped under one build per run (app name + environment + run start time,
+	 * eg. "SmartHome-E2E-Android qa 2026-08-15 14:40"). property-file values for
+	 * name/build take precedence when declared
+	 *
+	 * @param cloudOptions vendor options map under construction
+	 */
+	public static synchronized void setCloudJobNames(Map<String, Object> cloudOptions) {
+		cloudOptions.putIfAbsent("name", TestObject.getTestInfo().testName);
+
+		if (cloudBuildName.isEmpty()) {
+			Object appName = cloudOptions.get("appname");
+			String prefix = (appName == null || appName.toString().isEmpty()) ? "automation" : appName.toString();
+
+			String environment = getEnvironmentName();
+			if (!environment.isEmpty())
+				prefix += " " + environment;
+
+			cloudBuildName = prefix + " " + new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date());
+		}
+		cloudOptions.putIfAbsent("build", cloudBuildName);
+	}
+
+	/**
+	 * environment name derived from the config root path, eg.
+	 * ./resources/properties/qa -> qa
+	 *
+	 * @return environment name, or empty if config.root is not set
+	 */
+	private static String getEnvironmentName() {
+		String configRoot = Config.getValue("config.root").replace("\"", "").trim();
+		if (configRoot.isEmpty())
+			return "";
+		String[] segments = configRoot.replace("\\", "/").split("/");
+		return segments[segments.length - 1].trim();
+	}
+
+	/**
+	 * translates the legacy combined device list format "name:version, name:version"
+	 * into w3c cloud options: deviceName + platformVersion from the first entry.
+	 * the w3c matcher has no working fallback-list equivalent (deviceNames arrays
+	 * are accepted but ignored, and the farm then allocates an arbitrary device;
+	 * platformVersion arrays are rejected), so remaining entries are dropped
+	 *
+	 * @param cloudOptions vendor options map under construction
+	 * @param value        deviceName value from the property file
+	 */
+	public static void putCloudDeviceCapability(Map<String, Object> cloudOptions, String value) {
+		String[] entries = value.split(",");
+		String[] parts = entries[0].trim().split(":");
+		cloudOptions.put("deviceName", parts[0].trim());
+		if (parts.length > 1)
+			cloudOptions.put("platformVersion", parts[1].trim());
+
+		if (entries.length > 1)
+			TestLog.ConsoleLog("device fallback list is not supported on w3c cloud sessions. using: "
+					+ entries[0].trim());
+	}
+
+	/**
+	 * @param key capability name from the property file
+	 * @return true if the capability is part of the w3c webdriver standard
+	 */
+	public static boolean isW3cStandardCapability(String key) {
+		return key.equals("platformName") || key.equals("browserName") || key.equals("browserVersion")
+				|| key.equals("acceptInsecureCerts") || key.equals("pageLoadStrategy") || key.equals("proxy")
+				|| key.equals("setWindowRect") || key.equals("timeouts") || key.equals("strictFileInteractability")
+				|| key.equals("unhandledPromptBehavior");
+	}
+
+	/**
+	 * selenium 4 w3c sessions reject capabilities that are neither standard nor
+	 * vendor prefixed. capability names from property files are declared without a
+	 * prefix, so non-standard names are prefixed with appium:
+	 *
+	 * @param key capability name from the property file
+	 * @return w3c-valid capability name
+	 */
+	public static String toW3cCapabilityName(String key) {
+		if (isW3cStandardCapability(key) || key.contains(":"))
+			return key;
+		return "appium:" + key;
 	}
 
 	/**
@@ -279,6 +398,11 @@ public class AndroidCapability {
 	 * @param deviceName
 	 */
 	public synchronized void setPort(String deviceName) {
+
+		// cloud device farms manage their own appium ports, and no local device is
+		// registered with the device manager
+		if (Config.getBooleanValue("appium.isCloud"))
+			return;
 
 		// if device port is already set
 		if (DeviceManager.devices.get(deviceName) != null && (DeviceManager.devices.get(deviceName).devicePort != -1))

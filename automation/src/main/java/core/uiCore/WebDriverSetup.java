@@ -64,11 +64,20 @@ public class WebDriverSetup {
 			// if external server is used
 			AppiumDriverLocalService service;
 			if (Config.getBooleanValue("appium.useExternalAppiumServer")) {
-				int port = Config.getIntValue("appium.externalPort");
-				TestLog.ConsoleLog("Connecting to external appium server at port " + port);
+				String iosServer = Config.getValue("appium.externalServer");
 				TestLog.ConsoleLog("driver capabilities " + driverObject.capabilities);
 
-				driver = new IOSDriver(new URL("http://localhost:" + port + "/wd/hub"), driverObject.capabilities);
+				// full hub url (eg. cloud provider); otherwise a local server on externalPort
+				if (iosServer.startsWith("http")) {
+					TestLog.ConsoleLog(
+							"Connecting to external appium server: " + iosServer.replaceAll("//.*@", "//"));
+					driver = new IOSDriver(new URL(iosServer), driverObject.capabilities);
+				} else {
+					int port = Config.getIntValue("appium.externalPort");
+					TestLog.ConsoleLog("Connecting to external appium server at port " + port);
+					driver = new IOSDriver(new URL("http://localhost:" + port + "/wd/hub"),
+							driverObject.capabilities);
+				}
 			} else {
 				TestLog.ConsoleLog("Connecting to internal appium server");
 				service = AppiumServer.startAppiumServer(driverObject);
@@ -81,10 +90,18 @@ public class WebDriverSetup {
 
 			// if external server is used
 			if (Config.getBooleanValue("appium.useExternalAppiumServer")) {
-				int port = Config.getIntValue("appium.externalPort");
 				String server = Config.getValue("appium.externalServer");
-				driver = new AndroidDriver(new URL("http://" + server + ":" + port + "/wd/hub"),
-						driverObject.capabilities);
+
+				// full hub url (eg. cloud provider); otherwise a host + externalPort pair
+				if (server.startsWith("http")) {
+					TestLog.ConsoleLog(
+							"Connecting to external appium server: " + server.replaceAll("//.*@", "//"));
+					driver = new AndroidDriver(new URL(server), driverObject.capabilities);
+				} else {
+					int port = Config.getIntValue("appium.externalPort");
+					driver = new AndroidDriver(new URL("http://" + server + ":" + port + "/wd/hub"),
+							driverObject.capabilities);
+				}
 			}
 			// if microsoft app center
 			else if (PropertiesReader.isUsingCloud()) {

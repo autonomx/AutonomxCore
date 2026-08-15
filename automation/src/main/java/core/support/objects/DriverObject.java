@@ -94,6 +94,15 @@ public class DriverObject {
 				driverList.remove(driver);
 				AbstractDriver.setWebDriver(null); // set driver to null so starts fresh with next run
 			} catch (Exception e) {
+				// close() fails on native mobile sessions; the remote session must
+				// still quit or the cloud device hangs until the farm idle timeout
+				try {
+					driver.quit();
+				} catch (Exception quitError) {
+					TestLog.ConsoleLogDebug("driver.quit failed: " + quitError.getMessage());
+				}
+				driverList.remove(driver);
+				AbstractDriver.setWebDriver(null);
 				TestLog.ConsoleLogDebug(e.getMessage());
 			}
 		}

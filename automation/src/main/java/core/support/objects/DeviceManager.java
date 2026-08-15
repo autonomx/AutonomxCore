@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import core.helpers.Helper;
+import core.support.configReader.Config;
 import core.support.objects.DeviceObject.DeviceType;
 
 /**
@@ -63,7 +64,13 @@ public class DeviceManager {
 		// if its not a mobile test, return
 		if (!Helper.mobile.isMobile())
 			return;
-		
+
+		// cloud device farms manage their own devices, none are registered locally.
+		// this runs inside testng listeners (onTestFailure), where a thrown
+		// assertion kills the worker thread and hangs the run
+		if (Config.getBooleanValue("appium.isCloud"))
+			return;
+
 		// multiple winapp devices not supported
 		if(Helper.mobile.isWinApp())
 			return;

@@ -122,10 +122,12 @@ public class PropertiesReader {
 	}
 
 	/**
-	 * @return root path
+	 * @return root path. only depends on the packaged (testData) layout — must not
+	 *         read config values, as it is called during Config class
+	 *         initialization, before any properties are loaded
 	 */
 	public static String getLocalResourcePath() {
-		if (isUsingCloud()) {
+		if (isPackagedLayout()) {
 			return Helper.getFullPath(LOCAL_RESOURCE_CLOUD_PATH);
 		} else {
 			return Helper.getFullPath(LOCAL_RESOURCE_PATH);
@@ -133,14 +135,30 @@ public class PropertiesReader {
 	}
 
 	/**
-	 * @return is using app center
+	 * @return resources are packaged under test-classes/testData (eg. app center /
+	 *         ci container runs)
+	 */
+	public static boolean isPackagedLayout() {
+		File f = new File(Helper.getFullPath(LOCAL_RESOURCE_CLOUD_PATH));
+		return f.exists() && f.isDirectory();
+	}
+
+	/**
+	 * @return is using app center or a cloud device farm
 	 */
 	public static boolean isUsingCloud() {
 
-		File f = new File(Helper.getFullPath(LOCAL_RESOURCE_CLOUD_PATH));
-		if (f.exists() && f.isDirectory()) {
+		if (isPackagedLayout()) {
 			return true;
 		}
+
+		// cloud device farms (eg. lambdatest, browserstack) manage devices remotely,
+		// so local device/simulator selection must be skipped. safe to read config
+		// here: all callers run after config bootstrap is complete
+		boolean isCloud = Config.getBooleanValue("appium.isCloud");
+		if (isCloud)
+			return true;
+
 		return false;
 	}
 

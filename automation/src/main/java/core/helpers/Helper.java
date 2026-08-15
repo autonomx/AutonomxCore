@@ -27,6 +27,7 @@ import core.helpers.emailHelper.EmailObject;
 import core.helpers.emailHelper.EmailSendHelper;
 import core.helpers.excelHelper.ExcelHelper;
 import core.helpers.excelHelper.ExcelObject;
+import core.support.configReader.Config;
 import core.support.objects.KeyValue;
 import core.uiCore.webElement.EnhancedBy;
 import core.uiCore.webElement.EnhancedWebElement;
@@ -51,6 +52,11 @@ public class Helper {
 	public static ReportPortalHelper reportPortal = new ReportPortalHelper();
 
 	public static core.helpers.legacy.Helper webdriver = new core.helpers.legacy.Helper();
+
+	// Config
+	public static String getConfigValue(String key) {
+		return Config.getValue(key);
+	}
 	
 	// ExcelHelper
 	/**
@@ -381,6 +387,26 @@ public class Helper {
 	}
 
 	/**
+	 * clicks the element at the specified index after waiting for the target to load
+	 *
+	 * @param target
+	 * @param index
+	 */
+	public static void clickAndWait(EnhancedBy target, int index) {
+		click.clickAndWait(target, index);
+	}
+
+	/**
+	 * waits for and clicks the element at the specified index
+	 *
+	 * @param target
+	 * @param index
+	 */
+	public static void waitAndClick(EnhancedBy target, int index) {
+		click.waitAndClick(target, index);
+	}
+
+	/**
 	 * clicks target And waits for seconds
 	 * 
 	 * @param target
@@ -705,6 +731,25 @@ public class Helper {
 	 */
 	public static void clearAndSetField(EnhancedBy field, int index, CharSequence... value) {
 		form.clearAndSetField(field, index, value);
+	}
+
+	/**
+	 * clears a field at index zero
+	 *
+	 * @param field
+	 */
+	public static void clearField(EnhancedBy field) {
+		form.clearField(field, 0);
+	}
+
+	/**
+	 * clears a field at the specified index
+	 *
+	 * @param field
+	 * @param index
+	 */
+	public static void clearField(EnhancedBy field, int index) {
+		form.clearField(field, index);
 	}
 
 	/**

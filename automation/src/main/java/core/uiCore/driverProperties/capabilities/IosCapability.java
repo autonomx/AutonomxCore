@@ -3,6 +3,7 @@ package core.uiCore.driverProperties.capabilities;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -66,7 +67,14 @@ public class IosCapability {
 
 	public String getAppPath() {
 		String appRootPath = Helper.getFullPath(Config.getValue(APP_DIR_PATH));
+		String appName = Config.getValue(APP_NAME);
 		File appPath = new File(appRootPath, Config.getValue(APP_NAME));
+		String app = Config.getValue("ios.capabilties.app");
+
+		// no local app configured: use the app capability directly (eg. a cloud
+		// device farm app id such as lt://APP...)
+		if (appName.isEmpty() && !app.isEmpty())
+			return app;
 
 		if (!appPath.exists())
 			TestLog.ConsoleLogWarn("app not found at: " + appPath.getAbsolutePath());
@@ -118,6 +126,9 @@ public class IosCapability {
 		// get all keys from config
 		Map<String, Object> propertiesMap = TestObject.getTestInfo().config;
 
+		boolean isCloud = Config.getBooleanValue("appium.isCloud");
+		Map<String, Object> cloudOptions = new HashMap<String, Object>();
+
 		// load config/properties values from entries with "ios.capabilities." prefix
 		for (Entry<String, Object> entry : propertiesMap.entrySet()) {
 			boolean isAndroidCapability = entry.getKey().toString().startsWith(CAPABILITIES_PREFIX);
@@ -126,9 +137,24 @@ public class IosCapability {
 				String key = fullKey.substring(fullKey.lastIndexOf(".") + 1).trim();
 				String value = entry.getValue().toString().trim();
 
-				capabilities.setCapability(key, value);
+				// on cloud device farms, non-standard capabilities (deviceName, video,
+				// isRealMobile ...) go into the vendor options bucket, which the farm
+				// interprets the same way as the pre-w3c flat capabilities
+				if (isCloud && !AndroidCapability.isW3cStandardCapability(key) && !key.contains(":")) {
+					if (key.equals("deviceName"))
+						AndroidCapability.putCloudDeviceCapability(cloudOptions, value);
+					else
+						cloudOptions.put(key, value);
+				} else
+					capabilities.setCapability(AndroidCapability.toW3cCapabilityName(key), value);
 			}
 		}
+
+		if (isCloud && !cloudOptions.isEmpty()) {
+			AndroidCapability.setCloudJobNames(cloudOptions);
+			capabilities.setCapability(AndroidCapability.CLOUD_OPTIONS_CAPABILITY, cloudOptions);
+		}
+
 		return capabilities;
 	}
 
@@ -249,6 +275,11 @@ public class IosCapability {
 	 * @param deviceName
 	 */
 	public synchronized void setPort(String deviceName) {
+
+		// cloud device farms manage their own appium ports, and no local device is
+		// registered with the device manager
+		if (Config.getBooleanValue("appium.isCloud"))
+			return;
 
 		// if device port is already set
 		if (DeviceManager.devices.get(deviceName) != null && (DeviceManager.devices.get(deviceName).devicePort != -1))

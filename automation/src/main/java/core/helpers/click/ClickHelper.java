@@ -288,6 +288,26 @@ public class ClickHelper extends Element {
 	}
 
 	/**
+	 * clicks the element at the specified index after waiting for the target to load
+	 *
+	 * @param target
+	 * @param index
+	 */
+	public void clickAndWait(EnhancedBy target, int index) {
+		clickAndWait(target, index, 0);
+	}
+
+	/**
+	 * waits for and clicks the element at the specified index
+	 *
+	 * @param target
+	 * @param index
+	 */
+	public void waitAndClick(EnhancedBy target, int index) {
+		clickAndWait(target, index);
+	}
+
+	/**
 	 * clicks target And waits for seconds
 	 * 
 	 * @param target

@@ -313,7 +313,9 @@ public class AbstractDriverTestNG implements ITest {
 	     return uri;
 	}
 
-	@AfterMethod
+	// alwaysRun: the driver must quit even when an earlier configuration method
+	// failed, otherwise cloud device sessions hang until the farm idle timeout
+	@AfterMethod(alwaysRun = true)
 	public void shutdown(ITestResult iTestResult) {
 
 		letRetryKnowAboutReports();

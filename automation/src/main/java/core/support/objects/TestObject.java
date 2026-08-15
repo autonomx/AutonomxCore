@@ -90,6 +90,7 @@ public class TestObject {
 	public String app = StringUtils.EMPTY;
 	public testType type;
 	public String testId = StringUtils.EMPTY;
+	public String sessionId = StringUtils.EMPTY;
 	public String testName = StringUtils.EMPTY;
 	public String className = StringUtils.EMPTY;
 	public String deviceName = StringUtils.EMPTY; // device name for mobile devices
@@ -137,6 +138,7 @@ public class TestObject {
 	public Map<String, String> languageMap = new ConcurrentHashMap<String, String>();
 	public Map<String, ServiceObject> apiMap = new ConcurrentHashMap<String, ServiceObject>();// api keywords
 	public Map<String, Object> config = new ConcurrentHashMap<String, Object>();
+	public Map<String, Object> data = new ConcurrentHashMap<String, Object>();
 	public Multimap<String, String> configKeys = ArrayListMultimap.create();
 	public List<TestObject> testObjects = new ArrayList<TestObject>(); // parent test objects keeps track of child test objects
 
