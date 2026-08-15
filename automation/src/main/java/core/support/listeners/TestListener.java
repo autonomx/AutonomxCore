@@ -25,6 +25,7 @@ import org.testng.xml.XmlInclude;
 import org.testng.xml.XmlSuite;
 import org.testng.xml.XmlSuite.ParallelMode;
 import org.testng.xml.XmlTest;
+import org.openqa.selenium.WebDriver;
 
 import com.google.common.base.Joiner;
 
@@ -65,7 +66,9 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 	@Override
 	public void onStart(ITestContext iTestContext) {
 		isTestNG = true;
-		iTestContext.setAttribute("WebDriver", AbstractDriverTestNG.getWebDriver());
+		WebDriver webDriver = AbstractDriverTestNG.getWebDriver();
+		if (webDriver != null)
+			iTestContext.setAttribute("WebDriver", webDriver);
 
 		// print out suite console logs if batch logging is enabled
 		String testId = getSuiteName(iTestContext.getSuite().getName().toString()) + TestObject.BEFORE_SUITE_PREFIX;
@@ -247,7 +250,7 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		// if service test, tracks test logs
 		ApiTestDriver.trackBatchTestLogs();
 		
-		TestLog.Then("Test failed");
+		TestLog.failTest("Test failed", iTestResult.getThrowable());
 
 		// print out console logs to console if batch logging is enabled
 		TestLog.printBatchLogsToConsole();
@@ -270,12 +273,23 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 		TestObject.getTestInfo().isFirstRun = true;
 		TestObject.getTestInfo().withIsTestPass(false);
 
-		// check to see if status equals no tests, then fail tests instead of skip. eg. failure at dataprovider skips test run
-	    int status = getTestngStatus(iTestResult);
-	    if(status == ExitCode.HAS_NO_TEST)
-	    	iTestResult.setStatus(ITestResult.FAILURE);
-	    else
-	    	iTestResult.setStatus(ITestResult.SKIP);
+		// A failed configuration can cause TestNG to report the test method as
+		// skipped. Preserve intentional SkipException skips, but expose real setup
+		// failures as failures in both TestNG and the Extent report.
+		Throwable throwable = iTestResult.getThrowable();
+		boolean intentionalSkip = throwable instanceof SkipException;
+		if (throwable != null && !intentionalSkip) {
+			iTestResult.setStatus(ITestResult.FAILURE);
+			TestLog.failTest("Test skipped after failure", throwable);
+		} else {
+			// check to see if status equals no tests, then fail tests instead of skip.
+			// eg. failure at dataprovider skips test run
+			int status = getTestngStatus(iTestResult);
+			if(status == ExitCode.HAS_NO_TEST)
+				iTestResult.setStatus(ITestResult.FAILURE);
+			else
+				iTestResult.setStatus(ITestResult.SKIP);
+		}
 
 		// mobile device is now available again
 		DeviceManager.setDeviceAvailability(true);
@@ -376,6 +390,8 @@ public class TestListener implements ITestListener, IClassListener, ISuiteListen
 
 	@Override
 	public void onConfigurationFailure(ITestResult itr) {
+		String configurationName = itr.getMethod() == null ? "configuration" : itr.getMethod().getMethodName();
+		TestLog.failTest("Configuration failed: " + configurationName, itr.getThrowable());
 	}
 
 	@Override

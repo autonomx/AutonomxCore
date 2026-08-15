@@ -183,9 +183,36 @@ public class TestLog {
 	 */
 	public synchronized static void Then(String value, Object... args) {
 		logConsoleMessage(Level.INFO, "Then " + formatMessage(value, args));
-
+		
 		setTestStep(gherkins.Then, value, args);
 		playAudio(gherkins.Then.name() + " " + formatMessage(value, args));
+	}
+
+	/**
+	 * marks the active report step and scenario as failed without creating a new
+	 * passing Gherkin node. Failure callbacks use this method after a test step
+	 * has already been created and should not turn the failure message itself into
+	 * a green report step.
+	 *
+	 * @param value     failure message
+	 * @param throwable failure cause, when available
+	 */
+	public synchronized static void failTest(String value, Throwable throwable) {
+		String message = "Then " + formatMessage(value);
+		logConsoleMessage(Level.ERROR, message);
+
+		String reportMessage = message;
+		if (throwable != null && throwable.getMessage() != null && !throwable.getMessage().isEmpty()) {
+			reportMessage += ": " + throwable.getMessage();
+		}
+
+		ExtentTest testStep = getTestStep();
+		if (testStep != null)
+			testStep.fail(reportMessage);
+
+		ExtentTest testScenario = getTestScenario();
+		if (testScenario != null)
+			testScenario.fail(reportMessage);
 	}
 
 	/**

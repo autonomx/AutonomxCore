@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.autonomx</groupId>
 	<artifactId>autonomxCore</artifactId>
-	<version>1.1.23</version>
+	<version>1.1.29</version>
 	<packaging>jar</packaging>
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
@@ -118,6 +118,12 @@
 			<groupId>com.aventstack</groupId>
 			<artifactId>extentreports</artifactId>
 			<version>5.1.2</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.projectlombok</groupId>
+					<artifactId>lombok</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 
@@ -406,16 +412,17 @@
 			<version>1.10.17</version>
 		</dependency>
 
-       <!-- java script engine used in data logic validation. version 23 is java 16 - do not upgrade -->
+		<!-- JavaScript engine used in data logic validation. Keep the engine and script engine versions aligned. -->
 		<dependency>
 			<groupId>org.graalvm.js</groupId>
-			<artifactId>js</artifactId>
-			<version>22.3.5</version>
+			<artifactId>js-community</artifactId>
+			<version>24.1.0</version>
+			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>org.graalvm.js</groupId>
 			<artifactId>js-scriptengine</artifactId>
-			<version>22.3.5</version>
+			<version>24.1.0</version>
 		</dependency>
 		
 		<!-- https://mvnrepository.com/artifact/com.google.googlejavaformat/google-java-format -->
