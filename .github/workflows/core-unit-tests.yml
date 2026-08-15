@@ -64,12 +64,25 @@ jobs:
             exit 1
           fi
 
-          TEST_REPORT_COUNT=$(find "$REPORT_DIR" -maxdepth 1 -type f -name 'TEST-*.xml' | wc -l | tr -d ' ')
-          echo "Surefire XML reports: $TEST_REPORT_COUNT"
-          if [ "$TEST_REPORT_COUNT" -lt 7 ]; then
-            echo "Expected at least 7 Core unit-test report files; tests may not have been discovered."
-            exit 1
-          fi
+          python3 - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          report_dir = Path("automation/target/surefire-reports")
+          reports = sorted(report_dir.glob("TEST-*.xml"))
+          if not reports:
+              raise SystemExit("No Surefire TEST-*.xml reports were created.")
+
+          executed = 0
+          for report in reports:
+              root = ET.parse(report).getroot()
+              executed += int(root.attrib.get("tests", "0"))
+
+          print(f"Surefire XML reports: {len(reports)}")
+          print(f"Executed Core unit tests: {executed}")
+          if executed < 35:
+              raise SystemExit(f"Expected at least 35 Core unit tests, found {executed}.")
+          PY
 
       - name: Upload Core unit-test reports and diagnostics
         if: always()
