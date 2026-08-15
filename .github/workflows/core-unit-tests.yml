@@ -80,8 +80,8 @@ jobs:
 
           print(f"Surefire XML reports: {len(reports)}")
           print(f"Executed Core unit tests: {executed}")
-          if executed < 58:
-              raise SystemExit(f"Expected at least 58 Core unit tests, found {executed}.")
+          if executed < 66:
+              raise SystemExit(f"Expected at least 66 Core unit tests, found {executed}.")
           PY
 
       - name: Upload Core unit-test reports and diagnostics
