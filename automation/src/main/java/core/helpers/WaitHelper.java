@@ -538,7 +538,9 @@ public class WaitHelper {
 		
 		waitAllJSRequests(time); // if is web and flag is enabled
 		
-		Wait<WebDriver> wait = new WebDriverWait(AbstractDriver.getWebDriver(), Duration.ofSeconds(time)).pollingEvery(Duration.ofMillis(5))
+		WebDriver driver = AbstractDriver.getWebDriver();
+		Wait<WebDriver> wait = new WebDriverWait(driver, Duration.ofSeconds(time))
+				.pollingEvery(Duration.ofMillis(WaitPollingPolicy.getPollingMilliseconds(driver)))
 				.withTimeout(Duration.ofSeconds(time)).ignoring(Exception.class);
 		try {
 			wait.until(condition);
@@ -558,7 +560,9 @@ public class WaitHelper {
 		
 		waitAllJSRequests(time); // if is web and flag is enabled
 		
-		Wait<WebDriver> wait = new WebDriverWait(AbstractDriver.getWebDriver(), Duration.ofSeconds(time)).pollingEvery(Duration.ofMillis(5))
+		WebDriver driver = AbstractDriver.getWebDriver();
+		Wait<WebDriver> wait = new WebDriverWait(driver, Duration.ofSeconds(time))
+				.pollingEvery(Duration.ofMillis(WaitPollingPolicy.getPollingMilliseconds(driver)))
 				.withTimeout(Duration.ofSeconds(time)).ignoring(Exception.class);
 		try {
 			wait.until(condition2);
