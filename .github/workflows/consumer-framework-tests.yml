@@ -311,6 +311,7 @@ jobs:
           exit 1
 
       - name: Run Autonomx framework functional tests against exact Core artifact
+        timeout-minutes: 15
         working-directory: consumer/automation
         shell: bash
         env:
