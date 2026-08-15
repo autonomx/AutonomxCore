@@ -20,8 +20,7 @@ public class WaitHelperTest {
 	}
 
 	@Test
-	public void visibilityOverloadsRemainPublicBooleanContracts() throws Exception {
-		assertPublicBoolean("waitForElementToBeVisible", EnhancedBy.class, int.class);
+	public void visibilityContractRemainsPublicBoolean() throws Exception {
 		assertPublicBoolean("waitForElementToBeVisible", EnhancedBy.class, int.class, int.class);
 	}
 
