@@ -18,6 +18,7 @@ import org.apache.logging.log4j.LogManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -69,6 +70,44 @@ public class ImpEnhancedWebElementReliabilityTest {
 	}
 
 	@Test
+	public void clickThrowsAfterRetryBudgetIsExhausted() {
+		ElementBehavior alwaysStale = new ElementBehavior(true, 10, 0, 0);
+		DriverHarness driver = new DriverHarness(List.of(List.of(alwaysStale.element)));
+		ImpEnhancedWebElement subject = subject(driver.driver, target());
+
+		WebDriverException failure = expectWebDriverException(subject::click);
+
+		assertEquals(alwaysStale.clicks.get(), 3, "click should use its complete three-attempt retry budget");
+		assertTrue(failure.getMessage().contains("click failed"));
+	}
+
+	@Test
+	public void clearRequeriesDomAfterStaleElementAndSucceeds() {
+		ElementBehavior stale = new ElementBehavior(true, 0, 0, 1, 0);
+		ElementBehavior fresh = new ElementBehavior(true, 0, 0, 0, 0);
+		DriverHarness driver = new DriverHarness(List.of(List.of(stale.element), List.of(fresh.element)));
+		ImpEnhancedWebElement subject = subject(driver.driver, target());
+
+		subject.clear();
+
+		assertEquals(stale.clears.get(), 1);
+		assertEquals(fresh.clears.get(), 1);
+		assertEquals(driver.findCalls.get(), 2, "stale clear should invalidate the cached element and re-query the DOM");
+	}
+
+	@Test
+	public void clearThrowsAfterRetryBudgetIsExhausted() {
+		ElementBehavior alwaysStale = new ElementBehavior(true, 0, 0, 10, 0);
+		DriverHarness driver = new DriverHarness(List.of(List.of(alwaysStale.element)));
+		ImpEnhancedWebElement subject = subject(driver.driver, target());
+
+		WebDriverException failure = expectWebDriverException(subject::clear);
+
+		assertEquals(alwaysStale.clears.get(), 3, "clear should use the same three-attempt stale-element retry budget");
+		assertTrue(failure.getMessage().contains("clear failed"));
+	}
+
+	@Test
 	public void sendKeysRequeriesDomAfterStaleElementAndSucceeds() {
 		ElementBehavior stale = new ElementBehavior(true, 0, 1, 0);
 		ElementBehavior fresh = new ElementBehavior(true, 0, 0, 0);
@@ -80,6 +119,18 @@ public class ImpEnhancedWebElementReliabilityTest {
 		assertEquals(stale.sendKeys.get(), 1);
 		assertEquals(fresh.sendKeys.get(), 1);
 		assertEquals(driver.findCalls.get(), 2, "stale sendKeys should invalidate the cached element and re-query the DOM");
+	}
+
+	@Test
+	public void sendKeysThrowsAfterRetryBudgetIsExhausted() {
+		ElementBehavior alwaysStale = new ElementBehavior(true, 0, 10, 0);
+		DriverHarness driver = new DriverHarness(List.of(List.of(alwaysStale.element)));
+		ImpEnhancedWebElement subject = subject(driver.driver, target());
+
+		WebDriverException failure = expectWebDriverException(() -> subject.sendKeys("hello"));
+
+		assertEquals(alwaysStale.sendKeys.get(), 3, "sendKeys should use its complete three-attempt retry budget");
+		assertTrue(failure.getMessage().contains("send keys failed"));
 	}
 
 	@Test
@@ -95,6 +146,16 @@ public class ImpEnhancedWebElementReliabilityTest {
 		assertEquals(driver.findCalls.get(), 2, "failed display lookup should clear the cached stale element");
 		assertEquals(stale.displayChecks.get(), 1);
 		assertEquals(fresh.displayChecks.get(), 1);
+	}
+
+	@Test
+	public void isElementFoundReturnsTrueWhenElementExistsInDom() {
+		ElementBehavior present = new ElementBehavior(true, 0, 0, 0);
+		DriverHarness driver = new DriverHarness(List.of(List.of(present.element)));
+		ImpEnhancedWebElement subject = subject(driver.driver, target());
+
+		assertTrue(subject.isElementFound(0));
+		assertEquals(driver.findCalls.get(), 1);
 	}
 
 	@Test
@@ -165,12 +226,58 @@ public class ImpEnhancedWebElementReliabilityTest {
 		assertFalse(wait.waitForElementToLoad(target(), 0, 2));
 	}
 
+	@Test
+	public void waitForElementToBeVisibleRetriesUntilRequiredVisibleCountArrives() {
+		ElementBehavior firstVisible = new ElementBehavior(true, 0, 0, 0);
+		ElementBehavior hidden = new ElementBehavior(false, 0, 0, 0);
+		ElementBehavior secondVisible = new ElementBehavior(true, 0, 0, 0);
+		DriverHarness driver = new DriverHarness(
+				List.of(List.of(firstVisible.element, hidden.element), List.of(firstVisible.element, secondVisible.element)));
+		AbstractDriverJunit.setWebDriver(driver.driver);
+		WaitHelper wait = new TestWaitHelper();
+
+		boolean visible = wait.waitForElementToBeVisible(target(), 1, 2);
+
+		assertTrue(visible);
+		assertTrue(driver.findCalls.get() >= 2,
+				"visibility wait should continue polling until the requested number of displayed elements exists");
+	}
+
+	@Test
+	public void waitForElementToBeVisibleReturnsFalseWhenRequiredVisibleCountNeverArrives() {
+		ElementBehavior visible = new ElementBehavior(true, 0, 0, 0);
+		ElementBehavior hidden = new ElementBehavior(false, 0, 0, 0);
+		DriverHarness driver = new DriverHarness(List.of(List.of(visible.element, hidden.element)));
+		AbstractDriverJunit.setWebDriver(driver.driver);
+		WaitHelper wait = new TestWaitHelper();
+
+		assertFalse(wait.waitForElementToBeVisible(target(), 0, 2));
+	}
+
+	@Test
+	public void removalWaitOverloadForwardsCallerTimeouts() {
+		RecordingWaitHelper wait = new RecordingWaitHelper();
+
+		assertTrue(wait.waitForElementToBeRemoved(target(), 7, 2));
+		assertEquals(wait.loadTimeoutSeconds, 2, "pre-load timeout should be caller controlled");
+		assertEquals(wait.removalTimeoutSeconds, 7, "removal timeout should be caller controlled");
+	}
+
 	private static EnhancedBy target() {
 		return new EnhancedBy().byId("target", "target");
 	}
 
 	private static ImpEnhancedWebElement subject(WebDriver driver, EnhancedBy target) {
 		return new ImpEnhancedWebElement(null, 0, driver, target);
+	}
+
+	private static WebDriverException expectWebDriverException(Runnable action) {
+		try {
+			action.run();
+		} catch (WebDriverException expected) {
+			return expected;
+		}
+		throw new AssertionError("Expected WebDriverException after retry exhaustion");
 	}
 
 	private static final class TestWaitHelper extends WaitHelper {
@@ -180,21 +287,46 @@ public class ImpEnhancedWebElementReliabilityTest {
 		}
 	}
 
+	private static final class RecordingWaitHelper extends WaitHelper {
+		private int loadTimeoutSeconds = -1;
+		private int removalTimeoutSeconds = -1;
+
+		@Override
+		public boolean waitForElementToLoad(EnhancedBy target, int time) {
+			loadTimeoutSeconds = time;
+			return true;
+		}
+
+		@Override
+		public boolean waitForElementToBeRemoved(EnhancedBy target, int time) {
+			removalTimeoutSeconds = time;
+			return true;
+		}
+	}
+
 	private static final class ElementBehavior implements InvocationHandler {
 		private final boolean displayed;
 		private final int staleClickFailures;
 		private final int staleSendKeyFailures;
+		private final int staleClearFailures;
 		private final int staleDisplayFailures;
 		private final AtomicInteger clicks = new AtomicInteger();
 		private final AtomicInteger sendKeys = new AtomicInteger();
+		private final AtomicInteger clears = new AtomicInteger();
 		private final AtomicInteger displayChecks = new AtomicInteger();
 		private final WebElement element;
 
 		private ElementBehavior(boolean displayed, int staleClickFailures, int staleSendKeyFailures,
 				int staleDisplayFailures) {
+			this(displayed, staleClickFailures, staleSendKeyFailures, 0, staleDisplayFailures);
+		}
+
+		private ElementBehavior(boolean displayed, int staleClickFailures, int staleSendKeyFailures,
+				int staleClearFailures, int staleDisplayFailures) {
 			this.displayed = displayed;
 			this.staleClickFailures = staleClickFailures;
 			this.staleSendKeyFailures = staleSendKeyFailures;
+			this.staleClearFailures = staleClearFailures;
 			this.staleDisplayFailures = staleDisplayFailures;
 			this.element = proxy(WebElement.class, this);
 		}
@@ -210,13 +342,16 @@ public class ImpEnhancedWebElementReliabilityTest {
 				if (sendKeys.incrementAndGet() <= staleSendKeyFailures)
 					throw new StaleElementReferenceException("stale sendKeys");
 				return null;
+			case "clear":
+				if (clears.incrementAndGet() <= staleClearFailures)
+					throw new StaleElementReferenceException("stale clear");
+				return null;
 			case "isDisplayed":
 				if (displayChecks.incrementAndGet() <= staleDisplayFailures)
 					throw new StaleElementReferenceException("stale display");
 				return displayed;
 			case "isEnabled":
 				return true;
-			case "clear":
 			case "submit":
 				return null;
 			case "toString":
