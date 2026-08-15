@@ -23,20 +23,32 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import core.helpers.WaitHelper;
+import core.support.configReader.Config;
 import core.support.listeners.TestListener;
+import core.support.objects.TestObject;
 import core.uiCore.drivers.AbstractDriverJunit;
 
 public class ImpEnhancedWebElementReliabilityTest {
 
+	private static final String TEST_ID = "ImpEnhancedWebElementReliabilityTest-unit";
+
 	@BeforeMethod
-	public void clearGlobalDriver() {
+	public void setUpUnitContext() {
 		TestListener.isTestNG = false;
+		TestObject.currentTestId.set(TEST_ID);
+		TestObject.testInfo.put(TEST_ID, new TestObject().withTestId(TEST_ID));
+		TestObject.testInfo.put(TestObject.DEFAULT_TEST, new TestObject().withTestId(TestObject.DEFAULT_TEST));
+		Config.putValue("global.timeoutSeconds", "1", false);
+		Config.putValue("global.timeout.implicit.Seconds", "1", false);
 		AbstractDriverJunit.setWebDriver(null);
 	}
 
 	@AfterMethod
-	public void restoreGlobalDriver() {
+	public void cleanUpUnitContext() {
 		AbstractDriverJunit.setWebDriver(null);
+		TestObject.currentTestId.remove();
+		TestObject.currentTestName.remove();
+		TestObject.testInfo.clear();
 		TestListener.isTestNG = false;
 	}
 
