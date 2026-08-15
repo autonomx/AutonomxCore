@@ -117,12 +117,14 @@ jobs:
           echo "Built Core artifact: $CORE_JAR"
           sha256sum "$CORE_JAR"
 
-      - name: Install exact Core artifact under consumer coordinates
+      - name: Install exact Core artifact into isolated consumer repository
         shell: bash
         env:
           CORE_CI_VERSION: ${{ steps.core.outputs.ci_version }}
         run: |
           set -euo pipefail
+          CONSUMER_M2="$RUNNER_TEMP/consumer-m2"
+          mkdir -p "$CONSUMER_M2"
 
           python3 - <<'PY'
           import os
@@ -149,6 +151,7 @@ jobs:
 
           CORE_JAR="core/automation/target/${{ steps.core.outputs.source_artifact_id }}-${{ steps.core.outputs.base_version }}.jar"
           mvn -B --no-transfer-progress \
+            -Dmaven.repo.local="$CONSUMER_M2" \
             org.apache.maven.plugins:maven-install-plugin:3.1.4:install-file \
             -Dfile="$CORE_JAR" \
             -DpomFile="$RUNNER_TEMP/core-consumer.pom"
@@ -218,16 +221,45 @@ jobs:
           tree.write(pom, encoding="UTF-8", xml_declaration=True)
           PY
 
+          # Core currently declares JitPack because parts of its dependency graph
+          # are not yet available from Maven Central. Maven repository declarations
+          # on a dependency POM are not a reliable consumer repository contract, so
+          # make the same repository explicit for this fresh consumer-resolution gate.
+          cat > "$RUNNER_TEMP/consumer-settings.xml" <<'EOF'
+          <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
+            <profiles>
+              <profile>
+                <id>autonomx-consumer-ci-repositories</id>
+                <repositories>
+                  <repository>
+                    <id>jitpack.io</id>
+                    <url>https://jitpack.io</url>
+                  </repository>
+                </repositories>
+              </profile>
+            </profiles>
+            <activeProfiles>
+              <activeProfile>autonomx-consumer-ci-repositories</activeProfile>
+            </activeProfiles>
+          </settings>
+          EOF
+
           echo "Autonomx consumer SHA: $(git -C consumer rev-parse HEAD)"
           echo "Pinned Core version: $CORE_CI_VERSION"
 
-      - name: Verify exact Core dependency resolution
+      - name: Verify exact Core dependency resolution from a fresh repository
         shell: bash
         env:
           CORE_CI_VERSION: ${{ steps.core.outputs.ci_version }}
         run: |
           set -euo pipefail
-          mvn -B --no-transfer-progress -f consumer/automation/pom.xml \
+          CONSUMER_M2="$RUNNER_TEMP/consumer-m2"
+          mvn -B --no-transfer-progress \
+            -s "$RUNNER_TEMP/consumer-settings.xml" \
+            -Dmaven.repo.local="$CONSUMER_M2" \
+            -f consumer/automation/pom.xml \
             dependency:tree -Dincludes=io.autonomx:autonomx-core \
             2>&1 | tee "$RUNNER_TEMP/core-dependency-tree.log"
 
@@ -251,6 +283,8 @@ jobs:
             echo "consumer_repository=autonomx/Autonomx"
             echo "consumer_ref=master"
             echo "consumer_sha=$(git -C consumer rev-parse HEAD)"
+            echo "consumer_maven_repo=$RUNNER_TEMP/consumer-m2"
+            echo "consumer_jitpack_enabled=true"
           } | tee "$RUNNER_TEMP/core-consumer-provenance.txt"
 
       - name: Start local framework test webapp
@@ -284,7 +318,10 @@ jobs:
         run: |
           set -euo pipefail
           echo "Testing io.autonomx:autonomx-core:${CORE_CI_VERSION} from Core SHA ${{ steps.core.outputs.core_sha }}"
-          mvn -B --no-transfer-progress clean compile test \
+          mvn -B --no-transfer-progress \
+            -s "$RUNNER_TEMP/consumer-settings.xml" \
+            -Dmaven.repo.local="$RUNNER_TEMP/consumer-m2" \
+            clean compile test \
             -DsuiteXmlFile=suites/frameworkFunctionalTests.xml \
             2>&1 | tee ../../consumer-framework-tests-maven.log
 
