@@ -54,7 +54,7 @@ import core.support.configReader.PropertiesReader;
 
 
 @SupportedAnnotationTypes(value = { "core.support.annotation.Module"})
-@SupportedSourceVersion(SourceVersion.RELEASE_6)
+@SupportedSourceVersion(SourceVersion.RELEASE_17)
 @AutoService(javax.annotation.processing.Processor.class)
 public class MainGenerator extends AbstractProcessor {
 
