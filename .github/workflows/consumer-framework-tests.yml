@@ -221,10 +221,8 @@ jobs:
           tree.write(pom, encoding="UTF-8", xml_declaration=True)
           PY
 
-          # Core currently declares JitPack because parts of its dependency graph
-          # are not yet available from Maven Central. Maven repository declarations
-          # on a dependency POM are not a reliable consumer repository contract, so
-          # make the same repository explicit for this fresh consumer-resolution gate.
+          # Current Core dependencies require JitPack during fresh consumer resolution.
+          # Keep that repository explicit here so the gate models Core's current dependency contract.
           cat > "$RUNNER_TEMP/consumer-settings.xml" <<'EOF'
           <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
