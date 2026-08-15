@@ -14,9 +14,9 @@ permissions:
 
 jobs:
   consumer-framework-tests:
-    name: Autonomx framework suite (exact Core artifact)
+    name: Autonomx framework suite (TestNG 7.3 diagnostic control)
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 20
 
     steps:
       - name: Checkout exact Core revision
@@ -163,7 +163,7 @@ jobs:
           ref: master
           path: consumer
 
-      - name: Point Autonomx at exact Core artifact
+      - name: Point Autonomx at exact Core artifact and pin TestNG 7.3 control
         shell: bash
         env:
           CORE_CI_VERSION: ${{ steps.core.outputs.ci_version }}
@@ -218,11 +218,18 @@ jobs:
                   ET.SubElement(exclusion, tag("groupId")).text = group_id
                   ET.SubElement(exclusion, tag("artifactId")).text = artifact_id
 
+          dependencies = root.find(tag("dependencies"))
+          if dependencies is None:
+              raise SystemExit("Consumer POM has no dependencies section")
+
+          control = ET.SubElement(dependencies, tag("dependency"))
+          ET.SubElement(control, tag("groupId")).text = "org.testng"
+          ET.SubElement(control, tag("artifactId")).text = "testng"
+          ET.SubElement(control, tag("version")).text = "7.3.0"
+
           tree.write(pom, encoding="UTF-8", xml_declaration=True)
           PY
 
-          # Current Core dependencies require JitPack during fresh consumer resolution.
-          # Keep that repository explicit here so the gate models Core's current dependency contract.
           cat > "$RUNNER_TEMP/consumer-settings.xml" <<'EOF'
           <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -246,8 +253,9 @@ jobs:
 
           echo "Autonomx consumer SHA: $(git -C consumer rev-parse HEAD)"
           echo "Pinned Core version: $CORE_CI_VERSION"
+          echo "Diagnostic TestNG override: 7.3.0"
 
-      - name: Verify exact Core dependency resolution from a fresh repository
+      - name: Verify exact Core and TestNG control dependency resolution
         shell: bash
         env:
           CORE_CI_VERSION: ${{ steps.core.outputs.ci_version }}
@@ -258,13 +266,11 @@ jobs:
             -s "$RUNNER_TEMP/consumer-settings.xml" \
             -Dmaven.repo.local="$CONSUMER_M2" \
             -f consumer/automation/pom.xml \
-            dependency:tree -Dincludes=io.autonomx:autonomx-core \
+            dependency:tree -Dincludes=io.autonomx:autonomx-core,org.testng:testng \
             2>&1 | tee "$RUNNER_TEMP/core-dependency-tree.log"
 
-          if ! grep -F "io.autonomx:autonomx-core:jar:${CORE_CI_VERSION}" "$RUNNER_TEMP/core-dependency-tree.log"; then
-            echo "Autonomx did not resolve the SHA-derived Core artifact version."
-            exit 1
-          fi
+          grep -F "io.autonomx:autonomx-core:jar:${CORE_CI_VERSION}" "$RUNNER_TEMP/core-dependency-tree.log"
+          grep -F "org.testng:testng:jar:7.3.0" "$RUNNER_TEMP/core-dependency-tree.log"
 
       - name: Write build provenance
         shell: bash
@@ -283,6 +289,7 @@ jobs:
             echo "consumer_sha=$(git -C consumer rev-parse HEAD)"
             echo "consumer_maven_repo=$RUNNER_TEMP/consumer-m2"
             echo "consumer_jitpack_enabled=true"
+            echo "diagnostic_testng_override=7.3.0"
           } | tee "$RUNNER_TEMP/core-consumer-provenance.txt"
 
       - name: Start local framework test webapp
@@ -308,15 +315,15 @@ jobs:
           cat "$RUNNER_TEMP/framework-test-webapp.log" || true
           exit 1
 
-      - name: Run Autonomx framework functional tests against exact Core artifact
-        timeout-minutes: 15
+      - name: Run framework suite with TestNG 7.3 diagnostic control
+        timeout-minutes: 6
         working-directory: consumer/automation
         shell: bash
         env:
           CORE_CI_VERSION: ${{ steps.core.outputs.ci_version }}
         run: |
           set -euo pipefail
-          echo "Testing io.autonomx:autonomx-core:${CORE_CI_VERSION} from Core SHA ${{ steps.core.outputs.core_sha }}"
+          echo "A/B control: exact Core ${CORE_CI_VERSION}, forcing TestNG 7.3.0"
           mvn -B --no-transfer-progress \
             -s "$RUNNER_TEMP/consumer-settings.xml" \
             -Dmaven.repo.local="$RUNNER_TEMP/consumer-m2" \
@@ -324,11 +331,11 @@ jobs:
             -DsuiteXmlFile=suites/frameworkFunctionalTests.xml \
             2>&1 | tee ../../consumer-framework-tests-maven.log
 
-      - name: Upload consumer functional-test reports and provenance
+      - name: Upload consumer diagnostic reports and provenance
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: exact-core-consumer-framework-test-reports
+          name: exact-core-testng-7.3-diagnostic-control
           if-no-files-found: warn
           retention-days: 14
           path: |
