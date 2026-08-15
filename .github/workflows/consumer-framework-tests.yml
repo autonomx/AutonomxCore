@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   consumer-framework-tests:
-    name: Autonomx framework suite (TestNG 7.3 diagnostic control)
+    name: Autonomx framework suite (REST Assured 5.3 diagnostic control)
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -163,7 +163,7 @@ jobs:
           ref: master
           path: consumer
 
-      - name: Point Autonomx at exact Core artifact and pin TestNG 7.3 control
+      - name: Point Autonomx at exact Core artifact and pin REST Assured 5.3 control
         shell: bash
         env:
           CORE_CI_VERSION: ${{ steps.core.outputs.ci_version }}
@@ -223,9 +223,9 @@ jobs:
               raise SystemExit("Consumer POM has no dependencies section")
 
           control = ET.SubElement(dependencies, tag("dependency"))
-          ET.SubElement(control, tag("groupId")).text = "org.testng"
-          ET.SubElement(control, tag("artifactId")).text = "testng"
-          ET.SubElement(control, tag("version")).text = "7.3.0"
+          ET.SubElement(control, tag("groupId")).text = "io.rest-assured"
+          ET.SubElement(control, tag("artifactId")).text = "rest-assured"
+          ET.SubElement(control, tag("version")).text = "5.3.2"
 
           tree.write(pom, encoding="UTF-8", xml_declaration=True)
           PY
@@ -253,9 +253,9 @@ jobs:
 
           echo "Autonomx consumer SHA: $(git -C consumer rev-parse HEAD)"
           echo "Pinned Core version: $CORE_CI_VERSION"
-          echo "Diagnostic TestNG override: 7.3.0"
+          echo "Diagnostic REST Assured override: 5.3.2"
 
-      - name: Verify exact Core and TestNG control dependency resolution
+      - name: Verify exact Core and REST Assured control dependency resolution
         shell: bash
         env:
           CORE_CI_VERSION: ${{ steps.core.outputs.ci_version }}
@@ -266,11 +266,12 @@ jobs:
             -s "$RUNNER_TEMP/consumer-settings.xml" \
             -Dmaven.repo.local="$CONSUMER_M2" \
             -f consumer/automation/pom.xml \
-            dependency:tree -Dincludes=io.autonomx:autonomx-core,org.testng:testng \
+            dependency:tree -Dincludes=io.autonomx:autonomx-core,io.rest-assured:rest-assured,org.testng:testng \
             2>&1 | tee "$RUNNER_TEMP/core-dependency-tree.log"
 
           grep -F "io.autonomx:autonomx-core:jar:${CORE_CI_VERSION}" "$RUNNER_TEMP/core-dependency-tree.log"
-          grep -F "org.testng:testng:jar:7.3.0" "$RUNNER_TEMP/core-dependency-tree.log"
+          grep -F "io.rest-assured:rest-assured:jar:5.3.2" "$RUNNER_TEMP/core-dependency-tree.log"
+          grep -F "org.testng:testng:jar:7.12.0" "$RUNNER_TEMP/core-dependency-tree.log"
 
       - name: Write build provenance
         shell: bash
@@ -289,7 +290,8 @@ jobs:
             echo "consumer_sha=$(git -C consumer rev-parse HEAD)"
             echo "consumer_maven_repo=$RUNNER_TEMP/consumer-m2"
             echo "consumer_jitpack_enabled=true"
-            echo "diagnostic_testng_override=7.3.0"
+            echo "diagnostic_rest_assured_override=5.3.2"
+            echo "diagnostic_testng_version=7.12.0"
           } | tee "$RUNNER_TEMP/core-consumer-provenance.txt"
 
       - name: Start local framework test webapp
@@ -315,7 +317,7 @@ jobs:
           cat "$RUNNER_TEMP/framework-test-webapp.log" || true
           exit 1
 
-      - name: Run framework suite with TestNG 7.3 diagnostic control
+      - name: Run framework suite with REST Assured 5.3 diagnostic control
         timeout-minutes: 6
         working-directory: consumer/automation
         shell: bash
@@ -323,7 +325,7 @@ jobs:
           CORE_CI_VERSION: ${{ steps.core.outputs.ci_version }}
         run: |
           set -euo pipefail
-          echo "A/B control: exact Core ${CORE_CI_VERSION}, forcing TestNG 7.3.0"
+          echo "A/B control: exact Core ${CORE_CI_VERSION}, TestNG 7.12.0, forcing REST Assured 5.3.2"
           mvn -B --no-transfer-progress \
             -s "$RUNNER_TEMP/consumer-settings.xml" \
             -Dmaven.repo.local="$RUNNER_TEMP/consumer-m2" \
@@ -335,7 +337,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: exact-core-testng-7.3-diagnostic-control
+          name: exact-core-rest-assured-5.3-diagnostic-control
           if-no-files-found: warn
           retention-days: 14
           path: |
