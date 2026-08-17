@@ -18,6 +18,82 @@ public class Element {
 	}
 
 	/**
+	 * Platform to which a locator applies. A locator created directly through
+	 * {@link Element} is shared by all platforms.
+	 */
+	public enum TargetPlatform {
+		ANY, ANDROID, IOS
+	}
+
+	/**
+	 * Platform-specific locator namespaces. For example:
+	 * <pre>
+	 * Element.android.byXpath("//android.widget.Button", "Submit");
+	 * Element.ios.byXpath("//XCUIElementTypeButton", "Submit");
+	 * Element.byXpath("//button", "Submit");
+	 * </pre>
+	 */
+	public static final class PlatformLocators {
+		private final TargetPlatform platform;
+
+		private PlatformLocators(TargetPlatform platform) {
+			this.platform = platform;
+		}
+
+		public EnhancedBy byCss(String element, String name) {
+			return new EnhancedBy(platform).byCss(element, name);
+		}
+
+		public EnhancedBy byId(String element, String name) {
+			return new EnhancedBy(platform).byId(element, name);
+		}
+
+		public EnhancedBy byName(String element, String name) {
+			return new EnhancedBy(platform).byName(element, name);
+		}
+
+		public EnhancedBy byXpath(String element, String name) {
+			return new EnhancedBy(platform).byXpath(element, name);
+		}
+
+		public EnhancedBy byTextXpath(String element, String name) {
+			String xpath = element.replace("content-desc", "text");
+			return new EnhancedBy(platform).byXpath(element, name).byXpath(xpath, name);
+		}
+
+		public EnhancedBy byXpathContentDesc(String element, String name) {
+			return new EnhancedBy(platform).byXpath("//*[@content-desc='" + element + "']", name);
+		}
+
+		public EnhancedBy byClass(String element, String name) {
+			return new EnhancedBy(platform).byClass(element, name);
+		}
+
+		public EnhancedBy byTagName(String element, String name) {
+			return new EnhancedBy(platform).byTagName(element, name);
+		}
+
+		public EnhancedBy byLinkText(String element, String name) {
+			return new EnhancedBy(platform).byLinkText(element, name);
+		}
+
+		public EnhancedBy byPartialLinkText(String element, String name) {
+			return new EnhancedBy(platform).byPartialLinkText(element, name);
+		}
+
+		public EnhancedBy byAccessibility(String element, String name) {
+			String xpath = "//*[@text='" + element + "']";
+			return new EnhancedBy(platform).byAccessibility(element, name).byXpath(xpath, name);
+		}
+	}
+
+	/** Locators used only when an Android driver is active. */
+	public static final PlatformLocators android = new PlatformLocators(TargetPlatform.ANDROID);
+
+	/** Locators used only when an iOS driver is active. */
+	public static final PlatformLocators ios = new PlatformLocators(TargetPlatform.IOS);
+
+	/**
 	 * finds list of elements
 	 * 
 	 * @param element

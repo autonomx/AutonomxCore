@@ -16,6 +16,7 @@ public class ElementObject {
 	public String name;
 	public String locator;
 	public Element.LocatorType locatorType;
+	public Element.TargetPlatform targetPlatform = Element.TargetPlatform.ANY;
 
 	/**
 	 * gets by value for elements

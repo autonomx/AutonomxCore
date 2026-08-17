@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
+import org.openqa.selenium.HasCapabilities;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchSessionException;
 import org.openqa.selenium.OutputType;
@@ -27,6 +28,8 @@ import core.uiCore.drivers.AbstractDriver;
 import core.uiCore.drivers.DriverTimeoutManager;
 import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import io.appium.java_client.TouchAction;
+import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.ios.IOSDriver;
 import io.appium.java_client.touch.offset.PointOption;
 
 @SuppressWarnings("deprecation")
@@ -557,6 +560,8 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 			DriverTimeoutManager.flushPendingRestore(webDriver);
 		try {
 			for (ElementObject elementObject : this.parent.elementObject) {
+				if (!isLocatorApplicable(elementObject))
+					continue;
 				this.by = elementObject.by;
 				this.locatorType = elementObject.locatorType;
 				try {
@@ -587,6 +592,8 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 			DriverTimeoutManager.flushPendingRestore(webDriver);
 		try {
 			for (ElementObject elementObject : this.element.elementObject) {
+				if (!isLocatorApplicable(elementObject))
+					continue;
 				this.by = elementObject.by;
 				this.locatorType = elementObject.locatorType;
 				try {
@@ -624,6 +631,8 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 			DriverTimeoutManager.flushPendingRestore(webDriver);
 		try {
 			for (ElementObject elementObject : this.element.elementObject) {
+				if (!isLocatorApplicable(elementObject))
+					continue;
 				try {
 					this.by = elementObject.by;
 					this.locatorType = elementObject.locatorType;
@@ -641,6 +650,31 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 		} finally {
 			if (previousTimeout != null)
 				restoreTimeout(previousTimeout);
+		}
+	}
+
+	private boolean isLocatorApplicable(ElementObject locatorObject) {
+		Element.TargetPlatform targetPlatform = locatorObject.targetPlatform;
+		if (targetPlatform == null || targetPlatform == Element.TargetPlatform.ANY)
+			return true;
+		if (webDriver == null)
+			return false;
+
+		if (targetPlatform == Element.TargetPlatform.ANDROID)
+			return webDriver instanceof AndroidDriver || hasPlatformName("android");
+		if (targetPlatform == Element.TargetPlatform.IOS)
+			return webDriver instanceof IOSDriver || hasPlatformName("ios");
+		return true;
+	}
+
+	private boolean hasPlatformName(String expectedPlatform) {
+		if (!(webDriver instanceof HasCapabilities))
+			return false;
+		try {
+			Object platformName = ((HasCapabilities) webDriver).getCapabilities().getCapability("platformName");
+			return platformName != null && expectedPlatform.equalsIgnoreCase(platformName.toString());
+		} catch (RuntimeException e) {
+			return false;
 		}
 	}
 
