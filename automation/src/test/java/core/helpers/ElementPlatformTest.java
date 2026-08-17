@@ -50,6 +50,24 @@ public class ElementPlatformTest {
 	}
 
 	@Test
+	public void platformScopesAllowMixedChains() {
+		EnhancedBy mixed = Element.android.byXpath("//android.widget.Button", "Submit")
+				.ios.byAccessibility("Submit")
+				.ios.byXpath("//XCUIElementTypeButton")
+				.any.byId("submit");
+
+		assertEquals(mixed.elementObject.get(0).targetPlatform, Element.TargetPlatform.ANDROID);
+		assertEquals(mixed.elementObject.get(1).targetPlatform, Element.TargetPlatform.IOS);
+		assertEquals(mixed.elementObject.get(2).targetPlatform, Element.TargetPlatform.IOS);
+		assertEquals(mixed.elementObject.get(3).targetPlatform, Element.TargetPlatform.ANY);
+
+		// a plain chained call keeps the chain's default platform
+		EnhancedBy androidDefault = Element.android.byXpath("//android.widget.Button", "Submit")
+				.byId("submit-android");
+		assertEquals(androidDefault.elementObject.get(1).targetPlatform, Element.TargetPlatform.ANDROID);
+	}
+
+	@Test
 	public void resolutionUsesSharedAndActivePlatformLocatorsOnly() {
 		DriverProbe androidDriver = new DriverProbe("android");
 
