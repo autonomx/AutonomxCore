@@ -25,6 +25,7 @@ import core.helpers.Helper;
 import core.support.logger.TestLog;
 import core.uiCore.drivers.AbstractDriver;
 import core.uiCore.drivers.DriverTimeoutManager;
+import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.touch.offset.PointOption;
 
@@ -698,7 +699,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 
 	private Duration setTemporaryTimeout(long time, TimeUnit unit) {
 		Duration previousTimeout = DriverTimeoutManager.getDesiredImplicitWait(webDriver,
-				Duration.ofSeconds(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS));
+				Duration.ofSeconds(CrossPlatformProperties.getGlobalTimeoutImplicitWait()));
 		if (webDriver == null)
 			return previousTimeout;
 		try {
@@ -712,9 +713,11 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	private void restoreTimeout(Duration timeout) {
 		if (webDriver == null || timeout == null)
 			return;
-		// deferred: applied before the next find that relies on the ambient
-		// implicit wait, so back-to-back temporary overrides send no commands
+		// Record the restore first so nested temporary scopes can collapse into
+		// one restore, then apply it when the outermost scope has closed. A
+		// temporary timeout must not leak past the operation that requested it.
 		DriverTimeoutManager.deferRestore(webDriver, timeout);
+		DriverTimeoutManager.flushPendingRestore(webDriver);
 	}
 
 	@Override
