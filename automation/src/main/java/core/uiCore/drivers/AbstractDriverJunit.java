@@ -240,9 +240,11 @@ public class AbstractDriverJunit {
 				Helper.killWindowsProcess("node.exe");
 				driver = new WebDriverSetup().getWebDriverByType(driverObject);
 
-				// set implicit Wait wait to be the minimum of our explicit wait
-				driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
-				driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(AbstractDriver.TIMEOUT_SECONDS));
+				// Explicit polling owns lookup timing. Appium sessions must not add an
+				// implicit wait to every native find command.
+				DriverTimeoutManager.configureImplicitWait(driver, Duration.ofSeconds(5));
+				if (!DriverTimeoutManager.isMobileDriver(driver))
+					driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(AbstractDriver.TIMEOUT_SECONDS));
 
 			} catch (Exception e) {
 				if (retry == 0) {

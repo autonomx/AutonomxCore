@@ -44,6 +44,8 @@ public class AndroidCapability {
 
 	public static String IS_HYBRID_APP = "appium.isHybridApp";
 	public static String CHROME_VERSION = "appium.chromeVersion";
+	/** Set true only when recovering a device with a broken UIAutomator2 install. */
+	public static String REINSTALL_UIAUTOMATOR2 = "appium.reinstallUiAutomator2";
 
 	private static final String CAPABILITIES_PREFIX = "android.capabilties.";
 
@@ -168,7 +170,33 @@ public class AndroidCapability {
 			capabilities.setCapability(CLOUD_OPTIONS_CAPABILITY, cloudOptions);
 		}
 
+		setPerformanceDefaults();
+
 		return capabilities;
+	}
+
+	/**
+	 * Defaults aimed at stable, already-installed local Appium environments. Every
+	 * value remains overridable through the normal android.capabilties.* config
+	 * namespace (or by passing a preconfigured DesiredCapabilities instance).
+	 * skipServerInstallation/skipDeviceInitialization are intentionally not
+	 * defaulted: a fresh device or emulator has no UIAutomator2 server yet, so
+	 * skipping installation would fail every session until manually recovered.
+	 */
+	private void setPerformanceDefaults() {
+		setDefaultCapability(capabilities, "appium:waitForIdleTimeout", 0);
+		setDefaultCapability(capabilities, "appium:disableWindowAnimation", true);
+		setDefaultCapability(capabilities, "appium:skipLogCapture", true);
+	}
+
+	/**
+	 * Sets a capability only when neither the prefixed nor the unprefixed name was
+	 * already supplied by config or a preconfigured capabilities instance.
+	 */
+	static void setDefaultCapability(DesiredCapabilities capabilities, String name, Object value) {
+		String unprefixedName = name.substring(name.indexOf(':') + 1);
+		if (capabilities.getCapability(name) == null && capabilities.getCapability(unprefixedName) == null)
+			capabilities.setCapability(name, value);
 	}
 
 	// vendor options capability for cloud device farm runs (lambdatest)
@@ -424,10 +452,13 @@ public class AndroidCapability {
 	}
 
 	/**
-	 * uninstalls the uiautomator2 server only runs the first time android test is
-	 * run a device or emulator must be connected
+	 * Uninstalls the UIAutomator2 server only when the recovery flag is enabled.
+	 * A device or emulator must be connected for the recovery operation.
 	 */
 	public static void uninstallUiAutomator2() {
+		if (!Config.getBooleanValue(REINSTALL_UIAUTOMATOR2))
+			return;
+
 		// runs the first time android test is run
 		if (!ANDROID_INIT) {
 			ANDROID_INIT = true;

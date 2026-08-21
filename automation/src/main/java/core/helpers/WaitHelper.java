@@ -111,6 +111,12 @@ public class WaitHelper {
 		if (!Helper.mobile_isMobile())
 			return;
 
+		// skip the app background/foreground cycle when the element is already there
+		if (Element.findElements(target).count() >= 1)
+			return;
+
+		// the method's contract is refresh-per-poll: content that only appears on
+		// app re-foreground (eg. sync on resume) needs the refresh repeated
 		ExpectedCondition<Boolean> condition = new ExpectedCondition<Boolean>() {
 			@Override
 			public Boolean apply(WebDriver driver) {
@@ -149,11 +155,13 @@ public class WaitHelper {
 		boolean isFound = false;
 		StopWatchHelper watch = StopWatchHelper.start();
 		long passedTimeInSeconds = 0;
+		double pollingIntervalSeconds = loopPollingIntervalSeconds();
 		do {
-			if(Helper.isDisplayed(element1) || Helper.isDisplayed(element2))
+			if(Helper.isDisplayed(element1) || Helper.isDisplayed(element2)) {
 				isFound = true;
-			else
-				Helper.waitForSeconds(0.1);
+			} else {
+				waitForSeconds(pollingIntervalSeconds);
+			}
 			
 			passedTimeInSeconds = watch.time(TimeUnit.SECONDS);	
 		}while (!isFound && passedTimeInSeconds < time);
@@ -200,11 +208,13 @@ public class WaitHelper {
 		boolean isFound = false;
 		StopWatchHelper watch = StopWatchHelper.start();
 		long passedTimeInSeconds = 0;
+		double pollingIntervalSeconds = loopPollingIntervalSeconds();
 		do {
-			if(Helper.isDisplayed(element1) || Helper.isDisplayed(element2) || Helper.isDisplayed(element3))
+			if(Helper.isDisplayed(element1) || Helper.isDisplayed(element2) || Helper.isDisplayed(element3)) {
 				isFound = true;
-			else
-				Helper.waitForSeconds(0.1);
+			} else {
+				waitForSeconds(pollingIntervalSeconds);
+			}
 			
 			passedTimeInSeconds = watch.time(TimeUnit.SECONDS);	
 		}while (!isFound && passedTimeInSeconds < time);
@@ -289,11 +299,13 @@ public class WaitHelper {
 		boolean isRemoved = false;
 		StopWatchHelper watch = StopWatchHelper.start();
 		long passedTimeInSeconds = 0;
+		double pollingIntervalSeconds = loopPollingIntervalSeconds();
 		do {
-			if(!Helper.isDisplayed(target))
-			isRemoved = true;
-			else
-				Helper.waitForSeconds(0.1);
+			if(!Helper.isDisplayed(target)) {
+				isRemoved = true;
+			} else {
+				waitForSeconds(pollingIntervalSeconds);
+			}
 			
 			passedTimeInSeconds = watch.time(TimeUnit.SECONDS);	
 		}while (!isRemoved && passedTimeInSeconds < time);
@@ -552,7 +564,19 @@ public class WaitHelper {
 			}
 			return false;
 		}
+
 		return true;
+	}
+
+	// the hand-rolled loops issue one or more remote isDisplayed round trips per
+	// iteration, so browser sessions keep their historic 100ms cadence rather than
+	// WebDriverWait's 5ms polling default
+	private static final int LOOP_POLLING_FLOOR_MILLISECONDS = 100;
+
+	private double loopPollingIntervalSeconds() {
+		int pollingMilliseconds = Math.max(LOOP_POLLING_FLOOR_MILLISECONDS,
+				WaitPollingPolicy.getPollingMilliseconds(AbstractDriver.getWebDriver()));
+		return pollingMilliseconds / 1000.0;
 	}
 	
 	public boolean waitForCondition2(ExpectedCondition<WebElement> condition2, EnhancedBy target, int time) {

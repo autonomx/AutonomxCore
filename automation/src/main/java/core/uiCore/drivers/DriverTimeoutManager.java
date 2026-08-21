@@ -7,6 +7,8 @@ import java.util.WeakHashMap;
 
 import org.openqa.selenium.WebDriver;
 
+import io.appium.java_client.AppiumDriver;
+
 /**
  * Tracks the last implicit wait applied to each driver so repeated assignments do
  * not become redundant remote WebDriver commands. The map uses weak keys so a
@@ -23,6 +25,25 @@ public final class DriverTimeoutManager {
 	private static final Map<WebDriver, Integer> TEMPORARY_DEPTH = Collections.synchronizedMap(new WeakHashMap<>());
 
 	private DriverTimeoutManager() {
+	}
+
+	/**
+	 * Appium element lookup is already driven by the framework's explicit polling.
+	 * Keeping an implicit wait on a mobile session makes every failed lookup block
+	 * inside the driver before the next poll can run.
+	 */
+	public static boolean isMobileDriver(WebDriver driver) {
+		return driver instanceof AppiumDriver;
+	}
+
+	/**
+	 * Configures the ambient implicit wait for a new session. Browser sessions keep
+	 * their caller-supplied value; Appium sessions are always pinned to zero.
+	 */
+	public static void configureImplicitWait(WebDriver driver, Duration browserTimeout) {
+		if (driver == null)
+			return;
+		setImplicitWait(driver, isMobileDriver(driver) ? Duration.ZERO : browserTimeout);
 	}
 
 	/**

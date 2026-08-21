@@ -85,6 +85,15 @@ public class Element {
 			String xpath = "//*[@text='" + element + "']";
 			return new EnhancedBy(platform).byAccessibility(element, name).byXpath(xpath, name);
 		}
+
+		/**
+		 * Accessibility id only, without byAccessibility's XPath text fallback.
+		 * XPath is the slowest locator strategy on native mobile sessions, so
+		 * elements known to expose an accessibility id should prefer this.
+		 */
+		public EnhancedBy byAccessibilityExact(String element, String name) {
+			return new EnhancedBy(platform).byAccessibility(element, name);
+		}
 	}
 
 	/** Locators used only when an Android driver is active. */
@@ -239,8 +248,16 @@ public class Element {
 	 * @return
 	 */
 	public static EnhancedBy byAccessibility(String element, String name) {
-
 		String xpath = "//*[@text='" + element + "']";
 		return new EnhancedBy().byAccessibility(element, name).byXpath(xpath, name);
+	}
+
+	/**
+	 * Accessibility id only, without byAccessibility's XPath text fallback.
+	 * XPath is the slowest locator strategy on native mobile sessions, so
+	 * elements known to expose an accessibility id should prefer this.
+	 */
+	public static EnhancedBy byAccessibilityExact(String element, String name) {
+		return new EnhancedBy().byAccessibility(element, name);
 	}
 }

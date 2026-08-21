@@ -34,6 +34,8 @@ public class IosCapability {
 
 	public static String IS_HYBRID_APP = "appium.isHybridApp";
 	public static String CHROME_VERSION = "appium.chromeVersion";
+	/** Optional property key for deep XCUITest hierarchies. */
+	public static String IOS_SNAPSHOT_MAX_DEPTH = "ios.capabilties.snapshotMaxDepth";
 
 	public List<String> simulatorList = new ArrayList<String>();
 
@@ -155,7 +157,19 @@ public class IosCapability {
 			capabilities.setCapability(AndroidCapability.CLOUD_OPTIONS_CAPABILITY, cloudOptions);
 		}
 
+		setPerformanceDefaults();
+
 		return capabilities;
+	}
+
+	/**
+	 * Keeps WDA startup eager and avoids collecting Appium logs unless a caller
+	 * explicitly opts back in. snapshotMaxDepth is intentionally not forced: deep
+	 * view hierarchies should choose a value appropriate to the application.
+	 */
+	private void setPerformanceDefaults() {
+		AndroidCapability.setDefaultCapability(capabilities, "appium:wdaEagerloadingEnabled", true);
+		AndroidCapability.setDefaultCapability(capabilities, "appium:skipLogCapture", true);
 	}
 
 	/**

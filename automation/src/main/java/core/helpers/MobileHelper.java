@@ -4,15 +4,20 @@ import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Point;
+import org.openqa.selenium.UnsupportedCommandException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import io.appium.java_client.Location;
 import org.openqa.selenium.remote.RemoteWebElement;
 
@@ -52,6 +57,16 @@ public class MobileHelper {
 	private static final String DISMISS_BY_KEY_PRESS = "ios.keyboard.dismissByKeyPress";
 	private static final String DISMISS_STRATEGY = "ios.keyboard.dismiss.Strategy";
 
+	// Device dimensions are stable for the lifetime of a driver session. Keep one
+	// value per session so gestures do not issue a window-size command repeatedly.
+	// Static: MobileHelper is instantiated by more than one Helper facade.
+	private static final Map<WebDriver, Dimension> screenSizes = Collections.synchronizedMap(new WeakHashMap<>());
+
+	// mobile: gesture scripts a session's server rejected as unsupported, so the
+	// failed probe is paid once per session instead of on every gesture
+	private static final Map<WebDriver, Set<String>> unsupportedGestureScripts = Collections
+			.synchronizedMap(new WeakHashMap<>());
+
 	public AppiumDriver getAppiumDriver() {
 		return ((AppiumDriver) AbstractDriver.getWebDriver());
 	}
@@ -62,6 +77,10 @@ public class MobileHelper {
 
 	public IOSDriver getiOSDriver() {
 		return ((IOSDriver) AbstractDriver.getWebDriver());
+	}
+
+	private Dimension getScreenSize() {
+		return screenSizes.computeIfAbsent(AbstractDriver.getWebDriver(), driver -> driver.manage().window().getSize());
 	}
 
 	/**
@@ -477,21 +496,23 @@ public class MobileHelper {
 	public void longPress(EnhancedBy target, long miliSeconds) {
 		try {
 			EnhancedWebElement targetElement = Element.findElements(target);
+			if (tryServerSideLongPress(targetElement.get(0), miliSeconds))
+				return;
 			TouchAction action = new TouchAction((PerformsTouchActions) getAppiumDriver());
 			action.longPress(LongPressOptions.longPressOptions()
 					.withElement(io.appium.java_client.touch.offset.ElementOption.element(targetElement.get(0)))
 					.withDuration(Duration.ofMillis(miliSeconds))).release().perform();
-			Thread.sleep(5000);
 		} catch (Exception e) {
 			e.getMessage();
 		}
 	}
 	public void longPress(int x, int y, long miliSeconds) {
 		try {
+			if (tryServerSideLongPress(x, y, miliSeconds))
+				return;
 			PointOption point = new PointOption().withCoordinates(x, y);
 			TouchAction action = new TouchAction((PerformsTouchActions) getAppiumDriver());
 			action.longPress(LongPressOptions.longPressOptions().withPosition(point).withDuration(Duration.ofMillis(miliSeconds))).release().perform();
-			Thread.sleep(5000);
 		} catch (Exception e) {
 			e.getMessage();
 		}
@@ -551,8 +572,9 @@ public class MobileHelper {
 	 * @param inOut
 	 */
 	public void mobile_zoom(String inOut) {
-		int screenHeight = getAppiumDriver().manage().window().getSize().getHeight();
-		int screenWidth = getAppiumDriver().manage().window().getSize().getWidth();
+		Dimension size = getScreenSize();
+		int screenHeight = size.getHeight();
+		int screenWidth = size.getWidth();
 
 		MultiTouchAction multiTouchAction = new MultiTouchAction((PerformsTouchActions) getAppiumDriver());
 		TouchAction touchAction0 = new TouchAction((PerformsTouchActions) getAppiumDriver());
@@ -579,23 +601,42 @@ public class MobileHelper {
 		Helper.wait.waitForSeconds(0.5);
 	}
 
+	/** Post-scroll settle time; set 0 to disable. Default 0.5s. */
+	public static final String SCROLL_SETTLE_TIME_SECONDS = "mobile.scroll.settleTimeSeconds";
+
 	/**
 	 * scrolls down android left side of display
 	 */
 	public void scrollDown() {
-		int pressX = AbstractDriver.getWebDriver().manage().window().getSize().width / 8;
-		int bottomY = AbstractDriver.getWebDriver().manage().window().getSize().height * 3 / 6;
-		int topY = AbstractDriver.getWebDriver().manage().window().getSize().height / 6;
+		Dimension size = getScreenSize();
+		int pressX = size.width / 8;
+		int bottomY = size.height * 3 / 6;
+		int topY = size.height / 6;
 		scroll(pressX, bottomY, pressX, topY);
-		Helper.wait.waitForSeconds(1);
+		scrollSettle();
 	}
 
 	public void scrollDownFromCenter() {
-		int pressX = AbstractDriver.getWebDriver().manage().window().getSize().width / 2;
-		int bottomY = AbstractDriver.getWebDriver().manage().window().getSize().height * 4 / 6;
-		int topY = AbstractDriver.getWebDriver().manage().window().getSize().height / 6;
+		Dimension size = getScreenSize();
+		int pressX = size.width / 2;
+		int bottomY = size.height * 4 / 6;
+		int topY = size.height / 6;
 		scroll(pressX, bottomY, pressX, topY);
-		Helper.wait.waitForSeconds(1);
+		scrollSettle();
+	}
+
+	/**
+	 * Brief settle so the next hierarchy query does not read a mid-animation UI.
+	 * Scroll-until-found loops (eg. mobileScroll, mobile_scrollToElement) check
+	 * existence right after each scroll, and with waitForIdleTimeout=0 the driver
+	 * no longer waits for idle itself. Shorter than the historic 1s.
+	 */
+	private void scrollSettle() {
+		double settleSeconds = Config.getDoubleValue(SCROLL_SETTLE_TIME_SECONDS);
+		if (settleSeconds < 0)
+			settleSeconds = 0.5;
+		if (settleSeconds > 0)
+			Helper.wait.waitForSeconds(settleSeconds);
 	}
 
 	/*
@@ -603,10 +644,106 @@ public class MobileHelper {
 	 * press the And toY where you release it
 	 */
 	public void scroll(int fromX, int fromY, int toX, int toY) {
+		if (tryServerSideSwipe(fromX, fromY, toX, toY, 0.5))
+			return;
+
 		TouchAction touchAction = new TouchAction((PerformsTouchActions) AbstractDriver.getWebDriver());
 		touchAction.longPress(LongPressOptions.longPressOptions().withPosition(PointOption.point(fromX, fromY)))
 				.moveTo(PointOption.point(toX, toY)).release().perform();
 
+	}
+
+	/**
+	 * Uses Appium's server-side gesture endpoints where available. They perform
+	 * the full gesture in one command and avoid the client-side TouchAction chain.
+	 * Returning false keeps older Appium/XCUITest versions on the compatible
+	 * TouchAction fallback.
+	 */
+	private boolean tryServerSideLongPress(WebElement element, long durationMillis) {
+		if (!(element instanceof RemoteWebElement))
+			return false;
+
+		Map<String, Object> args = new HashMap<>();
+		args.put("elementId", ((RemoteWebElement) element).getId());
+		return dispatchLongPress(args, durationMillis);
+	}
+
+	private boolean tryServerSideLongPress(int x, int y, long durationMillis) {
+		Map<String, Object> args = new HashMap<>();
+		args.put("x", x);
+		args.put("y", y);
+		return dispatchLongPress(args, durationMillis);
+	}
+
+	// platform dispatch lives once: Android takes milliseconds, iOS fractional seconds
+	private boolean dispatchLongPress(Map<String, Object> args, long durationMillis) {
+		if (isAndroid()) {
+			args.put("duration", durationMillis);
+			return executeMobileScript("mobile: longClickGesture", args);
+		}
+		if (isIOS()) {
+			args.put("duration", durationMillis / 1000.0);
+			return executeMobileScript("mobile: touchAndHold", args);
+		}
+		return false;
+	}
+
+	/**
+	 * Coordinate-exact server-side drag: the gesture starts and ends exactly where
+	 * the caller asked, so element-anchored swipes and edge-of-screen scrolls keep
+	 * their anchor (the direction-only swipe endpoints act on the screen center).
+	 */
+	private boolean tryServerSideSwipe(int fromX, int fromY, int toX, int toY, double durationSec) {
+		if (fromX == toX && fromY == toY)
+			return false;
+
+		if (isAndroid()) {
+			Map<String, Object> args = new HashMap<>();
+			args.put("startX", fromX);
+			args.put("startY", fromY);
+			args.put("endX", toX);
+			args.put("endY", toY);
+			return executeMobileScript("mobile: dragGesture", args);
+		}
+		if (isIOS()) {
+			Map<String, Object> args = new HashMap<>();
+			args.put("fromX", fromX);
+			args.put("fromY", fromY);
+			args.put("toX", toX);
+			args.put("toY", toY);
+			// duration is the initial press-and-hold; XCUITest needs >= 0.5s to
+			// recognize a drag rather than a tap
+			args.put("duration", Math.max(0.5, durationSec));
+			return executeMobileScript("mobile: dragFromToForDuration", args);
+		}
+		return false;
+	}
+
+	private boolean executeMobileScript(String script, Map<String, Object> args) {
+		WebDriver driver = AbstractDriver.getWebDriver();
+		Set<String> unsupported = unsupportedGestureScripts.computeIfAbsent(driver,
+				key -> Collections.synchronizedSet(new HashSet<>()));
+		if (unsupported.contains(script))
+			return false;
+		try {
+			((JavascriptExecutor) driver).executeScript(script, args);
+			return true;
+		} catch (UnsupportedCommandException e) {
+			unsupported.add(script);
+			return false;
+		} catch (RuntimeException e) {
+			// Appium reports a missing endpoint as a generic WebDriverException;
+			// anything else is a genuine gesture failure worth surfacing before the
+			// TouchAction fallback retries it
+			String message = e.getMessage() == null ? "" : e.getMessage().toLowerCase();
+			if (message.contains("unknown mobile command") || message.contains("not yet been implemented")
+					|| message.contains("unknown command") || message.contains("unsupported")) {
+				unsupported.add(script);
+			} else {
+				TestLog.ConsoleLog(script + " failed, falling back to TouchAction: " + e.getMessage());
+			}
+			return false;
+		}
 	}
 
 	/**
@@ -653,15 +790,17 @@ public class MobileHelper {
 		getAndroidDriver().pressKey(new KeyEvent(AndroidKey.BACK));
 	}
 	public void tapAtCenterLeft() {
-		int leftX = AbstractDriver.getWebDriver().manage().window().getSize().width / 8;
-		int centerY = AbstractDriver.getWebDriver().manage().window().getSize().height * 1 / 2;
+		Dimension size = getScreenSize();
+		int leftX = size.width / 8;
+		int centerY = size.height / 2;
 
 		TouchAction touchAction = new TouchAction((PerformsTouchActions) AbstractDriver.getWebDriver());
 		touchAction.tap(PointOption.point(leftX, centerY)).perform();
 	}
 	public void tapAtCenterRight() {
-		int leftX = (int) (AbstractDriver.getWebDriver().manage().window().getSize().width * 0.95);
-		int centerY = AbstractDriver.getWebDriver().manage().window().getSize().height * 1 / 2;
+		Dimension size = getScreenSize();
+		int leftX = (int) (size.width * 0.95);
+		int centerY = size.height / 2;
 
 		TouchAction touchAction = new TouchAction((PerformsTouchActions) AbstractDriver.getWebDriver());
 		touchAction.tap(PointOption.point(leftX, centerY)).perform();
@@ -703,7 +842,7 @@ public class MobileHelper {
 	 * @param durationSec
 	 */
 	private void swipe(EnhancedBy element, int index, DIRECTION direction, double durationSec) {
-		Dimension size = getAppiumDriver().manage().window().getSize();
+		Dimension size = getScreenSize();
 
 		int startX = 0;
 		int endX = 0;
@@ -712,52 +851,47 @@ public class MobileHelper {
 
 		switch (direction) {
 		case RIGHT:
-			startY = (int) (size.height / 2);
+			startY = size.height / 2;
 			startX = (int) (size.width * 0.90);
 			endX = (int) (size.width * 0.05);
-			Map<String, Integer> startPoint = setStarterPositionForSwipe(element, index, startX, startY);
-
-			new TouchAction((PerformsTouchActions) getAppiumDriver()).press(PointOption.point(startPoint.get("x"), startPoint.get("y")))
-					.waitAction(WaitOptions.waitOptions(Duration.ofSeconds((long) durationSec)))
-					.moveTo(PointOption.point(endX, startPoint.get("y"))).release().perform();
 			break;
 
 		case LEFT:
-			startY = (int) (size.height / 2);
+			startY = size.height / 2;
 			startX = (int) (size.width * 0.05);
 			endX = (int) (size.width * 0.90);
-			startPoint = setStarterPositionForSwipe(element, index, startX, startY);
-
-			new TouchAction((PerformsTouchActions) getAppiumDriver()).press(PointOption.point(startPoint.get("x"), startPoint.get("y")))
-					.waitAction(WaitOptions.waitOptions(Duration.ofSeconds((long) durationSec)))
-					.moveTo(PointOption.point(endX, startPoint.get("y"))).release().perform();
-
 			break;
 
 		case UP:
 			endY = (int) (size.height * 0.70);
 			startY = (int) (size.height * 0.30);
-			startX = (size.width / 2);
-			startPoint = setStarterPositionForSwipe(element, index, startX, startY);
-
-			new TouchAction((PerformsTouchActions) getAppiumDriver()).press(PointOption.point(startPoint.get("x"), startPoint.get("y")))
-					.waitAction(WaitOptions.waitOptions(Duration.ofSeconds((long) durationSec)))
-					.moveTo(PointOption.point(endX, startPoint.get("y"))).release().perform();
+			startX = size.width / 2;
 			break;
 
 		case DOWN:
 			startY = (int) (size.height * 0.70);
 			endY = (int) (size.height * 0.30);
-			startX = (size.width / 2);
-			startPoint = setStarterPositionForSwipe(element, index, startX, startY);
-
-			new TouchAction((PerformsTouchActions) getAppiumDriver()).press(PointOption.point(startPoint.get("x"), startPoint.get("y")))
-					.waitAction(WaitOptions.waitOptions(Duration.ofSeconds((long) durationSec)))
-					.moveTo(PointOption.point(startX, endY)).release().perform();
-
+			startX = size.width / 2;
 			break;
 
+		default:
+			return;
 		}
+
+		Map<String, Integer> startPoint = setStarterPositionForSwipe(element, index, startX, startY);
+		// horizontal swipes keep the anchor's y for the whole gesture; vertical
+		// swipes keep the computed x
+		boolean isHorizontal = direction == DIRECTION.LEFT || direction == DIRECTION.RIGHT;
+		int targetX = isHorizontal ? endX : startX;
+		int targetY = isHorizontal ? startPoint.get("y") : endY;
+
+		if (tryServerSideSwipe(startPoint.get("x"), startPoint.get("y"), targetX, targetY, durationSec))
+			return;
+
+		new TouchAction((PerformsTouchActions) getAppiumDriver())
+				.press(PointOption.point(startPoint.get("x"), startPoint.get("y")))
+				.waitAction(WaitOptions.waitOptions(Duration.ofSeconds((long) durationSec)))
+				.moveTo(PointOption.point(targetX, targetY)).release().perform();
 	}
 
 	/**

@@ -30,6 +30,7 @@ import core.uiCore.driverProperties.globalProperties.CrossPlatformProperties;
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.ios.IOSDriver;
+import io.appium.java_client.remote.SupportsContextSwitching;
 import io.appium.java_client.touch.offset.PointOption;
 
 @SuppressWarnings("deprecation")
@@ -216,7 +217,6 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 			int scrollCount = 5;
 			while (!isExist() && scrollCount > 0) {
 				Helper.scrollDown();
-				Helper.refreshMobileApp();
 				scrollCount--;
 			}
 		}
@@ -488,10 +488,16 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 			retry--;
 			try {
 				WebElement element = getElement(index);
-				value = element.getText();
-				if (value.isEmpty()) value = getAttribute("textContent", index);
-				if (value == null || value.isEmpty()) value = getAttribute("value", index);
-				if (value == null || value.isEmpty()) value = getAttribute("innerText", index);
+				value = StringUtils.defaultString(element.getText());
+				// DOM attribute fallbacks recover input values in browsers and mobile
+				// webview contexts; native UIA2/XCUITest elements do not expose them.
+				if (value.isEmpty() && isDomContext()) {
+					for (String attribute : new String[] { "textContent", "value", "innerText" }) {
+						value = StringUtils.defaultString(getAttribute(attribute, index));
+						if (!value.isEmpty())
+							break;
+					}
+				}
 				if (!value.isEmpty()) isSuccess = true;
 			} catch (Exception e) {
 				e.getMessage();
@@ -734,7 +740,7 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	private Duration setTemporaryTimeout(long time, TimeUnit unit) {
 		Duration previousTimeout = DriverTimeoutManager.getDesiredImplicitWait(webDriver,
 				Duration.ofSeconds(CrossPlatformProperties.getGlobalTimeoutImplicitWait()));
-		if (webDriver == null)
+		if (webDriver == null || DriverTimeoutManager.isMobileDriver(webDriver))
 			return previousTimeout;
 		try {
 			DriverTimeoutManager.enterTemporaryTimeout(webDriver, Duration.ofNanos(unit.toNanos(time)));
@@ -745,13 +751,35 @@ public class ImpEnhancedWebElement implements EnhancedWebElement {
 	}
 
 	private void restoreTimeout(Duration timeout) {
-		if (webDriver == null || timeout == null)
+		if (webDriver == null || timeout == null || DriverTimeoutManager.isMobileDriver(webDriver))
 			return;
 		// Record the restore first so nested temporary scopes can collapse into
 		// one restore, then apply it when the outermost scope has closed. A
 		// temporary timeout must not leak past the operation that requested it.
 		DriverTimeoutManager.deferRestore(webDriver, timeout);
 		DriverTimeoutManager.flushPendingRestore(webDriver);
+	}
+
+	private boolean isMobileDriver() {
+		return DriverTimeoutManager.isMobileDriver(webDriver);
+	}
+
+	/**
+	 * True when the element lives in a DOM: a browser session, or a mobile session
+	 * currently switched to a webview context. Only consulted after an empty
+	 * getText, so the context query is not paid on the common path.
+	 */
+	private boolean isDomContext() {
+		if (!isMobileDriver())
+			return true;
+		if (!(webDriver instanceof SupportsContextSwitching))
+			return false;
+		try {
+			String context = ((SupportsContextSwitching) webDriver).getContext();
+			return context != null && context.toUpperCase().contains("WEBVIEW");
+		} catch (RuntimeException e) {
+			return false;
+		}
 	}
 
 	@Override

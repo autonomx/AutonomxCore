@@ -260,13 +260,12 @@ public class AbstractDriverTestNG implements ITest {
 				retry--;
 				driver = new WebDriverSetup().getWebDriverByType(driverObject);
 
-				// set implicit Wait wait to be the minimum of our explicit wait
-				driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS));
-				// seed the timeout tracker so redundant timeout commands are skipped
-				DriverTimeoutManager.rememberImplicitWait(driver,
+				// Explicit polling owns lookup timing. Appium sessions must not add an
+				// implicit wait to every native find command.
+				DriverTimeoutManager.configureImplicitWait(driver,
 						Duration.ofSeconds(AbstractDriver.TIMEOUT_IMPLICIT_SECONDS));
 				
-				if(Helper.mobile.isWebDriver())
+				if (!DriverTimeoutManager.isMobileDriver(driver))
 					driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(AbstractDriver.TIMEOUT_SECONDS));
 
 			} catch (Exception e) {

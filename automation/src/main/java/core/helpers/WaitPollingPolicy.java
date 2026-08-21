@@ -5,14 +5,17 @@ import org.openqa.selenium.HasCapabilities;
 import org.openqa.selenium.WebDriver;
 
 import core.support.configReader.Config;
+import core.uiCore.drivers.DriverTimeoutManager;
 
 /**
  * Chooses explicit-wait polling intervals without slowing local/browser runs.
  *
- * <p>Defaults preserve the historic 5 ms cadence for non-cloud drivers, while
- * Appium sessions that advertise {@code mode=cloud} use 300 ms to avoid flooding
- * remote providers with commands. Both values are configurable through the normal
- * Core config map or matching JVM system properties.</p>
+ * <p>Defaults preserve the historic 5 ms cadence for browser drivers, while any
+ * Appium session (local or cloud) uses 300 ms to avoid flooding the device or
+ * remote provider with source/find commands. Non-AppiumDriver instances that
+ * advertise Appium capabilities (e.g. test doubles) are detected through the
+ * capability branch. Both values are configurable through the normal Core
+ * config map or matching JVM system properties.</p>
  */
 public final class WaitPollingPolicy {
 
@@ -38,6 +41,9 @@ public final class WaitPollingPolicy {
 	}
 
 	static boolean isRemoteAppium(WebDriver driver) {
+		if (DriverTimeoutManager.isMobileDriver(driver))
+			return true;
+
 		if (!(driver instanceof HasCapabilities))
 			return false;
 
