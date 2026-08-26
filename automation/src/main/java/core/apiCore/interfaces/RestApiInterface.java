@@ -497,6 +497,13 @@ public class RestApiInterface {
 	public static RequestSpecification evaluateRequestHeaders(ServiceObject serviceObject,
 			RequestSpecification request) {
 
+		// headers set via withHeader/withRequestHeaderMap are applied verbatim:
+		// no ';' splitting or parameter parsing, so values may contain any
+		// characters (eg. Cookie strings). values are not written to the log
+		if (!serviceObject.getRequestHeaderMap().isEmpty()) {
+			request = request.headers(serviceObject.getRequestHeaderMap());
+		}
+
 		// if no RequestHeaders specified
 		if (serviceObject.getRequestHeaders().isEmpty()) {
 			return request;
@@ -782,8 +789,12 @@ public class RestApiInterface {
 		request = evaluateRequestBody(serviceObject, request);
 
 		serviceObject.withRequest(request);
-		if(!serviceObject.getRequestBody().isEmpty())
-			TestLog.logPass("request body: " + Helper.stringRemoveLines(serviceObject.getRequestBody()));
+		if (!serviceObject.getRequestBody().isEmpty()) {
+			if (serviceObject.isMaskRequestBodyLog())
+				TestLog.logPass("request body: [masked]");
+			else
+				TestLog.logPass("request body: " + Helper.stringRemoveLines(serviceObject.getRequestBody()));
+		}
 		TestLog.logPass("request type: " + serviceObject.getMethod());
 
 		try {
@@ -820,7 +831,10 @@ public class RestApiInterface {
 
 		if (response != null) {
 			TestLog.logPass("response code: " + response.getStatusCode() + ". status: " + response.getStatusLine() );
-			TestLog.logPass("response message: " + ServiceObject.normalizeLog(response.getBody().asString()));
+			if (serviceObject.isMaskResponseBodyLog())
+				TestLog.logPass("response message: [masked]");
+			else
+				TestLog.logPass("response message: " + ServiceObject.normalizeLog(response.getBody().asString()));
 			serviceObject.withResponse(response.then().extract().response());
 		} else {
 			TestLog.logPass("response message: " + "null");

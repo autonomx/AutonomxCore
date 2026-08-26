@@ -2,6 +2,7 @@ package core.support.objects;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +40,9 @@ public class ServiceObject {
 	private RequestSpecification request = null; // rest api request
 	private List<String> errorMessages = new ArrayList<String>();
 	private Map<String, List<String>> headerMap = new HashMap<String, List<String>>();
+	private Map<String, String> requestHeaderMap = new LinkedHashMap<String, String>(); // headers applied verbatim, no string parsing
+	private boolean maskRequestBodyLog = false; // suppress request body in the report log (eg. credentials)
+	private boolean maskResponseBodyLog = false; // suppress response body in the report log (eg. tokens)
 
 	public ServiceObject setServiceObject(String TestSuite, String TestCaseID, String RunFlag, String Description,
 			String InterfaceType, String UriPath, String ContentType, String Method, String Option,
@@ -245,6 +249,47 @@ public class ServiceObject {
 
 	public String getRequestHeaders() {
 		return normalize(this.RequestHeaders);
+	}
+
+	/**
+	 * adds a request header applied verbatim (no string parsing). use for header
+	 * values the RequestHeaders string format cannot carry, eg. Cookie strings
+	 * containing ';' or values containing ':'. header values set this way are
+	 * never written to the report log.
+	 */
+	public ServiceObject withHeader(String name, String value) {
+		this.requestHeaderMap.put(name, value);
+		return this;
+	}
+
+	/** adds request headers applied verbatim (no string parsing). see withHeader */
+	public ServiceObject withRequestHeaderMap(Map<String, String> headers) {
+		this.requestHeaderMap.putAll(headers);
+		return this;
+	}
+
+	public Map<String, String> getRequestHeaderMap() {
+		return this.requestHeaderMap;
+	}
+
+	/** suppress the request body in the report log, eg. login credentials */
+	public ServiceObject withMaskRequestBodyLog(boolean mask) {
+		this.maskRequestBodyLog = mask;
+		return this;
+	}
+
+	public boolean isMaskRequestBodyLog() {
+		return this.maskRequestBodyLog;
+	}
+
+	/** suppress the response body in the report log, eg. token responses */
+	public ServiceObject withMaskResponseBodyLog(boolean mask) {
+		this.maskResponseBodyLog = mask;
+		return this;
+	}
+
+	public boolean isMaskResponseBodyLog() {
+		return this.maskResponseBodyLog;
 	}
 
 	public ServiceObject withTemplateFile(String TemplateFile) {
